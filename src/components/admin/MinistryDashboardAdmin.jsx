@@ -16,10 +16,12 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     addPhotoToAlbum
   } = useContext(GalleryContext);
 
-  const [activeTab, setActiveTab] = useState('profile');
+  const [activeTab, setActiveTab] = useState(ministryId === 'general' ? 'photos' : 'profile');
   
   // Ministry data
-  const min = ministries.find(m => m.id === ministryId);
+  const min = ministryId === 'general' 
+    ? { id: 'general', name: 'Iglesia General', accent_color: '#10b981' } 
+    : ministries.find(m => m.id === ministryId);
   const minActivities = activities.filter(a => a.ministry_id === ministryId);
   // We check if album has ministry_id, if not fallback to category to match older records
   const minAlbums = albums.filter(a => (a.ministry_id || a.category) === ministryId);
@@ -240,12 +242,16 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
 
       {/* Tabs */}
       <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
-        <button onClick={() => setActiveTab('profile')} className={`btn ${activeTab === 'profile' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'profile' ? 'transparent' : '', color: activeTab !== 'profile' ? 'var(--text-secondary)' : '' }}>
-          <User size={16} /> Perfil y Configuración
-        </button>
-        <button onClick={() => setActiveTab('activities')} className={`btn ${activeTab === 'activities' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'activities' ? 'transparent' : '', color: activeTab !== 'activities' ? 'var(--text-secondary)' : '' }}>
-          <Calendar size={16} /> Actividades ({minActivities.length})
-        </button>
+        {ministryId !== 'general' && (
+          <button onClick={() => setActiveTab('profile')} className={`btn ${activeTab === 'profile' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'profile' ? 'transparent' : '', color: activeTab !== 'profile' ? 'var(--text-secondary)' : '' }}>
+            <User size={16} /> Perfil y Configuración
+          </button>
+        )}
+        {ministryId !== 'general' && (
+          <button onClick={() => setActiveTab('activities')} className={`btn ${activeTab === 'activities' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'activities' ? 'transparent' : '', color: activeTab !== 'activities' ? 'var(--text-secondary)' : '' }}>
+            <Calendar size={16} /> Actividades ({minActivities.length})
+          </button>
+        )}
         <button onClick={() => setActiveTab('photos')} className={`btn ${activeTab === 'photos' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'photos' ? 'transparent' : '', color: activeTab !== 'photos' ? 'var(--text-secondary)' : '' }}>
           <ImageIcon size={16} /> Galería ({minAlbums.length})
         </button>

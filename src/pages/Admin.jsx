@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash2, Edit } from 'lucide-react';
+import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash2, Edit, Settings, Image } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
 import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
@@ -279,7 +279,12 @@ export default function Admin() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace Embed</label><input type="text" value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} style={inputStyle} /></div>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>
-                  <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--accent-color)' }}>Marca General de la Iglesia</h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent-color)' }}>Marca General de la Iglesia</h3>
+                    <button type="button" onClick={() => setActiveMinistryId('general')} className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
+                      <Image size={14} style={{ marginRight: '0.35rem' }} /> Galería General
+                    </button>
+                  </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Nombre / Siglas (ej: IMR4)</label>
                     <input type="text" value={churchName} onChange={(e) => setChurchName(e.target.value)} style={inputStyle} />
