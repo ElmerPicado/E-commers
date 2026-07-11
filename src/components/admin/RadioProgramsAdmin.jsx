@@ -1,5 +1,5 @@
 import React, { useState, useContext, useRef } from 'react';
-import { supabase } from '../../utils/supabaseClient';
+import { supabase } from '../../supabaseClient';
 import { GalleryContext } from '../../context/GalleryContext';
 import { UploadCloud, Trash2, Edit2, CheckCircle, Radio } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';

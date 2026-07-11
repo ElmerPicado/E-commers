@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
 import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash2, Edit } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
-import HomeSectionAdmin from '../components/admin/HomeSectionAdmin';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
 import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
 
