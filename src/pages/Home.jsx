@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell } from 'lucide-react';
+import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
 
 // Icon mapper for dynamic ministry icons
@@ -249,6 +249,34 @@ export default function Home() {
             <p style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem auto', lineHeight: '1.6' }}>
               {sec.subtitle}
             </p>
+
+            {sec.schedules && sec.schedules.length > 0 && (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                gap: '1rem',
+                margin: '0 auto 2.5rem auto',
+                maxWidth: '800px',
+                textAlign: 'left'
+              }}>
+                {sec.schedules.map((sched, idx) => (
+                  <div key={idx} className="glass-card" style={{ padding: '1.25rem', background: 'rgba(18, 18, 22, 0.55)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <Calendar size={16} style={{ color: 'var(--accent-color)' }} />
+                      <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{sched.day}</span>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+                      <Clock size={16} style={{ color: 'var(--text-muted)' }} />
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{sched.time}</span>
+                    </div>
+                    {sched.desc && (
+                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>{sched.desc}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
             {sec.button_text && (
               <Link to={sec.button_url} className="btn btn-primary">
                 {sec.button_text}
@@ -275,12 +303,17 @@ export default function Home() {
           }} className="grid-cols-2">
             {ministries.map((min) => (
               <div key={min.id} className="glass-card" style={{
+                position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
                 padding: '2rem',
                 borderLeft: `4px solid ${min.accent_color}`,
-                background: 'rgba(18, 18, 22, 0.65)'
+                background: min.hero_image 
+                  ? `linear-gradient(rgba(18, 18, 22, 0.75), rgba(18, 18, 22, 0.95)), url(${min.hero_image})`
+                  : 'rgba(18, 18, 22, 0.65)',
+                backgroundSize: 'cover',
+                backgroundPosition: 'center'
               }}>
                 <div>
                   <div style={{

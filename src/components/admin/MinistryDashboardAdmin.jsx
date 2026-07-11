@@ -31,6 +31,11 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [minHeroDesc, setMinHeroDesc] = useState(min?.hero_desc || '');
   const [minColor, setMinColor] = useState(min?.accent_color || '#3b82f6');
   const [minLogoUrl, setMinLogoUrl] = useState(min?.logo_url || '');
+  const [minLogoFile, setMinLogoFile] = useState(null);
+  const [isMinLogoUploading, setIsMinLogoUploading] = useState(false);
+  const [minHeroImageUrl, setMinHeroImageUrl] = useState(min?.hero_image || '');
+  const [minHeroImageFile, setMinHeroImageFile] = useState(null);
+  const [isMinHeroUploading, setIsMinHeroUploading] = useState(false);
   const [minSchedule, setMinSchedule] = useState(min?.schedule || '');
   const [minLocation, setMinLocation] = useState(min?.location || '');
   const [minLocationUrl, setMinLocationUrl] = useState(min?.location_url || '');
@@ -64,13 +69,56 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   // Handlers
   const handleSaveProfile = async (e) => {
     e.preventDefault();
+    let finalLogoUrl = minLogoUrl;
+
+    if (minLogoFile && isSupabaseConfigured) {
+      setIsMinLogoUploading(true);
+      try {
+        const fileExt = minLogoFile.name.split('.').pop();
+        const fileName = `minlogo_${Date.now()}.${fileExt}`;
+        const filePath = `logos/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, minLogoFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        finalLogoUrl = publicUrl;
+      } catch (err) {
+        console.error('Error uploading logo:', err);
+        alert('Error al subir el logo del ministerio.');
+        setIsMinLogoUploading(false);
+        return;
+      }
+      setIsMinLogoUploading(false);
+    }
+
+    let finalHeroImageUrl = minHeroImageUrl;
+
+    if (minHeroImageFile && isSupabaseConfigured) {
+      setIsMinHeroUploading(true);
+      try {
+        const fileExt = minHeroImageFile.name.split('.').pop();
+        const fileName = `minhero_${Date.now()}.${fileExt}`;
+        const filePath = `banners/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, minHeroImageFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        finalHeroImageUrl = publicUrl;
+      } catch (err) {
+        console.error('Error uploading hero image:', err);
+        alert('Error al subir la portada del ministerio.');
+        setIsMinHeroUploading(false);
+        return;
+      }
+      setIsMinHeroUploading(false);
+    }
+
     const updates = {
       name: minName,
       description: minDesc,
       hero_title: minHeroTitle,
       hero_desc: minHeroDesc,
       accent_color: minColor,
-      logo_url: minLogoUrl,
+      logo_url: finalLogoUrl,
+      hero_image: finalHeroImageUrl,
       schedule: minSchedule,
       location: minLocation,
       location_url: minLocationUrl,
@@ -84,6 +132,10 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       ]
     };
     await updateMinistry(ministryId, updates);
+    setMinLogoUrl(finalLogoUrl);
+    setMinLogoFile(null);
+    setMinHeroImageUrl(finalHeroImageUrl);
+    setMinHeroImageFile(null);
     triggerSuccess('Perfil del ministerio actualizado.');
   };
 
@@ -214,8 +266,13 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                <input type="color" value={minColor} onChange={(e) => setMinColor(e.target.value)} style={{ ...inputStyle, padding: '0.2rem', height: '38px', cursor: 'pointer' }} />
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo del Ministerio (URL)</label>
-               <input type="text" placeholder="https://..." value={minLogoUrl} onChange={(e) => setMinLogoUrl(e.target.value)} style={inputStyle} />
+               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo del Ministerio (Subir o URL)</label>
+               {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setMinLogoFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="https://..." value={minLogoUrl} onChange={(e) => setMinLogoUrl(e.target.value)} style={inputStyle} />}
+               {(minLogoUrl || minLogoFile) && (
+                 <div style={{ marginTop: '0.5rem', width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#000' }}>
+                   <img src={minLogoFile ? URL.createObjectURL(minLogoFile) : minLogoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                 </div>
+               )}
              </div>
            </div>
 
@@ -233,6 +290,16 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción Larga (Sub-sitio)</label>
                <textarea value={minHeroDesc} onChange={(e) => setMinHeroDesc(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} />
              </div>
+           </div>
+
+           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
+             <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Foto de Portada del Ministerio (Fondo)</label>
+             {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setMinHeroImageFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL..." value={minHeroImageUrl} onChange={(e) => setMinHeroImageUrl(e.target.value)} style={inputStyle} />}
+             {(minHeroImageUrl || minHeroImageFile) && (
+               <div style={{ marginTop: '0.5rem', width: '100%', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
+                 <img src={minHeroImageFile ? URL.createObjectURL(minHeroImageFile) : minHeroImageUrl} alt="Hero Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+               </div>
+             )}
            </div>
 
            {/* Core Pillars */}
@@ -283,8 +350,8 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
              </div>
            </div>
 
-           <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }}>
-             <Save size={16} /> Guardar Perfil del Ministerio
+           <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isMinLogoUploading || isMinHeroUploading}>
+             {(isMinLogoUploading || isMinHeroUploading) ? 'Subiendo...' : <><Save size={16} /> Guardar Perfil del Ministerio</>}
            </button>
         </form>
       )}

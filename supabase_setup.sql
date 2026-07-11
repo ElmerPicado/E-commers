@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS home_sections (
   bg_image TEXT NOT NULL,
   button_text TEXT,
   button_url TEXT,
+  schedules JSONB NOT NULL DEFAULT '[]'::jsonb,
   order_index INTEGER NOT NULL
 );
 
@@ -84,9 +85,9 @@ INSERT INTO streaming_config (
 ON CONFLICT (id) DO NOTHING;
 
 -- B. Banners de Inicio (Estilo PAS.cr)
-INSERT INTO home_sections (id, title, subtitle, bg_image, button_text, button_url, order_index) VALUES
-('hero', 'Iglesia Metodista Río Cuarto', 'Un espacio de gracia, fe y esperanza en Río Cuarto.', 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=80', 'Ver Culto en Vivo', '/live', 1),
-('horarios_banner', 'Nuestros Horarios de Culto', 'Te invitamos a participar de nuestras reuniones generales los domingos por la mañana y la tarde.', 'https://images.unsplash.com/photo-1438029071396-1e831a7fa6d8?w=1600&q=80', 'Ver Horarios de Reunión', '/live', 2)
+INSERT INTO home_sections (id, title, subtitle, bg_image, button_text, button_url, schedules, order_index) VALUES
+('hero', 'Iglesia Metodista Río Cuarto', 'Un espacio de gracia, fe y esperanza en Río Cuarto.', 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=80', 'Ver Culto en Vivo', '/live', '[]'::jsonb, 1),
+('horarios_banner', 'Nuestros Horarios de Culto', 'Acompáñanos en nuestros horarios generales.', 'https://images.unsplash.com/photo-1438029071396-1e831a7fa6d8?w=1600&q=80', 'Ver en vivo', '/live', '[{"day": "Domingo", "time": "10:00 AM", "desc": "Culto de Adoración"}, {"day": "Domingo", "time": "18:00 PM", "desc": "Culto de Jóvenes"}]'::jsonb, 2)
 ON CONFLICT (id) DO NOTHING;
 
 -- C. Ministerios por Defecto
@@ -148,6 +149,7 @@ CREATE POLICY "Escritura pública activities" ON activities FOR ALL USING (true)
 -- Añadiendo columnas solicitadas
 -- ==========================================================
 ALTER TABLE ministries ADD COLUMN IF NOT EXISTS logo_url TEXT;
+ALTER TABLE ministries ADD COLUMN IF NOT EXISTS hero_image TEXT;
 ALTER TABLE ministries ADD COLUMN IF NOT EXISTS instagram_url TEXT;
 ALTER TABLE albums ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_logo_url TEXT;

@@ -34,6 +34,8 @@ export default function Admin() {
   const [liveUrl, setLiveUrl] = useState(livestream.videoUrl);
   const [isLive, setIsLive] = useState(livestream.isLive);
   const [churchLogo, setChurchLogo] = useState(livestream.churchLogo || '');
+  const [churchLogoFile, setChurchLogoFile] = useState(null);
+  const [isStreamingUploading, setIsStreamingUploading] = useState(false);
   const [facebookUrl, setFacebookUrl] = useState(livestream.facebookUrl || '');
   const [instagramUrl, setInstagramUrl] = useState(livestream.instagramUrl || '');
   const [churchAddress, setChurchAddress] = useState(livestream.churchAddress || 'Río Cuarto, Córdoba, Argentina');
@@ -52,6 +54,7 @@ export default function Admin() {
   const [sectionBgFile, setSectionBgFile] = useState(null);
   const [sectionBgUrlText, setSectionBgUrlText] = useState('');
   const [sectionOrder, setSectionOrder] = useState(1);
+  const [sectionSchedules, setSectionSchedules] = useState([]);
   const [isSectionUploading, setIsSectionUploading] = useState(false);
 
   const loadSectionData = (secId) => {
@@ -64,6 +67,7 @@ export default function Admin() {
       setSectionBtnUrl(sec.button_url || '');
       setSectionBgUrlText(sec.bg_image);
       setSectionOrder(sec.order_index || 1);
+      setSectionSchedules(sec.schedules || []);
       setSectionBgFile(null);
     }
   };
@@ -81,18 +85,44 @@ export default function Admin() {
   const [newMinColor, setNewMinColor] = useState('#3b82f6');
 
   // SUBMITS
-  const handleUpdateStreaming = (e) => {
+  const handleUpdateStreaming = async (e) => {
     e.preventDefault();
+    
+    let logoUrl = churchLogo;
+    
+    if (churchLogoFile && isSupabaseConfigured) {
+      setIsStreamingUploading(true);
+      try {
+        const fileExt = churchLogoFile.name.split('.').pop();
+        const fileName = `logo_${Date.now()}.${fileExt}`;
+        const filePath = `logos/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, churchLogoFile);
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        logoUrl = publicUrl;
+      } catch (err) {
+        console.error('Error uploading logo:', err);
+        alert('Error al subir el logo.');
+        setIsStreamingUploading(false);
+        return;
+      }
+      setIsStreamingUploading(false);
+    }
+
     updateLivestream({ 
       title: liveTitle, 
       videoUrl: liveUrl, 
       isLive: isLive, 
-      churchLogo: churchLogo, 
+      churchLogo: logoUrl, 
       facebookUrl: facebookUrl, 
       instagramUrl: instagramUrl,
       churchAddress: churchAddress,
       churchMapsUrl: churchMapsUrl
     });
+    setChurchLogo(logoUrl);
+    setChurchLogoFile(null);
     updateRadio({ title: radioTitle, audioUrl: radioUrl, isLive: isRadioLive });
     triggerSuccess('Configuración de transmisiones guardada.');
   };
@@ -128,7 +158,8 @@ export default function Admin() {
       button_text: sectionBtnText,
       button_url: sectionBtnUrl,
       bg_image: bgUrl,
-      order_index: parseInt(sectionOrder, 10)
+      order_index: parseInt(sectionOrder, 10),
+      schedules: sectionSchedules
     };
 
     if (secAction === 'create') {
@@ -244,7 +275,15 @@ export default function Admin() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título</label><input type="text" value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace Embed</label><input type="text" value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} style={inputStyle} /></div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo Global de IMR4 (URL)</label><input type="text" placeholder="https://..." value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
+                  <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>Logo Global de IMR4</span>
+                  {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setChurchLogoFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} />}
+                  {(churchLogo || churchLogoFile) && (
+                    <div style={{ marginTop: '0.5rem', width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                      <img src={churchLogoFile ? URL.createObjectURL(churchLogoFile) : churchLogo} alt="Logo Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Facebook Iglesia (URL)</label><input type="text" placeholder="https://facebook.com/..." value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Instagram Iglesia (URL)</label><input type="text" placeholder="https://instagram.com/..." value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} style={inputStyle} /></div>
                 
@@ -263,7 +302,9 @@ export default function Admin() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><input type="checkbox" id="isRadioLive" checked={isRadioLive} onChange={(e) => setIsRadioLive(e.target.checked)} style={{ width: '16px', height: '16px' }} /><label htmlFor="isRadioLive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>En Vivo Activo</label></div>
               </div>
             </div>
-            <button onClick={handleUpdateStreaming} className="btn btn-primary" style={{ gridColumn: 'span 2' }}><Save size={16} /> Guardar Transmisiones</button>
+                <button type="button" onClick={handleUpdateStreaming} className="btn btn-primary" disabled={isStreamingUploading}>
+                  {isStreamingUploading ? 'Subiendo...' : <><Save size={16} /> Guardar Cambios</>}
+                </button>
 
             {/* Parrilla de Programación */}
             <div style={{ gridColumn: 'span 2' }}>
@@ -283,7 +324,7 @@ export default function Admin() {
                 <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Operación:</span>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
                   <input type="radio" checked={secAction === 'create'} onChange={() => {
-                    setSecAction('create'); setSectionTitle(''); setSectionSubtitle(''); setSectionBtnText(''); setSectionBtnUrl(''); setSectionBgUrlText(''); setSectionOrder(homeSections.length + 1); setSectionBgFile(null);
+                    setSecAction('create'); setSectionTitle(''); setSectionSubtitle(''); setSectionBtnText(''); setSectionBtnUrl(''); setSectionBgUrlText(''); setSectionOrder(homeSections.length + 1); setSectionSchedules([]); setSectionBgFile(null);
                   }} /> Crear Nuevo Banner
                 </label>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
@@ -310,7 +351,7 @@ export default function Admin() {
                               loadSectionData(remaining[0].id);
                             } else {
                               setSecAction('create');
-                              setSectionTitle(''); setSectionSubtitle(''); setSectionBtnText(''); setSectionBtnUrl(''); setSectionBgUrlText(''); setSectionBgFile(null);
+                              setSectionTitle(''); setSectionSubtitle(''); setSectionBtnText(''); setSectionBtnUrl(''); setSectionBgUrlText(''); setSectionSchedules([]); setSectionBgFile(null);
                             }
                           } 
                         }} className="btn btn-danger" style={{ marginTop: '0.5rem' }}><Trash2 size={14}/> Eliminar Banner</button>
@@ -336,6 +377,19 @@ export default function Admin() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>Imagen de Fondo</span>
                     {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setSectionBgFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={sectionBgUrlText} onChange={(e) => setSectionBgUrlText(e.target.value)} style={inputStyle} />}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>
+                    <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem' }}>Horarios (Opcional)</h4>
+                    {sectionSchedules.map((sched, idx) => (
+                      <div key={idx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <input type="text" placeholder="Día" value={sched.day} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].day = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, flex: 1 }} />
+                        <input type="text" placeholder="Hora" value={sched.time} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].time = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, flex: 1 }} />
+                        <input type="text" placeholder="Descripción" value={sched.desc} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].desc = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, flex: 2 }} />
+                        <button type="button" onClick={() => setSectionSchedules(sectionSchedules.filter((_, i) => i !== idx))} className="btn btn-danger" style={{ padding: '0.5rem' }}><Trash2 size={14} /></button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => setSectionSchedules([...sectionSchedules, { day: '', time: '', desc: '' }])} className="btn btn-secondary" style={{ alignSelf: 'flex-start', fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}><Plus size={14} /> Añadir Horario</button>
                   </div>
                 </div>
               </div>

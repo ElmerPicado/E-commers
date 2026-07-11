@@ -350,10 +350,13 @@ export const GalleryProvider = ({ children }) => {
       }
 
       // 3. Home Sections
-      const { data: dbHome } = await supabase.from('home_sections').select('*').order('order_index', { ascending: true });
-      if (dbHome && dbHome.length > 0) setHomeSections(dbHome);
-
-      // 4. Ministries
+        const { data: homeSectionsData, error: hsError } = await supabase.from('home_sections').select('*').order('order_index');
+        if (!hsError && homeSectionsData) {
+          setHomeSections(homeSectionsData.map(sec => ({
+            ...sec,
+            schedules: typeof sec.schedules === 'string' ? JSON.parse(sec.schedules) : (sec.schedules || [])
+          })));
+        }// 4. Ministries
       const { data: dbMin } = await supabase.from('ministries').select('*');
       if (dbMin && dbMin.length > 0) setMinistries(dbMin);
 
@@ -501,22 +504,11 @@ export const GalleryProvider = ({ children }) => {
 
   const updateHomeSection = async (id, updates) => {
     if (isSupabaseConfigured) {
-      await supabase.from('home_sections').update({
-        title: updates.title,
-        subtitle: updates.subtitle,
-        bg_image: updates.bg_image,
-        button_text: updates.button_text,
-        button_url: updates.button_url,
-        order_index: updates.order_index
-      }).eq('id', id);
-      setHomeSections((prev) =>
-        prev.map((sec) => (sec.id === id ? { ...sec, ...updates } : sec)).sort((a,b) => a.order_index - b.order_index)
-      );
-    } else {
-      setHomeSections((prev) =>
-        prev.map((sec) => (sec.id === id ? { ...sec, ...updates } : sec)).sort((a,b) => a.order_index - b.order_index)
-      );
+      const dbUpdates = { ...updates };
+      // if schedules is provided, stringify or leave it if passing directly as jsonb (supabase js supports object)
+      await supabase.from('home_sections').update(dbUpdates).eq('id', id);
     }
+    setHomeSections(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
   };
 
   // Ministries methods
