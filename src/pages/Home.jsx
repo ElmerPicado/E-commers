@@ -252,26 +252,30 @@ export default function Home() {
 
             {sec.schedules && sec.schedules.length > 0 && (
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '1.5rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '1rem',
                 margin: '0 auto 2.5rem auto',
-                maxWidth: '1000px',
+                maxWidth: '800px',
                 textAlign: 'left'
               }}>
                 {sec.schedules.map((sched, idx) => (
-                  <div key={idx} className="glass-card" style={{ padding: '1.5rem', background: 'rgba(10, 10, 14, 0.85)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                      <Calendar size={20} style={{ color: 'var(--accent-color)' }} />
-                      <span style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff' }}>{sched.day}</span>
+                  <div key={idx} className="glass-card" style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    padding: '1.5rem', 
+                    background: 'rgba(10, 10, 14, 0.85)', 
+                    border: '1px solid rgba(255,255,255,0.08)',
+                    borderRadius: '0.5rem'
+                  }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                      <span style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff' }}>{sched.desc || sched.day}</span>
+                      {sched.desc && <span style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>{sched.day}</span>}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-                      <Clock size={18} style={{ color: 'var(--text-muted)' }} />
-                      <span style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', fontWeight: 600 }}>{sched.time}</span>
+                    <div style={{ color: 'var(--accent-color)', fontWeight: 700, fontSize: '1.05rem', whiteSpace: 'nowrap', paddingLeft: '1.5rem' }}>
+                      {sched.time}
                     </div>
-                    {sched.desc && (
-                      <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>{sched.desc}</p>
-                    )}
                   </div>
                 ))}
               </div>
