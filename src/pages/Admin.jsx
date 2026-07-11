@@ -358,11 +358,6 @@ export default function Admin() {
                       )}
                     </div>
                   )}
-                  {sectionBgUrlText && (
-                    <div style={{ marginTop: '1rem', border: '1px solid var(--border-color)', borderRadius: '0.35rem', overflow: 'hidden', height: '140px' }}>
-                      <img src={sectionBgUrlText} alt="Fondo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                  )}
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -377,6 +372,11 @@ export default function Admin() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>Imagen de Fondo</span>
                     {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setSectionBgFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={sectionBgUrlText} onChange={(e) => setSectionBgUrlText(e.target.value)} style={inputStyle} />}
+                    {(sectionBgUrlText || sectionBgFile) && (
+                      <div style={{ marginTop: '0.5rem', border: '1px solid var(--border-color)', borderRadius: '0.35rem', overflow: 'hidden', height: '140px' }}>
+                        <img src={sectionBgFile ? URL.createObjectURL(sectionBgFile) : sectionBgUrlText} alt="Fondo Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    )}
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>

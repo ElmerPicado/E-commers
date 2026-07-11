@@ -453,6 +453,15 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                   <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>Archivo(s) Local(es)</label>
                   <input type="file" accept="image/*" multiple onChange={handleFileChange} style={{ fontSize: '0.8rem' }} />
+                  {selectedFiles.length > 0 && (
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                      {Array.from(selectedFiles).map((file, idx) => (
+                        <div key={idx} style={{ width: '60px', height: '60px', borderRadius: '0.25rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                          <img src={URL.createObjectURL(file)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
               
