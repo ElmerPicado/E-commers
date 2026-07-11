@@ -33,6 +33,7 @@ export default function Admin() {
   const [liveTitle, setLiveTitle] = useState(livestream.title);
   const [liveUrl, setLiveUrl] = useState(livestream.videoUrl);
   const [isLive, setIsLive] = useState(livestream.isLive);
+  const [churchName, setChurchName] = useState(livestream.churchName || 'IMR4');
   const [churchLogo, setChurchLogo] = useState(livestream.churchLogo || '');
   const [churchLogoFile, setChurchLogoFile] = useState(null);
   const [isStreamingUploading, setIsStreamingUploading] = useState(false);
@@ -114,7 +115,8 @@ export default function Admin() {
     updateLivestream({ 
       title: liveTitle, 
       videoUrl: liveUrl, 
-      isLive: isLive, 
+      isLive: isLive,
+      churchName: churchName,
       churchLogo: logoUrl, 
       facebookUrl: facebookUrl, 
       instagramUrl: instagramUrl,
@@ -124,7 +126,7 @@ export default function Admin() {
     setChurchLogo(logoUrl);
     setChurchLogoFile(null);
     updateRadio({ title: radioTitle, audioUrl: radioUrl, isLive: isRadioLive });
-    triggerSuccess('Configuración de transmisiones guardada.');
+    triggerSuccess('Configuración general guardada.');
   };
 
   const handleSaveSection = async (e) => {
@@ -247,7 +249,7 @@ export default function Admin() {
         {/* Global Tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', gap: '0.5rem', flexWrap: 'wrap' }}>
           {[
-            { id: 'streaming', label: 'Transmisiones', icon: <Tv size={16} /> },
+            { id: 'streaming', label: 'Config. General', icon: <Settings size={16} /> },
             { id: 'home_sections', label: 'Banners de Inicio', icon: <Layers size={16} /> },
             { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> }
           ].map((tab) => (
@@ -275,15 +277,24 @@ export default function Admin() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título</label><input type="text" value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace Embed</label><input type="text" value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} style={inputStyle} /></div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
-                  <span style={{ fontSize: '0.8rem', fontWeight: 700 }}>Logo Global de IMR4</span>
-                  {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setChurchLogoFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} />}
-                  {(churchLogo || churchLogoFile) && (
-                    <div style={{ marginTop: '0.5rem', width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                      <img src={churchLogoFile ? URL.createObjectURL(churchLogoFile) : churchLogo} alt="Logo Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                  )}
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>
+                  <h3 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.25rem', color: 'var(--accent-color)' }}>Marca General de la Iglesia</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Nombre / Siglas (ej: IMR4)</label>
+                    <input type="text" value={churchName} onChange={(e) => setChurchName(e.target.value)} style={inputStyle} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo Global (Opcional)</span>
+                    {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setChurchLogoFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} />}
+                    {(churchLogo || churchLogoFile) && (
+                      <div style={{ marginTop: '0.5rem', width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                        <img src={churchLogoFile ? URL.createObjectURL(churchLogoFile) : churchLogo} alt="Logo Preview" style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'rgba(255,255,255,0.1)' }} />
+                      </div>
+                    )}
+                  </div>
                 </div>
+
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Facebook Iglesia (URL)</label><input type="text" placeholder="https://facebook.com/..." value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Instagram Iglesia (URL)</label><input type="text" placeholder="https://instagram.com/..." value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} style={inputStyle} /></div>
                 

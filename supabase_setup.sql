@@ -178,6 +178,7 @@ CREATE POLICY "Escritura pública radio_programs" ON radio_programs FOR ALL USIN
 -- ==========================================================
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_address TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_maps_url TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_name TEXT DEFAULT 'IMR4';
 ALTER TABLE ministries ADD COLUMN IF NOT EXISTS location_url TEXT;
 ALTER TABLE activities ADD COLUMN IF NOT EXISTS location_url TEXT;
 

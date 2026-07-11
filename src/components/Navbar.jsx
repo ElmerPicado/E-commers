@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles } from 'lucide-react';
+import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles, Home } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
 
 // Icon mapper for Navbar
@@ -57,7 +57,7 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               {livestream.churchLogo ? (
-                <img src={livestream.churchLogo} alt="IMR4 Logo" style={{ height: '32px', objectFit: 'contain' }} />
+                <img src={livestream.churchLogo} alt="Church Logo" style={{ height: '32px', objectFit: 'contain' }} />
               ) : (
                 <span style={{
                   fontFamily: 'var(--font-display)',
@@ -68,7 +68,7 @@ export default function Navbar() {
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent'
                 }}>
-                  IMR4
+                  {livestream.churchName || 'IMR4'}
                 </span>
               )}
           </Link>
@@ -126,6 +126,19 @@ export default function Navbar() {
 
         {/* Global Navigation Links */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+          <Link to="/" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            color: isActive('/') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            transition: 'color 0.2s'
+          }}>
+            <Home size={15} />
+            Inicio
+          </Link>
+
           <Link to="/galeria" style={{
             display: 'flex',
             alignItems: 'center',

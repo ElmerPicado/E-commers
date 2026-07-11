@@ -50,7 +50,7 @@ export default function Footer() {
             fontFamily: 'var(--font-display)',
             fontWeight: 800
           }}>
-            Iglesia Metodista Río Cuarto
+            {livestream.churchName || 'Iglesia Metodista Río Cuarto'}
           </h3>
           <p style={{
             fontSize: '0.85rem',
