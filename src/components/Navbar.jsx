@@ -56,21 +56,22 @@ export default function Navbar() {
         {/* Brand logo & title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              {livestream.churchLogo ? (
-                <img src={livestream.churchLogo} alt="Church Logo" style={{ height: '32px', objectFit: 'contain' }} />
-              ) : (
-                <span style={{
-                  fontFamily: 'var(--font-display)',
-                  fontWeight: 800,
-                  fontSize: '1.4rem',
-                  letterSpacing: '-0.03em',
-                  background: 'linear-gradient(135deg, #ffffff 40%, var(--accent-color) 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}>
-                  {livestream.churchName || 'IMR4'}
-                </span>
+              {livestream.churchLogo && (
+                <img src={livestream.churchLogo} alt="Church Logo" style={{ height: '44px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
               )}
+              <span style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 800,
+                fontSize: '1.5rem',
+                letterSpacing: '-0.03em',
+                background: 'linear-gradient(135deg, #ffffff 40%, var(--accent-color) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                textShadow: '0 2px 10px rgba(0,0,0,0.5)',
+                marginLeft: livestream.churchLogo ? '0.25rem' : '0'
+              }}>
+                {livestream.churchName || 'IMR4'}
+              </span>
           </Link>
 
           {activeMin && (
