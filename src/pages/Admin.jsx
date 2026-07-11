@@ -19,6 +19,7 @@ export default function Admin() {
     updateHomeSection,
     addMinistry,
     deleteMinistry,
+    updateMinistry,
     addActivity,
     deleteActivity
   } = useContext(GalleryContext);
@@ -75,7 +76,10 @@ export default function Admin() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [homeSections]);
 
-  // 3. New Ministry state
+  // 3. Ministry state & actions
+  const [minAction, setMinAction] = useState('create'); // 'create' | 'edit'
+  const [selectedMinIdToEdit, setSelectedMinIdToEdit] = useState('');
+  
   const [newMinId, setNewMinId] = useState('');
   const [newMinName, setNewMinName] = useState('');
   const [newMinDesc, setNewMinDesc] = useState('');
@@ -95,6 +99,32 @@ export default function Admin() {
   const [pillar2Desc, setPillar2Desc] = useState('');
   const [pillar3Title, setPillar3Title] = useState('');
   const [pillar3Desc, setPillar3Desc] = useState('');
+
+  const loadMinistryDataToForm = (minId) => {
+    const min = ministries.find(m => m.id === minId);
+    if (min) {
+      setSelectedMinIdToEdit(minId);
+      setNewMinId(min.id);
+      setNewMinName(min.name);
+      setNewMinDesc(min.description);
+      setNewMinHeroTitle(min.hero_title);
+      setNewMinHeroDesc(min.hero_desc);
+      setNewMinColor(min.accent_color);
+      setNewMinIcon(min.icon_name);
+      setNewMinSchedule(min.schedule);
+      setNewMinLocation(min.location);
+      setNewMinEmail(min.contact_email);
+      setNewMinLink(min.contact_link);
+      if (min.pillars && min.pillars.length >= 3) {
+        setPillar1Title(min.pillars[0].title);
+        setPillar1Desc(min.pillars[0].desc);
+        setPillar2Title(min.pillars[1].title);
+        setPillar2Desc(min.pillars[1].desc);
+        setPillar3Title(min.pillars[2].title);
+        setPillar3Desc(min.pillars[2].desc);
+      }
+    }
+  };
 
   // 4. New Activity state
   const [actTitle, setActTitle] = useState('');
@@ -166,7 +196,7 @@ export default function Admin() {
     triggerSuccess('Sección de página de inicio actualizada con éxito.');
   };
 
-  const handleCreateMinistry = (e) => {
+  const handleSaveMinistry = async (e) => {
     e.preventDefault();
     if (!newMinId.trim() || !newMinName.trim()) return;
 
@@ -177,7 +207,7 @@ export default function Admin() {
       { icon: 'Sparkles', title: pillar3Title || 'Actividades', desc: pillar3Desc || 'Espacio dinámico' }
     ];
 
-    addMinistry({
+    const ministryData = {
       id: newMinId.trim().toLowerCase().replace(/[^a-z0-9]/g, ''),
       name: newMinName.trim(),
       description: newMinDesc.trim(),
@@ -190,7 +220,15 @@ export default function Admin() {
       location: newMinLocation.trim() || 'Salón Principal',
       contact_email: newMinEmail.trim() || 'contacto@imr4.org',
       contact_link: newMinLink.trim() || 'https://wa.me/#'
-    });
+    };
+
+    if (minAction === 'edit') {
+      await updateMinistry(selectedMinIdToEdit, ministryData);
+      triggerSuccess(`Cambios del ministerio "${newMinName}" guardados con éxito.`);
+    } else {
+      await addMinistry(ministryData);
+      triggerSuccess(`Ministerio "${newMinName}" creado con éxito.`);
+    }
 
     // Reset fields
     setNewMinId('');
@@ -205,8 +243,8 @@ export default function Admin() {
     setPillar1Title(''); setPillar1Desc('');
     setPillar2Title(''); setPillar2Desc('');
     setPillar3Title(''); setPillar3Desc('');
-
-    triggerSuccess('Ministerio creado con éxito. Ya puedes verlo en el menú y grillas.');
+    setSelectedMinIdToEdit('');
+    setMinAction('create');
   };
 
   const handleCreateActivity = (e) => {
@@ -518,18 +556,84 @@ export default function Admin() {
         {activeTab === 'ministries' && (
           <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             
-            {/* Form to create ministry */}
+            {/* Form to create/edit ministry */}
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
                 <Plus size={20} style={{ color: 'var(--accent-color)' }} />
-                Crear / Agregar Nuevo Ministerio (Ej: Danza Nissi)
+                {minAction === 'edit' ? 'Editar Contenido de Ministerio Existente' : 'Crear / Agregar Nuevo Ministerio'}
               </h2>
 
-              <form onSubmit={handleCreateMinistry} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Operación:</span>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="minAction"
+                    value="create"
+                    checked={minAction === 'create'}
+                    onChange={() => {
+                      setMinAction('create');
+                      setNewMinId('');
+                      setNewMinName('');
+                      setNewMinDesc('');
+                      setNewMinHeroTitle('');
+                      setNewMinHeroDesc('');
+                      setNewMinSchedule('');
+                      setNewMinLocation('');
+                      setNewMinEmail('');
+                      setNewMinLink('');
+                      setPillar1Title(''); setPillar1Desc('');
+                      setPillar2Title(''); setPillar2Desc('');
+                      setPillar3Title(''); setPillar3Desc('');
+                      setSelectedMinIdToEdit('');
+                    }}
+                  />
+                  Crear Nuevo
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="minAction"
+                    value="edit"
+                    checked={minAction === 'edit'}
+                    onChange={() => setMinAction('edit')}
+                  />
+                  Editar Existente
+                </label>
+              </div>
+
+              {minAction === 'edit' && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', marginBottom: '0.5rem' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>
+                    Selecciona el Ministerio a Modificar
+                  </label>
+                  <select
+                    value={selectedMinIdToEdit}
+                    onChange={(e) => loadMinistryDataToForm(e.target.value)}
+                    style={selectStyle}
+                    required
+                  >
+                    <option value="" disabled>-- Elige un ministerio --</option>
+                    {ministries.map((m) => (
+                      <option key={m.id} value={m.id}>{m.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              <form onSubmit={handleSaveMinistry} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr 1fr', gap: '1rem' }} className="grid-cols-2">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Slug Único (Minúsculas/ID)</label>
-                    <input type="text" placeholder="ej: nissi" value={newMinId} onChange={(e) => setNewMinId(e.target.value)} style={inputStyle} required />
+                    <input
+                      type="text"
+                      placeholder="ej: nissi"
+                      value={newMinId}
+                      onChange={(e) => setNewMinId(e.target.value)}
+                      style={inputStyle}
+                      disabled={minAction === 'edit'}
+                      required
+                    />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Nombre del Ministerio</label>
@@ -609,7 +713,7 @@ export default function Admin() {
                 </div>
 
                 <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }}>
-                  <Plus size={16} /> Crear Ministerio
+                  <Save size={16} /> {minAction === 'edit' ? 'Guardar Cambios del Ministerio' : 'Crear Ministerio'}
                 </button>
               </form>
             </div>

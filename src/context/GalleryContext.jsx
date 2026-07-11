@@ -77,12 +77,12 @@ const DEFAULT_HOME_SECTIONS = [
     order_index: 1
   },
   {
-    id: 'unanimes_banner',
-    title: 'Red Juvenil Unánimes',
-    subtitle: 'Unidos en un mismo sentir y pasión por Dios.',
-    bg_image: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1600&q=80',
-    button_text: 'Ir a Jóvenes',
-    button_url: '/ministerio/unanimes',
+    id: 'horarios_banner',
+    title: 'Nuestros Horarios de Culto',
+    subtitle: 'Te invitamos a participar de nuestras reuniones generales los domingos por la mañana y la tarde.',
+    bg_image: 'https://images.unsplash.com/photo-1438029071396-1e831a7fa6d8?w=1600&q=80',
+    button_text: 'Ver Horarios de Reunión',
+    button_url: '/live',
     order_index: 2
   }
 ];
@@ -453,6 +453,16 @@ export const GalleryProvider = ({ children }) => {
     }
   };
 
+  const updateMinistry = async (id, updates) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('ministries').update(updates).eq('id', id);
+    } else {
+      setMinistries((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
+      );
+    }
+  };
+
   // Activities methods
   const addActivity = async (activity) => {
     if (isSupabaseConfigured) {
@@ -494,6 +504,7 @@ export const GalleryProvider = ({ children }) => {
         updateHomeSection,
         addMinistry,
         deleteMinistry,
+        updateMinistry,
         addActivity,
         deleteActivity,
         addChatMessage

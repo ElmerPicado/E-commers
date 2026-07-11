@@ -1,7 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { GalleryContext } from '../context/GalleryContext';
 
 export default function Footer() {
+  const { ministries } = useContext(GalleryContext);
+
   return (
     <footer style={{
       background: 'var(--bg-surface)',
@@ -52,26 +55,13 @@ export default function Footer() {
             Ministerios
           </h4>
           <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.5rem', fontSize: '0.85rem' }}>
-            <li>
-              <Link to="/unanimes" style={{ color: 'var(--text-secondary)', hover: 'color: var(--accent-color)', transition: 'color 0.2s' }}>
-                Red Juvenil Unánimes
-              </Link>
-            </li>
-            <li>
-              <Link to="/mujeres" style={{ color: 'var(--text-secondary)', hover: 'color: var(--accent-color)', transition: 'color 0.2s' }}>
-                Ministerio de Mujeres
-              </Link>
-            </li>
-            <li>
-              <Link to="/hombres" style={{ color: 'var(--text-secondary)', hover: 'color: var(--accent-color)', transition: 'color 0.2s' }}>
-                Ministerio de Hombres
-              </Link>
-            </li>
-            <li>
-              <Link to="/ninos" style={{ color: 'var(--text-secondary)', hover: 'color: var(--accent-color)', transition: 'color 0.2s' }}>
-                IMR4 Niños
-              </Link>
-            </li>
+            {ministries.map((m) => (
+              <li key={m.id}>
+                <Link to={`/ministerio/${m.id}`} style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }}>
+                  {m.name}
+                </Link>
+              </li>
+            ))}
           </ul>
         </div>
 

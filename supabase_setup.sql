@@ -85,7 +85,7 @@ ON CONFLICT (id) DO NOTHING;
 -- B. Banners de Inicio (Estilo PAS.cr)
 INSERT INTO home_sections (id, title, subtitle, bg_image, button_text, button_url, order_index) VALUES
 ('hero', 'Iglesia Metodista Río Cuarto', 'Un espacio de gracia, fe y esperanza en Río Cuarto.', 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=1600&q=80', 'Ver Culto en Vivo', '/live', 1),
-('unanimes_banner', 'Red Juvenil Unánimes', 'Unidos en un mismo sentir y pasión por Dios.', 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1600&q=80', 'Ir a Jóvenes', '/ministerio/unanimes', 2)
+('horarios_banner', 'Nuestros Horarios de Culto', 'Te invitamos a participar de nuestras reuniones generales los domingos por la mañana y la tarde.', 'https://images.unsplash.com/photo-1438029071396-1e831a7fa6d8?w=1600&q=80', 'Ver Horarios de Reunión', '/live', 2)
 ON CONFLICT (id) DO NOTHING;
 
 -- C. Ministerios por Defecto
