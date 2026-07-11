@@ -3,6 +3,120 @@ import { useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
 import { ImageIcon, Calendar, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
+const AlbumCard = ({ album, onClick, getCategoryLabel }) => {
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [displayPhotos, setDisplayPhotos] = useState([]);
+
+  useEffect(() => {
+    if (album.photos && album.photos.length > 0) {
+      // Pick up to 3 random photos for the slideshow, ensuring there's variety
+      const shuffled = [...album.photos].sort(() => 0.5 - Math.random());
+      setDisplayPhotos(shuffled.slice(0, 3));
+    }
+  }, [album.photos]);
+
+  useEffect(() => {
+    let interval;
+    if (displayPhotos.length > 1) {
+      // Start slightly staggered so they don't all flip at the exact same moment
+      const timeout = setTimeout(() => {
+        interval = setInterval(() => {
+          setCurrentIdx(prev => (prev + 1) % displayPhotos.length);
+        }, 3000 + Math.random() * 1000);
+      }, Math.random() * 2000);
+      
+      return () => {
+        clearTimeout(timeout);
+        clearInterval(interval);
+      }
+    }
+  }, [displayPhotos]);
+
+  return (
+    <div
+      onClick={onClick}
+      className="glass-card"
+      style={{
+        padding: '0',
+        overflow: 'hidden',
+        cursor: 'pointer',
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%'
+      }}
+    >
+      <div style={{ height: '180px', width: '100%', overflow: 'hidden', position: 'relative', background: '#000' }}>
+        {displayPhotos.length > 0 ? (
+          <img
+            src={displayPhotos[currentIdx]}
+            alt={album.title}
+            style={{ 
+              width: '100%', 
+              height: '100%', 
+              objectFit: 'cover', 
+              transition: 'opacity 0.8s ease-in-out, transform 0.5s ease-out' 
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+          />
+        ) : (
+          <div style={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'var(--text-muted)'
+          }}>
+            <ImageIcon size={36} />
+          </div>
+        )}
+        <span style={{
+          position: 'absolute',
+          top: '0.75rem',
+          left: '0.75rem',
+          background: 'rgba(0,0,0,0.8)',
+          border: '1px solid var(--border-color)',
+          padding: '0.2rem 0.5rem',
+          borderRadius: '0.25rem',
+          fontSize: '0.65rem',
+          fontWeight: 700,
+          textTransform: 'uppercase',
+          color: 'var(--accent-color)'
+        }}>
+          {getCategoryLabel(album.category)}
+        </span>
+        <span style={{
+          position: 'absolute',
+          bottom: '0.75rem',
+          right: '0.75rem',
+          background: 'rgba(0,0,0,0.7)',
+          padding: '0.2rem 0.5rem',
+          borderRadius: '0.25rem',
+          fontSize: '0.7rem',
+          fontWeight: 700
+        }}>
+          {album.photos?.length || 0} Fotos
+        </span>
+      </div>
+
+      <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.35rem' }}>
+          <Calendar size={10} /> {album.date}
+        </span>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', flexGrow: 1 }}>
+          {album.title}
+        </h3>
+        {album.description && (
+          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+            {album.description}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+};
+
 export default function Galeria() {
   const { albums } = useContext(GalleryContext);
   const location = useLocation();
@@ -209,90 +323,12 @@ export default function Galeria() {
                 gap: '1.5rem'
               }}>
                 {filteredAlbums.map((album) => (
-                  <div
-                    key={album.id}
-                    onClick={() => setActiveAlbum(album)}
-                    className="glass-card"
-                    style={{
-                      padding: '0',
-                      overflow: 'hidden',
-                      cursor: 'pointer',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      height: '100%'
-                    }}
-                  >
-                    <div style={{ height: '180px', width: '100%', overflow: 'hidden', position: 'relative', background: '#000' }}>
-                      {album.photos && album.photos.length > 0 ? (
-                        <img
-                          src={album.photos[0]}
-                          alt={album.title}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s' }}
-                          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                        />
-                      ) : (
-                        <div style={{
-                          width: '100%',
-                          height: '100%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: 'var(--text-muted)'
-                        }}>
-                          <ImageIcon size={36} />
-                        </div>
-                      )}
-                      <span style={{
-                        position: 'absolute',
-                        top: '0.75rem',
-                        left: '0.75rem',
-                        background: 'rgba(0,0,0,0.8)',
-                        border: '1px solid var(--border-color)',
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.65rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        color: 'var(--accent-color)'
-                      }}>
-                        {getCategoryLabel(album.category)}
-                      </span>
-                      <span style={{
-                        position: 'absolute',
-                        bottom: '0.75rem',
-                        right: '0.75rem',
-                        background: 'rgba(0,0,0,0.7)',
-                        padding: '0.2rem 0.5rem',
-                        borderRadius: '0.25rem',
-                        fontSize: '0.7rem',
-                        fontWeight: 700
-                      }}>
-                        {album.photos?.length || 0} Fotos
-                      </span>
-                    </div>
-
-                    <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-                      <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.35rem' }}>
-                        <Calendar size={10} /> {album.date}
-                      </span>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', flexGrow: 1 }}>
-                        {album.title}
-                      </h3>
-                      <span style={{
-                        alignSelf: 'flex-start',
-                        fontSize: '0.8rem',
-                        fontWeight: 600,
-                        color: 'var(--accent-color)',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.25rem',
-                        marginTop: '0.5rem'
-                      }}>
-                        Ver álbum &rarr;
-                      </span>
-                    </div>
-                  </div>
+                  <AlbumCard 
+                    key={album.id} 
+                    album={album} 
+                    onClick={() => setActiveAlbum(album)} 
+                    getCategoryLabel={getCategoryLabel} 
+                  />
                 ))}
               </div>
             ) : (
