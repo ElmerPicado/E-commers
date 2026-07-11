@@ -200,10 +200,31 @@ export default function Home() {
             }} onClick={() => alert('Información de Ofrendas: CBU Metodista Río Cuarto 0110438220043820128374 (simulado)')}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                 <Heart size={20} style={{ color: 'var(--accent-color)' }} />
-                <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Ofrendar Online</span>
+                <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Diezmos y Ofrendas</span>
               </div>
               <ChevronRight size={16} style={{ color: 'var(--text-muted)' }} />
             </div>
+
+            {livestream?.churchMapsUrl && (
+              <a href={livestream.churchMapsUrl} target="_blank" rel="noopener noreferrer" className="glass-card" style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '1.25rem 1.5rem',
+                background: 'rgba(var(--accent-color-rgb), 0.15)',
+                border: '1px solid rgba(var(--accent-color-rgb), 0.3)',
+                color: 'var(--text-primary)'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <MapPin size={20} style={{ color: 'var(--accent-color)' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Visítanos</span>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{livestream.churchAddress || 'Ver mapa de ubicación'}</span>
+                  </div>
+                </div>
+                <ChevronRight size={16} style={{ color: 'var(--text-muted)' }} />
+              </a>
+            )}
           </div>
         </div>
       </section>

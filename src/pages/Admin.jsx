@@ -2,7 +2,9 @@ import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
 import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash2, Edit } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
+import HomeSectionAdmin from '../components/admin/HomeSectionAdmin';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
+import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
 
 export default function Admin() {
   const {
@@ -35,6 +37,8 @@ export default function Admin() {
   const [churchLogo, setChurchLogo] = useState(livestream.churchLogo || '');
   const [facebookUrl, setFacebookUrl] = useState(livestream.facebookUrl || '');
   const [instagramUrl, setInstagramUrl] = useState(livestream.instagramUrl || '');
+  const [churchAddress, setChurchAddress] = useState(livestream.churchAddress || 'Río Cuarto, Córdoba, Argentina');
+  const [churchMapsUrl, setChurchMapsUrl] = useState(livestream.churchMapsUrl || '');
   const [radioTitle, setRadioTitle] = useState(radio.title);
   const [radioUrl, setRadioUrl] = useState(radio.audioUrl);
   const [isRadioLive, setIsRadioLive] = useState(radio.isLive);
@@ -80,7 +84,16 @@ export default function Admin() {
   // SUBMITS
   const handleUpdateStreaming = (e) => {
     e.preventDefault();
-    updateLivestream({ title: liveTitle, videoUrl: liveUrl, isLive: isLive, churchLogo: churchLogo, facebookUrl: facebookUrl, instagramUrl: instagramUrl });
+    updateLivestream({ 
+      title: liveTitle, 
+      videoUrl: liveUrl, 
+      isLive: isLive, 
+      churchLogo: churchLogo, 
+      facebookUrl: facebookUrl, 
+      instagramUrl: instagramUrl,
+      churchAddress: churchAddress,
+      churchMapsUrl: churchMapsUrl
+    });
     updateRadio({ title: radioTitle, audioUrl: radioUrl, isLive: isRadioLive });
     triggerSuccess('Configuración de transmisiones guardada.');
   };
@@ -235,6 +248,10 @@ export default function Admin() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo Global de IMR4 (URL)</label><input type="text" placeholder="https://..." value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Facebook Iglesia (URL)</label><input type="text" placeholder="https://facebook.com/..." value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Instagram Iglesia (URL)</label><input type="text" placeholder="https://instagram.com/..." value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} style={inputStyle} /></div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dirección Física (Texto)</label><input type="text" placeholder="Río Cuarto..." value={churchAddress} onChange={(e) => setChurchAddress(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Google Maps Iglesia (URL)</label><input type="text" placeholder="https://maps.app.goo.gl/..." value={churchMapsUrl} onChange={(e) => setChurchMapsUrl(e.target.value)} style={inputStyle} /></div>
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><input type="checkbox" id="isLive" checked={isLive} onChange={(e) => setIsLive(e.target.checked)} style={{ width: '16px', height: '16px' }} /><label htmlFor="isLive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>En Vivo Activo</label></div>
               </div>
             </div>
@@ -248,6 +265,11 @@ export default function Admin() {
               </div>
             </div>
             <button onClick={handleUpdateStreaming} className="btn btn-primary" style={{ gridColumn: 'span 2' }}><Save size={16} /> Guardar Transmisiones</button>
+
+            {/* Parrilla de Programación */}
+            <div style={{ gridColumn: 'span 2' }}>
+              <RadioProgramsAdmin />
+            </div>
           </div>
         )}
 
@@ -358,6 +380,7 @@ export default function Admin() {
               </div>
             </div>
             
+            <RadioProgramsAdmin />
           </div>
         )}
 

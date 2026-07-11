@@ -55,6 +55,8 @@ const DEFAULT_LIVESTREAM = {
   churchLogo: '',
   facebookUrl: '',
   instagramUrl: '',
+  churchAddress: 'Río Cuarto, Córdoba, Argentina',
+  churchMapsUrl: '',
   chatMessages: [
     { id: 1, user: 'Carlos M.', text: '¡Bendiciones a toda la iglesia!' },
     { id: 2, user: 'María P.', text: 'Hola a todos desde Río Cuarto.' },
@@ -160,8 +162,30 @@ const DEFAULT_MINISTRIES = [
     ],
     schedule: 'Domingos 10:00 hs',
     location: 'Aulas Infantiles',
+    location_url: '',
     contact_email: 'ninos@imr4.org',
     contact_link: 'https://wa.me/4'
+  }
+];
+
+const DEFAULT_RADIO_PROGRAMS = [
+  {
+    id: 'rp-1',
+    title: 'Despertar con Propósito',
+    host: 'Pastor Mario',
+    schedule_time: 'Lunes a Viernes 08:00 AM',
+    image_url: 'https://images.unsplash.com/photo-1593697821252-0c9137d9fc45?w=800&q=80',
+    description: 'Comienza tu día con una palabra de aliento y esperanza.',
+    is_active: true
+  },
+  {
+    id: 'rp-2',
+    title: 'Juventud sin Filtro',
+    host: 'Red Juvenil Unánimes',
+    schedule_time: 'Sábados 05:00 PM',
+    image_url: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&q=80',
+    description: 'Música, debates y entrevistas para los jóvenes de hoy.',
+    is_active: true
   }
 ];
 
@@ -245,6 +269,14 @@ export const GalleryProvider = ({ children }) => {
     return DEFAULT_ACTIVITIES;
   });
 
+  const [radioPrograms, setRadioPrograms] = useState(() => {
+    if (!isSupabaseConfigured) {
+      const saved = localStorage.getItem('imr4_radio_programs');
+      return saved ? JSON.parse(saved) : DEFAULT_RADIO_PROGRAMS;
+    }
+    return DEFAULT_RADIO_PROGRAMS;
+  });
+
   // Local storage backups syncing
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -282,6 +314,12 @@ export const GalleryProvider = ({ children }) => {
     }
   }, [activities]);
 
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem('imr4_radio_programs', JSON.stringify(radioPrograms));
+    }
+  }, [radioPrograms]);
+
   // Fetch Supabase data function
   const fetchSupabaseData = async () => {
     try {
@@ -299,7 +337,9 @@ export const GalleryProvider = ({ children }) => {
           isLive: streamConfig.is_live,
           churchLogo: streamConfig.church_logo_url || '',
           facebookUrl: streamConfig.facebook_url || '',
-          instagramUrl: streamConfig.instagram_url || ''
+          instagramUrl: streamConfig.instagram_url || '',
+          churchAddress: streamConfig.church_address || 'Río Cuarto, Córdoba, Argentina',
+          churchMapsUrl: streamConfig.church_maps_url || ''
         }));
         setRadio(prev => ({
           ...prev,
@@ -320,6 +360,10 @@ export const GalleryProvider = ({ children }) => {
       // 5. Activities
       const { data: dbAct } = await supabase.from('activities').select('*').order('date', { ascending: true });
       if (dbAct) setActivities(dbAct);
+
+      // 6. Radio Programs
+      const { data: dbRadioProg } = await supabase.from('radio_programs').select('*').order('created_at', { ascending: true });
+      if (dbRadioProg && dbRadioProg.length > 0) setRadioPrograms(dbRadioProg);
     } catch (e) {
       console.error('Error fetching data from Supabase:', e);
     }
@@ -341,7 +385,9 @@ export const GalleryProvider = ({ children }) => {
             isLive: updated.is_live,
             churchLogo: updated.church_logo_url || '',
             facebookUrl: updated.facebook_url || '',
-            instagramUrl: updated.instagram_url || ''
+            instagramUrl: updated.instagram_url || '',
+            churchAddress: updated.church_address || 'Río Cuarto, Córdoba, Argentina',
+            churchMapsUrl: updated.church_maps_url || ''
           }));
           setRadio(prev => ({
             ...prev,
@@ -358,6 +404,7 @@ export const GalleryProvider = ({ children }) => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'home_sections' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'ministries' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'activities' }, () => fetchSupabaseData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'radio_programs' }, () => fetchSupabaseData())
         .subscribe();
 
       return () => {
@@ -412,7 +459,9 @@ export const GalleryProvider = ({ children }) => {
         is_live: updates.isLive,
         church_logo_url: updates.churchLogo,
         facebook_url: updates.facebookUrl,
-        instagram_url: updates.instagramUrl
+        instagram_url: updates.instagramUrl,
+        church_address: updates.churchAddress,
+        church_maps_url: updates.churchMapsUrl
       }).eq('id', 'main');
     } else {
       setLivestream((prev) => ({ ...prev, ...updates }));
@@ -519,10 +568,38 @@ export const GalleryProvider = ({ children }) => {
     }
   };
 
-  const addChatMessage = (message) => {
+  // Radio Programs methods
+  const addRadioProgram = async (program) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('radio_programs').insert(program);
+      setRadioPrograms((prev) => [...prev, program]);
+    } else {
+      setRadioPrograms((prev) => [...prev, program]);
+    }
+  };
+
+  const updateRadioProgram = async (id, updates) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('radio_programs').update(updates).eq('id', id);
+      setRadioPrograms((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+    } else {
+      setRadioPrograms((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)));
+    }
+  };
+
+  const deleteRadioProgram = async (id) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('radio_programs').delete().eq('id', id);
+      setRadioPrograms((prev) => prev.filter((p) => p.id !== id));
+    } else {
+      setRadioPrograms((prev) => prev.filter((p) => p.id !== id));
+    }
+  };
+
+  const addChatMessage = (msg) => {
     setLivestream((prev) => ({
       ...prev,
-      chatMessages: [...prev.chatMessages, { id: Date.now(), ...message }]
+      chatMessages: [...prev.chatMessages, { id: Date.now(), ...msg }]
     }));
   };
 
@@ -535,6 +612,7 @@ export const GalleryProvider = ({ children }) => {
         homeSections,
         ministries,
         activities,
+        radioPrograms,
         addAlbum,
         deleteAlbum,
         addPhotoToAlbum,
@@ -548,6 +626,9 @@ export const GalleryProvider = ({ children }) => {
         updateMinistry,
         addActivity,
         deleteActivity,
+        addRadioProgram,
+        updateRadioProgram,
+        deleteRadioProgram,
         addChatMessage
       }}
     >

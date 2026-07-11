@@ -33,6 +33,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [minLogoUrl, setMinLogoUrl] = useState(min?.logo_url || '');
   const [minSchedule, setMinSchedule] = useState(min?.schedule || '');
   const [minLocation, setMinLocation] = useState(min?.location || '');
+  const [minLocationUrl, setMinLocationUrl] = useState(min?.location_url || '');
   const [minEmail, setMinEmail] = useState(min?.contact_email || '');
   const [minLink, setMinLink] = useState(min?.contact_link || '');
   const [minInstagram, setMinInstagram] = useState(min?.instagram_url || '');
@@ -49,6 +50,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [actDate, setActDate] = useState(new Date().toISOString().split('T')[0]);
   const [actTime, setActTime] = useState('20:00');
   const [actDesc, setActDesc] = useState('');
+  const [actLocationUrl, setActLocationUrl] = useState('');
 
   // Gallery Form State
   const [newAlbumTitle, setNewAlbumTitle] = useState('');
@@ -71,6 +73,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       logo_url: minLogoUrl,
       schedule: minSchedule,
       location: minLocation,
+      location_url: minLocationUrl,
       contact_email: minEmail,
       contact_link: minLink,
       instagram_url: minInstagram,
@@ -92,12 +95,14 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       date: actDate,
       time: actTime,
       description: actDesc,
+      location_url: actLocationUrl,
       image_url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80', // default
       ministry_id: ministryId
     };
     await addActivity(newAct);
     setActTitle('');
     setActDesc('');
+    setActLocationUrl('');
     triggerSuccess('Actividad creada para este ministerio.');
   };
 
@@ -252,19 +257,22 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
              </div>
            </div>
 
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '1rem' }}>
+           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Horario Corto</label>
                <input type="text" value={minSchedule} onChange={(e) => setMinSchedule(e.target.value)} style={inputStyle} />
              </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Lugar</label>
-               <input type="text" value={minLocation} onChange={(e) => setMinLocation(e.target.value)} style={inputStyle} />
+             <div style={{ display: 'flex', gap: '1rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Lugar de Reunión</label><input type="text" value={minLocation} onChange={(e) => setMinLocation(e.target.value)} style={inputStyle} /></div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Link Google Maps</label><input type="text" placeholder="https://maps.app.goo.gl/..." value={minLocationUrl} onChange={(e) => setMinLocationUrl(e.target.value)} style={inputStyle} /></div>
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email</label>
                <input type="email" value={minEmail} onChange={(e) => setMinEmail(e.target.value)} style={inputStyle} />
              </div>
+           </div>
+           
+           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>WhatsApp Link</label>
                <input type="text" value={minLink} onChange={(e) => setMinLink(e.target.value)} style={inputStyle} />
@@ -300,6 +308,10 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Hora</label>
                 <input type="time" value={actTime} onChange={(e) => setActTime(e.target.value)} style={inputStyle} required />
               </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Link de Google Maps (Lugar del evento)</label>
+              <input type="text" placeholder="https://maps.app.goo.gl/..." value={actLocationUrl} onChange={(e) => setActLocationUrl(e.target.value)} style={inputStyle} />
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción</label>

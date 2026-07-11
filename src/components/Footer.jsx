@@ -1,10 +1,30 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { Facebook, Instagram } from 'lucide-react';
+
+const FacebookIcon = ({ size = 24, color = "currentColor" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path>
+  </svg>
+);
+
+const InstagramIcon = ({ size = 24, color = "currentColor" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
+const MapPinIcon = ({ size = 24, color = "currentColor" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+    <circle cx="12" cy="10" r="3"></circle>
+  </svg>
+);
 
 export default function Footer() {
-  const { ministries } = useContext(GalleryContext);
+  const { ministries, livestream } = useContext(GalleryContext);
 
   return (
     <footer style={{
@@ -109,22 +129,30 @@ export default function Footer() {
           }}>
             Contacto
           </h4>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
-            Dirección: Río Cuarto, Córdoba, Argentina
-          </p>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginBottom: '0.5rem' }}>
+            <MapPinIcon size={16} color="var(--text-secondary)" style={{ marginTop: '2px' }} />
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
+              {livestream?.churchAddress || 'Río Cuarto, Córdoba, Argentina'}
+            </p>
+          </div>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
             Email: contacto@imr4.org
           </p>
           
           <div style={{ display: 'flex', gap: '0.75rem' }}>
+            {livestream?.churchMapsUrl && (
+              <a href={livestream.churchMapsUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }} title="Ver en Google Maps">
+                <MapPinIcon size={20} />
+              </a>
+            )}
             {livestream?.facebookUrl && (
               <a href={livestream.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }}>
-                <Facebook size={20} />
+                <FacebookIcon size={20} />
               </a>
             )}
             {livestream?.instagramUrl && (
               <a href={livestream.instagramUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }}>
-                <Instagram size={20} />
+                <InstagramIcon size={20} />
               </a>
             )}
           </div>

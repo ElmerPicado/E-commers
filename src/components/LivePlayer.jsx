@@ -1,9 +1,9 @@
 import React, { useState, useContext, useEffect, useRef } from 'react';
-import { Play, Pause, Send, Radio as RadioIcon, Volume2, User, Tv, Info } from 'lucide-react';
+import { Play, Pause, Send, Radio as RadioIcon, Volume2, User, Tv, Info, Calendar } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
 
 export default function LivePlayer() {
-  const { livestream, radio, addChatMessage } = useContext(GalleryContext);
+  const { livestream, radio, addChatMessage, radioPrograms } = useContext(GalleryContext);
   const [inputText, setInputText] = useState('');
   const [userName, setUserName] = useState('');
   const [isRadioPlaying, setIsRadioPlaying] = useState(false);
@@ -378,6 +378,87 @@ export default function LivePlayer() {
           </div>
         </div>
       </div>
+
+      {/* 3. PARRILLA DE PROGRAMACIÓN DE RADIO */}
+      {radioPrograms && radioPrograms.filter(p => p.is_active).length > 0 && (
+        <div style={{ marginTop: '1rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+            <Calendar size={20} color="var(--accent-color)" />
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 800 }}>Programación Destacada</h3>
+          </div>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+            gap: '1.5rem'
+          }}>
+            {radioPrograms.filter(p => p.is_active).map(prog => (
+              <div key={prog.id} className="glass-card" style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                overflow: 'hidden',
+                position: 'relative'
+              }}>
+                <div style={{ height: '140px', width: '100%', position: 'relative' }}>
+                  {prog.image_url ? (
+                    <img src={prog.image_url} alt={prog.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(45deg, var(--bg-surface), rgba(255,255,255,0.05))', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <RadioIcon size={40} color="var(--text-muted)" opacity={0.5} />
+                    </div>
+                  )}
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'linear-gradient(180deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0.8) 100%)'
+                  }}></div>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '0.75rem',
+                    left: '1rem',
+                    right: '1rem'
+                  }}>
+                    <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#fff', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                      {prog.title}
+                    </h4>
+                    {prog.host && (
+                      <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.8)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginTop: '0.2rem' }}>
+                        <User size={12} /> {prog.host}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                
+                <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  {prog.schedule_time && (
+                    <div style={{ 
+                      display: 'inline-flex', 
+                      alignItems: 'center', 
+                      gap: '0.35rem', 
+                      background: 'rgba(var(--accent-color-rgb), 0.1)', 
+                      color: 'var(--accent-color)', 
+                      padding: '0.35rem 0.75rem', 
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      marginBottom: '0.75rem',
+                      alignSelf: 'flex-start'
+                    }}>
+                      <Calendar size={14} /> {prog.schedule_time}
+                    </div>
+                  )}
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, flex: 1 }}>
+                    {prog.description || 'Sintonízanos para disfrutar de este programa especial diseñado para ti.'}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Styled animation keyframes for visualizer & live indicator */}
       <style>{`

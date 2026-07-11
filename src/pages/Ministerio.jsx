@@ -1,7 +1,15 @@
 import React, { useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, Image as ImageIcon, ArrowRight, Instagram } from 'lucide-react';
+import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare } from 'lucide-react';
+
+const InstagramIcon = ({ size = 24, color = "currentColor" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
 
 // Mapper to dynamically render icon components
 const IconMapper = ({ name, size = 20, className = "" }) => {
@@ -95,7 +103,7 @@ export default function Ministerio() {
             </Link>
             {ministry.instagram_url && (
               <a href={ministry.instagram_url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ padding: '0 0.8rem', display: 'flex', alignItems: 'center' }}>
-                <Instagram size={18} />
+                <InstagramIcon size={18} />
               </a>
             )}
           </div>
@@ -106,10 +114,41 @@ export default function Ministerio() {
       {ministry.pillars && ministry.pillars.length > 0 && (
         <section style={{ padding: '3.5rem 1.5rem' }}>
           <div className="container">
+              {ministry.schedule && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+                  <Calendar size={18} />
+                  <span>{ministry.schedule}</span>
+                </div>
+              )}
+              {ministry.location && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
+                  <div style={{
+                    width: '18px',
+                    height: '18px',
+                    borderRadius: '50%',
+                    background: 'var(--accent-color)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#000',
+                    fontWeight: 800,
+                    fontSize: '0.65rem'
+                  }}>M</div>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    {ministry.location}
+                    {ministry.location_url && (
+                      <a href={ministry.location_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)' }} title="Ver en Google Maps">
+                        <MapPin size={14} />
+                      </a>
+                    )}
+                  </span>
+                </div>
+              )}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '1.5rem'
+              gap: '1.5rem',
+              marginTop: '2rem'
             }} className="grid-cols-3">
               {ministry.pillars.map((pillar, idx) => (
                 <div key={idx} className="glass-card" style={{ padding: '1.5rem' }}>
@@ -170,8 +209,17 @@ export default function Ministerio() {
 
                   <div>
                     <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.25rem' }}>{act.title}</h4>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                      Hora: {act.time} hs | Lugar: {ministry.location}
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <span>Hora: {act.time} hs</span> 
+                      <span>|</span> 
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                        Lugar: {ministry.location}
+                        {(act.location_url || ministry.location_url) && (
+                          <a href={act.location_url || ministry.location_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', marginLeft: '0.25rem' }} title="Ver en Google Maps">
+                            <MapPin size={12} />
+                          </a>
+                        )}
+                      </span>
                     </p>
                     <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
                       {act.description}

@@ -155,6 +155,31 @@ ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS facebook_url TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS instagram_url TEXT;
 
 -- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V3: Radio Programs)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS radio_programs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  host TEXT,
+  schedule_time TEXT,
+  image_url TEXT,
+  description TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE POLICY "Lectura pública radio_programs" ON radio_programs FOR SELECT USING (true);
+CREATE POLICY "Escritura pública radio_programs" ON radio_programs FOR ALL USING (true) WITH CHECK (true);
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V4: Google Maps y Ubicaciones)
+-- ==========================================================
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_address TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_maps_url TEXT;
+ALTER TABLE ministries ADD COLUMN IF NOT EXISTS location_url TEXT;
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS location_url TEXT;
+
+-- ==========================================================
 -- INSTRUCCIONES PARA EL ALMACENAMIENTO (STORAGE):
 -- 1. Ve a "Storage" en el menú izquierdo de Supabase.
 -- 2. Haz clic en "New Bucket".
