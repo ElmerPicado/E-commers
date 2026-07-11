@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, Image as ImageIcon, ArrowRight } from 'lucide-react';
+import { Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, Image as ImageIcon, ArrowRight, Instagram } from 'lucide-react';
 
 // Mapper to dynamically render icon components
 const IconMapper = ({ name, size = 20, className = "" }) => {
@@ -41,7 +41,7 @@ export default function Ministerio() {
   }
 
   // Filter photos and activities specific to this ministry
-  const ministryAlbums = albums.filter((album) => album.category === ministry.id);
+  const ministryAlbums = albums.filter((album) => (album.ministry_id || album.category) === ministry.id);
   const ministryActivities = activities.filter((act) => act.ministry_id === ministry.id);
 
   // Compute local dark themes based on ministry ID to give it a custom background style
@@ -73,7 +73,11 @@ export default function Ministerio() {
       }}>
         <div className="container" style={{ maxWidth: '800px' }}>
           <div className="hero-badge" style={{ color: 'var(--accent-color)', borderColor: 'var(--accent-color)', background: 'rgba(255,255,255,0.03)' }}>
-            <IconMapper name={ministry.icon_name} size={14} />
+            {ministry.logo_url ? (
+              <img src={ministry.logo_url} alt={ministry.name} style={{ width: '16px', height: '16px', objectFit: 'contain', borderRadius: '50%' }} />
+            ) : (
+              <IconMapper name={ministry.icon_name} size={14} />
+            )}
             {ministry.name.toUpperCase()}
           </div>
           <h1 className="gradient-text" style={{ fontSize: '3.5rem', fontWeight: 800, marginBottom: '1.5rem', background: `linear-gradient(135deg, #fff 40%, var(--accent-color) 100%)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
@@ -89,6 +93,11 @@ export default function Ministerio() {
             <Link to="/galeria" className="btn btn-secondary">
               Ver Fotos
             </Link>
+            {ministry.instagram_url && (
+              <a href={ministry.instagram_url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ padding: '0 0.8rem', display: 'flex', alignItems: 'center' }}>
+                <Instagram size={18} />
+              </a>
+            )}
           </div>
         </div>
       </section>

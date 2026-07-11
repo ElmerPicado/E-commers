@@ -93,10 +93,11 @@ export default function Galeria() {
                   textTransform: 'uppercase'
                 }}>
                   {getCategoryLabel(activeAlbum.category)}
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginLeft: '0.5rem' }}>{activeAlbum.date}</span>
                 </span>
-                <h2 style={{ fontSize: '2rem', marginTop: '0.5rem', marginBottom: '0.25rem' }}>{activeAlbum.title}</h2>
-                <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                  <Calendar size={12} /> {activeAlbum.date}
+                <h2 style={{ fontSize: '1.8rem', marginTop: '0.5rem', marginBottom: '0.25rem' }}>{activeAlbum.title}</h2>
+                <p style={{ color: 'var(--text-secondary)' }}>
+                  {activeAlbum.description || `Fotos del ministerio de ${getCategoryLabel(activeAlbum.category)}`}
                 </p>
               </div>
               <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>

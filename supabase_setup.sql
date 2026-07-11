@@ -10,6 +10,7 @@ CREATE TABLE IF NOT EXISTS albums (
   category TEXT NOT NULL,
   date TEXT NOT NULL,
   photos TEXT[] NOT NULL DEFAULT '{}',
+  ministry_id TEXT NOT NULL DEFAULT 'unanimes',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -143,6 +144,17 @@ CREATE POLICY "Lectura pública activities" ON activities FOR SELECT USING (true
 CREATE POLICY "Escritura pública activities" ON activities FOR ALL USING (true) WITH CHECK (true);
 
 -- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V2 y Redes Sociales)
+-- Añadiendo columnas solicitadas
+-- ==========================================================
+ALTER TABLE ministries ADD COLUMN IF NOT EXISTS logo_url TEXT;
+ALTER TABLE ministries ADD COLUMN IF NOT EXISTS instagram_url TEXT;
+ALTER TABLE albums ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_logo_url TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS facebook_url TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS instagram_url TEXT;
+
+-- ==========================================================
 -- INSTRUCCIONES PARA EL ALMACENAMIENTO (STORAGE):
 -- 1. Ve a "Storage" en el menú izquierdo de Supabase.
 -- 2. Haz clic en "New Bucket".
@@ -150,3 +162,18 @@ CREATE POLICY "Escritura pública activities" ON activities FOR ALL USING (true)
 -- 4. Asegúrate de activar la opción "Public" (Público).
 -- 5. Haz clic en "Save".
 -- ==========================================================
+
+-- ==========================================================
+-- 6. Políticas de Almacenamiento (Para permitir subir fotos)
+-- Estas políticas permiten subir, actualizar y eliminar archivos en el bucket "photos".
+-- ==========================================================
+DROP POLICY IF EXISTS "Lectura pública storage" ON storage.objects;
+DROP POLICY IF EXISTS "Inserción pública storage" ON storage.objects;
+DROP POLICY IF EXISTS "Actualización pública storage" ON storage.objects;
+DROP POLICY IF EXISTS "Eliminación pública storage" ON storage.objects;
+
+CREATE POLICY "Lectura pública storage" ON storage.objects FOR SELECT USING (bucket_id = 'photos');
+CREATE POLICY "Inserción pública storage" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'photos');
+CREATE POLICY "Actualización pública storage" ON storage.objects FOR UPDATE USING (bucket_id = 'photos');
+CREATE POLICY "Eliminación pública storage" ON storage.objects FOR DELETE USING (bucket_id = 'photos');
+

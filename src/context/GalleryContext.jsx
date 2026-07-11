@@ -7,7 +7,7 @@ const DEFAULT_ALBUMS = [
   {
     id: 'album-1',
     title: 'Reunión de Jóvenes Unánimes',
-    category: 'unanimes',
+    ministry_id: 'unanimes',
     date: '2026-07-04',
     photos: [
       'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80',
@@ -18,7 +18,7 @@ const DEFAULT_ALBUMS = [
   {
     id: 'album-2',
     title: 'Té Especial de Mujeres',
-    category: 'mujeres',
+    ministry_id: 'mujeres',
     date: '2026-06-20',
     photos: [
       'https://images.unsplash.com/photo-1544027993-37dbfe43562a?w=800&auto=format&fit=crop&q=80',
@@ -28,7 +28,7 @@ const DEFAULT_ALBUMS = [
   {
     id: 'album-3',
     title: 'Encuentro de Hombres de Fe',
-    category: 'hombres',
+    ministry_id: 'hombres',
     date: '2026-06-15',
     photos: [
       'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=800&auto=format&fit=crop&q=80',
@@ -38,7 +38,7 @@ const DEFAULT_ALBUMS = [
   {
     id: 'album-4',
     title: 'Fiesta del Día del Niño',
-    category: 'ninos',
+    ministry_id: 'ninos',
     date: '2026-06-01',
     photos: [
       'https://images.unsplash.com/photo-1485546246426-74dc88dec4d9?w=800&auto=format&fit=crop&q=80',
@@ -52,6 +52,9 @@ const DEFAULT_LIVESTREAM = {
   isLive: true,
   title: 'Culto de Adoración y Palabra - IMR4 Domingo',
   videoUrl: 'https://www.youtube.com/embed/5qap5aO4i9A',
+  churchLogo: '',
+  facebookUrl: '',
+  instagramUrl: '',
   chatMessages: [
     { id: 1, user: 'Carlos M.', text: '¡Bendiciones a toda la iglesia!' },
     { id: 2, user: 'María P.', text: 'Hola a todos desde Río Cuarto.' },
@@ -293,7 +296,10 @@ export const GalleryProvider = ({ children }) => {
           ...prev,
           title: streamConfig.live_title,
           videoUrl: streamConfig.live_url,
-          isLive: streamConfig.is_live
+          isLive: streamConfig.is_live,
+          churchLogo: streamConfig.church_logo_url || '',
+          facebookUrl: streamConfig.facebook_url || '',
+          instagramUrl: streamConfig.instagram_url || ''
         }));
         setRadio(prev => ({
           ...prev,
@@ -332,7 +338,10 @@ export const GalleryProvider = ({ children }) => {
             ...prev,
             title: updated.live_title,
             videoUrl: updated.live_url,
-            isLive: updated.is_live
+            isLive: updated.is_live,
+            churchLogo: updated.church_logo_url || '',
+            facebookUrl: updated.facebook_url || '',
+            instagramUrl: updated.instagram_url || ''
           }));
           setRadio(prev => ({
             ...prev,
@@ -400,7 +409,10 @@ export const GalleryProvider = ({ children }) => {
       await supabase.from('streaming_config').update({
         live_title: updates.title,
         live_url: updates.videoUrl,
-        is_live: updates.isLive
+        is_live: updates.isLive,
+        church_logo_url: updates.churchLogo,
+        facebook_url: updates.facebookUrl,
+        instagram_url: updates.instagramUrl
       }).eq('id', 'main');
     } else {
       setLivestream((prev) => ({ ...prev, ...updates }));
@@ -420,6 +432,24 @@ export const GalleryProvider = ({ children }) => {
   };
 
   // Home Sections methods
+  const addHomeSection = async (section) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('home_sections').insert(section);
+      setHomeSections((prev) => [...prev, section].sort((a,b) => a.order_index - b.order_index));
+    } else {
+      setHomeSections((prev) => [...prev, section].sort((a,b) => a.order_index - b.order_index));
+    }
+  };
+
+  const deleteHomeSection = async (id) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('home_sections').delete().eq('id', id);
+      setHomeSections((prev) => prev.filter((sec) => sec.id !== id));
+    } else {
+      setHomeSections((prev) => prev.filter((sec) => sec.id !== id));
+    }
+  };
+
   const updateHomeSection = async (id, updates) => {
     if (isSupabaseConfigured) {
       await supabase.from('home_sections').update({
@@ -427,11 +457,15 @@ export const GalleryProvider = ({ children }) => {
         subtitle: updates.subtitle,
         bg_image: updates.bg_image,
         button_text: updates.button_text,
-        button_url: updates.button_url
+        button_url: updates.button_url,
+        order_index: updates.order_index
       }).eq('id', id);
+      setHomeSections((prev) =>
+        prev.map((sec) => (sec.id === id ? { ...sec, ...updates } : sec)).sort((a,b) => a.order_index - b.order_index)
+      );
     } else {
       setHomeSections((prev) =>
-        prev.map((sec) => (sec.id === id ? { ...sec, ...updates } : sec))
+        prev.map((sec) => (sec.id === id ? { ...sec, ...updates } : sec)).sort((a,b) => a.order_index - b.order_index)
       );
     }
   };
@@ -440,6 +474,7 @@ export const GalleryProvider = ({ children }) => {
   const addMinistry = async (ministry) => {
     if (isSupabaseConfigured) {
       await supabase.from('ministries').insert(ministry);
+      setMinistries((prev) => [...prev, ministry]);
     } else {
       setMinistries((prev) => [...prev, ministry]);
     }
@@ -448,6 +483,7 @@ export const GalleryProvider = ({ children }) => {
   const deleteMinistry = async (id) => {
     if (isSupabaseConfigured) {
       await supabase.from('ministries').delete().eq('id', id);
+      setMinistries((prev) => prev.filter((m) => m.id !== id));
     } else {
       setMinistries((prev) => prev.filter((m) => m.id !== id));
     }
@@ -456,6 +492,9 @@ export const GalleryProvider = ({ children }) => {
   const updateMinistry = async (id, updates) => {
     if (isSupabaseConfigured) {
       await supabase.from('ministries').update(updates).eq('id', id);
+      setMinistries((prev) =>
+        prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
+      );
     } else {
       setMinistries((prev) =>
         prev.map((m) => (m.id === id ? { ...m, ...updates } : m))
@@ -501,6 +540,8 @@ export const GalleryProvider = ({ children }) => {
         addPhotoToAlbum,
         updateLivestream,
         updateRadio,
+        addHomeSection,
+        deleteHomeSection,
         updateHomeSection,
         addMinistry,
         deleteMinistry,

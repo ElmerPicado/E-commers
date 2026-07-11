@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
+import { Facebook, Instagram } from 'lucide-react';
 
 export default function Footer() {
   const { ministries } = useContext(GalleryContext);
@@ -111,9 +112,22 @@ export default function Footer() {
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem' }}>
             Dirección: Río Cuarto, Córdoba, Argentina
           </p>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
             Email: contacto@imr4.org
           </p>
+          
+          <div style={{ display: 'flex', gap: '0.75rem' }}>
+            {livestream?.facebookUrl && (
+              <a href={livestream.facebookUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }}>
+                <Facebook size={20} />
+              </a>
+            )}
+            {livestream?.instagramUrl && (
+              <a href={livestream.instagramUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }}>
+                <Instagram size={20} />
+              </a>
+            )}
+          </div>
         </div>
       </div>
 

@@ -56,24 +56,32 @@ export default function Navbar() {
         {/* Brand logo & title */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 800,
-              fontSize: '1.4rem',
-              letterSpacing: '-0.03em',
-              background: 'linear-gradient(135deg, #ffffff 40%, var(--accent-color) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              IMR4
-            </span>
+              {livestream.churchLogo ? (
+                <img src={livestream.churchLogo} alt="IMR4 Logo" style={{ height: '32px', objectFit: 'contain' }} />
+              ) : (
+                <span style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 800,
+                  fontSize: '1.4rem',
+                  letterSpacing: '-0.03em',
+                  background: 'linear-gradient(135deg, #ffffff 40%, var(--accent-color) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent'
+                }}>
+                  IMR4
+                </span>
+              )}
           </Link>
 
           {activeMin && (
             <>
               <div style={{ width: '1px', height: '24px', background: 'var(--border-color)' }}></div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <NavbarIcon name={activeMin.icon_name} color={activeMin.accent_color} />
+                {activeMin.logo_url ? (
+                  <img src={activeMin.logo_url} alt={activeMin.name} style={{ width: '24px', height: '24px', objectFit: 'contain', borderRadius: '50%' }} />
+                ) : (
+                  <NavbarIcon name={activeMin.icon_name} color={activeMin.accent_color} />
+                )}
                 <div>
                   <span style={{ fontSize: '0.85rem', fontWeight: 700, color: activeMin.accent_color, display: 'block', lineHeight: 1.1 }}>
                     {activeMin.name.split(' - ')[0]}
