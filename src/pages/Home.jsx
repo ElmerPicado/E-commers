@@ -242,7 +242,7 @@ export default function Home() {
             borderBottom: '1px solid var(--border-color)'
           }}
         >
-          <div className="container" style={{ position: 'relative', zIndex: 2, maxWidth: '800px', textAlign: 'center' }}>
+          <div className="container" style={{ position: 'relative', zIndex: 2, maxWidth: '1000px', textAlign: 'center' }}>
             <h2 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', color: '#fff' }}>
               {sec.title}
             </h2>
@@ -253,24 +253,24 @@ export default function Home() {
             {sec.schedules && sec.schedules.length > 0 && (
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '1rem',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                gap: '1.5rem',
                 margin: '0 auto 2.5rem auto',
-                maxWidth: '800px',
+                maxWidth: '1000px',
                 textAlign: 'left'
               }}>
                 {sec.schedules.map((sched, idx) => (
-                  <div key={idx} className="glass-card" style={{ padding: '1.25rem', background: 'rgba(18, 18, 22, 0.55)', border: '1px solid rgba(255,255,255,0.06)' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <Calendar size={16} style={{ color: 'var(--accent-color)' }} />
-                      <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>{sched.day}</span>
+                  <div key={idx} className="glass-card" style={{ padding: '1.5rem', background: 'rgba(10, 10, 14, 0.85)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                      <Calendar size={20} style={{ color: 'var(--accent-color)' }} />
+                      <span style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff' }}>{sched.day}</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-                      <Clock size={16} style={{ color: 'var(--text-muted)' }} />
-                      <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>{sched.time}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
+                      <Clock size={18} style={{ color: 'var(--text-muted)' }} />
+                      <span style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', fontWeight: 600 }}>{sched.time}</span>
                     </div>
                     {sched.desc && (
-                      <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-muted)' }}>{sched.desc}</p>
+                      <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--text-muted)', lineHeight: '1.5' }}>{sched.desc}</p>
                     )}
                   </div>
                 ))}
