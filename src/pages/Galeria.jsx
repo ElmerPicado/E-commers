@@ -1,10 +1,22 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
 import { ImageIcon, Calendar, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function Galeria() {
   const { albums } = useContext(GalleryContext);
-  const [selectedCategory, setSelectedCategory] = useState('todos');
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
+  const minQuery = queryParams.get('min');
+  
+  const [selectedCategory, setSelectedCategory] = useState(minQuery || 'todos');
+  
+  useEffect(() => {
+    if (minQuery) {
+      setSelectedCategory(minQuery);
+    }
+  }, [minQuery]);
+
   const [activeAlbum, setActiveAlbum] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
 

@@ -77,8 +77,10 @@ export default function Ministerio() {
         position: 'relative',
         padding: '6.5rem 1.5rem 4rem 1.5rem',
         background: ministry.hero_image ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.9)), url(${ministry.hero_image})` : `linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0) 100%)`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
+        backgroundColor: '#0a0a0c',
+        backgroundSize: ministry.hero_image ? 'contain' : 'cover',
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'top center',
         borderBottom: '1px solid var(--border-color)',
         textAlign: 'center'
       }}>
@@ -101,7 +103,7 @@ export default function Ministerio() {
             <a href="#contacto" className="btn btn-primary" style={{ background: 'var(--accent-color)', color: '#000' }}>
               Participar
             </a>
-            <Link to="/galeria" className="btn btn-secondary">
+            <Link to={`/galeria?min=${ministry.id}`} className="btn btn-secondary">
               Ver Fotos
             </Link>
             {ministry.instagram_url && (
