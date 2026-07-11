@@ -113,22 +113,32 @@ ALTER TABLE ministries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE activities ENABLE ROW LEVEL SECURITY;
 
 -- 1. Políticas Albums
+DROP POLICY IF EXISTS "Lectura pública de álbumes" ON albums;
+DROP POLICY IF EXISTS "Escritura pública de álbumes" ON albums;
 CREATE POLICY "Lectura pública de álbumes" ON albums FOR SELECT USING (true);
 CREATE POLICY "Escritura pública de álbumes" ON albums FOR ALL USING (true) WITH CHECK (true);
 
 -- 2. Políticas Streaming Config
+DROP POLICY IF EXISTS "Lectura pública de streaming" ON streaming_config;
+DROP POLICY IF EXISTS "Escritura pública de streaming" ON streaming_config;
 CREATE POLICY "Lectura pública de streaming" ON streaming_config FOR SELECT USING (true);
 CREATE POLICY "Escritura pública de streaming" ON streaming_config FOR ALL USING (true) WITH CHECK (true);
 
 -- 3. Políticas Home Sections
+DROP POLICY IF EXISTS "Lectura pública home_sections" ON home_sections;
+DROP POLICY IF EXISTS "Escritura pública home_sections" ON home_sections;
 CREATE POLICY "Lectura pública home_sections" ON home_sections FOR SELECT USING (true);
 CREATE POLICY "Escritura pública home_sections" ON home_sections FOR ALL USING (true) WITH CHECK (true);
 
 -- 4. Políticas Ministries
+DROP POLICY IF EXISTS "Lectura pública ministries" ON ministries;
+DROP POLICY IF EXISTS "Escritura pública ministries" ON ministries;
 CREATE POLICY "Lectura pública ministries" ON ministries FOR SELECT USING (true);
 CREATE POLICY "Escritura pública ministries" ON ministries FOR ALL USING (true) WITH CHECK (true);
 
 -- 5. Políticas Activities
+DROP POLICY IF EXISTS "Lectura pública activities" ON activities;
+DROP POLICY IF EXISTS "Escritura pública activities" ON activities;
 CREATE POLICY "Lectura pública activities" ON activities FOR SELECT USING (true);
 CREATE POLICY "Escritura pública activities" ON activities FOR ALL USING (true) WITH CHECK (true);
 
