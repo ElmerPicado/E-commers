@@ -108,7 +108,7 @@ export default function Ministerio() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: ministry.hero_image ? `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.7)), url(${ministry.hero_image})` : `linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0) 100%)`,
+        backgroundImage: ministry.hero_image ? `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.7)), url("${ministry.hero_image}")` : `linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0) 100%)`,
         backgroundColor: '#0a0a0c',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
