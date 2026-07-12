@@ -25,18 +25,6 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Evita el scroll del fondo cuando el menú móvil está abierto
-  useEffect(() => {
-    if (isMobileMenuOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [isMobileMenuOpen]);
-
   useEffect(() => {
     if (livestream.churchName) {
       document.title = livestream.churchName;
@@ -68,6 +56,7 @@ export default function Navbar() {
   const activeMin = getActiveMinistry();
 
   return (
+    <>
     <nav style={{
       position: 'sticky',
       top: 0,
@@ -234,18 +223,20 @@ export default function Navbar() {
           </button>
         </div>
       </div>
+    </nav>
 
       {/* Mobile Full Screen Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="mobile-only" style={{
-          position: 'absolute',
-          top: '100%',
+          position: 'fixed',
+          top: '72px', /* Height of the sticky navbar */
           left: 0,
-          width: '100%',
-          height: '100vh',
+          right: 0,
+          bottom: 0,
           background: 'var(--bg-surface)',
-          zIndex: 40,
+          zIndex: 45,
           overflowY: 'auto',
+          WebkitOverflowScrolling: 'touch',
           padding: '2rem 1.5rem 6rem 1.5rem',
           display: 'flex',
           flexDirection: 'column',
@@ -314,6 +305,6 @@ export default function Navbar() {
           
         </div>
       )}
-    </nav>
+    </>
   );
 }
