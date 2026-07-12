@@ -33,30 +33,39 @@ const ProtectedAdminRoute = () => {
 
 import './App.css';
 
+const LayoutWrapper = () => {
+  const location = useLocation();
+  const isDevocionalWritePage = location.pathname === '/devocional';
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      {!isDevocionalWritePage && <Navbar />}
+      <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/ministerio/:id" element={<Ministerio />} />
+          <Route path="/galeria" element={<Galeria />} />
+          <Route path="/live" element={<Live />} />
+          <Route path="/donaciones" element={<Donaciones />} />
+          <Route path="/historia" element={<Historia />} />
+          <Route path="/devocionales" element={<Devocionales />} />
+          <Route path="/devocionales/:id" element={<DevocionalDetail />} />
+          <Route path="/devocional" element={<SubmitDevocional />} />
+          <Route path="/admin" element={<ProtectedAdminRoute />} />
+        </Routes>
+      </main>
+      {!isDevocionalWritePage && <Footer />}
+      {!isDevocionalWritePage && <MobileBottomNav />}
+    </div>
+  );
+};
+
 function App() {
   return (
     <GalleryProvider>
       <Router>
         <ScrollToTop />
-        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Navbar />
-          <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/ministerio/:id" element={<Ministerio />} />
-              <Route path="/galeria" element={<Galeria />} />
-              <Route path="/live" element={<Live />} />
-              <Route path="/donaciones" element={<Donaciones />} />
-              <Route path="/historia" element={<Historia />} />
-              <Route path="/devocionales" element={<Devocionales />} />
-              <Route path="/devocionales/:id" element={<DevocionalDetail />} />
-              <Route path="/devocional" element={<SubmitDevocional />} />
-              <Route path="/admin" element={<ProtectedAdminRoute />} />
-            </Routes>
-          </main>
-          <Footer />
-          <MobileBottomNav />
-        </div>
+        <LayoutWrapper />
       </Router>
     </GalleryProvider>
   );

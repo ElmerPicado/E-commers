@@ -1,14 +1,18 @@
 import React, { useState, useContext } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { BookOpen, User, Type, Link as LinkIcon, Send, CheckCircle } from 'lucide-react';
+import { BookOpen, User, Type, Link as LinkIcon, Send, CheckCircle, Image as ImageIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
+import { isSupabaseConfigured, supabase } from '../supabaseClient';
 
 export default function SubmitDevocional() {
   const { addDevotional } = useContext(GalleryContext);
 
   const [authorName, setAuthorName] = useState('');
   const [authorBio, setAuthorBio] = useState('');
-  const [authorPhoto, setAuthorPhoto] = useState('');
+  const [authorPhotoFile, setAuthorPhotoFile] = useState(null);
+  const [authorPhotoPreview, setAuthorPhotoPreview] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   
@@ -19,12 +23,31 @@ export default function SubmitDevocional() {
     e.preventDefault();
     setIsSubmitting(true);
     
+    let finalPhotoUrl = '';
+    
+    if (authorPhotoFile && isSupabaseConfigured) {
+      try {
+        const fileExt = authorPhotoFile.name.split('.').pop();
+        const fileName = `author_${Date.now()}.${fileExt}`;
+        const filePath = `authors/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, authorPhotoFile);
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        finalPhotoUrl = publicUrl;
+      } catch (err) {
+        console.error('Error uploading photo:', err);
+        alert('Hubo un error al subir la foto. Se enviará sin foto.');
+      }
+    }
+
     const newDevotional = {
       title,
       content,
       author_name: authorName,
       author_bio: authorBio,
-      author_photo: authorPhoto,
+      author_photo: finalPhotoUrl,
       status: 'pending',
       created_at: new Date().toISOString()
     };
@@ -68,7 +91,8 @@ export default function SubmitDevocional() {
               setIsSubmitted(false);
               setAuthorName('');
               setAuthorBio('');
-              setAuthorPhoto('');
+              setAuthorPhotoFile(null);
+              setAuthorPhotoPreview('');
               setTitle('');
               setContent('');
             }}
@@ -116,17 +140,24 @@ export default function SubmitDevocional() {
               </div>
               
               <div>
-                <label style={labelStyle}>URL de Fotografía (Opcional)</label>
-                <div style={{ position: 'relative' }}>
-                  <LinkIcon size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                  <input 
-                    type="text" 
-                    value={authorPhoto} 
-                    onChange={(e) => setAuthorPhoto(e.target.value)}
-                    placeholder="Enlace a tu foto..."
-                    style={{ ...inputStyle, paddingLeft: '2.25rem' }}
-                  />
-                </div>
+                <label style={labelStyle}><ImageIcon size={14} style={{ display: 'inline', marginRight: '0.25rem' }} /> Foto de Perfil (Opcional)</label>
+                <input 
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setAuthorPhotoFile(file);
+                      setAuthorPhotoPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  style={{ ...inputStyle, padding: '0.5rem', background: 'rgba(255, 255, 255, 0.05)' }} 
+                />
+                {authorPhotoPreview && (
+                  <div style={{ marginTop: '0.75rem', width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--border-color)' }}>
+                    <img src={authorPhotoPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
               </div>
             </div>
 
@@ -148,9 +179,10 @@ export default function SubmitDevocional() {
 
           {/* Content Section */}
           <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Type size={20} /> Tu Devocional
-            </h3>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
+              <Type size={20} style={{ color: 'var(--accent-color)' }} />
+              Cuerpo del Devocional
+            </h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
@@ -166,15 +198,39 @@ export default function SubmitDevocional() {
               </div>
 
               <div>
-                <label style={labelStyle}>Contenido (Puedes usar varios párrafos)</label>
-                <textarea 
-                  value={content} 
-                  onChange={(e) => setContent(e.target.value)}
-                  required
-                  rows={12}
-                  placeholder="Escribe el desarrollo de tu devocional aquí..."
-                  style={{ ...inputStyle, resize: 'vertical', lineHeight: '1.6' }}
-                />
+                <label style={labelStyle}>Contenido del Devocional</label>
+                <div style={{ background: '#ffffff', borderRadius: '0.5rem', overflow: 'hidden', color: '#000000' }}>
+                  <ReactQuill 
+                    theme="snow" 
+                    value={content} 
+                    onChange={setContent} 
+                    style={{ height: '350px', border: 'none' }}
+                    modules={{
+                      toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link', 'clean']
+                      ]
+                    }}
+                  />
+                </div>
+                <style>{`
+                  .ql-container {
+                    font-size: 1.05rem;
+                    font-family: inherit;
+                    border-bottom-left-radius: 0.5rem;
+                    border-bottom-right-radius: 0.5rem;
+                  }
+                  .ql-toolbar {
+                    border-top-left-radius: 0.5rem;
+                    border-top-right-radius: 0.5rem;
+                    background: #f8fafc;
+                  }
+                  .ql-editor {
+                    min-height: 300px;
+                  }
+                `}</style>
               </div>
             </div>
           </div>

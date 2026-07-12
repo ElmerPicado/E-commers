@@ -64,9 +64,11 @@ export default function DevocionalDetail() {
             </div>
           </div>
 
-          <div className="devocional-content-body" style={{ minHeight: '30vh' }}>
-            {devocional.content}
-          </div>
+          <div 
+            className="devocional-content-body" 
+            style={{ minHeight: '30vh' }}
+            dangerouslySetInnerHTML={{ __html: devocional.content }}
+          />
 
           {/* PAUTA / CTA de IMR4 */}
           <div style={{
