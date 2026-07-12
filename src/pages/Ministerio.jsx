@@ -108,15 +108,47 @@ export default function Ministerio() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundImage: ministry.hero_image ? `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.7)), url("${ministry.hero_image}")` : `linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0) 100%)`,
         backgroundColor: '#0a0a0c',
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
         borderBottom: '1px solid var(--border-color)',
-        textAlign: 'center'
+        textAlign: 'center',
+        overflow: 'hidden'
       }}>
-        <div className="container" style={{ maxWidth: '800px', zIndex: 1 }}>
+        {/* Capa 1: Fondo borroso estirado */}
+        {ministry.hero_image && (
+          <div style={{
+            position: 'absolute',
+            top: '-5%', left: '-5%', right: '-5%', bottom: '-5%', // Evita bordes blancos del blur
+            backgroundImage: `url("${ministry.hero_image}")`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            filter: 'blur(25px) brightness(0.25)',
+            zIndex: 0
+          }}></div>
+        )}
+        
+        {/* Capa 2: Imagen nítida sin recortes (contain) */}
+        {ministry.hero_image && (
+          <div style={{
+            position: 'absolute',
+            top: 0, left: 0, right: 0, bottom: 0,
+            backgroundImage: `url("${ministry.hero_image}")`,
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat',
+            zIndex: 1
+          }}></div>
+        )}
+
+        {/* Capa 3: Gradiente oscuro superior e inferior para que el texto resalte */}
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'linear-gradient(rgba(10, 10, 12, 0.4) 0%, transparent 40%, transparent 60%, rgba(10, 10, 12, 0.9) 100%)',
+          zIndex: 2,
+          pointerEvents: 'none'
+        }}></div>
+
+        <div className="container" style={{ maxWidth: '800px', zIndex: 3, position: 'relative' }}>
           <div className="hero-badge" style={{ color: 'var(--accent-color)', borderColor: 'var(--accent-color)', background: 'rgba(255,255,255,0.03)' }}>
             {ministry.logo_url ? (
               <img src={ministry.logo_url} alt={ministry.name} style={{ width: '16px', height: '16px', objectFit: 'contain', borderRadius: '50%' }} />
