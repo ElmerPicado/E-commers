@@ -143,7 +143,7 @@ export default function Ministerio() {
         <div style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
-          background: 'linear-gradient(rgba(10, 10, 12, 0.4) 0%, transparent 40%, transparent 60%, rgba(10, 10, 12, 0.9) 100%)',
+          background: 'linear-gradient(rgba(10, 10, 12, 0.7) 0%, rgba(10, 10, 12, 0.45) 50%, rgba(10, 10, 12, 0.9) 100%)',
           zIndex: 2,
           pointerEvents: 'none'
         }}></div>
@@ -221,7 +221,20 @@ export default function Ministerio() {
                 marginTop: '2rem'
               }}>
               {ministry.pillars.map((pillar, idx) => (
-                <div key={idx} className="glass-card" style={{ padding: '1.5rem' }}>
+                <div key={idx} className="glass-card" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
+                  {/* Marca de agua gigante con el icono */}
+                  <div style={{
+                    position: 'absolute',
+                    right: '-10%',
+                    bottom: '-15%',
+                    opacity: 0.04,
+                    transform: 'scale(3.5)',
+                    pointerEvents: 'none',
+                    color: '#fff'
+                  }}>
+                    <IconMapper name={pillar.icon} size={64} />
+                  </div>
+                  
                   <div style={{
                     width: '40px',
                     height: '40px',

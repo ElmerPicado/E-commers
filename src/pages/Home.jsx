@@ -84,16 +84,41 @@ export default function Home() {
             )}
             
             <h1 style={{
-              fontSize: '3.8rem',
-              lineHeight: '1.05',
+              fontSize: '4.2rem',
+              lineHeight: '1.1',
               fontWeight: 800,
               fontFamily: 'var(--font-display)',
               background: 'linear-gradient(135deg, #ffffff 40%, var(--accent-color) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              letterSpacing: '-0.03em'
+              letterSpacing: '-0.03em',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.25rem'
             }}>
-              {heroSection.title}
+              <span>
+                {heroSection.title.includes('Río Cuarto') 
+                  ? heroSection.title.replace('Río Cuarto', '').trim() 
+                  : heroSection.title}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                {heroSection.title.includes('Río Cuarto') && 'Río Cuarto'}
+                {livestream.churchLogo && (
+                  <img 
+                    src={livestream.churchLogo} 
+                    alt="Logo Iglesia" 
+                    style={{ 
+                      width: '65px', 
+                      height: '65px', 
+                      borderRadius: '50%', 
+                      objectFit: 'cover', 
+                      background: '#fff',
+                      border: '3px solid rgba(255,255,255,0.1)',
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+                    }} 
+                  />
+                )}
+              </span>
             </h1>
             
             <p style={{
