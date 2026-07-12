@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles, Home } from 'lucide-react';
+import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles, Home, Menu, X, MapPin } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
 
 // Icon mapper for Navbar
@@ -18,6 +18,12 @@ const NavbarIcon = ({ name, color }) => {
 export default function Navbar() {
   const location = useLocation();
   const { livestream, radio, ministries } = useContext(GalleryContext);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // Cierra el menú móvil cuando cambia la ruta
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (livestream.churchName) {
@@ -169,6 +175,7 @@ export default function Navbar() {
             Galería
           </Link>
 
+
           <Link to="/live" style={{
             display: 'flex',
             alignItems: 'center',
@@ -194,10 +201,102 @@ export default function Navbar() {
               }}></span>
             )}
           </Link>
+        </div>
 
-
+        {/* Mobile Hamburger Button */}
+        <div className="mobile-only">
+          <button 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '0.25rem'
+            }}
+          >
+            {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile Full Screen Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div className="mobile-only" style={{
+          position: 'fixed',
+          top: '70px', /* Altura aproximada del navbar */
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'var(--bg-surface)',
+          zIndex: 40,
+          overflowY: 'auto',
+          padding: '2rem 1.5rem 6rem 1.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '2.5rem'
+        }}>
+          
+          <div>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+              Navegación
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                <Home size={20} /> Inicio
+              </Link>
+              <Link to="/galeria" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/galeria') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                <Image size={20} /> Galería
+              </Link>
+              <Link to="/live" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/live') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                <Tv size={20} /> En Vivo
+              </Link>
+              <Link to="/donaciones" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/donaciones') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                <Heart size={20} /> Donaciones
+              </Link>
+            </div>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+              Ministerios
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {ministries.map((m) => (
+                <Link key={m.id} to={`/ministerio/${m.id}`} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive(`/ministerio/${m.id}`) ? m.accent_color : 'var(--text-secondary)' }}>
+                  {m.logo_url ? (
+                    <img src={m.logo_url} alt={m.name} style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'contain' }} />
+                  ) : (
+                    <NavbarIcon name={m.icon_name} color={m.accent_color} />
+                  )}
+                  {m.name}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+              Contacto
+            </h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <MapPin size={18} /> {livestream?.churchAddress || 'Río Cuarto, Córdoba'}
+              </div>
+              <div>Email: {livestream?.churchEmail || 'contacto@imr4.org'}</div>
+              {livestream?.churchMapsUrl && (
+                <a href={livestream.churchMapsUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', fontWeight: 600, marginTop: '0.5rem' }}>
+                  Ver en Google Maps &rarr;
+                </a>
+              )}
+            </div>
+          </div>
+          
+        </div>
+      )}
     </nav>
   );
 }

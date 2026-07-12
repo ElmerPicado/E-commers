@@ -1,7 +1,37 @@
 import React, { useContext, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, X, ChevronLeft, ChevronRight } from 'lucide-react';
+
+const InstagramIcon = ({ size = 24, color = "currentColor" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+  </svg>
+);
+
+// Mapper to dynamically render icon components
+const IconMapper = ({ name, size = 20, className = "" }) => {
+  const icons = {
+    Flame: <Flame size={size} className={className} />,
+    Heart: <Heart size={size} className={className} />,
+    Shield: <Shield size={size} className={className} />,
+    Sun: <Sun size={size} className={className} />,
+    Sparkles: <Sparkles size={size} className={className} />,
+    Calendar: <Calendar size={size} className={className} />,
+    MapPin: <MapPin size={size} className={className} />,
+    Users: <Users size={size} className={className} />,
+    BookOpen: <BookOpen size={size} className={className} />,
+    Coffee: <Coffee size={size} className={className} />,
+    Smile: <Smile size={size} className={className} />,
+    Briefcase: <Briefcase size={size} className={className} />
+  };
+  return icons[name] || <Sparkles size={size} className={className} />;
+import React, { useContext, useState } from 'react';
+import { useParams, Link, useLocation } from 'react-router-dom';
+import { GalleryContext } from '../context/GalleryContext';
+import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const InstagramIcon = ({ size = 24, color = "currentColor" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -36,6 +66,8 @@ export default function Ministerio() {
   const queryParams = new URLSearchParams(location.search);
   const { ministries, albums, activities } = useContext(GalleryContext);
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const [selectedAlbum, setSelectedAlbum] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
 
   const ministry = ministries.find((m) => m.id === id);
 
@@ -411,7 +443,15 @@ export default function Ministerio() {
               gap: '1.5rem'
             }}>
               {ministryAlbums.slice(0, 3).map((album) => (
-                <Link to={`/galeria?min=${ministry.id}&album=${album.id}`} key={album.id} className="glass-card" style={{ padding: '0', overflow: 'hidden', textDecoration: 'none', color: 'inherit', display: 'block' }}>
+                <div 
+                  key={album.id} 
+                  onClick={() => {
+                    setSelectedAlbum(album);
+                    setLightboxIndex(0);
+                  }}
+                  className="glass-card" 
+                  style={{ padding: '0', overflow: 'hidden', cursor: 'pointer', color: 'inherit', display: 'block' }}
+                >
                   <div style={{ height: '180px', width: '100%', overflow: 'hidden', position: 'relative' }}>
                     {album.photos && album.photos.length > 0 ? (
                       <img
@@ -456,7 +496,7 @@ export default function Ministerio() {
                       {album.title}
                     </h4>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           ) : (
@@ -596,6 +636,122 @@ export default function Ministerio() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Album Lightbox Modal */}
+      {selectedAlbum && lightboxIndex !== null && (
+        <div
+          onClick={() => setSelectedAlbum(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: 'rgba(0,0,0,0.95)',
+            zIndex: 100000,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem'
+          }}
+        >
+          {/* Close Button */}
+          <button
+            onClick={() => setSelectedAlbum(null)}
+            style={{
+              position: 'absolute',
+              top: '1.5rem',
+              right: '1.5rem',
+              background: 'rgba(255,255,255,0.05)',
+              border: 'none',
+              color: '#fff',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
+            <X size={20} />
+          </button>
+
+          {selectedAlbum.photos && selectedAlbum.photos.length > 0 ? (
+            <>
+              {/* Navigation Buttons */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev === 0 ? selectedAlbum.photos.length - 1 : prev - 1));
+                }}
+                style={{
+                  position: 'absolute',
+                  left: '1.5rem',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: 'none',
+                  color: '#fff',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <ChevronLeft size={24} />
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex((prev) => (prev === selectedAlbum.photos.length - 1 ? 0 : prev + 1));
+                }}
+                style={{
+                  position: 'absolute',
+                  right: '1.5rem',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: 'none',
+                  color: '#fff',
+                  width: '48px',
+                  height: '48px',
+                  borderRadius: '50%',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <ChevronRight size={24} />
+              </button>
+
+              {/* Main Image */}
+              <img
+                src={selectedAlbum.photos[lightboxIndex]}
+                alt={`Lightbox ${lightboxIndex + 1}`}
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  maxWidth: '90%',
+                  maxHeight: '80vh',
+                  objectFit: 'contain',
+                  borderRadius: '0.25rem',
+                  boxShadow: '0 8px 30px rgba(0,0,0,0.5)'
+                }}
+              />
+
+              {/* Caption */}
+              <div style={{ marginTop: '1.5rem', color: '#94a3b8', fontSize: '0.9rem', textAlign: 'center' }}>
+                <span style={{ fontWeight: 600, color: '#fff', display: 'block', marginBottom: '0.25rem' }}>{selectedAlbum.title}</span>
+                Imagen {lightboxIndex + 1} de {selectedAlbum.photos.length}
+              </div>
+            </>
+          ) : (
+             <div style={{ color: '#fff', textAlign: 'center' }}>Este álbum no tiene fotos.</div>
+          )}
         </div>
       )}
 

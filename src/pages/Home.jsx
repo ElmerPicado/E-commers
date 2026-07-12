@@ -52,7 +52,6 @@ export default function Home() {
         backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.95)), url(${heroSection.bg_image})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
         borderBottom: '1px solid var(--border-color)'
       }}>
         <div className="container hero-grid" style={{
@@ -74,9 +73,8 @@ export default function Home() {
                   <img 
                     src={livestream.churchLogo} 
                     alt="Logo Iglesia" 
+                    className="hero-logo"
                     style={{ 
-                      width: '160px', 
-                      height: '160px', 
                       borderRadius: '50%', 
                       objectFit: 'cover', 
                       background: '#fff',

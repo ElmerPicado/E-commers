@@ -307,7 +307,7 @@ export default function Admin() {
   // RENDER MINISTRY DASHBOARD IF SELECTED
   if (activeMinistryId) {
     return (
-      <div className="theme-imr4" style={{ minHeight: '100vh', padding: '6.5rem 1.5rem 4rem 1.5rem' }}>
+      <div className="theme-imr4 admin-panel" style={{ minHeight: '100vh', padding: '6.5rem 1.5rem 4rem 1.5rem' }}>
         <div className="container" style={{ maxWidth: '1100px' }}>
           {successMsg && (
             <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981', padding: '0.75rem 1.25rem', borderRadius: '0.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
@@ -325,7 +325,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="theme-imr4" style={{ minHeight: '100vh', padding: '6.5rem 1.5rem 4rem 1.5rem' }}>
+    <div className="theme-imr4 admin-panel" style={{ minHeight: '100vh', padding: '6.5rem 1.5rem 4rem 1.5rem' }}>
       <div className="container" style={{ maxWidth: '1100px' }}>
         
         {/* Header */}
@@ -383,7 +383,7 @@ export default function Admin() {
         `}</style>
 
         {/* Global Tabs */}
-        <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <div className="admin-tabs-container" style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', gap: '0.5rem', flexWrap: 'wrap' }}>
           {[
             { id: 'streaming', label: 'Streaming & Radio', icon: <Tv size={16} /> },
             { id: 'church_data', label: 'Datos de la Iglesia', icon: <Settings size={16} /> },
@@ -412,7 +412,7 @@ export default function Admin() {
 
         {/* TAB 1: STREAMING */}
         {activeTab === 'streaming' && (
-          <div className="animate-fade-in grid-cols-2" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div className="animate-fade-in grid-cols-2" style={{ display: 'grid', gap: '2rem' }}>
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}><Tv size={20} style={{ color: 'var(--accent-color)' }} /> Streaming YouTube</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -450,7 +450,7 @@ export default function Admin() {
         {activeTab === 'church_data' && (
           <div className="animate-fade-in glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
             <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}><Settings size={20} style={{ color: 'var(--accent-color)' }} /> Datos Generales de la Iglesia</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }} className="grid-cols-2">
+            <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                   <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Nombre / Siglas (ej: IMR4)</label>
@@ -507,7 +507,7 @@ export default function Admin() {
             </div>
 
             <form onSubmit={handleSaveSection} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem' }} className="grid-cols-2">
+              <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {secAction === 'edit' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>

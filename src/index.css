@@ -346,10 +346,16 @@ a {
 .hero-section {
   min-height: 85vh;
   padding: 6rem 1.5rem 4rem 1.5rem;
+  background-attachment: fixed;
 }
 .hero-section-min {
   min-height: 65vh;
   padding: 8rem 1.5rem 6rem 1.5rem;
+}
+
+.hero-logo {
+  width: 160px;
+  height: 160px;
 }
 
 @media (max-width: 768px) {
@@ -372,10 +378,16 @@ a {
   .hero-section {
     min-height: 70vh;
     padding: 4rem 1rem 3rem 1rem !important;
+    background-attachment: scroll !important;
   }
   .hero-section-min {
     min-height: 50vh;
     padding: 5rem 1rem 3rem 1rem !important;
+  }
+  
+  .hero-logo {
+    width: 100px;
+    height: 100px;
   }
   
   /* Centrado en móvil para hero */
@@ -391,5 +403,35 @@ a {
   }
   .hero-content-wrapper .logo-wrapper {
     order: 2; /* Logo abajo del texto en celular */
+  }
+
+  /* Admin Dashboard Mobile Fixes */
+  .admin-panel {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .admin-panel [style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+  .admin-panel table, 
+  .admin-panel .table-wrapper {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Make global tabs scrollable horizontally on mobile */
+  .admin-tabs-container {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .admin-tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+  .admin-tabs-container button {
+    white-space: nowrap;
   }
 }
