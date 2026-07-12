@@ -179,7 +179,7 @@ export default function Footer() {
         fontSize: '0.75rem',
         color: 'var(--text-muted)'
       }}>
-        <span>&copy; {new Date().getFullYear()} IMR4. Todos los derechos reservados.</span>
+        <span><Link to="/admin" style={{ color: 'inherit', textDecoration: 'none' }}>&copy;</Link> {new Date().getFullYear()} IMR4. Todos los derechos reservados.</span>
         <span>Diseñado para Iglesia Metodista Río Cuarto.</span>
       </div>
     </footer>

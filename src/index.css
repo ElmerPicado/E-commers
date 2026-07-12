@@ -253,8 +253,47 @@ a {
   .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .grid-cols-4, .grid-cols-3, .grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+}
+
+/* Horizontal Scroll Containers (Mobile Carousels) */
+.scroll-container {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  margin: 0 -1.5rem; /* Full bleed on mobile */
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+.scroll-item {
+  flex: 0 0 auto;
+  width: 85vw;
+  max-width: 350px;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+  .scroll-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    overflow-x: visible;
+    padding-bottom: 0;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .scroll-item {
+    width: 100%;
+    max-width: none;
+  }
 }
 
 /* Responsive App Utilities */

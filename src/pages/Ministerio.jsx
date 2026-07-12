@@ -277,13 +277,9 @@ export default function Ministerio() {
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Eventos programados de {ministry.name}. ¡Súmate!</p>
             </div>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-              gap: '1.5rem'
-            }}>
+            <div className="scroll-container">
               {ministryActivities.map((act) => (
-                <div key={act.id} className="glass-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.6)' }}>
+                <div key={act.id} className="glass-card scroll-item" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.6)' }}>
                   
                   {/* Header estilo Instagram */}
                   <div style={{ padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -299,7 +295,7 @@ export default function Ministerio() {
 
                   {/* Imagen grande */}
                   {act.image_url && (
-                    <div style={{ width: '100%', aspectRatio: '4/5', background: '#000', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ width: '100%', aspectRatio: '1/1', background: '#000', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )}

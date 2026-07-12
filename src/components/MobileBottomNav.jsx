@@ -66,19 +66,6 @@ export default function MobileBottomNav() {
         <span style={{ fontSize: '0.65rem', fontWeight: isActive('/live') ? 700 : 500 }}>En Vivo</span>
       </Link>
 
-      <Link to="/admin" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '0.25rem',
-        color: isActive('/admin') ? 'var(--text-primary)' : 'var(--text-muted)',
-        transition: 'color 0.2s',
-        padding: '0.5rem',
-        flex: 1
-      }}>
-        <Settings size={22} />
-        <span style={{ fontSize: '0.65rem', fontWeight: isActive('/admin') ? 700 : 500 }}>Admin</span>
-      </Link>
     </nav>
   );
 }

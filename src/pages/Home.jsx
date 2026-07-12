@@ -54,10 +54,10 @@ export default function Home() {
         backgroundAttachment: 'fixed',
         borderBottom: '1px solid var(--border-color)'
       }}>
-        <div className="container grid-cols-2" style={{
+        <div className="container hero-grid" style={{
           zIndex: 2,
           display: 'grid',
-          gridTemplateColumns: '1.2fr 1fr',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 350px), 1fr))',
           gap: '2.5rem',
           alignItems: 'center',
           width: '100%'
@@ -342,13 +342,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '1.5rem'
-          }} className="grid-cols-2">
+          <div className="scroll-container">
             {ministries.map((min) => (
-              <div key={min.id} className="glass-card" style={{
+              <div key={min.id} className="glass-card scroll-item" style={{
                 position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
@@ -407,11 +403,7 @@ export default function Home() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Conoce nuestro calendario de eventos de este mes.</p>
           </div>
 
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-            gap: '2rem' 
-          }}>
+          <div className="scroll-container">
             {activities.length > 0 ? (
               activities.map((act) => {
                 const organizingMinistry = ministries.find(m => m.id === act.ministry_id);
@@ -419,7 +411,7 @@ export default function Home() {
                 const dateObj = new Date(act.date);
                 
                 return (
-                  <div key={act.id} className="glass-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.6)' }}>
+                  <div key={act.id} className="glass-card scroll-item" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.6)' }}>
                     
                     {/* Encabezado del Post (Instagram Header) */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem' }}>
@@ -442,11 +434,11 @@ export default function Home() {
 
                     {/* Foto Principal */}
                     {act.image_url ? (
-                      <div style={{ width: '100%', aspectRatio: '4/5', background: '#000', position: 'relative' }}>
+                      <div style={{ width: '100%', aspectRatio: '1/1', background: '#000', position: 'relative' }}>
                         <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </div>
                     ) : (
-                      <div style={{ width: '100%', aspectRatio: '4/5', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)' }}>
+                      <div style={{ width: '100%', aspectRatio: '1/1', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)' }}>
                         <Calendar size={64} style={{ opacity: 0.1, color: accentColor }} />
                       </div>
                     )}
