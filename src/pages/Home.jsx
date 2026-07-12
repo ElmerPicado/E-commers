@@ -442,49 +442,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* General Meetings Schedule */}
-      <section style={{ padding: '4rem 1.5rem' }}>
-        <div className="container" style={{ maxWidth: '800px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-            <h2 style={{ fontSize: '1.8rem', marginBottom: '0.5rem' }}>Cultos y Horarios Semanales</h2>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Te esperamos para compartir juntos en Río Cuarto.</p>
-          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '1rem 1.5rem',
-              background: 'var(--bg-surface)',
-              borderRadius: '0.5rem',
-              border: '1px solid var(--border-color)'
-            }}>
-              <div>
-                <p style={{ fontWeight: 700 }}>Culto General Domingo</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Servicio dominical principal en el auditorio y online</p>
-              </div>
-              <span style={{ fontWeight: 700, color: 'var(--accent-color)' }}>Domingos 10:00 y 19:30 hs</span>
-            </div>
-
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '1rem 1.5rem',
-              background: 'var(--bg-surface)',
-              borderRadius: '0.5rem',
-              border: '1px solid var(--border-color)'
-            }}>
-              <div>
-                <p style={{ fontWeight: 700 }}>Oración y Estudio Bíblico</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Reunión comunitaria en el salón de conferencias</p>
-              </div>
-              <span style={{ fontWeight: 700, color: 'var(--accent-color)' }}>Miércoles 20:00 hs</span>
-            </div>
-          </div>
-        </div>
-      </section>
     </div>
   );
 }

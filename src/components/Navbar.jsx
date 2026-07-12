@@ -57,7 +57,7 @@ export default function Navbar() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               {livestream.churchLogo && (
-                <img src={livestream.churchLogo} alt="Church Logo" style={{ height: '44px', objectFit: 'contain', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
+                <img src={livestream.churchLogo} alt="Church Logo" style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '50%', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
               )}
               <span style={{
                 fontFamily: 'var(--font-display)',

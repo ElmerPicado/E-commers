@@ -151,6 +151,9 @@ CREATE POLICY "Escritura pública activities" ON activities FOR ALL USING (true)
 ALTER TABLE ministries ADD COLUMN IF NOT EXISTS logo_url TEXT;
 ALTER TABLE ministries ADD COLUMN IF NOT EXISTS hero_image TEXT;
 ALTER TABLE ministries ADD COLUMN IF NOT EXISTS instagram_url TEXT;
+ALTER TABLE ministries ADD COLUMN IF NOT EXISTS contact_title TEXT;
+ALTER TABLE ministries ADD COLUMN IF NOT EXISTS contact_desc TEXT;
+ALTER TABLE ministries ADD COLUMN IF NOT EXISTS contact_button_text TEXT;
 ALTER TABLE albums ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_logo_url TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS facebook_url TEXT;

@@ -1,5 +1,13 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 import { GalleryProvider } from './context/GalleryContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -17,6 +25,7 @@ function App() {
   return (
     <GalleryProvider>
       <Router>
+        <ScrollToTop />
         <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Navbar />
           <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>

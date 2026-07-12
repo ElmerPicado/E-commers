@@ -44,6 +44,9 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [minEmail, setMinEmail] = useState(min?.contact_email || '');
   const [minLink, setMinLink] = useState(min?.contact_link || '');
   const [minInstagram, setMinInstagram] = useState(min?.instagram_url || '');
+  const [minContactTitle, setMinContactTitle] = useState(min?.contact_title || '');
+  const [minContactDesc, setMinContactDesc] = useState(min?.contact_desc || '');
+  const [minContactButtonText, setMinContactButtonText] = useState(min?.contact_button_text || '');
   
   const [pillar1Title, setPillar1Title] = useState(min?.pillars?.[0]?.title || '');
   const [pillar1Desc, setPillar1Desc] = useState(min?.pillars?.[0]?.desc || '');
@@ -127,6 +130,9 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       contact_email: minEmail,
       contact_link: minLink,
       instagram_url: minInstagram,
+      contact_title: minContactTitle,
+      contact_desc: minContactDesc,
+      contact_button_text: minContactButtonText,
       pillars: [
         { icon: 'Calendar', title: pillar1Title, desc: pillar1Desc },
         { icon: 'MapPin', title: pillar2Title, desc: pillar2Desc },
@@ -347,7 +353,23 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
            
            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>WhatsApp Link</label>
+               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de Contacto</label>
+               <input type="text" value={minContactTitle} onChange={(e) => setMinContactTitle(e.target.value)} style={inputStyle} placeholder="Conéctate Con Nosotros" />
+             </div>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Texto del Botón</label>
+               <input type="text" value={minContactButtonText} onChange={(e) => setMinContactButtonText(e.target.value)} style={inputStyle} placeholder="Contactar por WhatsApp" />
+             </div>
+           </div>
+           
+           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+             <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción de Contacto</label>
+             <textarea value={minContactDesc} onChange={(e) => setMinContactDesc(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} placeholder="Queremos que seas parte de nuestras actividades..." />
+           </div>
+
+           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace del Botón (WhatsApp o Grupo)</label>
                <input type="text" value={minLink} onChange={(e) => setMinLink(e.target.value)} style={inputStyle} />
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>

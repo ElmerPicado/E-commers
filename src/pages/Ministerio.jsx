@@ -78,9 +78,9 @@ export default function Ministerio() {
         padding: '6.5rem 1.5rem 4rem 1.5rem',
         background: ministry.hero_image ? `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.7)), url(${ministry.hero_image})` : `linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0) 100%)`,
         backgroundColor: '#0a0a0c',
-        backgroundSize: ministry.hero_image ? 'contain' : 'cover',
+        backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'top center',
+        backgroundPosition: 'center',
         borderBottom: '1px solid var(--border-color)',
         textAlign: 'center'
       }}>
@@ -337,9 +337,9 @@ export default function Ministerio() {
       {/* CTA / Contact */}
       <section id="contacto" style={{ padding: '4rem 1.5rem', background: 'rgba(255,255,255,0.01)', borderTop: '1px solid var(--border-color)' }}>
         <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
-          <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>Conéctate Con Nosotros</h2>
+          <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>{ministry.contact_title || 'Conéctate Con Nosotros'}</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '2rem', lineHeight: '1.6' }}>
-            Queremos que seas parte de nuestras actividades semanales en Río Cuarto. Escríbenos para recibir notificaciones directas o resolver cualquier consulta.
+            {ministry.contact_desc || 'Queremos que seas parte de nuestras actividades semanales en Río Cuarto. Escríbenos para recibir notificaciones directas o resolver cualquier consulta.'}
           </p>
           <div style={{
             background: 'var(--bg-surface)',
@@ -369,7 +369,7 @@ export default function Ministerio() {
                 gap: '0.5rem'
               }}
             >
-              <MessageSquare size={16} /> Contactar por WhatsApp
+              <MessageSquare size={16} /> {ministry.contact_button_text || 'Contactar por WhatsApp'}
             </a>
           </div>
         </div>
