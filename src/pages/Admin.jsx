@@ -36,6 +36,8 @@ export default function Admin() {
 
   const triggerSuccess = (msg) => {
     setSuccessMsg(msg);
+    window.alert(`✅ ${msg}`);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => setSuccessMsg(''), 3000);
   };
 

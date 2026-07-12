@@ -8,7 +8,7 @@ function ScrollToTop() {
   }, [pathname]);
   return null;
 }
-import { GalleryProvider } from './context/GalleryContext';
+import { GalleryProvider, GalleryContext } from './context/GalleryContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
