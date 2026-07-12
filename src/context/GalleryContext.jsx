@@ -265,7 +265,7 @@ export const GalleryProvider = ({ children }) => {
       const saved = localStorage.getItem('imr4_blog_posts');
       return saved ? JSON.parse(saved) : DEFAULT_BLOG_POSTS;
     }
-    return DEFAULT_BLOG_POSTS;
+    return [];
   });
 
   const [homeSections, setHomeSections] = useState(() => {
@@ -273,7 +273,7 @@ export const GalleryProvider = ({ children }) => {
       const saved = localStorage.getItem('imr4_home_sections');
       return saved ? JSON.parse(saved) : DEFAULT_HOME_SECTIONS;
     }
-    return DEFAULT_HOME_SECTIONS;
+    return [];
   });
 
   const [ministries, setMinistries] = useState(() => {
@@ -281,7 +281,7 @@ export const GalleryProvider = ({ children }) => {
       const saved = localStorage.getItem('imr4_ministries');
       return saved ? JSON.parse(saved) : DEFAULT_MINISTRIES;
     }
-    return DEFAULT_MINISTRIES;
+    return [];
   });
 
   const [activities, setActivities] = useState(() => {
@@ -289,7 +289,7 @@ export const GalleryProvider = ({ children }) => {
       const saved = localStorage.getItem('imr4_activities');
       return saved ? JSON.parse(saved) : DEFAULT_ACTIVITIES;
     }
-    return DEFAULT_ACTIVITIES;
+    return [];
   });
 
   const [radioPrograms, setRadioPrograms] = useState(() => {
