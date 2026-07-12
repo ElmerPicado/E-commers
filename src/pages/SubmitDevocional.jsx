@@ -80,7 +80,6 @@ export default function SubmitDevocional() {
         const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
         finalPhotoUrl = publicUrl;
       } catch (err) {
-      } catch (err) {
         console.error('Error uploading photo:', err);
         alert('Hubo un error al subir la foto. Se enviará sin foto.');
       }

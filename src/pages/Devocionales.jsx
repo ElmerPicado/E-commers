@@ -53,11 +53,6 @@ export default function Devocionales() {
           ))}
         </aside>
 
-      <div className="devocionales-layout">
-        <aside className="categories-sidebar">
-          {/* ... existing sidebar code remains ... */}
-        </aside>
-
         <main className="devocionales-grid" style={{ paddingBottom: '4rem' }}>
           {filteredDevotionals.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#64748b', background: '#f8fafc', borderRadius: '1rem', border: '1px dashed #cbd5e1' }}>
