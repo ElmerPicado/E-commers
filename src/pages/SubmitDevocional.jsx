@@ -125,7 +125,13 @@ export default function SubmitDevocional() {
       created_at: new Date().toISOString()
     };
 
-    await addDevotional(newDevotional);
+    const result = await addDevotional(newDevotional);
+    
+    if (result && !result.success) {
+      alert("Hubo un error al guardar tu devocional: " + result.error + "\nPor favor verifica tu conexión o contacta a soporte.");
+      setIsSubmitting(false);
+      return;
+    }
     
     setGeneratedCode(savedCode);
     setIsSubmitting(false);

@@ -849,9 +849,15 @@ export const GalleryProvider = ({ children }) => {
 
   const addDevotional = async (devotional) => {
     if (isSupabaseConfigured) {
-      await supabase.from('devotionals').insert(devotional);
+      const { data, error } = await supabase.from('devotionals').insert(devotional).select();
+      if (error) {
+        console.error("Supabase insert error:", error);
+        return { success: false, error: error.message };
+      }
+      return { success: true, data };
     } else {
       setDevotionals(prev => [devotional, ...prev]);
+      return { success: true };
     }
   };
 
