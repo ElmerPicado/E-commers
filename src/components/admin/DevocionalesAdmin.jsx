@@ -18,6 +18,8 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
   const [editingDevId, setEditingDevId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
   const [editContent, setEditContent] = useState('');
+  const [editVerse, setEditVerse] = useState('');
+  const [editPrayer, setEditPrayer] = useState('');
   const [editCategoryId, setEditCategoryId] = useState('');
   const [editStatus, setEditStatus] = useState('pending');
 
@@ -64,7 +66,9 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
   const startEditing = (dev) => {
     setEditingDevId(dev.id);
     setEditTitle(dev.title);
+    setEditVerse(dev.verse || '');
     setEditContent(dev.content);
+    setEditPrayer(dev.prayer || '');
     setEditCategoryId(dev.category_id || '');
     setEditStatus(dev.status || 'pending');
   };
@@ -77,7 +81,9 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
     e.preventDefault();
     await updateDevotional(editingDevId, {
       title: editTitle,
+      verse: editVerse,
       content: editContent,
+      prayer: editPrayer,
       category_id: editCategoryId || null,
       status: editStatus
     });
@@ -159,8 +165,18 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                     </div>
 
                     <div>
+                      <label style={labelStyle}>Versículo</label>
+                      <textarea value={editVerse} onChange={e => setEditVerse(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} />
+                    </div>
+
+                    <div>
                       <label style={labelStyle}>Contenido</label>
                       <textarea value={editContent} onChange={e => setEditContent(e.target.value)} style={{ ...inputStyle, minHeight: '150px' }} required />
+                    </div>
+
+                    <div>
+                      <label style={labelStyle}>Oración</label>
+                      <textarea value={editPrayer} onChange={e => setEditPrayer(e.target.value)} style={{ ...inputStyle, minHeight: '80px' }} />
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>

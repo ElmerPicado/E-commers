@@ -357,6 +357,200 @@ CREATE TABLE IF NOT EXISTS devotional_authors (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V3: Radio Programs)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS radio_programs (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  host TEXT,
+  schedule_time TEXT,
+  image_url TEXT,
+  description TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE radio_programs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública radio_programs" ON radio_programs;
+DROP POLICY IF EXISTS "Escritura pública radio_programs" ON radio_programs;
+
+-- Trigger para radio
+CREATE TRIGGER handle_updated_at_radio
+BEFORE UPDATE ON radio
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_updated_at();
+
+-- Crear tabla de categorias de devocionales
+CREATE TABLE IF NOT EXISTS devotional_categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+-- Crear tabla de devocionales
+CREATE TABLE IF NOT EXISTS devotionals (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  category_id UUID REFERENCES devotional_categories(id) ON DELETE SET NULL,
+  content TEXT NOT NULL,
+  author_name TEXT NOT NULL,
+  author_bio TEXT,
+  author_photo TEXT,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'published', 'rejected')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+-- Habilitar RLS para devocionales
+ALTER TABLE devotional_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE devotionals ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para categorias (públicas para leer, autenticados para escribir)
+CREATE POLICY "Categorías son públicas"
+  ON devotional_categories FOR SELECT
+  USING (true);
+
+CREATE POLICY "Solo autenticados pueden modificar categorías"
+  ON devotional_categories FOR ALL
+  USING (auth.role() = 'authenticated');
+
+-- Políticas para devocionales (públicos pueden insertar y leer publicados, autenticados todo)
+CREATE POLICY "Cualquiera puede insertar devocionales (pending)"
+  ON devotionals FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Cualquiera puede leer devocionales publicados"
+  ON devotionals FOR SELECT
+  USING (status = 'published' OR auth.role() = 'authenticated');
+
+CREATE POLICY "Solo autenticados pueden modificar devocionales"
+  ON devotionals FOR UPDATE
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Solo autenticados pueden eliminar devocionales"
+  ON devotionals FOR DELETE
+  USING (auth.role() = 'authenticated');
+
+-- Trigger para updated_at en devotionals
+CREATE TRIGGER handle_updated_at_devotionals
+BEFORE UPDATE ON devotionals
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_updated_at();
+
+CREATE POLICY "Lectura pública radio_programs" ON radio_programs FOR SELECT USING (true);
+CREATE POLICY "Escritura pública radio_programs" ON radio_programs FOR ALL USING (true) WITH CHECK (true);
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V4: Google Maps y Ubicaciones)
+-- ==========================================================
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_address TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_maps_url TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_name TEXT DEFAULT 'IMR4';
+ALTER TABLE ministries ADD COLUMN IF NOT EXISTS location_url TEXT;
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS location_url TEXT;
+
+-- ==========================================================
+-- INSTRUCCIONES PARA EL ALMACENAMIENTO (STORAGE):
+-- 1. Ve a "Storage" en el menú izquierdo de Supabase.
+-- 2. Haz clic en "New Bucket".
+-- 3. Nómbralo: "photos".
+-- 4. Asegúrate de activar la opción "Public" (Público).
+-- 5. Haz clic en "Save".
+-- ==========================================================
+
+-- ==========================================================
+-- 6. Políticas de Almacenamiento (Para permitir subir fotos)
+-- Estas políticas permiten subir, actualizar y eliminar archivos en el bucket "photos".
+-- ==========================================================
+DROP POLICY IF EXISTS "Lectura pública storage" ON storage.objects;
+DROP POLICY IF EXISTS "Inserción pública storage" ON storage.objects;
+DROP POLICY IF EXISTS "Actualización pública storage" ON storage.objects;
+DROP POLICY IF EXISTS "Eliminación pública storage" ON storage.objects;
+
+CREATE POLICY "Lectura pública storage" ON storage.objects FOR SELECT USING (bucket_id = 'photos');
+CREATE POLICY "Inserción pública storage" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'photos');
+CREATE POLICY "Actualización pública storage" ON storage.objects FOR UPDATE USING (bucket_id = 'photos');
+CREATE POLICY "Eliminación pública storage" ON storage.objects FOR DELETE USING (bucket_id = 'photos');
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V5: Noticias y Blogs)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  image_url TEXT,
+  order_index INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública blog_posts" ON blog_posts;
+DROP POLICY IF EXISTS "Escritura pública blog_posts" ON blog_posts;
+CREATE POLICY "Lectura pública blog_posts" ON blog_posts FOR SELECT USING (true);
+CREATE POLICY "Escritura pública blog_posts" ON blog_posts FOR ALL USING (true) WITH CHECK (true);
+
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'historia';
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS video_url TEXT;
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V6: Administradores)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS admin_users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública admin_users" ON admin_users;
+DROP POLICY IF EXISTS "Escritura pública admin_users" ON admin_users;
+CREATE POLICY "Lectura pública admin_users" ON admin_users FOR SELECT USING (true);
+CREATE POLICY "Escritura pública admin_users" ON admin_users FOR ALL USING (true) WITH CHECK (true);
+
+-- Insertar usuario maestro si no existe
+INSERT INTO admin_users (username, password)
+SELECT 'imr4', 'r1558'
+WHERE NOT EXISTS (
+  SELECT 1 FROM admin_users WHERE username = 'imr4'
+);
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V7: Formularios de Contacto)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS contact_forms (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  nombre TEXT NOT NULL,
+  apellido TEXT NOT NULL,
+  edad INTEGER NOT NULL,
+  sexo TEXT NOT NULL,
+  telefono TEXT NOT NULL,
+  estado TEXT NOT NULL DEFAULT 'no_leido',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE contact_forms ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública contact_forms" ON contact_forms;
+DROP POLICY IF EXISTS "Escritura pública contact_forms" ON contact_forms;
+
+CREATE POLICY "Lectura pública contact_forms" ON contact_forms FOR SELECT USING (true);
+CREATE POLICY "Escritura pública contact_forms" ON contact_forms FOR ALL USING (true) WITH CHECK (true);
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V8: Autores Frecuentes Devocionales)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS devotional_authors (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  code TEXT UNIQUE NOT NULL,
+  email TEXT UNIQUE,
+  name TEXT NOT NULL,
+  bio TEXT,
+  photo_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 ALTER TABLE devotional_authors ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Lectura pública devotional_authors" ON devotional_authors;
 DROP POLICY IF EXISTS "Escritura pública devotional_authors" ON devotional_authors;
@@ -365,3 +559,9 @@ DROP POLICY IF EXISTS "Escritura pública devotional_authors" ON devotional_auth
 CREATE POLICY "Lectura pública devotional_authors" ON devotional_authors FOR SELECT USING (true);
 -- Escritura pública porque los invitados se auto-registran
 CREATE POLICY "Escritura pública devotional_authors" ON devotional_authors FOR ALL USING (true) WITH CHECK (true);
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V9: Versículo y Oración en Devocionales)
+-- ==========================================================
+ALTER TABLE devotionals ADD COLUMN IF NOT EXISTS verse TEXT;
+ALTER TABLE devotionals ADD COLUMN IF NOT EXISTS prayer TEXT;

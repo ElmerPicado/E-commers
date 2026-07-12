@@ -14,7 +14,9 @@ export default function SubmitDevocional() {
   const [authorPhotoFile, setAuthorPhotoFile] = useState(null);
   const [authorPhotoPreview, setAuthorPhotoPreview] = useState('');
   const [title, setTitle] = useState('');
+  const [verse, setVerse] = useState('');
   const [content, setContent] = useState('');
+  const [prayer, setPrayer] = useState('');
   
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -113,7 +115,9 @@ export default function SubmitDevocional() {
 
     const newDevotional = {
       title,
+      verse,
       content,
+      prayer,
       author_name: authorName,
       author_bio: authorBio,
       author_photo: finalPhotoUrl,
@@ -201,7 +205,9 @@ export default function SubmitDevocional() {
               setAuthorPhotoFile(null);
               setAuthorPhotoPreview('');
               setTitle('');
+              setVerse('');
               setContent('');
+              setPrayer('');
             }}
             className="btn btn-secondary"
             style={{ width: '100%', marginBottom: '1rem' }}
@@ -369,7 +375,7 @@ export default function SubmitDevocional() {
                   </div>
                 )}
                 {authorPhotoPreview && (
-                  <div style={{ marginTop: '0.75rem', width: '80px', height: '80px', borderRadius: '50%', overflow: 'hidden', border: '2px solid var(--border-color)' }}>
+                  <div style={{ marginTop: '0.75rem', width: '90px', height: '110px', borderRadius: '8px', overflow: 'hidden', border: '2px solid var(--border-color)' }}>
                     <img src={authorPhotoPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                   </div>
                 )}
@@ -394,6 +400,16 @@ export default function SubmitDevocional() {
                   required
                   placeholder="Un título que atrape..."
                   style={{ ...inputStyle, background: 'var(--input-bg)', fontSize: '1.1rem', fontWeight: 600 }}
+                />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Versículo Base</label>
+                <textarea 
+                  value={verse} 
+                  onChange={(e) => setVerse(e.target.value)}
+                  placeholder='"Porque de tal manera amó Dios al mundo..." Juan 3:16'
+                  style={{ ...inputStyle, background: 'var(--input-bg)', resize: 'vertical', minHeight: '60px', fontStyle: 'italic' }}
                 />
               </div>
 
@@ -431,6 +447,16 @@ export default function SubmitDevocional() {
                     min-height: 300px;
                   }
                 `}</style>
+              </div>
+
+              <div>
+                <label style={labelStyle}>Oración Final</label>
+                <textarea 
+                  value={prayer} 
+                  onChange={(e) => setPrayer(e.target.value)}
+                  placeholder="Señor, te pido que esta palabra..."
+                  style={{ ...inputStyle, background: 'var(--input-bg)', resize: 'vertical', minHeight: '80px' }}
+                />
               </div>
             </div>
           </div>
