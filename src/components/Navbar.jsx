@@ -25,6 +25,18 @@ export default function Navbar() {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
+  // Evita el scroll del fondo cuando el menú móvil está abierto
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isMobileMenuOpen]);
+
   useEffect(() => {
     if (livestream.churchName) {
       document.title = livestream.churchName;
@@ -280,24 +292,6 @@ export default function Navbar() {
               <Link to="/live" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/live') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
                 <Tv size={20} /> En Vivo & Radio
               </Link>
-            </div>
-          </div>
-
-          <div>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
-              Ministerios
-            </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              {ministries.map((m) => (
-                <Link key={m.id} to={`/ministerio/${m.id}`} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive(`/ministerio/${m.id}`) ? m.accent_color : 'var(--text-secondary)' }}>
-                  {m.logo_url ? (
-                    <img src={m.logo_url} alt={m.name} style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'contain' }} />
-                  ) : (
-                    <NavbarIcon name={m.icon_name} color={m.accent_color} />
-                  )}
-                  {m.name}
-                </Link>
-              ))}
             </div>
           </div>
 
