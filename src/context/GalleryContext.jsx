@@ -236,6 +236,16 @@ const DEFAULT_BLOG_POSTS = [
   }
 ];
 
+const DEFAULT_DEVOTIONAL_CATEGORIES = [
+  { id: '1', name: 'Amor y Gracia' },
+  { id: '2', name: 'Paz y Ansiedad' },
+  { id: '3', name: 'Propósito y Llamado' },
+  { id: '4', name: 'Relaciones y Familia' },
+  { id: '5', name: 'Esperanza y Fe' }
+];
+
+const DEFAULT_DEVOTIONALS = [];
+
 export const GalleryProvider = ({ children }) => {
   const [albums, setAlbums] = useState(() => {
     if (!isSupabaseConfigured) {
@@ -314,6 +324,22 @@ export const GalleryProvider = ({ children }) => {
   const [adminUser, setAdminUser] = useState(null);
   const [adminUsersList, setAdminUsersList] = useState([]);
 
+  const [devotionalCategories, setDevotionalCategories] = useState(() => {
+    if (!isSupabaseConfigured) {
+      const saved = localStorage.getItem('imr4_devotional_categories');
+      return saved ? JSON.parse(saved) : DEFAULT_DEVOTIONAL_CATEGORIES;
+    }
+    return [];
+  });
+
+  const [devotionals, setDevotionals] = useState(() => {
+    if (!isSupabaseConfigured) {
+      const saved = localStorage.getItem('imr4_devotionals');
+      return saved ? JSON.parse(saved) : DEFAULT_DEVOTIONALS;
+    }
+    return [];
+  });
+
   // Local storage backups syncing
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -362,6 +388,18 @@ export const GalleryProvider = ({ children }) => {
       localStorage.setItem('imr4_radio_programs', JSON.stringify(radioPrograms));
     }
   }, [radioPrograms]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem('imr4_devotional_categories', JSON.stringify(devotionalCategories));
+    }
+  }, [devotionalCategories]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem('imr4_devotionals', JSON.stringify(devotionals));
+    }
+  }, [devotionals]);
 
   // Fetch Supabase data function
   const fetchSupabaseData = async () => {
@@ -430,6 +468,13 @@ export const GalleryProvider = ({ children }) => {
           bank_accounts: typeof dbDonations.bank_accounts === 'string' ? JSON.parse(dbDonations.bank_accounts) : (dbDonations.bank_accounts || [])
         });
       }
+
+      // 9. Devotionals
+      const { data: dbDevCategories } = await supabase.from('devotional_categories').select('*').order('name');
+      if (dbDevCategories) setDevotionalCategories(dbDevCategories);
+
+      const { data: dbDevotionals } = await supabase.from('devotionals').select('*').order('created_at', { ascending: false });
+      if (dbDevotionals) setDevotionals(dbDevotionals);
     } catch (e) {
       console.error('Error fetching data from Supabase:', e);
     }
@@ -475,6 +520,8 @@ export const GalleryProvider = ({ children }) => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'radio_programs' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'blog_posts' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'donations_config' }, () => fetchSupabaseData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'devotional_categories' }, () => fetchSupabaseData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'devotionals' }, () => fetchSupabaseData())
         .subscribe();
 
       return () => {
@@ -486,83 +533,105 @@ export const GalleryProvider = ({ children }) => {
 
   // Gallery methods
   const addAlbum = async (album) => {
+    // Optimistic Update
+    setAlbums((prev) => [album, ...prev]);
     if (isSupabaseConfigured) {
-      await supabase.from('albums').insert(album);
-    } else {
-      setAlbums((prev) => [album, ...prev]);
+      const { error } = await supabase.from('albums').insert(album);
+      if (error) {
+        console.error('Error adding album:', error);
+        fetchSupabaseData(); // Revert on error
+      }
     }
   };
 
   const deleteAlbum = async (id) => {
+    // Optimistic Update
+    setAlbums((prev) => prev.filter((album) => album.id !== id));
     if (isSupabaseConfigured) {
-      await supabase.from('albums').delete().eq('id', id);
-    } else {
-      setAlbums((prev) => prev.filter((album) => album.id !== id));
+      const { error } = await supabase.from('albums').delete().eq('id', id);
+      if (error) {
+        console.error('Error deleting album:', error);
+        fetchSupabaseData(); // Revert on error
+      }
     }
   };
 
   const updateAlbum = async (id, updates) => {
-    if (isSupabaseConfigured) {
-      await supabase.from('albums').update(updates).eq('id', id);
-    }
+    // Optimistic Update
     setAlbums((prev) => prev.map((album) => (album.id === id ? { ...album, ...updates } : album)));
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.from('albums').update(updates).eq('id', id);
+      if (error) {
+         console.error('Error updating album:', error);
+         fetchSupabaseData(); // Revert on error
+      }
+    }
   };
 
   const addPhotoToAlbum = async (albumId, photoUrl) => {
+    // Optimistic Update first!
+    setAlbums((prev) =>
+      prev.map((album) => {
+        if (album.id === albumId) {
+          // Asegurar que photos existe
+          const currentPhotos = album.photos || [];
+          return { ...album, photos: [...currentPhotos, photoUrl] };
+        }
+        return album;
+      })
+    );
+
     if (isSupabaseConfigured) {
-      const { data: album } = await supabase.from('albums').select('photos').eq('id', albumId).single();
-      if (album) {
-        const updatedPhotos = [...album.photos, photoUrl];
-        await supabase.from('albums').update({ photos: updatedPhotos }).eq('id', albumId);
-        
-        // Reflejar cambio en la UI instantáneamente
-        setAlbums((prev) =>
-          prev.map((a) => (a.id === albumId ? { ...a, photos: updatedPhotos } : a))
-        );
+      try {
+        const { data: album } = await supabase.from('albums').select('photos').eq('id', albumId).single();
+        if (album) {
+          const currentPhotos = album.photos || [];
+          const updatedPhotos = [...currentPhotos, photoUrl];
+          await supabase.from('albums').update({ photos: updatedPhotos }).eq('id', albumId);
+        }
+      } catch (err) {
+        console.error('Error adding photo to album in Supabase:', err);
+        fetchSupabaseData(); // Revert
       }
-    } else {
-      setAlbums((prev) =>
-        prev.map((album) => {
-          if (album.id === albumId) {
-            return { ...album, photos: [...album.photos, photoUrl] };
-          }
-          return album;
-        })
-      );
     }
   };
 
   const removePhotoFromAlbum = async (albumId, photoUrl) => {
-    if (isSupabaseConfigured) {
-      const { data: album } = await supabase.from('albums').select('photos').eq('id', albumId).single();
-      if (album) {
-        const updatedPhotos = album.photos.filter((url) => url !== photoUrl);
-        await supabase.from('albums').update({ photos: updatedPhotos }).eq('id', albumId);
-        
-        // Reflejar cambio en la UI instantáneamente
-        setAlbums((prev) =>
-          prev.map((a) => (a.id === albumId ? { ...a, photos: updatedPhotos } : a))
-        );
-        
-        // Try to delete the actual file from Supabase storage (optional cleanup)
-        try {
-          const urlParts = photoUrl.split('/');
-          const fileName = urlParts[urlParts.length - 1];
-          const pathName = `${albumId}/${fileName}`;
-          await supabase.storage.from('photos').remove([pathName]);
-        } catch (e) {
-          console.error("Could not delete file from storage, only removed from album record:", e);
+    // Optimistic Update first!
+    setAlbums((prev) =>
+      prev.map((a) => {
+        if (a.id === albumId) {
+           return { ...a, photos: (a.photos || []).filter((url) => url !== photoUrl) };
         }
-      }
-    } else {
-      setAlbums((prev) =>
-        prev.map((album) => {
-          if (album.id === albumId) {
-            return { ...album, photos: album.photos.filter((url) => url !== photoUrl) };
+        return a;
+      })
+    );
+
+    if (isSupabaseConfigured) {
+      try {
+        const { data: album } = await supabase.from('albums').select('photos').eq('id', albumId).single();
+        if (album) {
+          const currentPhotos = album.photos || [];
+          const updatedPhotos = currentPhotos.filter((url) => url !== photoUrl);
+          await supabase.from('albums').update({ photos: updatedPhotos }).eq('id', albumId);
+          
+          // Try to delete the actual file from Supabase storage (optional cleanup)
+          try {
+            const urlParts = photoUrl.split('/');
+            const fileName = urlParts[urlParts.length - 1];
+            // En Supabase, a menudo la URL tiene el bucket (photos) y el nombre. 
+            // Esto asume que el nombre de archivo de la foto es el último segmento de la URL.
+            // Puede que no borre nada si la ruta no coincide exactamente, pero la base de datos sí se actualiza.
+            await supabase.storage.from('photos').remove([`${albumId}/${fileName}`]);
+            await supabase.storage.from('photos').remove([fileName]); // fallback para fotos en root
+          } catch (e) {
+            console.log('No se pudo borrar el archivo del storage (puede ser externo o ruta distinta)', e);
           }
-          return album;
-        })
-      );
+        }
+      } catch (err) {
+        console.error('Error removing photo from album in Supabase:', err);
+        fetchSupabaseData(); // Revert
+      }
     }
   };
 
@@ -762,6 +831,46 @@ export const GalleryProvider = ({ children }) => {
     }
   };
 
+  const addDevotionalCategory = async (category) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('devotional_categories').insert(category);
+    } else {
+      setDevotionalCategories(prev => [...prev, category]);
+    }
+  };
+
+  const deleteDevotionalCategory = async (id) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('devotional_categories').delete().eq('id', id);
+    } else {
+      setDevotionalCategories(prev => prev.filter(c => c.id !== id));
+    }
+  };
+
+  const addDevotional = async (devotional) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('devotionals').insert(devotional);
+    } else {
+      setDevotionals(prev => [devotional, ...prev]);
+    }
+  };
+
+  const updateDevotional = async (id, updates) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('devotionals').update(updates).eq('id', id);
+    } else {
+      setDevotionals(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
+    }
+  };
+
+  const deleteDevotional = async (id) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('devotionals').delete().eq('id', id);
+    } else {
+      setDevotionals(prev => prev.filter(d => d.id !== id));
+    }
+  };
+
   // Auth & Admin Users Methods
   const login = async (username, password) => {
     if (isSupabaseConfigured) {
@@ -864,7 +973,14 @@ export const GalleryProvider = ({ children }) => {
         logout,
         fetchAdminUsers,
         addAdminUser,
-        deleteAdminUser
+        deleteAdminUser,
+        devotionalCategories,
+        devotionals,
+        addDevotionalCategory,
+        deleteDevotionalCategory,
+        addDevotional,
+        updateDevotional,
+        deleteDevotional
       }}
     >
       {children}

@@ -22,6 +22,8 @@ import Admin from './pages/Admin';
 import Login from './pages/Login';
 import Donaciones from './pages/Donaciones';
 import Historia from './pages/Historia';
+import Devocionales from './pages/Devocionales';
+import SubmitDevocional from './pages/SubmitDevocional';
 
 const ProtectedAdminRoute = () => {
   const { adminUser } = useContext(GalleryContext);
@@ -45,6 +47,8 @@ function App() {
               <Route path="/live" element={<Live />} />
               <Route path="/donaciones" element={<Donaciones />} />
               <Route path="/historia" element={<Historia />} />
+              <Route path="/devocionales" element={<Devocionales />} />
+              <Route path="/enviar-devocional" element={<SubmitDevocional />} />
               <Route path="/admin" element={<ProtectedAdminRoute />} />
             </Routes>
           </main>

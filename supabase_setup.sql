@@ -180,6 +180,70 @@ CREATE TABLE IF NOT EXISTS radio_programs (
 ALTER TABLE radio_programs ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Lectura pública radio_programs" ON radio_programs;
 DROP POLICY IF EXISTS "Escritura pública radio_programs" ON radio_programs;
+
+-- Trigger para radio
+CREATE TRIGGER handle_updated_at_radio
+BEFORE UPDATE ON radio
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_updated_at();
+
+-- Crear tabla de categorias de devocionales
+CREATE TABLE IF NOT EXISTS devotional_categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+-- Crear tabla de devocionales
+CREATE TABLE IF NOT EXISTS devotionals (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  category_id UUID REFERENCES devotional_categories(id) ON DELETE SET NULL,
+  content TEXT NOT NULL,
+  author_name TEXT NOT NULL,
+  author_bio TEXT,
+  author_photo TEXT,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'published', 'rejected')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW())
+);
+
+-- Habilitar RLS para devocionales
+ALTER TABLE devotional_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE devotionals ENABLE ROW LEVEL SECURITY;
+
+-- Políticas para categorias (públicas para leer, autenticados para escribir)
+CREATE POLICY "Categorías son públicas"
+  ON devotional_categories FOR SELECT
+  USING (true);
+
+CREATE POLICY "Solo autenticados pueden modificar categorías"
+  ON devotional_categories FOR ALL
+  USING (auth.role() = 'authenticated');
+
+-- Políticas para devocionales (públicos pueden insertar y leer publicados, autenticados todo)
+CREATE POLICY "Cualquiera puede insertar devocionales (pending)"
+  ON devotionals FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Cualquiera puede leer devocionales publicados"
+  ON devotionals FOR SELECT
+  USING (status = 'published' OR auth.role() = 'authenticated');
+
+CREATE POLICY "Solo autenticados pueden modificar devocionales"
+  ON devotionals FOR UPDATE
+  USING (auth.role() = 'authenticated');
+
+CREATE POLICY "Solo autenticados pueden eliminar devocionales"
+  ON devotionals FOR DELETE
+  USING (auth.role() = 'authenticated');
+
+-- Trigger para updated_at en devotionals
+CREATE TRIGGER handle_updated_at_devotionals
+BEFORE UPDATE ON devotionals
+FOR EACH ROW
+EXECUTE FUNCTION public.handle_updated_at();
+
 CREATE POLICY "Lectura pública radio_programs" ON radio_programs FOR SELECT USING (true);
 CREATE POLICY "Escritura pública radio_programs" ON radio_programs FOR ALL USING (true) WITH CHECK (true);
 

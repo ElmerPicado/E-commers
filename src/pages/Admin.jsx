@@ -7,7 +7,8 @@ import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
 import DonationsAdmin from '../components/admin/DonationsAdmin';
 import ContactFormsAdmin from '../components/admin/ContactFormsAdmin';
 import BlogAdmin from '../components/admin/BlogAdmin';
-import { Heart, Mail } from 'lucide-react';
+import DevocionalesAdmin from '../components/admin/DevocionalesAdmin';
+import { Heart, Mail, BookOpen } from 'lucide-react';
 
 export default function Admin() {
   const {
@@ -395,6 +396,7 @@ export default function Admin() {
             { id: 'donations', label: 'Diezmos y Ofrendas', icon: <Heart size={16} /> },
             { id: 'contact_forms', label: 'Formularios de Contacto', icon: <Mail size={16} /> },
             { id: 'history', label: 'Nuestra Historia', icon: <FileText size={16} /> },
+            { id: 'devocionales', label: 'Devocionales', icon: <BookOpen size={16} /> },
             { id: 'admin_users', label: 'Administradores', icon: <Lock size={16} /> }
           ].map((tab) => (
             <button
@@ -618,6 +620,13 @@ export default function Admin() {
         {activeTab === 'history' && (
           <div className="animate-fade-in">
             <BlogAdmin triggerSuccess={triggerSuccess} />
+          </div>
+        )}
+
+        {/* TAB 9: DEVOCIONALES */}
+        {activeTab === 'devocionales' && (
+          <div className="animate-fade-in">
+            <DevocionalesAdmin triggerSuccess={triggerSuccess} />
           </div>
         )}
 

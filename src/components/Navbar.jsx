@@ -178,6 +178,19 @@ export default function Navbar() {
             Nuestra Historia
           </Link>
 
+          <Link to="/devocionales" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            color: isActive('/devocionales') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            transition: 'color 0.2s'
+          }}>
+            <BookOpen size={15} />
+            Devocionales
+          </Link>
+
           <Link to="/galeria" style={{
             display: 'flex',
             alignItems: 'center',
@@ -290,6 +303,9 @@ export default function Navbar() {
               </Link>
               <Link to="/historia" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/historia') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
                 <BookOpen size={20} /> Nuestra Historia
+              </Link>
+              <Link to="/devocionales" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/devocionales') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                <BookOpen size={20} /> Devocionales
               </Link>
             </div>
           </div>
