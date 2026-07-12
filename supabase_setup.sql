@@ -232,4 +232,25 @@ DROP POLICY IF EXISTS "Escritura pública blog_posts" ON blog_posts;
 CREATE POLICY "Lectura pública blog_posts" ON blog_posts FOR SELECT USING (true);
 CREATE POLICY "Escritura pública blog_posts" ON blog_posts FOR ALL USING (true) WITH CHECK (true);
 
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V6: Administradores)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS admin_users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  username TEXT UNIQUE NOT NULL,
+  password TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
 
+ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública admin_users" ON admin_users;
+DROP POLICY IF EXISTS "Escritura pública admin_users" ON admin_users;
+CREATE POLICY "Lectura pública admin_users" ON admin_users FOR SELECT USING (true);
+CREATE POLICY "Escritura pública admin_users" ON admin_users FOR ALL USING (true) WITH CHECK (true);
+
+-- Insertar usuario maestro si no existe
+INSERT INTO admin_users (username, password)
+SELECT 'imr4', 'r1558'
+WHERE NOT EXISTS (
+  SELECT 1 FROM admin_users WHERE username = 'imr4'
+);

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash2, Edit, Settings, Image, FileText } from 'lucide-react';
+import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash2, Edit, Settings, Image, FileText, LogOut, Lock, UserPlus } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
 import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
@@ -21,7 +21,13 @@ export default function Admin() {
     blogPosts,
     addBlogPost,
     updateBlogPost,
-    deleteBlogPost
+    deleteBlogPost,
+    adminUser,
+    adminUsersList,
+    logout,
+    fetchAdminUsers,
+    addAdminUser,
+    deleteAdminUser
   } = useContext(GalleryContext);
 
   const [activeTab, setActiveTab] = useState('streaming');
@@ -119,6 +125,17 @@ export default function Admin() {
       loadBlogData(blogPosts[0].id);
     }
   }, [blogPosts, blogAction]);
+
+  // 5. Admin Users State
+  const [newAdminUser, setNewAdminUser] = useState('');
+  const [newAdminPass, setNewAdminPass] = useState('');
+  const [isAdminCreating, setIsAdminCreating] = useState(false);
+
+  React.useEffect(() => {
+    if (activeTab === 'admin_users') {
+      fetchAdminUsers();
+    }
+  }, [activeTab]);
 
   // SUBMITS
   const handleUpdateStreaming = async (e) => {
@@ -310,9 +327,18 @@ export default function Admin() {
       <div className="container" style={{ maxWidth: '1100px' }}>
         
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ textAlign: 'center', marginBottom: '2rem', position: 'relative' }}>
           <h1 className="gradient-text" style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>Panel de Control General</h1>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '1.5rem' }}>Administra transmisiones, banners y accesos a los ministerios.</p>
+          
+          <button 
+            onClick={logout}
+            className="btn btn-secondary" 
+            style={{ position: 'absolute', top: 0, right: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+          >
+            <LogOut size={16} /> Cerrar Sesión
+          </button>
+
           {isSupabaseConfigured ? (
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981', padding: '0.5rem 1.25rem', borderRadius: '0.5rem', fontSize: '0.85rem', fontWeight: 600 }}>
               <CheckCircle size={16} /> Base de Datos Supabase Conectada
@@ -337,7 +363,8 @@ export default function Admin() {
             { id: 'church_data', label: 'Datos de la Iglesia', icon: <Settings size={16} /> },
             { id: 'home_sections', label: 'Banners de Inicio', icon: <Layers size={16} /> },
             { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> },
-            { id: 'blogs', label: 'Noticias / Blogs', icon: <FileText size={16} /> }
+            { id: 'blogs', label: 'Noticias / Blogs', icon: <FileText size={16} /> },
+            { id: 'admin_users', label: 'Administradores', icon: <Lock size={16} /> }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -607,26 +634,132 @@ export default function Admin() {
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título</label><input type="text" value={blogTitle} onChange={(e) => setBlogTitle(e.target.value)} style={inputStyle} required /></div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Contenido</label><textarea value={blogContent} onChange={(e) => setBlogContent(e.target.value)} style={{ ...inputStyle, minHeight: '120px' }} required /></div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Orden</label><input type="number" value={blogOrder} onChange={(e) => setBlogOrder(e.target.value)} style={inputStyle} /></div>
+                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Seleccionar Publicación a Editar</label>
+                      <select value={editingBlogId} onChange={(e) => loadBlogData(e.target.value)} style={inputStyle}>
+                        {blogPosts.map(b => (
+                          <option key={b.id} value={b.id}>{b.title}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                   
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>Imagen de la Noticia</span>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de la Publicación</label><input type="text" value={blogTitle} onChange={(e) => setBlogTitle(e.target.value)} required style={inputStyle} /></div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Contenido / Texto Principal</label>
+                    <textarea value={blogContent} onChange={(e) => setBlogContent(e.target.value)} required style={{ ...inputStyle, minHeight: '150px' }} />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen Destacada</span>
                     {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setBlogImageFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL de la imagen" value={blogImageUrl} onChange={(e) => setBlogImageUrl(e.target.value)} style={inputStyle} />}
                     {(blogImageUrl || blogImageFile) && (
-                      <div style={{ marginTop: '0.5rem', border: '1px solid var(--border-color)', borderRadius: '0.35rem', overflow: 'hidden', height: '140px' }}>
-                        <img src={blogImageFile ? URL.createObjectURL(blogImageFile) : blogImageUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ marginTop: '0.5rem', width: '100px', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                        <img src={blogImageFile ? URL.createObjectURL(blogImageFile) : blogImageUrl} alt="Blog Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </div>
                     )}
                   </div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Orden (Prioridad)</label><input type="number" value={blogOrder} onChange={(e) => setBlogOrder(e.target.value)} style={inputStyle} /></div>
                 </div>
               </div>
-              <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end' }} disabled={isBlogUploading}>{isBlogUploading ? 'Guardando...' : 'Guardar Noticia'}</button>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
+                {blogAction === 'edit' && editingBlogId && (
+                  <button type="button" onClick={async () => {
+                    if(window.confirm('¿Eliminar esta publicación?')) {
+                      await deleteBlogPost(editingBlogId);
+                      triggerSuccess('Publicación eliminada.');
+                      setBlogAction('create');
+                      setBlogTitle(''); setBlogContent(''); setBlogImageUrl(''); setBlogImageFile(null);
+                    }
+                  }} className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+                    <Trash2 size={16} /> Eliminar Publicación
+                  </button>
+                )}
+                <button type="submit" className="btn btn-primary" disabled={isBlogUploading} style={{ marginLeft: 'auto' }}>
+                  {isBlogUploading ? 'Guardando...' : <><Save size={16} /> Guardar Publicación</>}
+                </button>
+              </div>
             </form>
           </div>
         )}
 
+        {/* TAB 6: ADMINISTRADORES */}
+        {activeTab === 'admin_users' && (
+          <div className="glass-card animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+              <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}><Lock size={20} style={{ color: 'var(--accent-color)' }} /> Usuarios Administradores</h2>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }} className="grid-cols-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserPlus size={16} /> Crear Nuevo Administrador</h3>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!newAdminUser || !newAdminPass) return;
+                  setIsAdminCreating(true);
+                  const res = await addAdminUser(newAdminUser, newAdminPass);
+                  if (res.success) {
+                    triggerSuccess('Usuario administrador creado.');
+                    setNewAdminUser('');
+                    setNewAdminPass('');
+                  } else {
+                    alert(res.message);
+                  }
+                  setIsAdminCreating(false);
+                }} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Usuario</label>
+                    <input type="text" value={newAdminUser} onChange={(e) => setNewAdminUser(e.target.value)} required placeholder="ej: multimedia" style={inputStyle} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Contraseña</label>
+                    <input type="password" value={newAdminPass} onChange={(e) => setNewAdminPass(e.target.value)} required placeholder="••••••••" style={inputStyle} />
+                  </div>
+                  <button type="submit" className="btn btn-primary" disabled={isAdminCreating || !newAdminUser || !newAdminPass} style={{ marginTop: '0.5rem' }}>
+                    {isAdminCreating ? 'Creando...' : 'Crear Usuario'}
+                  </button>
+                </form>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700 }}>Lista de Administradores</h3>
+                {adminUsersList.length === 0 ? (
+                  <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Cargando usuarios...</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {adminUsersList.map(user => (
+                      <div key={user.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}>
+                        <div>
+                          <p style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text-primary)' }}>{user.username}</p>
+                          {user.created_at && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Creado: {new Date(user.created_at).toLocaleDateString()}</p>}
+                        </div>
+                        {user.username !== 'imr4' && (
+                          <button 
+                            type="button" 
+                            onClick={async () => {
+                              if(window.confirm(`¿Eliminar al administrador ${user.username}?`)) {
+                                await deleteAdminUser(user.id);
+                                triggerSuccess('Usuario eliminado.');
+                              }
+                            }}
+                            style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}
+                            title="Eliminar usuario"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        )}
+                        {user.username === 'imr4' && (
+                          <span style={{ fontSize: '0.75rem', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', padding: '0.25rem 0.5rem', borderRadius: '9999px', fontWeight: 600 }}>Maestro</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

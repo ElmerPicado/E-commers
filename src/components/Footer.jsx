@@ -115,11 +115,7 @@ export default function Footer() {
                 En Vivo & Radio
               </Link>
             </li>
-            <li>
-              <Link to="/admin" style={{ color: 'var(--text-secondary)', transition: 'color 0.2s' }}>
-                Administración
-              </Link>
-            </li>
+
           </ul>
         </div>
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
 function ScrollToTop() {
@@ -18,6 +18,12 @@ import Ministerio from './pages/Ministerio';
 import Galeria from './pages/Galeria';
 import Live from './pages/Live';
 import Admin from './pages/Admin';
+import Login from './pages/Login';
+
+const ProtectedAdminRoute = () => {
+  const { adminUser } = useContext(GalleryContext);
+  return adminUser ? <Admin /> : <Login />;
+};
 
 import './App.css';
 
@@ -34,7 +40,7 @@ function App() {
               <Route path="/ministerio/:id" element={<Ministerio />} />
               <Route path="/galeria" element={<Galeria />} />
               <Route path="/live" element={<Live />} />
-              <Route path="/admin" element={<Admin />} />
+              <Route path="/admin" element={<ProtectedAdminRoute />} />
             </Routes>
           </main>
           <Footer />

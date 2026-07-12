@@ -179,18 +179,7 @@ export default function Navbar() {
             )}
           </Link>
 
-          <Link to="/admin" style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.35rem',
-            fontSize: '0.85rem',
-            fontWeight: 600,
-            color: isActive('/admin') ? 'var(--accent-color)' : 'var(--text-secondary)',
-            transition: 'color 0.2s'
-          }}>
-            <Settings size={15} />
-            Admin
-          </Link>
+
         </div>
       </div>
     </nav>

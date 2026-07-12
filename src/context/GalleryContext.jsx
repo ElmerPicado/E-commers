@@ -300,6 +300,13 @@ export const GalleryProvider = ({ children }) => {
     return DEFAULT_RADIO_PROGRAMS;
   });
 
+  // Auth States
+  const [adminUser, setAdminUser] = useState(() => {
+    const saved = localStorage.getItem('imr4_admin_user');
+    return saved ? JSON.parse(saved) : null;
+  });
+  const [adminUsersList, setAdminUsersList] = useState([]);
+
   // Local storage backups syncing
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -667,6 +674,69 @@ export const GalleryProvider = ({ children }) => {
     }));
   };
 
+  // Auth & Admin Users Methods
+  const login = async (username, password) => {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('username', username)
+        .eq('password', password)
+        .single();
+      
+      if (data && !error) {
+        setAdminUser(data);
+        localStorage.setItem('imr4_admin_user', JSON.stringify(data));
+        return { success: true };
+      } else {
+        return { success: false, message: 'Usuario o contraseña incorrectos' };
+      }
+    } else {
+      // Fake login for local dev
+      if (username === 'imr4' && password === 'r1558') {
+        const user = { username: 'imr4' };
+        setAdminUser(user);
+        localStorage.setItem('imr4_admin_user', JSON.stringify(user));
+        return { success: true };
+      }
+      return { success: false, message: 'Usuario o contraseña incorrectos' };
+    }
+  };
+
+  const logout = () => {
+    setAdminUser(null);
+    localStorage.removeItem('imr4_admin_user');
+  };
+
+  const fetchAdminUsers = async () => {
+    if (isSupabaseConfigured) {
+      const { data } = await supabase.from('admin_users').select('id, username, created_at');
+      if (data) setAdminUsersList(data);
+    } else {
+      setAdminUsersList([{ id: 'local-1', username: 'imr4' }]);
+    }
+  };
+
+  const addAdminUser = async (username, password) => {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('admin_users').insert({ username, password }).select('id, username, created_at').single();
+      if (data && !error) {
+        setAdminUsersList(prev => [...prev, data]);
+        return { success: true };
+      }
+      return { success: false, message: error?.message || 'Error al crear usuario' };
+    } else {
+      return { success: false, message: 'Supabase no está configurado.' };
+    }
+  };
+
+  const deleteAdminUser = async (id) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('admin_users').delete().eq('id', id);
+      setAdminUsersList(prev => prev.filter(u => u.id !== id));
+    }
+  };
+
   return (
     <GalleryContext.Provider
       value={{
@@ -697,7 +767,14 @@ export const GalleryProvider = ({ children }) => {
         addBlogPost,
         updateBlogPost,
         deleteBlogPost,
-        addChatMessage
+        addChatMessage,
+        adminUser,
+        adminUsersList,
+        login,
+        logout,
+        fetchAdminUsers,
+        addAdminUser,
+        deleteAdminUser
       }}
     >
       {children}
