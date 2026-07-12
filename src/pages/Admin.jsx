@@ -698,6 +698,20 @@ export default function Admin() {
 
         {/* TAB 6: ADMIN USERS */}
         {activeTab === 'admin_users' && (
+          <div className="glass-card animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+              <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}><Lock size={20} style={{ color: 'var(--accent-color)' }} /> Usuarios Administradores</h2>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }} className="grid-cols-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserPlus size={16} /> Crear Nuevo Administrador</h3>
+                <form onSubmit={async (e) => {
+                  e.preventDefault();
+                  if (!newAdminUser || !newAdminPass) return;
+                  setIsAdminCreating(true);
+                  const res = await addAdminUser(newAdminUser, newAdminPass);
+                  if (res.success) {
                     triggerSuccess('Usuario administrador creado.');
                     setNewAdminUser('');
                     setNewAdminPass('');
