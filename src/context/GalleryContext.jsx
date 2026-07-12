@@ -854,6 +854,9 @@ export const GalleryProvider = ({ children }) => {
         console.error("Supabase insert error:", error);
         return { success: false, error: error.message };
       }
+      if (data && data.length > 0) {
+        setDevotionals(prev => [data[0], ...prev]);
+      }
       return { success: true, data };
     } else {
       setDevotionals(prev => [devotional, ...prev]);
