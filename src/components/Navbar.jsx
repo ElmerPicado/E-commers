@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles, Home } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
@@ -18,6 +18,23 @@ const NavbarIcon = ({ name, color }) => {
 export default function Navbar() {
   const location = useLocation();
   const { livestream, radio, ministries } = useContext(GalleryContext);
+
+  useEffect(() => {
+    if (livestream.churchName) {
+      document.title = livestream.churchName;
+    }
+    if (livestream.churchLogo) {
+      const link = document.querySelector("link[rel~='icon']");
+      if (link) {
+        link.href = livestream.churchLogo;
+      } else {
+        const newLink = document.createElement('link');
+        newLink.rel = 'icon';
+        newLink.href = livestream.churchLogo;
+        document.head.appendChild(newLink);
+      }
+    }
+  }, [livestream.churchName, livestream.churchLogo]);
 
   const isActive = (path) => location.pathname === path;
 
