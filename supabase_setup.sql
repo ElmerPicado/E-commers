@@ -233,6 +233,9 @@ DROP POLICY IF EXISTS "Escritura pública blog_posts" ON blog_posts;
 CREATE POLICY "Lectura pública blog_posts" ON blog_posts FOR SELECT USING (true);
 CREATE POLICY "Escritura pública blog_posts" ON blog_posts FOR ALL USING (true) WITH CHECK (true);
 
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'historia';
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS video_url TEXT;
+
 -- ==========================================================
 -- ACTUALIZACIÓN DE ESQUEMA (V6: Administradores)
 -- ==========================================================

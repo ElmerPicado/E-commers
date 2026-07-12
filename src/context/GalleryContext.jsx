@@ -229,6 +229,8 @@ const DEFAULT_BLOG_POSTS = [
     title: '¡Bienvenidos a nuestra nueva web!',
     content: 'Estamos muy felices de presentarles nuestra nueva página web, donde podrán encontrar toda la información sobre nuestros ministerios, horarios y próximas actividades.',
     image_url: 'https://images.unsplash.com/photo-1510590337019-5ef8d3d32116?w=800&q=80',
+    video_url: '',
+    category: 'noticia',
     order_index: 1,
     created_at: new Date().toISOString()
   }

@@ -6,6 +6,7 @@ import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
 import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
 import DonationsAdmin from '../components/admin/DonationsAdmin';
 import ContactFormsAdmin from '../components/admin/ContactFormsAdmin';
+import BlogAdmin from '../components/admin/BlogAdmin';
 import { Heart, Mail } from 'lucide-react';
 
 export default function Admin() {
@@ -615,86 +616,8 @@ export default function Admin() {
 
         {/* TAB 4: BLOGS */}
         {activeTab === 'blogs' && (
-          <div className="glass-card animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}><FileText size={20} style={{ color: 'var(--accent-color)' }} /> Noticias / Blogs</h2>
-            </div>
-
-            <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
-                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Operación:</span>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-                  <input type="radio" checked={blogAction === 'create'} onChange={() => {
-                    setBlogAction('create'); setBlogTitle(''); setBlogContent(''); setBlogImageUrl(''); setBlogOrder(blogPosts?.length ? blogPosts.length + 1 : 1); setBlogImageFile(null);
-                  }} /> Crear Nueva Noticia
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
-                  <input type="radio" checked={blogAction === 'edit'} onChange={() => { setBlogAction('edit'); if (blogPosts?.length) loadBlogData(blogPosts[0].id); }} /> Editar Existente
-                </label>
-            </div>
-
-            <form onSubmit={handleSaveBlog} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {blogAction === 'edit' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Seleccionar Publicación a Editar</label>
-                      <select value={editingBlogId} onChange={(e) => loadBlogData(e.target.value)} style={inputStyle}>
-                        {(blogPosts || []).map(b => (
-                          <option key={b.id} value={b.id}>{b.title}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de la Publicación</label>
-                    <input type="text" value={blogTitle} onChange={(e) => setBlogTitle(e.target.value)} required style={inputStyle} />
-                  </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Contenido / Texto Principal</label>
-                    <textarea value={blogContent} onChange={(e) => setBlogContent(e.target.value)} required style={{ ...inputStyle, minHeight: '150px' }} />
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen Destacada</span>
-                    {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setBlogImageFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL de la imagen" value={blogImageUrl} onChange={(e) => setBlogImageUrl(e.target.value)} style={inputStyle} />}
-                    {(blogImageUrl || blogImageFile) && (
-                      <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                        <div style={{ width: '100px', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                          <img src={blogImageFile ? URL.createObjectURL(blogImageFile) : blogImageUrl} alt="Blog Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        </div>
-                        <button type="button" onClick={() => { setBlogImageFile(null); setBlogImageUrl(''); }} className="btn btn-secondary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-                          Quitar Foto
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Orden (Prioridad)</label>
-                    <input type="number" value={blogOrder} onChange={(e) => setBlogOrder(e.target.value)} style={inputStyle} />
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
-                {blogAction === 'edit' && editingBlogId && (
-                  <button type="button" onClick={async () => {
-                    if(window.confirm('¿Eliminar esta publicación?')) {
-                      await deleteBlogPost(editingBlogId);
-                      triggerSuccess('Publicación eliminada.');
-                      setBlogAction('create');
-                      setBlogTitle(''); setBlogContent(''); setBlogImageUrl(''); setBlogImageFile(null);
-                    }
-                  }} className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
-                    <Trash2 size={16} /> Eliminar Publicación
-                  </button>
-                )}
-                <button type="submit" className="btn btn-primary" disabled={isBlogUploading} style={{ marginLeft: 'auto' }}>
-                  {isBlogUploading ? 'Guardando...' : <><Save size={16} /> Guardar Publicación</>}
-                </button>
-              </div>
-            </form>
+          <div className="animate-fade-in">
+            <BlogAdmin triggerSuccess={triggerSuccess} />
           </div>
         )}
 

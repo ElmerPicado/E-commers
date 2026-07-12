@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles, Home, Menu, X, MapPin } from 'lucide-react';
+import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles, Home, Menu, X, MapPin, BookOpen } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
 import ContactFormModal from './ContactFormModal';
 
@@ -165,6 +165,19 @@ export default function Navbar() {
             Inicio
           </Link>
 
+          <Link to="/historia" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            color: isActive('/historia') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            transition: 'color 0.2s'
+          }}>
+            <BookOpen size={15} />
+            Nuestra Historia
+          </Link>
+
           <Link to="/galeria" style={{
             display: 'flex',
             alignItems: 'center',
@@ -274,6 +287,9 @@ export default function Navbar() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
                 <Home size={20} /> Inicio
+              </Link>
+              <Link to="/historia" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/historia') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                <BookOpen size={20} /> Nuestra Historia
               </Link>
             </div>
           </div>
