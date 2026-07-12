@@ -375,6 +375,7 @@ export default function SubmitDevocional() {
                 )}
               </div>
             </div>
+          </div>
 
           {/* Content Section */}
           <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
