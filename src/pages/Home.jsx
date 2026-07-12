@@ -45,7 +45,9 @@ export default function Home() {
     <div className="theme-imr4" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
       {/* 1. HERO SECTION ESTILO PAS.cr */}
-      <section className="hero-section" style={{
+      <section 
+        className="hero-section bg-fixed-mobile-scroll"
+        style={{
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
@@ -276,6 +278,7 @@ export default function Home() {
       {otherSections.map((sec) => (
         <section
           key={sec.id}
+          className="bg-fixed-mobile-scroll"
           style={{
             position: 'relative',
             padding: '8rem 1.5rem',

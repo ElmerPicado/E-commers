@@ -36,7 +36,6 @@ export default function Donaciones() {
           backgroundImage: `url(${donationsConfig.hero_image})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          backgroundAttachment: 'fixed',
           zIndex: 0
         }} />
         <div style={{

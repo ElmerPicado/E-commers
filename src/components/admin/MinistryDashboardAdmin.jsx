@@ -391,7 +391,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         <form onSubmit={handleSaveProfile} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
            <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Información General</h3>
            
-           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem' }}>
+           <div className="grid-cols-3" style={{ display: 'grid', gap: '1rem' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Nombre del Ministerio</label>
                <input type="text" value={minName} onChange={(e) => setMinName(e.target.value)} style={inputStyle} required />
@@ -416,7 +416,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
              <input type="text" value={minDesc} onChange={(e) => setMinDesc(e.target.value)} style={inputStyle} required />
            </div>
 
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+           <div className="grid-cols-2" style={{ display: 'grid', gap: '1rem' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título Hero (Sub-sitio)</label>
                <input type="text" value={minHeroTitle} onChange={(e) => setMinHeroTitle(e.target.value)} style={inputStyle} />
@@ -446,7 +446,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
              
              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                {minPillars.map((pillar, index) => (
-                 <div key={pillar._localId} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr auto', gap: '1rem', alignItems: 'flex-start', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.35rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                 <div key={pillar._localId} className="grid-cols-4" style={{ display: 'grid', gap: '1rem', alignItems: 'flex-start', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.35rem', border: '1px solid rgba(255,255,255,0.05)' }}>
                    <div>
                      <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Icono & Título</span>
                      <input type="text" placeholder="Ej: Calendar, Heart..." value={pillar.icon} onChange={(e) => updatePillar(pillar._localId, 'icon', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0' }} />
@@ -471,7 +471,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
              </div>
            </div>
 
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+           <div className="grid-cols-3" style={{ display: 'grid', gap: '1rem' }}>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Horario Corto</label>
                <input type="text" value={minSchedule} onChange={(e) => setMinSchedule(e.target.value)} style={inputStyle} />

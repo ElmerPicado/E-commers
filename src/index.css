@@ -358,6 +358,10 @@ a {
   height: 160px;
 }
 
+.bg-fixed-mobile-scroll {
+  background-attachment: fixed;
+}
+
 @media (max-width: 768px) {
   .mobile-only {
     display: flex !important;
@@ -378,18 +382,15 @@ a {
   .hero-section {
     min-height: 70vh;
     padding: 4rem 1rem 3rem 1rem !important;
-    background-attachment: scroll !important;
   }
   .hero-section-min {
     min-height: 50vh;
     padding: 5rem 1rem 3rem 1rem !important;
   }
   
-  .hero-logo {
-    width: 100px;
-    height: 100px;
+  .bg-fixed-mobile-scroll {
+    background-attachment: scroll !important;
   }
-  
   /* Centrado en móvil para hero */
   .hero-content-wrapper {
     flex-direction: column;
@@ -410,7 +411,8 @@ a {
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
   }
-  .admin-panel [style*="grid-template-columns"] {
+  .admin-panel [style*="grid-template-columns"],
+  .grid-cols-1, .grid-cols-2, .grid-cols-3, .grid-cols-4 {
     grid-template-columns: 1fr !important;
   }
   .admin-panel table, 
