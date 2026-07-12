@@ -590,15 +590,15 @@ export default function Admin() {
               <h3 style={{ fontSize: '1.2rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Selecciona un Ministerio para Administrar</h3>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {ministries.map((m) => (
-                  <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <span style={{ width: '16px', height: '16px', borderRadius: '50%', background: m.accent_color }}></span>
+                  <div key={m.id} style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', minWidth: '200px' }}>
+                      <span style={{ minWidth: '16px', height: '16px', borderRadius: '50%', background: m.accent_color }}></span>
                       <div>
                         <strong style={{ fontSize: '1.1rem', color: '#fff' }}>{m.name}</strong>
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>ID: {m.id}</div>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <button onClick={() => setActiveMinistryId(m.id)} className="btn btn-primary" style={{ padding: '0.4rem 1rem' }}><Edit size={14} style={{ marginRight: '0.5rem' }}/> Entrar al Dashboard</button>
                       <button onClick={() => { if (confirm(`¿Eliminar ${m.name}? Esto no eliminará automáticamente sus fotos si no las borraste primero.`)) { deleteMinistry(m.id); triggerSuccess('Ministerio eliminado.'); } }} className="btn btn-danger" style={{ padding: '0.4rem 0.6rem' }}><Trash2 size={16} /></button>
                     </div>
