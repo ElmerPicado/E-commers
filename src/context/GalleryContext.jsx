@@ -832,18 +832,21 @@ export const GalleryProvider = ({ children }) => {
   };
 
   const addDevotionalCategory = async (category) => {
+    setDevotionalCategories(prev => [...prev, category]);
     if (isSupabaseConfigured) {
-      await supabase.from('devotional_categories').insert(category);
-    } else {
-      setDevotionalCategories(prev => [...prev, category]);
+      const { error } = await supabase.from('devotional_categories').insert(category);
+      if (error) {
+        console.error('Error adding category:', error);
+        fetchSupabaseData();
+      }
     }
   };
 
   const deleteDevotionalCategory = async (id) => {
+    setDevotionalCategories(prev => prev.filter(c => c.id !== id));
     if (isSupabaseConfigured) {
-      await supabase.from('devotional_categories').delete().eq('id', id);
-    } else {
-      setDevotionalCategories(prev => prev.filter(c => c.id !== id));
+      const { error } = await supabase.from('devotional_categories').delete().eq('id', id);
+      if (error) fetchSupabaseData();
     }
   };
 
@@ -865,18 +868,18 @@ export const GalleryProvider = ({ children }) => {
   };
 
   const updateDevotional = async (id, updates) => {
+    setDevotionals(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
     if (isSupabaseConfigured) {
-      await supabase.from('devotionals').update(updates).eq('id', id);
-    } else {
-      setDevotionals(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
+      const { error } = await supabase.from('devotionals').update(updates).eq('id', id);
+      if (error) fetchSupabaseData();
     }
   };
 
   const deleteDevotional = async (id) => {
+    setDevotionals(prev => prev.filter(d => d.id !== id));
     if (isSupabaseConfigured) {
-      await supabase.from('devotionals').delete().eq('id', id);
-    } else {
-      setDevotionals(prev => prev.filter(d => d.id !== id));
+      const { error } = await supabase.from('devotionals').delete().eq('id', id);
+      if (error) fetchSupabaseData();
     }
   };
 
