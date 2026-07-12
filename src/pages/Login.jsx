@@ -12,7 +12,7 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    
+
     if (!username || !password) {
       setError('Por favor completa todos los campos.');
       return;
@@ -27,10 +27,10 @@ export default function Login() {
   };
 
   return (
-    <div className="theme-imr4" style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
+    <div className="theme-imr4" style={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
       justifyContent: 'center',
       padding: '2rem',
       background: 'var(--bg-default)'
@@ -44,13 +44,13 @@ export default function Login() {
         gap: '2rem'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            width: '60px', 
-            height: '60px', 
-            borderRadius: '50%', 
-            background: 'rgba(255, 255, 255, 0.05)', 
-            display: 'flex', 
-            alignItems: 'center', 
+          <div style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.05)',
+            display: 'flex',
+            alignItems: 'center',
             justifyContent: 'center',
             margin: '0 auto 1rem auto',
             border: '1px solid var(--border-color)'
@@ -65,11 +65,11 @@ export default function Login() {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           {error && (
-            <div style={{ 
-              background: 'rgba(239, 68, 68, 0.1)', 
-              border: '1px solid rgba(239, 68, 68, 0.2)', 
-              color: '#ef4444', 
-              padding: '0.75rem', 
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.2)',
+              color: '#ef4444',
+              padding: '0.75rem',
               borderRadius: '0.5rem',
               fontSize: '0.85rem',
               textAlign: 'center'
@@ -82,11 +82,11 @@ export default function Login() {
             <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Usuario</label>
             <div style={{ position: 'relative' }}>
               <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                placeholder="ej: imr4"
+
                 style={{
                   width: '100%',
                   padding: '0.75rem 1rem 0.75rem 2.75rem',
@@ -104,11 +104,10 @@ export default function Login() {
             <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-secondary)' }}>Contraseña</label>
             <div style={{ position: 'relative' }}>
               <Lock size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-              <input 
-                type="password" 
+              <input
+                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
                 style={{
                   width: '100%',
                   padding: '0.75rem 1rem 0.75rem 2.75rem',
@@ -122,9 +121,9 @@ export default function Login() {
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            className="btn btn-primary" 
+          <button
+            type="submit"
+            className="btn btn-primary"
             disabled={isLoading}
             style={{ marginTop: '0.5rem', padding: '0.85rem', display: 'flex', justifyContent: 'center', gap: '0.5rem' }}
           >
