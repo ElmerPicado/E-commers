@@ -65,79 +65,87 @@ export default function Home() {
           
           {/* Left: Heading & Main Card */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            {livestream.isLive && (
-              <div style={{ display: 'inline-flex' }}>
-                <span style={{
-                  background: 'rgba(239, 68, 68, 0.15)',
-                  border: '1px solid rgba(239, 68, 68, 0.3)',
-                  color: '#ef4444',
-                  padding: '0.3rem 0.8rem',
-                  borderRadius: '9999px',
-                  fontSize: '0.75rem',
-                  fontWeight: 700,
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2rem', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', flex: '1 1 min-content' }}>
+                {livestream.isLive && (
+                  <div style={{ display: 'inline-flex' }}>
+                    <span style={{
+                      background: 'rgba(239, 68, 68, 0.15)',
+                      border: '1px solid rgba(239, 68, 68, 0.3)',
+                      color: '#ef4444',
+                      padding: '0.3rem 0.8rem',
+                      borderRadius: '9999px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem'
+                    }}>
+                      <span style={{
+                        width: '6px',
+                        height: '6px',
+                        background: '#ef4444',
+                        borderRadius: '50%',
+                        display: 'inline-block',
+                        animation: 'pulse 1.5s infinite alternate'
+                      }}></span>
+                      TRANSMISIÓN EN VIVO ACTIVA
+                    </span>
+                  </div>
+                )}
+                
+                <h1 style={{
+                  fontSize: 'clamp(2.5rem, 5vw, 4.2rem)',
+                  lineHeight: '1.1',
+                  fontWeight: 800,
+                  fontFamily: 'var(--font-display)',
+                  background: 'linear-gradient(135deg, #ffffff 40%, var(--accent-color) 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  letterSpacing: '-0.03em',
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.35rem'
+                  flexDirection: 'column',
+                  gap: '0.25rem'
                 }}>
-                  <span style={{
-                    width: '6px',
-                    height: '6px',
-                    background: '#ef4444',
-                    borderRadius: '50%',
-                    display: 'inline-block',
-                    animation: 'pulse 1.5s infinite alternate'
-                  }}></span>
-                  TRANSMISIÓN EN VIVO ACTIVA
-                </span>
+                  <span>
+                    {heroSection.title.includes('Río Cuarto') 
+                      ? heroSection.title.replace('Río Cuarto', '').trim() 
+                      : heroSection.title}
+                  </span>
+                  <span>
+                    {heroSection.title.includes('Río Cuarto') && 'Río Cuarto'}
+                  </span>
+                </h1>
+                
+                <p style={{
+                  fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+                  color: 'var(--text-secondary)',
+                  lineHeight: '1.6',
+                  maxWidth: '550px'
+                }}>
+                  {heroSection.subtitle}
+                </p>
               </div>
-            )}
-            
-            <h1 style={{
-              fontSize: '4.2rem',
-              lineHeight: '1.1',
-              fontWeight: 800,
-              fontFamily: 'var(--font-display)',
-              background: 'linear-gradient(135deg, #ffffff 40%, var(--accent-color) 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              letterSpacing: '-0.03em',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.25rem'
-            }}>
-              <span>
-                {heroSection.title.includes('Río Cuarto') 
-                  ? heroSection.title.replace('Río Cuarto', '').trim() 
-                  : heroSection.title}
-              </span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
-                {heroSection.title.includes('Río Cuarto') && 'Río Cuarto'}
-                {livestream.churchLogo && (
+
+              {/* Logo Grande a la derecha */}
+              {livestream.churchLogo && (
+                <div style={{ display: 'flex', justifyContent: 'center', flex: '0 0 auto' }}>
                   <img 
                     src={livestream.churchLogo} 
                     alt="Logo Iglesia" 
                     style={{ 
-                      width: '65px', 
-                      height: '65px', 
+                      width: '160px', 
+                      height: '160px', 
                       borderRadius: '50%', 
                       objectFit: 'cover', 
                       background: '#fff',
-                      border: '3px solid rgba(255,255,255,0.1)',
-                      boxShadow: '0 4px 15px rgba(0,0,0,0.5)'
+                      border: '4px solid rgba(255,255,255,0.15)',
+                      boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
                     }} 
                   />
-                )}
-              </span>
-            </h1>
-            
-            <p style={{
-              fontSize: '1.2rem',
-              color: 'var(--text-secondary)',
-              lineHeight: '1.6',
-              maxWidth: '550px'
-            }}>
-              {heroSection.subtitle}
-            </p>
+                </div>
+              )}
+            </div>
 
             {/* Poster / Live Embed representation */}
             <div className="glass-card" style={{
