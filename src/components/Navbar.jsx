@@ -226,11 +226,11 @@ export default function Navbar() {
       {/* Mobile Full Screen Menu Overlay */}
       {isMobileMenuOpen && (
         <div className="mobile-only" style={{
-          position: 'fixed',
-          top: '70px', /* Altura aproximada del navbar */
+          position: 'absolute',
+          top: '100%',
           left: 0,
-          right: 0,
-          bottom: 0,
+          width: '100%',
+          height: '100vh',
           background: 'var(--bg-surface)',
           zIndex: 40,
           overflowY: 'auto',
