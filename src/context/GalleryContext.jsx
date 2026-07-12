@@ -491,6 +491,11 @@ export const GalleryProvider = ({ children }) => {
       if (album) {
         const updatedPhotos = [...album.photos, photoUrl];
         await supabase.from('albums').update({ photos: updatedPhotos }).eq('id', albumId);
+        
+        // Reflejar cambio en la UI instantáneamente
+        setAlbums((prev) =>
+          prev.map((a) => (a.id === albumId ? { ...a, photos: updatedPhotos } : a))
+        );
       }
     } else {
       setAlbums((prev) =>
@@ -510,6 +515,11 @@ export const GalleryProvider = ({ children }) => {
       if (album) {
         const updatedPhotos = album.photos.filter((url) => url !== photoUrl);
         await supabase.from('albums').update({ photos: updatedPhotos }).eq('id', albumId);
+        
+        // Reflejar cambio en la UI instantáneamente
+        setAlbums((prev) =>
+          prev.map((a) => (a.id === albumId ? { ...a, photos: updatedPhotos } : a))
+        );
         
         // Try to delete the actual file from Supabase storage (optional cleanup)
         try {

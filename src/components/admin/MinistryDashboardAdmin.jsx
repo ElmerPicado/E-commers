@@ -258,8 +258,9 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
 
   const handleCreateAlbum = async (e) => {
     e.preventDefault();
+    const newAlbumId = `album-${Date.now()}`;
     const newAlbum = {
-      id: `album-${Date.now()}`,
+      id: newAlbumId,
       title: newAlbumTitle,
       description: newAlbumDesc,
       drive_link: newAlbumDriveLink,
@@ -269,10 +270,9 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       photos: []
     };
     await addAlbum(newAlbum);
-    setNewAlbumTitle('');
-    setNewAlbumDesc('');
-    setNewAlbumDriveLink('');
-    triggerSuccess('Álbum creado exitosamente.');
+    // En lugar de limpiar y salir, abrimos el álbum para editar e ingresar fotos
+    setEditingAlbumId(newAlbumId);
+    triggerSuccess('Álbum creado exitosamente. Ahora puedes agregar fotos.');
   };
 
   const handleFileChange = (e) => {
@@ -284,7 +284,8 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
 
   const handleAddPhoto = async (e) => {
     e.preventDefault();
-    if (!selectedAlbumId) {
+    const targetAlbumId = editingAlbumId || selectedAlbumId;
+    if (!targetAlbumId) {
       alert('Selecciona un álbum primero');
       return;
     }
@@ -296,7 +297,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         for (const file of selectedFiles) {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-          const filePath = `${editingAlbumId || selectedAlbumId}/${fileName}`;
+          const filePath = `${targetAlbumId}/${fileName}`;
 
           const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, file);
           if (uploadError) throw uploadError;
@@ -305,7 +306,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
           uploadedUrls.push(publicUrl);
         }
         for (const url of uploadedUrls) {
-          await addPhotoToAlbum(editingAlbumId || selectedAlbumId, url);
+          await addPhotoToAlbum(targetAlbumId, url);
         }
         setSelectedFiles([]);
         triggerSuccess('Fotos subidas y agregadas con éxito al álbum.');
@@ -316,7 +317,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         setIsPhotoUploading(false);
       }
     } else if (newPhotoUrl.trim()) {
-      await addPhotoToAlbum(editingAlbumId || selectedAlbumId, newPhotoUrl.trim());
+      await addPhotoToAlbum(targetAlbumId, newPhotoUrl.trim());
       setNewPhotoUrl('');
       triggerSuccess('Enlace de foto agregado con éxito al álbum.');
     }
