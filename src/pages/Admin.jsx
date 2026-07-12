@@ -41,6 +41,8 @@ export default function Admin() {
   const [instagramUrl, setInstagramUrl] = useState(livestream.instagramUrl || '');
   const [churchAddress, setChurchAddress] = useState(livestream.churchAddress || 'Río Cuarto, Córdoba, Argentina');
   const [churchMapsUrl, setChurchMapsUrl] = useState(livestream.churchMapsUrl || '');
+  const [churchEmail, setChurchEmail] = useState(livestream.churchEmail || 'contacto@imr4.org');
+  const [churchDescription, setChurchDescription] = useState(livestream.churchDescription || 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.');
   const [radioTitle, setRadioTitle] = useState(radio.title);
   const [radioUrl, setRadioUrl] = useState(radio.audioUrl);
   const [isRadioLive, setIsRadioLive] = useState(radio.isLive);
@@ -121,7 +123,9 @@ export default function Admin() {
       facebookUrl: facebookUrl, 
       instagramUrl: instagramUrl,
       churchAddress: churchAddress,
-      churchMapsUrl: churchMapsUrl
+      churchMapsUrl: churchMapsUrl,
+      churchEmail: churchEmail,
+      churchDescription: churchDescription
     });
     setChurchLogo(logoUrl);
     setChurchLogoFile(null);
@@ -305,6 +309,9 @@ export default function Admin() {
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dirección Física (Texto)</label><input type="text" placeholder="Río Cuarto..." value={churchAddress} onChange={(e) => setChurchAddress(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Google Maps Iglesia (URL)</label><input type="text" placeholder="https://maps.app.goo.gl/..." value={churchMapsUrl} onChange={(e) => setChurchMapsUrl(e.target.value)} style={inputStyle} /></div>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email de Contacto</label><input type="email" placeholder="contacto@imr4.org" value={churchEmail} onChange={(e) => setChurchEmail(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción de la Iglesia (Footer)</label><textarea value={churchDescription} onChange={(e) => setChurchDescription(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} /></div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><input type="checkbox" id="isLive" checked={isLive} onChange={(e) => setIsLive(e.target.checked)} style={{ width: '16px', height: '16px' }} /><label htmlFor="isLive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>En Vivo Activo</label></div>
               </div>

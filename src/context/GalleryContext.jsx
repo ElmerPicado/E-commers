@@ -58,6 +58,8 @@ const DEFAULT_LIVESTREAM = {
   instagramUrl: '',
   churchAddress: 'Río Cuarto, Córdoba, Argentina',
   churchMapsUrl: '',
+  churchEmail: 'contacto@imr4.org',
+  churchDescription: 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.',
   chatMessages: [
     { id: 1, user: 'Carlos M.', text: '¡Bendiciones a toda la iglesia!' },
     { id: 2, user: 'María P.', text: 'Hola a todos desde Río Cuarto.' },
@@ -341,7 +343,9 @@ export const GalleryProvider = ({ children }) => {
           facebookUrl: streamConfig.facebook_url || '',
           instagramUrl: streamConfig.instagram_url || '',
           churchAddress: streamConfig.church_address || 'Río Cuarto, Córdoba, Argentina',
-          churchMapsUrl: streamConfig.church_maps_url || ''
+          churchMapsUrl: streamConfig.church_maps_url || '',
+          churchEmail: streamConfig.church_email || 'contacto@imr4.org',
+          churchDescription: streamConfig.church_description || 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.'
         }));
         setRadio(prev => ({
           ...prev,
@@ -468,7 +472,9 @@ export const GalleryProvider = ({ children }) => {
         facebook_url: updates.facebookUrl,
         instagram_url: updates.instagramUrl,
         church_address: updates.churchAddress,
-        church_maps_url: updates.churchMapsUrl
+        church_maps_url: updates.churchMapsUrl,
+        church_email: updates.churchEmail,
+        church_description: updates.churchDescription
       }).eq('id', 'main');
     } else {
       setLivestream((prev) => ({ ...prev, ...updates }));

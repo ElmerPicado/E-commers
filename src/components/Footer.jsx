@@ -58,8 +58,7 @@ export default function Footer() {
             maxWidth: '300px',
             lineHeight: '1.6'
           }}>
-            Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto.
-            Buscamos impactar vidas a través del amor y el servicio integral.
+            {livestream?.churchDescription || 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.'}
           </p>
         </div>
 
@@ -136,7 +135,7 @@ export default function Footer() {
             </p>
           </div>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-            Email: contacto@imr4.org
+            Email: {livestream?.churchEmail || 'contacto@imr4.org'}
           </p>
           
           <div style={{ display: 'flex', gap: '0.75rem' }}>

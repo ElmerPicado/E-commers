@@ -158,6 +158,8 @@ ALTER TABLE albums ADD COLUMN IF NOT EXISTS description TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_logo_url TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS facebook_url TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS instagram_url TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_email TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_description TEXT;
 
 -- ==========================================================
 -- ACTUALIZACIÓN DE ESQUEMA (V3: Radio Programs)
