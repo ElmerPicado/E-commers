@@ -10,8 +10,6 @@ export default function Devocionales() {
   
   const [activeCategoryId, setActiveCategoryId] = useState('all');
 
-  useEffect(() => {
-
   // Filtrar solo los publicados
   const publishedDevotionals = useMemo(() => {
     return (devotionals || []).filter(d => d.status === 'published');

@@ -86,7 +86,7 @@ export default function SubmitDevocional() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-primary)', padding: '6rem 1.5rem 4rem 1.5rem', display: 'flex', justifyContent: 'center' }}>
-      <div className="glass-card" style={{ maxWidth: '800px', w-full: '100%', padding: '2rem 3rem' }}>
+      <div className="glass-card" style={{ maxWidth: '800px', width: '100%', padding: '2rem 3rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <BookOpen size={48} style={{ color: 'var(--accent-color)', margin: '0 auto 1rem auto' }} />
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem' }}>Escribe un Devocional</h1>
