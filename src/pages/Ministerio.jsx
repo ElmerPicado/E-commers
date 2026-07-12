@@ -221,25 +221,38 @@ export default function Ministerio() {
                 marginTop: '2rem'
               }}>
               {ministry.pillars.map((pillar, idx) => (
-                <div key={idx} className="glass-card" style={{ padding: '1.5rem', position: 'relative', overflow: 'hidden' }}>
-                  {/* Marca de agua gigante con el icono */}
-                  <div style={{
-                    position: 'absolute',
-                    right: '-10%',
-                    bottom: '-15%',
-                    opacity: 0.04,
-                    transform: 'scale(3.5)',
-                    pointerEvents: 'none',
-                    color: '#fff'
-                  }}>
-                    <IconMapper name={pillar.icon} size={64} />
-                  </div>
+                <div key={idx} className="glass-card" style={{ 
+                  padding: '1.5rem', 
+                  position: 'relative', 
+                  overflow: 'hidden',
+                  backgroundImage: pillar.image_url ? `linear-gradient(rgba(10,10,12,0.6), rgba(10,10,12,0.8)), url("${pillar.image_url}")` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  minHeight: pillar.image_url ? '180px' : 'auto',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'center'
+                }}>
+                  {/* Marca de agua gigante con el icono (si no hay foto) */}
+                  {!pillar.image_url && (
+                    <div style={{
+                      position: 'absolute',
+                      right: '-10%',
+                      bottom: '-15%',
+                      opacity: 0.04,
+                      transform: 'scale(3.5)',
+                      pointerEvents: 'none',
+                      color: '#fff'
+                    }}>
+                      <IconMapper name={pillar.icon} size={64} />
+                    </div>
+                  )}
                   
                   <div style={{
                     width: '40px',
                     height: '40px',
                     borderRadius: '0.5rem',
-                    background: 'rgba(255, 255, 255, 0.03)',
+                    background: pillar.image_url ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.03)',
                     color: 'var(--accent-color)',
                     display: 'flex',
                     alignItems: 'center',

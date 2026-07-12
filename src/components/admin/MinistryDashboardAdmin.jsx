@@ -51,12 +51,28 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [minContactDesc, setMinContactDesc] = useState(min?.contact_desc || '');
   const [minContactButtonText, setMinContactButtonText] = useState(min?.contact_button_text || '');
   
-  const [pillar1Title, setPillar1Title] = useState(min?.pillars?.[0]?.title || '');
-  const [pillar1Desc, setPillar1Desc] = useState(min?.pillars?.[0]?.desc || '');
-  const [pillar2Title, setPillar2Title] = useState(min?.pillars?.[1]?.title || '');
-  const [pillar2Desc, setPillar2Desc] = useState(min?.pillars?.[1]?.desc || '');
-  const [pillar3Title, setPillar3Title] = useState(min?.pillars?.[2]?.title || '');
-  const [pillar3Desc, setPillar3Desc] = useState(min?.pillars?.[2]?.desc || '');
+  const [minPillars, setMinPillars] = useState(() => {
+    if (min?.pillars && min.pillars.length > 0) {
+      return min.pillars.map((p, i) => ({ ...p, _localId: i, file: null }));
+    }
+    return [
+      { _localId: 0, icon: 'Calendar', title: '', desc: '', image_url: '', file: null },
+      { _localId: 1, icon: 'MapPin', title: '', desc: '', image_url: '', file: null },
+      { _localId: 2, icon: 'Users', title: '', desc: '', image_url: '', file: null }
+    ];
+  });
+
+  const addPillar = () => {
+    setMinPillars([...minPillars, { _localId: Date.now(), icon: 'Info', title: '', desc: '', image_url: '', file: null }]);
+  };
+
+  const removePillar = (id) => {
+    setMinPillars(minPillars.filter(p => p._localId !== id));
+  };
+
+  const updatePillar = (id, field, value) => {
+    setMinPillars(minPillars.map(p => p._localId === id ? { ...p, [field]: value } : p));
+  };
 
   // Activity Form State
   const [actTitle, setActTitle] = useState('');
@@ -142,6 +158,28 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       setIsMinHeroUploading(false);
     }
 
+    setIsMinHeroUploading(true); // Reusing upload state to disable save button
+    const finalPillars = [];
+    for (const p of minPillars) {
+      let finalPillarImgUrl = p.image_url || '';
+      if (p.file && isSupabaseConfigured) {
+        try {
+          const fileExt = p.file.name.split('.').pop();
+          const fileName = `pillar_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+          const filePath = `pillars/${fileName}`;
+          const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, p.file);
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+            finalPillarImgUrl = publicUrl;
+          }
+        } catch (err) {
+          console.error('Error uploading pillar image:', err);
+        }
+      }
+      finalPillars.push({ icon: p.icon, title: p.title, desc: p.desc, image_url: finalPillarImgUrl });
+    }
+    setIsMinHeroUploading(false);
+
     const updates = {
       name: minName,
       description: minDesc,
@@ -159,11 +197,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       contact_title: minContactTitle,
       contact_desc: minContactDesc,
       contact_button_text: minContactButtonText,
-      pillars: [
-        { icon: 'Calendar', title: pillar1Title, desc: pillar1Desc },
-        { icon: 'MapPin', title: pillar2Title, desc: pillar2Desc },
-        { icon: 'Users', title: pillar3Title, desc: pillar3Desc }
-      ]
+      pillars: finalPillars
     };
     await updateMinistry(ministryId, updates);
     setMinLogoUrl(finalLogoUrl);
@@ -403,24 +437,36 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
            </div>
 
            {/* Core Pillars */}
-           <div style={{ border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.01)' }}>
-             <span style={{ display: 'block', fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)', marginBottom: '0.75rem' }}>Pilares / Horarios Específicos</span>
-             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
-               <div>
-                 <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Pilar 1</span>
-                 <input type="text" placeholder="Título" value={pillar1Title} onChange={(e) => setPillar1Title(e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0' }} />
-                 <input type="text" placeholder="Descripción" value={pillar1Desc} onChange={(e) => setPillar1Desc(e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem' }} />
-               </div>
-               <div>
-                 <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Pilar 2</span>
-                 <input type="text" placeholder="Título" value={pillar2Title} onChange={(e) => setPillar2Title(e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0' }} />
-                 <input type="text" placeholder="Descripción" value={pillar2Desc} onChange={(e) => setPillar2Desc(e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem' }} />
-               </div>
-               <div>
-                 <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Pilar 3</span>
-                 <input type="text" placeholder="Título" value={pillar3Title} onChange={(e) => setPillar3Title(e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0' }} />
-                 <input type="text" placeholder="Descripción" value={pillar3Desc} onChange={(e) => setPillar3Desc(e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem' }} />
-               </div>
+           <div style={{ border: '1px solid var(--border-color)', padding: '1.25rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.01)' }}>
+             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+               <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-color)' }}>Tarjetas de Información (Pilares)</span>
+               <button type="button" onClick={addPillar} className="btn btn-secondary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}>+ Agregar Tarjeta</button>
+             </div>
+             
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+               {minPillars.map((pillar, index) => (
+                 <div key={pillar._localId} style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr auto', gap: '1rem', alignItems: 'flex-start', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.35rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                   <div>
+                     <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Icono & Título</span>
+                     <input type="text" placeholder="Ej: Calendar, Heart..." value={pillar.icon} onChange={(e) => updatePillar(pillar._localId, 'icon', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0' }} />
+                     <input type="text" placeholder="Título" value={pillar.title} onChange={(e) => updatePillar(pillar._localId, 'title', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem' }} />
+                   </div>
+                   <div>
+                     <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Descripción Corta</span>
+                     <textarea placeholder="Texto explicativo..." value={pillar.desc} onChange={(e) => updatePillar(pillar._localId, 'desc', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0', minHeight: '68px' }} />
+                   </div>
+                   <div>
+                     <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Imagen de Fondo</span>
+                     <input type="file" accept="image/*" onChange={(e) => updatePillar(pillar._localId, 'file', e.target.files[0])} style={{ fontSize: '0.7rem', width: '100%', margin: '4px 0' }} />
+                     {(pillar.image_url || pillar.file) && (
+                       <img src={pillar.file ? URL.createObjectURL(pillar.file) : pillar.image_url} alt="Preview" style={{ width: '100%', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
+                     )}
+                   </div>
+                   <button type="button" onClick={() => removePillar(pillar._localId)} className="btn" style={{ padding: '0.5rem', color: 'var(--danger-color)' }}>
+                     <Trash2 size={16} />
+                   </button>
+                 </div>
+               ))}
              </div>
            </div>
 
