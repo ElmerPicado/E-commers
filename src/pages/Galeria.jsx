@@ -142,10 +142,22 @@ export default function Galeria() {
   }, [minQuery, albumQuery, albums]);
 
   // Category tags mappings dynamically built from ministries
-  const dynamicCategories = ministries ? ministries.map(m => ({
-    key: m.id,
-    label: m.name.replace('Ministerio de ', '').replace('Red ', '').split(' ')[0]
-  })) : [];
+  const dynamicCategories = ministries ? ministries.map(m => {
+    let label = m.name
+      .replace(/Ministerio de /gi, '')
+      .replace(/Ministerio /gi, '')
+      .replace(/Red /gi, '')
+      .replace(/IMR4 /gi, '') // Quitar IMR4 del principio
+      .trim();
+    
+    // Tomar la primera palabra de lo que queda
+    label = label.split(' ')[0];
+    
+    return {
+      key: m.id,
+      label: label
+    };
+  }) : [];
   
   const categories = [
     { key: 'todos', label: 'Todos' },
