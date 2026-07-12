@@ -606,44 +606,23 @@ export default function Admin() {
             </div>
 
             <form onSubmit={handleSaveBlog} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem' }} className="grid-cols-2">
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '1.5rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {blogAction === 'edit' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Selecciona Noticia</label>
-                      <select value={editingBlogId} onChange={(e) => loadBlogData(e.target.value)} style={selectStyle}>
-                        {(blogPosts || []).map((blog) => (<option key={blog.id} value={blog.id}>{blog.title || blog.id}</option>))}
-                      </select>
-                      {(blogPosts || []).length > 0 && (
-                        <button type="button" onClick={() => { 
-                          if(confirm('¿Eliminar noticia?')) { 
-                            deleteBlogPost(editingBlogId); 
-                            triggerSuccess('Noticia eliminada.'); 
-                            const remaining = blogPosts.filter(b => b.id !== editingBlogId);
-                            if (remaining.length > 0) {
-                              loadBlogData(remaining[0].id);
-                            } else {
-                              setBlogAction('create');
-                              setBlogTitle(''); setBlogContent(''); setBlogImageUrl(''); setBlogOrder(1); setBlogImageFile(null);
-                            }
-                          } 
-                        }} className="btn btn-danger" style={{ marginTop: '0.5rem' }}><Trash2 size={14}/> Eliminar Noticia</button>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                       <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Seleccionar Publicación a Editar</label>
                       <select value={editingBlogId} onChange={(e) => loadBlogData(e.target.value)} style={inputStyle}>
-                        {blogPosts.map(b => (
+                        {(blogPosts || []).map(b => (
                           <option key={b.id} value={b.id}>{b.title}</option>
                         ))}
                       </select>
                     </div>
                   )}
                   
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de la Publicación</label><input type="text" value={blogTitle} onChange={(e) => setBlogTitle(e.target.value)} required style={inputStyle} /></div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de la Publicación</label>
+                    <input type="text" value={blogTitle} onChange={(e) => setBlogTitle(e.target.value)} required style={inputStyle} />
+                  </div>
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                     <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Contenido / Texto Principal</label>
@@ -660,7 +639,10 @@ export default function Admin() {
                     )}
                   </div>
                   
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Orden (Prioridad)</label><input type="number" value={blogOrder} onChange={(e) => setBlogOrder(e.target.value)} style={inputStyle} /></div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Orden (Prioridad)</label>
+                    <input type="number" value={blogOrder} onChange={(e) => setBlogOrder(e.target.value)} style={inputStyle} />
+                  </div>
                 </div>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
