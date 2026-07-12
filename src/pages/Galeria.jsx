@@ -118,7 +118,7 @@ const AlbumCard = ({ album, onClick, getCategoryLabel }) => {
 };
 
 export default function Galeria() {
-  const { albums } = useContext(GalleryContext);
+  const { albums, ministries } = useContext(GalleryContext);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const minQuery = queryParams.get('min');
@@ -141,14 +141,16 @@ export default function Galeria() {
     }
   }, [minQuery, albumQuery, albums]);
 
-  // Category tags mappings
+  // Category tags mappings dynamically built from ministries
+  const dynamicCategories = ministries ? ministries.map(m => ({
+    key: m.id,
+    label: m.name.replace('Ministerio de ', '').replace('Red ', '').split(' ')[0]
+  })) : [];
+  
   const categories = [
     { key: 'todos', label: 'Todos' },
     { key: 'general', label: 'General' },
-    { key: 'juvenil', label: 'Jóvenes' },
-    { key: 'mujeres', label: 'Mujeres' },
-    { key: 'hombres', label: 'Hombres' },
-    { key: 'ninos', label: 'Niños' }
+    ...dynamicCategories
   ];
 
   const getCategoryLabel = (catKey) => {
@@ -159,7 +161,7 @@ export default function Galeria() {
   // Filter logic
   const filteredAlbums = selectedCategory === 'todos'
     ? albums
-    : albums.filter(album => album.category === selectedCategory);
+    : albums.filter(album => album.category === selectedCategory || album.ministry_id === selectedCategory);
 
   const openLightbox = (index) => {
     setLightboxIndex(index);
