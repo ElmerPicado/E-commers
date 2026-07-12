@@ -28,36 +28,6 @@ const IconMapper = ({ name, size = 20, className = "" }) => {
     Briefcase: <Briefcase size={size} className={className} />
   };
   return icons[name] || <Sparkles size={size} className={className} />;
-import React, { useContext, useState } from 'react';
-import { useParams, Link, useLocation } from 'react-router-dom';
-import { GalleryContext } from '../context/GalleryContext';
-import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, X, ChevronLeft, ChevronRight } from 'lucide-react';
-
-const InstagramIcon = ({ size = 24, color = "currentColor" }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-  </svg>
-);
-
-// Mapper to dynamically render icon components
-const IconMapper = ({ name, size = 20, className = "" }) => {
-  const icons = {
-    Flame: <Flame size={size} className={className} />,
-    Heart: <Heart size={size} className={className} />,
-    Shield: <Shield size={size} className={className} />,
-    Sun: <Sun size={size} className={className} />,
-    Sparkles: <Sparkles size={size} className={className} />,
-    Calendar: <Calendar size={size} className={className} />,
-    MapPin: <MapPin size={size} className={className} />,
-    Users: <Users size={size} className={className} />,
-    BookOpen: <BookOpen size={size} className={className} />,
-    Coffee: <Coffee size={size} className={className} />,
-    Smile: <Smile size={size} className={className} />,
-    Briefcase: <Briefcase size={size} className={className} />
-  };
-  return icons[name] || <Sparkles size={size} className={className} />;
 };
 
 export default function Ministerio() {
