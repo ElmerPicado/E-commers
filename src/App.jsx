@@ -20,6 +20,7 @@ import Galeria from './pages/Galeria';
 import Live from './pages/Live';
 import Admin from './pages/Admin';
 import Login from './pages/Login';
+import Donaciones from './pages/Donaciones';
 
 const ProtectedAdminRoute = () => {
   const { adminUser } = useContext(GalleryContext);
@@ -41,6 +42,7 @@ function App() {
               <Route path="/ministerio/:id" element={<Ministerio />} />
               <Route path="/galeria" element={<Galeria />} />
               <Route path="/live" element={<Live />} />
+              <Route path="/donaciones" element={<Donaciones />} />
               <Route path="/admin" element={<ProtectedAdminRoute />} />
             </Routes>
           </main>

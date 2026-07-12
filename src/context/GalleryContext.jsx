@@ -300,6 +300,14 @@ export const GalleryProvider = ({ children }) => {
     return DEFAULT_RADIO_PROGRAMS;
   });
 
+  const [donationsConfig, setDonationsConfig] = useState({
+    hero_image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?w=1600&q=80',
+    title: 'Diezmos y Ofrendas',
+    message: 'Traed todos los diezmos al alfolí y haya alimento en mi casa; y probadme ahora en esto, dice Jehová de los ejércitos, si no os abriré las ventanas de los cielos, y derramaré sobre vosotros bendición hasta que sobreabunde. (Malaquías 3:10)',
+    sinpe_number: '8888-8888',
+    bank_accounts: []
+  });
+
   // Auth States
   const [adminUser, setAdminUser] = useState(null);
   const [adminUsersList, setAdminUsersList] = useState([]);
@@ -408,6 +416,18 @@ export const GalleryProvider = ({ children }) => {
       // 7. Blog Posts
       const { data: dbBlogs } = await supabase.from('blog_posts').select('*').order('order_index');
       if (dbBlogs) setBlogPosts(dbBlogs);
+
+      // 8. Donations Config
+      const { data: dbDonations } = await supabase.from('donations_config').select('*').eq('id', 'main').single();
+      if (dbDonations) {
+        setDonationsConfig({
+          hero_image: dbDonations.hero_image,
+          title: dbDonations.title,
+          message: dbDonations.message,
+          sinpe_number: dbDonations.sinpe_number,
+          bank_accounts: typeof dbDonations.bank_accounts === 'string' ? JSON.parse(dbDonations.bank_accounts) : (dbDonations.bank_accounts || [])
+        });
+      }
     } catch (e) {
       console.error('Error fetching data from Supabase:', e);
     }
@@ -452,6 +472,7 @@ export const GalleryProvider = ({ children }) => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'activities' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'radio_programs' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'blog_posts' }, () => fetchSupabaseData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'donations_config' }, () => fetchSupabaseData())
         .subscribe();
 
       return () => {
@@ -730,6 +751,15 @@ export const GalleryProvider = ({ children }) => {
     }));
   };
 
+  const updateDonationsConfig = async (updates) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('donations_config').update(updates).eq('id', 'main');
+      setDonationsConfig((prev) => ({ ...prev, ...updates }));
+    } else {
+      setDonationsConfig((prev) => ({ ...prev, ...updates }));
+    }
+  };
+
   // Auth & Admin Users Methods
   const login = async (username, password) => {
     if (isSupabaseConfigured) {
@@ -823,6 +853,8 @@ export const GalleryProvider = ({ children }) => {
         addBlogPost,
         updateBlogPost,
         deleteBlogPost,
+        donationsConfig,
+        updateDonationsConfig,
         addChatMessage,
         adminUser,
         adminUsersList,

@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
 import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare } from 'lucide-react';
@@ -35,6 +35,7 @@ export default function Ministerio() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const { ministries, albums, activities } = useContext(GalleryContext);
+  const [selectedActivity, setSelectedActivity] = useState(null);
 
   const ministry = ministries.find((m) => m.id === id);
 
@@ -275,6 +276,9 @@ export default function Ministerio() {
             <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.25rem' }}>Próximas Actividades</h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Eventos programados de {ministry.name}. ¡Súmate!</p>
+              <div className="swipe-indicator">
+                Desliza para ver más <ArrowRight size={16} />
+              </div>
             </div>
 
             <div className="scroll-container">
@@ -295,7 +299,7 @@ export default function Ministerio() {
 
                   {/* Imagen grande */}
                   {act.image_url && (
-                    <div style={{ width: '100%', aspectRatio: '1/1', background: '#000', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    <div style={{ width: '100%', aspectRatio: '4/5', background: '#000', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )}
@@ -326,9 +330,34 @@ export default function Ministerio() {
                     </h3>
                     
                     {/* Descripción */}
-                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem', whiteSpace: 'pre-line' }}>
+                    <p style={{ 
+                      fontSize: '0.9rem', 
+                      color: 'var(--text-secondary)', 
+                      lineHeight: 1.6, 
+                      whiteSpace: 'pre-line',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden'
+                    }}>
                       {act.description}
                     </p>
+                    
+                    {act.description && act.description.length > 100 && (
+                      <button 
+                        onClick={() => setSelectedActivity(act)}
+                        style={{
+                          background: 'none', border: 'none', 
+                          color: 'var(--accent-color)', fontWeight: 700, 
+                          fontSize: '0.85rem', textAlign: 'left', 
+                          padding: '0.5rem 0', cursor: 'pointer',
+                          display: 'inline-block',
+                          marginBottom: '0.5rem'
+                        }}
+                      >
+                        Leer más...
+                      </button>
+                    )}
                     
                     {/* Footer de la tarjeta con ubicación y likes (Instagram feel) */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
@@ -490,8 +519,86 @@ export default function Ministerio() {
             )}
           </div>
         </div>
-      </section>
+        </section>
       )}
+
+      {/* Activity Modal */}
+      {selectedActivity && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem'
+        }}>
+          <div className="glass-card" style={{
+            width: '100%',
+            maxWidth: '500px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            padding: '2rem',
+            position: 'relative',
+            background: 'rgba(20, 20, 24, 0.95)'
+          }}>
+            <button 
+              onClick={() => setSelectedActivity(null)}
+              style={{
+                position: 'absolute',
+                top: '1rem',
+                right: '1rem',
+                background: 'rgba(255,255,255,0.1)',
+                border: 'none',
+                color: '#fff',
+                width: '32px', height: '32px',
+                borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background 0.2s'
+              }}
+            >
+              <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>&times;</span>
+            </button>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem', paddingRight: '2rem', color: '#fff' }}>
+              {selectedActivity.title}
+            </h3>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--accent-color)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                <Calendar size={14} /> 
+                {new Date(selectedActivity.date + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                {selectedActivity.time && (
+                  <>
+                    <Calendar size={14} />
+                    {(() => {
+                      let [h, m] = selectedActivity.time.split(':');
+                      let ampm = h >= 12 ? 'PM' : 'AM';
+                      h = h % 12 || 12;
+                      return `${h}:${m} ${ampm}`;
+                    })()}
+                  </>
+                )}
+              </div>
+            </div>
+
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>
+              {selectedActivity.description}
+            </p>
+            
+            <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn btn-secondary" onClick={() => setSelectedActivity(null)} style={{ padding: '0.6rem 1.5rem' }}>
+                Cerrar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

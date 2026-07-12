@@ -249,6 +249,30 @@ a {
 .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 
+/* Swipe Indicator (Mobile only) */
+.swipe-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  justify-content: center;
+  animation: pulse-horizontal 2s infinite;
+}
+
+@media (min-width: 768px) {
+  .swipe-indicator {
+    display: none;
+  }
+}
+
+@keyframes pulse-horizontal {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
 @media (max-width: 1024px) {
   .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -296,6 +320,20 @@ a {
   }
 }
 
+/* Hero Section Utilities */
+.hero-content-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+.hero-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1 1 min-content;
+}
+
 /* Responsive App Utilities */
 .mobile-only {
   display: none !important;
@@ -338,5 +376,20 @@ a {
   .hero-section-min {
     min-height: 50vh;
     padding: 5rem 1rem 3rem 1rem !important;
+  }
+  
+  /* Centrado en móvil para hero */
+  .hero-content-wrapper {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+  .hero-text-wrapper {
+    align-items: center;
+    text-align: center;
+    order: 1; /* Texto arriba */
+  }
+  .hero-content-wrapper .logo-wrapper {
+    order: 2; /* Logo abajo del texto en celular */
   }
 }

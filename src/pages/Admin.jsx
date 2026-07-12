@@ -4,6 +4,8 @@ import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
 import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
+import DonationsAdmin from '../components/admin/DonationsAdmin';
+import { Heart } from 'lucide-react';
 
 export default function Admin() {
   const {
@@ -388,6 +390,7 @@ export default function Admin() {
             { id: 'home_sections', label: 'Banners de Inicio', icon: <Layers size={16} /> },
             { id: 'global_gallery', label: 'Galería General', icon: <Image size={16} />, onClick: () => setActiveMinistryId('general') },
             { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> },
+            { id: 'donations', label: 'Diezmos y Ofrendas', icon: <Heart size={16} /> },
             { id: 'blogs', label: 'Noticias / Blogs', icon: <FileText size={16} /> },
             { id: 'admin_users', label: 'Administradores', icon: <Lock size={16} /> }
           ].map((tab) => (
@@ -693,22 +696,8 @@ export default function Admin() {
           </div>
         )}
 
-        {/* TAB 6: ADMINISTRADORES */}
+        {/* TAB 6: ADMIN USERS */}
         {activeTab === 'admin_users' && (
-          <div className="glass-card animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-              <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}><Lock size={20} style={{ color: 'var(--accent-color)' }} /> Usuarios Administradores</h2>
-            </div>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }} className="grid-cols-2">
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><UserPlus size={16} /> Crear Nuevo Administrador</h3>
-                <form onSubmit={async (e) => {
-                  e.preventDefault();
-                  if (!newAdminUser || !newAdminPass) return;
-                  setIsAdminCreating(true);
-                  const res = await addAdminUser(newAdminUser, newAdminPass);
-                  if (res.success) {
                     triggerSuccess('Usuario administrador creado.');
                     setNewAdminUser('');
                     setNewAdminPass('');
@@ -767,6 +756,12 @@ export default function Admin() {
                 )}
               </div>
             </div>
+          </div>
+        )}
+        {/* TAB 7: DONATIONS */}
+        {activeTab === 'donations' && (
+          <div className="animate-fade-in">
+            <DonationsAdmin />
           </div>
         )}
       </div>
