@@ -2,6 +2,8 @@ import React, { useState, useContext } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { BookOpen, CheckCircle, Clock, XCircle, Edit, Trash2, Plus, Save } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 export default function DevocionalesAdmin({ triggerSuccess }) {
   const { 
@@ -166,26 +168,60 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
 
                     <div>
                       <label style={labelStyle}>Versículo</label>
-                      <textarea value={editVerse} onChange={e => setEditVerse(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} />
+                      <textarea value={editVerse} onChange={e => setEditVerse(e.target.value)} style={{ ...inputStyle, minHeight: '90px' }} />
                     </div>
 
                     <div>
                       <label style={labelStyle}>Contenido</label>
-                      <textarea value={editContent} onChange={e => setEditContent(e.target.value)} style={{ ...inputStyle, minHeight: '150px' }} required />
+                      <div style={{ background: '#ffffff', borderRadius: '0.5rem', overflow: 'hidden', color: '#000000', border: '1px solid var(--border-color)' }}>
+                        <ReactQuill 
+                          theme="snow" 
+                          value={editContent} 
+                          onChange={setEditContent} 
+                          style={{ height: '350px', border: 'none' }}
+                          modules={{
+                            toolbar: [
+                              [{ 'header': [1, 2, 3, false] }],
+                              ['bold', 'italic', 'underline', 'strike'],
+                              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                              ['link', 'clean']
+                            ]
+                          }}
+                        />
+                      </div>
+                      <style>{`
+                        .ql-container {
+                          font-size: 1.05rem;
+                          font-family: inherit;
+                          border-bottom-left-radius: 0.5rem;
+                          border-bottom-right-radius: 0.5rem;
+                          border: none !important;
+                        }
+                        .ql-toolbar {
+                          border-top-left-radius: 0.5rem;
+                          border-top-right-radius: 0.5rem;
+                          background: #f8fafc;
+                          border: none !important;
+                          border-bottom: 1px solid #e2e8f0 !important;
+                        }
+                        .ql-editor {
+                          min-height: 350px;
+                        }
+                      `}</style>
                     </div>
 
-                    <div>
+                    <div style={{ marginTop: '2rem' }}>
                       <label style={labelStyle}>Oración</label>
-                      <textarea value={editPrayer} onChange={e => setEditPrayer(e.target.value)} style={{ ...inputStyle, minHeight: '80px' }} />
+                      <textarea value={editPrayer} onChange={e => setEditPrayer(e.target.value)} style={{ ...inputStyle, minHeight: '120px' }} />
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                       <div>
                         <label style={labelStyle}>Categoría</label>
                         <select value={editCategoryId} onChange={e => setEditCategoryId(e.target.value)} style={inputStyle} required>
-                          <option value="">-- Seleccionar Categoría --</option>
+                          <option value="" style={{ color: '#0f172a' }}>-- Seleccionar Categoría --</option>
                           {(devotionalCategories || []).map(c => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
+                            <option key={c.id} value={c.id} style={{ color: '#0f172a' }}>{c.name}</option>
                           ))}
                         </select>
                       </div>
@@ -193,9 +229,9 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                       <div>
                         <label style={labelStyle}>Estado</label>
                         <select value={editStatus} onChange={e => setEditStatus(e.target.value)} style={inputStyle}>
-                          <option value="pending">Pendiente de revisión</option>
-                          <option value="published">Publicado</option>
-                          <option value="rejected">Rechazado (No visible)</option>
+                          <option value="pending" style={{ color: '#0f172a' }}>Pendiente de revisión</option>
+                          <option value="published" style={{ color: '#0f172a' }}>Publicar</option>
+                          <option value="rejected" style={{ color: '#0f172a' }}>Rechazar (No visible)</option>
                         </select>
                       </div>
                     </div>

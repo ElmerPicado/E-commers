@@ -206,14 +206,22 @@ export default function SubmitDevocional() {
           <button 
             onClick={() => {
               setIsSubmitted(false);
-              setAuthorName('');
-              setAuthorBio('');
-              setAuthorPhotoFile(null);
-              setAuthorPhotoPreview('');
               setTitle('');
               setVerse('');
               setContent('');
               setPrayer('');
+              
+              if (generatedCode) {
+                setEnteredCode(generatedCode);
+                setIsLocked(true);
+                setWantsToRegister(false);
+                setGeneratedCode('');
+              } else if (!isLocked) {
+                setAuthorName('');
+                setAuthorBio('');
+                setAuthorPhotoFile(null);
+                setAuthorPhotoPreview('');
+              }
             }}
             className="btn btn-secondary"
             style={{ width: '100%', marginBottom: '1rem' }}
