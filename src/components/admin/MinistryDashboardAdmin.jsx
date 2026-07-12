@@ -10,6 +10,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     activities,
     addActivity,
     deleteActivity,
+    updateActivity,
     albums,
     addAlbum,
     deleteAlbum,
@@ -65,6 +66,25 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [actLocationUrl, setActLocationUrl] = useState('');
   const [actImageFile, setActImageFile] = useState(null);
   const [isActUploading, setIsActUploading] = useState(false);
+  const [editingActivityId, setEditingActivityId] = useState(null);
+
+  const loadActivityData = (activity) => {
+    setEditingActivityId(activity.id);
+    setActTitle(activity.title || '');
+    setActDate(activity.date || '');
+    setActTime(activity.time || '');
+    setActDesc(activity.description || '');
+    setActLocationUrl(activity.location_url || '');
+    setActImageFile(null); // image preview can be handled later if needed
+  };
+
+  const cancelActivityEdit = () => {
+    setEditingActivityId(null);
+    setActTitle('');
+    setActDesc('');
+    setActLocationUrl('');
+    setActImageFile(null);
+  };
 
   // Gallery Form State
   const [newAlbumTitle, setNewAlbumTitle] = useState('');
@@ -176,22 +196,30 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       setIsActUploading(false);
     }
 
-    const newAct = {
-      id: `act-${Date.now()}`,
+    const updates = {
       title: actTitle,
       date: actDate,
       time: actTime,
       description: actDesc,
       location_url: actLocationUrl,
-      image_url: finalImageUrl,
       ministry_id: ministryId
     };
-    await addActivity(newAct);
-    setActTitle('');
-    setActDesc('');
-    setActLocationUrl('');
-    setActImageFile(null);
-    triggerSuccess('Actividad creada para este ministerio.');
+    
+    if (finalImageUrl !== 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80') {
+      updates.image_url = finalImageUrl;
+    }
+
+    if (editingActivityId) {
+      await updateActivity(editingActivityId, updates);
+      triggerSuccess('Actividad actualizada.');
+      cancelActivityEdit();
+    } else {
+      updates.id = `act-${Date.now()}`;
+      if (!updates.image_url) updates.image_url = finalImageUrl; // fallback for new
+      await addActivity(updates);
+      triggerSuccess('Actividad creada para este ministerio.');
+      cancelActivityEdit();
+    }
   };
 
   const handleCreateAlbum = async (e) => {
@@ -449,7 +477,12 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1.5rem' }}>
           {/* Create Activity Form */}
           <form onSubmit={handleCreateActivity} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', height: 'fit-content' }}>
-            <h3 style={{ fontSize: '1.2rem', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Nueva Actividad</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.2rem', margin: 0 }}>{editingActivityId ? 'Editar Actividad' : 'Nueva Actividad'}</h3>
+              {editingActivityId && (
+                <button type="button" onClick={cancelActivityEdit} className="btn btn-secondary" style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>Cancelar</button>
+              )}
+            </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título</label>
               <input type="text" value={actTitle} onChange={(e) => setActTitle(e.target.value)} style={inputStyle} required />
@@ -477,7 +510,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
               <input type="file" accept="image/*" onChange={(e) => setActImageFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} />
             </div>
             <button type="submit" className="btn btn-primary" disabled={isActUploading}>
-              {isActUploading ? 'Subiendo...' : <><Plus size={16} /> Crear Actividad</>}
+              {isActUploading ? 'Guardando...' : (editingActivityId ? <><Save size={16} /> Actualizar Actividad</> : <><Plus size={16} /> Crear Actividad</>)}
             </button>
           </form>
 
@@ -489,12 +522,17 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {minActivities.map(act => (
-                  <div key={act.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}>
-                    <div>
-                      <strong style={{ color: '#fff' }}>{act.title}</strong>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{act.date} | {act.time}</div>
+                  <div key={act.id} 
+                       onClick={() => loadActivityData(act)}
+                       style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.02)', border: editingActivityId === act.id ? `1px solid ${min.accent_color}` : '1px solid var(--border-color)', borderRadius: '0.5rem', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      {act.image_url && <img src={act.image_url} alt="" style={{ width: '50px', height: '50px', borderRadius: '4px', objectFit: 'cover' }} />}
+                      <div>
+                        <strong style={{ color: '#fff' }}>{act.title}</strong>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{act.date} | {act.time}</div>
+                      </div>
                     </div>
-                    <button onClick={() => { deleteActivity(act.id); triggerSuccess('Actividad eliminada.'); }} className="btn btn-danger" style={{ padding: '0.35rem 0.6rem' }}>
+                    <button onClick={(e) => { e.stopPropagation(); deleteActivity(act.id); if(editingActivityId === act.id) cancelActivityEdit(); triggerSuccess('Actividad eliminada.'); }} className="btn btn-danger" style={{ padding: '0.35rem 0.6rem' }}>
                       <Trash2 size={14} />
                     </button>
                   </div>

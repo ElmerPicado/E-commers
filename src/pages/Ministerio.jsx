@@ -261,53 +261,48 @@ export default function Ministerio() {
               gap: '1.5rem'
             }}>
               {ministryActivities.map((act) => (
-                <div key={act.id} className="glass-card" style={{ display: 'flex', gap: '1rem', padding: '1.25rem', alignItems: 'flex-start' }}>
-                  <div style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '0.5rem',
-                    padding: '0.5rem 0.75rem',
-                    textAlign: 'center',
-                    minWidth: '70px'
-                  }}>
-                    <span style={{ display: 'block', fontSize: '0.7rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                      {new Date(act.date).toLocaleString('es-ES', { month: 'short' })}
-                    </span>
-                    <span style={{ display: 'block', fontSize: '1.4rem', fontWeight: 800, color: 'var(--accent-color)', lineHeight: '1.1' }}>
-                      {new Date(act.date).getDate() + 1}
-                    </span>
+                <div key={act.id} className="glass-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.6)' }}>
+                  
+                  {/* Header estilo Instagram */}
+                  <div style={{ padding: '0.75rem 1rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                    {ministry.logo_url ? (
+                      <img src={ministry.logo_url} alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'contain' }} />
+                    ) : (
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-color)', border: '1px solid var(--border-color)' }}>
+                        <IconMapper name={ministry.icon_name} size={16} />
+                      </div>
+                    )}
+                    <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{ministry.name}</span>
                   </div>
 
+                  {/* Imagen grande */}
                   {act.image_url && (
-                    <div style={{
-                      width: '70px',
-                      height: '70px',
-                      borderRadius: '0.35rem',
-                      overflow: 'hidden',
-                      background: 'rgba(255,255,255,0.02)',
-                      flexShrink: 0
-                    }}>
+                    <div style={{ width: '100%', aspectRatio: '4/5', background: '#000', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                       <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )}
 
-                  <div style={{ flex: 1 }}>
-                    <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.25rem' }}>{act.title}</h4>
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-                      <span>Hora: {act.time} hs</span> 
-                      <span>|</span> 
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
-                        Lugar: {ministry.location}
-                        {(act.location_url || ministry.location_url) && (
-                          <a href={act.location_url || ministry.location_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', marginLeft: '0.25rem' }} title="Ver en Google Maps">
-                            <MapPin size={12} />
-                          </a>
-                        )}
-                      </span>
+                  {/* Cuerpo del post */}
+                  <div style={{ padding: '1rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                      <Heart size={20} style={{ color: 'var(--accent-color)' }} />
+                      <MessageSquare size={20} style={{ color: 'var(--text-secondary)' }} />
+                    </div>
+                    
+                    <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                      <strong style={{ marginRight: '0.5rem' }}>{ministry.name.split(' ')[0]}</strong> 
+                      <span style={{ fontWeight: 700 }}>{act.title}</span>
                     </p>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                    
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.75rem', whiteSpace: 'pre-line' }}>
                       {act.description}
                     </p>
+                    
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
+                       <Calendar size={12} /> {act.date} a las {act.time} hs
+                       <span>•</span>
+                       <MapPin size={12} /> {ministry.location}
+                    </div>
                   </div>
                 </div>
               ))}

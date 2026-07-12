@@ -630,7 +630,10 @@ export const GalleryProvider = ({ children }) => {
   // Activities methods
   const addActivity = async (activity) => {
     if (isSupabaseConfigured) {
-      await supabase.from('activities').insert(activity);
+      const { data, error } = await supabase.from('activities').insert(activity).select();
+      if (!error && data) {
+        setActivities((prev) => [...prev, data[0]].sort((a,b) => a.date.localeCompare(b.date)));
+      }
     } else {
       setActivities((prev) => [...prev, activity].sort((a,b) => a.date.localeCompare(b.date)));
     }
@@ -639,8 +642,18 @@ export const GalleryProvider = ({ children }) => {
   const deleteActivity = async (id) => {
     if (isSupabaseConfigured) {
       await supabase.from('activities').delete().eq('id', id);
+      setActivities((prev) => prev.filter((act) => act.id !== id));
     } else {
       setActivities((prev) => prev.filter((act) => act.id !== id));
+    }
+  };
+
+  const updateActivity = async (id, updates) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('activities').update(updates).eq('id', id);
+      setActivities((prev) => prev.map((act) => act.id === id ? { ...act, ...updates } : act));
+    } else {
+      setActivities((prev) => prev.map((act) => act.id === id ? { ...act, ...updates } : act));
     }
   };
 
@@ -792,6 +805,7 @@ export const GalleryProvider = ({ children }) => {
         updateMinistry,
         addActivity,
         deleteActivity,
+        updateActivity,
         addRadioProgram,
         updateRadioProgram,
         deleteRadioProgram,
