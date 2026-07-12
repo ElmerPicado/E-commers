@@ -248,6 +248,7 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                           ))}
                         </select>
                       </div>
+                    </div>
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
                       
