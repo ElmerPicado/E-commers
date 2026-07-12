@@ -343,3 +343,25 @@ DROP POLICY IF EXISTS "Escritura pública contact_forms" ON contact_forms;
 
 CREATE POLICY "Lectura pública contact_forms" ON contact_forms FOR SELECT USING (true);
 CREATE POLICY "Escritura pública contact_forms" ON contact_forms FOR ALL USING (true) WITH CHECK (true);
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V8: Autores Frecuentes Devocionales)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS devotional_authors (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  code TEXT UNIQUE NOT NULL,
+  email TEXT UNIQUE,
+  name TEXT NOT NULL,
+  bio TEXT,
+  photo_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE devotional_authors ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública devotional_authors" ON devotional_authors;
+DROP POLICY IF EXISTS "Escritura pública devotional_authors" ON devotional_authors;
+
+-- Lectura pública porque necesitamos buscar el autor por el código antes de enviar
+CREATE POLICY "Lectura pública devotional_authors" ON devotional_authors FOR SELECT USING (true);
+-- Escritura pública porque los invitados se auto-registran
+CREATE POLICY "Escritura pública devotional_authors" ON devotional_authors FOR ALL USING (true) WITH CHECK (true);
