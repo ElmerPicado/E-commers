@@ -101,10 +101,8 @@ export default function Ministerio() {
       }}></div>
       
       {/* Hero */}
-      <section style={{
+      <section className="hero-section-min" style={{
         position: 'relative',
-        padding: '8rem 1.5rem 6rem 1.5rem',
-        minHeight: '65vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -179,95 +177,93 @@ export default function Ministerio() {
         </div>
       </section>
 
-      {/* Pillars / Core info */}
-      {(ministry.schedule || ministry.location || (ministry.pillars && ministry.pillars.some(p => p.title?.trim() || p.desc?.trim()))) && (
-        <section style={{ padding: '3.5rem 1.5rem', position: 'relative', zIndex: 1 }}>
-          <div className="container">
-              {ministry.schedule && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
-                  <Calendar size={18} />
-                  <span>{ministry.schedule}</span>
-                </div>
-              )}
-              {ministry.location && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
-                  <div style={{
-                    width: '18px',
-                    height: '18px',
-                    borderRadius: '50%',
-                    background: 'var(--accent-color)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    color: '#000',
-                    fontWeight: 800,
-                    fontSize: '0.65rem'
-                  }}>M</div>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                    {ministry.location}
-                    {ministry.location_url && (
-                      <a href={ministry.location_url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)' }} title="Ver en Google Maps">
-                        <MapPin size={14} />
-                      </a>
-                    )}
-                  </span>
-                </div>
-              )}
-            {ministry.pillars && ministry.pillars.some(p => p.title?.trim() || p.desc?.trim()) && (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                gap: '1.5rem',
-                marginTop: '2rem'
-              }}>
-              {ministry.pillars.map((pillar, idx) => (
-                <div key={idx} className="glass-card" style={{ 
-                  padding: '1.5rem', 
-                  position: 'relative', 
-                  overflow: 'hidden',
-                  backgroundImage: pillar.image_url ? `linear-gradient(rgba(10,10,12,0.6), rgba(10,10,12,0.8)), url("${pillar.image_url}")` : 'none',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  minHeight: pillar.image_url ? '180px' : 'auto',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center'
+      {/* Schedule / Location Block (Estilo PAS) */}
+      {(ministry.schedule || ministry.location || ministry.instagram_url) && (
+        <section style={{ padding: '3rem 1.5rem', background: 'rgba(255,255,255,0.01)', borderBottom: '1px solid var(--border-color)', textAlign: 'center' }}>
+          <div className="container" style={{ maxWidth: '800px' }}>
+            
+            {/* Redes sociales */}
+            {ministry.instagram_url && (
+              <div style={{ display: 'flex', justifyContent: 'center', gap: '0.75rem', marginBottom: '2rem' }}>
+                <a href={ministry.instagram_url} target="_blank" rel="noopener noreferrer" style={{
+                  width: '40px', height: '40px', borderRadius: '8px', background: '#e1306c', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', transition: 'transform 0.2s'
                 }}>
-                  {/* Marca de agua gigante con el icono (si no hay foto) */}
-                  {!pillar.image_url && (
-                    <div style={{
-                      position: 'absolute',
-                      right: '-10%',
-                      bottom: '-15%',
-                      opacity: 0.04,
-                      transform: 'scale(3.5)',
-                      pointerEvents: 'none',
-                      color: '#fff'
-                    }}>
-                      <IconMapper name={pillar.icon} size={64} />
-                    </div>
-                  )}
-                  
-                  <div style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '0.5rem',
-                    background: pillar.image_url ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.03)',
-                    color: 'var(--accent-color)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '1rem',
-                    border: '1px solid var(--border-color)'
-                  }}>
-                    <IconMapper name={pillar.icon} size={20} />
-                  </div>
-                  <h3 style={{ fontSize: '1.2rem', marginBottom: '0.5rem' }}>{pillar.title}</h3>
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{pillar.desc}</p>
-                </div>
-              ))}
+                  <InstagramIcon size={20} />
+                </a>
               </div>
             )}
+
+            {/* Horario Principal */}
+            {ministry.schedule && (
+              <div style={{ marginBottom: '2rem' }}>
+                <h2 style={{ fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                  {ministry.schedule}
+                </h2>
+              </div>
+            )}
+
+            {/* Ubicación y Acción */}
+            {ministry.location && (
+              <div style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+                <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                  <MapPin size={18} style={{ color: 'var(--accent-color)' }} />
+                  {ministry.location}
+                </p>
+                {ministry.location_url && (
+                  <a href={ministry.location_url} target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ padding: '0.5rem 1.5rem', fontSize: '0.85rem', borderRadius: '999px' }}>
+                    ¿CÓMO LLEGAR?
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Pillars / Core info (Estilo Alternado Zig-Zag) */}
+      {ministry.pillars && ministry.pillars.some(p => p.title?.trim() || p.desc?.trim()) && (
+        <section style={{ padding: '4rem 1.5rem', position: 'relative', zIndex: 1 }}>
+          <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '4rem', maxWidth: '1000px' }}>
+              {ministry.pillars.map((pillar, idx) => {
+                const isEven = idx % 2 === 0;
+                return (
+                  <div key={idx} className="grid-cols-2" style={{ 
+                    display: 'grid', 
+                    gap: '2rem', 
+                    alignItems: 'center' 
+                  }}>
+                    {/* Imagen / Fondo (Cambia de lado según si es par o impar en Desktop) */}
+                    <div style={{ 
+                      order: isEven ? 1 : 2,
+                      width: '100%', 
+                      aspectRatio: '16/10',
+                      borderRadius: '1rem',
+                      overflow: 'hidden',
+                      position: 'relative',
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '1px solid var(--border-color)'
+                    }}>
+                      {pillar.image_url ? (
+                        <img src={pillar.image_url} alt={pillar.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', opacity: 0.1, color: 'var(--accent-color)' }}>
+                          <IconMapper name={pillar.icon} size={100} />
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Texto */}
+                    <div style={{ order: isEven ? 2 : 1, padding: '1rem' }}>
+                      <h3 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '1rem', color: '#fff', lineHeight: 1.1 }}>
+                        {pillar.title}
+                      </h3>
+                      <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.7' }}>
+                        {pillar.desc}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
           </div>
         </section>
       )}

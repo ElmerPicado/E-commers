@@ -93,6 +93,8 @@ body {
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
   transition: background-color 0.4s ease, color 0.4s ease;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #root {
@@ -253,4 +255,49 @@ a {
 }
 @media (max-width: 640px) {
   .grid-cols-4, .grid-cols-3, .grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+}
+
+/* Responsive App Utilities */
+.mobile-only {
+  display: none !important;
+}
+
+.desktop-only {
+  display: flex;
+}
+
+.hero-section {
+  min-height: 85vh;
+  padding: 6rem 1.5rem 4rem 1.5rem;
+}
+.hero-section-min {
+  min-height: 65vh;
+  padding: 8rem 1.5rem 6rem 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: flex !important;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Give space for bottom nav on mobile */
+  #root {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .hero-section {
+    min-height: 70vh;
+    padding: 4rem 1rem 3rem 1rem !important;
+  }
+  .hero-section-min {
+    min-height: 50vh;
+    padding: 5rem 1rem 3rem 1rem !important;
+  }
 }

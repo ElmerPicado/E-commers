@@ -1,7 +1,18 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock } from 'lucide-react';
+import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock, MessageCircle } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
+
+// Función para formatear hora 24h a 12h AM/PM
+const formatTime12h = (timeStr) => {
+  if (!timeStr) return '';
+  const [h, m] = timeStr.split(':');
+  let hours = parseInt(h, 10);
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // el 0 se convierte en 12
+  return `${hours}:${m} ${ampm}`;
+};
 
 // Icon mapper for dynamic ministry icons
 const MinistryIcon = ({ name, color }) => {
@@ -33,12 +44,10 @@ export default function Home() {
     <div className="theme-imr4" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       
       {/* 1. HERO SECTION ESTILO PAS.cr */}
-      <section style={{
+      <section className="hero-section" style={{
         position: 'relative',
-        minHeight: '85vh',
         display: 'flex',
         alignItems: 'center',
-        padding: '6rem 1.5rem 4rem 1.5rem',
         backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.95)), url(${heroSection.bg_image})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
@@ -348,15 +357,20 @@ export default function Home() {
                   <div style={{
                     width: '56px',
                     height: '56px',
-                    borderRadius: '0.75rem',
+                    borderRadius: '50%',
                     background: 'rgba(255, 255, 255, 0.02)',
                     border: '1px solid var(--border-color)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    marginBottom: '1.25rem'
+                    marginBottom: '1.25rem',
+                    overflow: 'hidden'
                   }}>
-                    <MinistryIcon name={min.icon_name} color={min.accent_color} />
+                    {min.logo_url ? (
+                      <img src={min.logo_url} alt={min.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <MinistryIcon name={min.icon_name} color={min.accent_color} />
+                    )}
                   </div>
                   <h3 style={{ fontSize: '1.4rem', marginBottom: '0.75rem' }}>{min.name}</h3>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.6' }}>
@@ -385,7 +399,11 @@ export default function Home() {
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Conoce nuestro calendario de eventos de este mes.</p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+            gap: '2rem' 
+          }}>
             {activities.length > 0 ? (
               activities.map((act) => {
                 const organizingMinistry = ministries.find(m => m.id === act.ministry_id);
@@ -393,74 +411,67 @@ export default function Home() {
                 const dateObj = new Date(act.date);
                 
                 return (
-                  <div key={act.id} style={{
-                    display: 'grid',
-                    gridTemplateColumns: act.image_url ? '80px 80px 1fr auto' : '80px 1fr auto',
-                    alignItems: 'center',
-                    padding: '1.25rem 1.5rem',
-                    background: 'var(--bg-surface)',
-                    borderRadius: '0.5rem',
-                    border: '1px solid var(--border-color)',
-                    gap: '1.5rem'
-                  }} className="grid-cols-1">
+                  <div key={act.id} className="glass-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.6)' }}>
                     
-                    {/* Date Block */}
-                    <div style={{
-                      background: 'rgba(255,255,255,0.03)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '0.35rem',
-                      padding: '0.4rem 0.6rem',
-                      textAlign: 'center'
-                    }}>
-                      <span style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-muted)', textTransform: 'uppercase' }}>
-                        {dateObj.toLocaleString('es-ES', { month: 'short' })}
-                      </span>
-                      <span style={{ display: 'block', fontSize: '1.3rem', fontWeight: 800, color: accentColor, lineHeight: '1.1' }}>
-                        {dateObj.getDate() + 1}
-                      </span>
+                    {/* Encabezado del Post (Instagram Header) */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                        {organizingMinistry?.logo_url ? (
+                          <img src={organizingMinistry.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        ) : (
+                          <MinistryIcon name={organizingMinistry?.icon_name || 'Sparkles'} color={accentColor} />
+                        )}
+                      </div>
+                      <div>
+                        <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#fff' }}>
+                          {organizingMinistry ? organizingMinistry.name.split(' - ')[0] : 'IMR4 Oficial'}
+                        </span>
+                        <span style={{ display: 'block', fontSize: '0.65rem', color: 'var(--text-muted)' }}>
+                          {organizingMinistry?.location || 'Río Cuarto'}
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Image Block */}
-                    {act.image_url && (
-                      <div style={{
-                        width: '80px',
-                        height: '80px',
-                        borderRadius: '0.35rem',
-                        overflow: 'hidden',
-                        background: 'rgba(255,255,255,0.02)'
-                      }}>
+                    {/* Foto Principal */}
+                    {act.image_url ? (
+                      <div style={{ width: '100%', aspectRatio: '4/5', background: '#000', position: 'relative' }}>
                         <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    ) : (
+                      <div style={{ width: '100%', aspectRatio: '4/5', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)' }}>
+                        <Calendar size={64} style={{ opacity: 0.1, color: accentColor }} />
                       </div>
                     )}
 
-                    {/* Content */}
-                    <div>
-                      <span style={{
-                        fontSize: '0.65rem',
-                        fontWeight: 700,
-                        textTransform: 'uppercase',
-                        color: accentColor,
-                        background: 'rgba(255,255,255,0.04)',
-                        padding: '0.15rem 0.4rem',
-                        borderRadius: '0.2rem',
-                        display: 'inline-block',
-                        marginBottom: '0.35rem'
-                      }}>
-                        {organizingMinistry ? organizingMinistry.name.split(' - ')[0] : 'General'}
-                      </span>
-                      <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fff', marginBottom: '0.2rem' }}>{act.title}</h4>
-                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{act.description}</p>
-                    </div>
+                    {/* Cuerpo del post */}
+                    <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                        <Heart size={20} style={{ color: 'var(--accent-color)' }} />
+                        <MessageCircle size={20} style={{ color: 'var(--text-muted)' }} />
+                      </div>
 
-                    {/* Time / Link */}
-                    <div style={{ textAlign: 'right', fontSize: '0.85rem' }}>
-                      <span style={{ display: 'block', fontWeight: 700, color: 'var(--text-primary)' }}>{act.time} hs</span>
-                      <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
-                        <MapPin size={10} style={{ display: 'inline', marginRight: '2px' }} />
-                        {organizingMinistry ? organizingMinistry.location : 'IMR4'}
-                      </span>
-                    </div>
+                      {/* Título de la actividad, Fecha y Hora */}
+                      <div style={{ marginBottom: '1rem' }}>
+                        <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: '0.5rem' }}>{act.title}</h4>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: accentColor, fontWeight: 700, fontSize: '0.95rem' }}>
+                          <Calendar size={14} /> 
+                          {dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
+                          <span>|</span>
+                          <Clock size={14} />
+                          {formatTime12h(act.time)}
+                        </div>
+                      </div>
 
+                      <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', flex: 1 }}>{act.description}</p>
+                      
+                      {organizingMinistry && (
+                        <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-color)' }}>
+                          <Link to={`/ministerio/${organizingMinistry.id}`} className="btn btn-secondary" style={{ width: '100%', padding: '0.6rem', fontSize: '0.85rem', borderRadius: '0.5rem', color: accentColor }}>
+                            Ir al Perfil del Ministerio
+                          </Link>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })

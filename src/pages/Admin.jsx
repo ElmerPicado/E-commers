@@ -386,13 +386,14 @@ export default function Admin() {
             { id: 'streaming', label: 'Streaming & Radio', icon: <Tv size={16} /> },
             { id: 'church_data', label: 'Datos de la Iglesia', icon: <Settings size={16} /> },
             { id: 'home_sections', label: 'Banners de Inicio', icon: <Layers size={16} /> },
+            { id: 'global_gallery', label: 'Galería General', icon: <Image size={16} />, onClick: () => setActiveMinistryId('general') },
             { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> },
             { id: 'blogs', label: 'Noticias / Blogs', icon: <FileText size={16} /> },
             { id: 'admin_users', label: 'Administradores', icon: <Lock size={16} /> }
           ].map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={tab.onClick ? tab.onClick : () => setActiveTab(tab.id)}
               style={{
                 display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.25rem',
                 background: activeTab === tab.id ? 'rgba(255, 255, 255, 0.03)' : 'transparent',
@@ -455,9 +456,6 @@ export default function Admin() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo Global de la Iglesia</span>
-                    <button type="button" onClick={() => setActiveMinistryId('general')} className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem' }}>
-                      <Image size={12} style={{ marginRight: '0.25rem' }} /> Galería General
-                    </button>
                   </div>
                   {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setChurchLogoFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} />}
                   {(churchLogo || churchLogoFile) && (

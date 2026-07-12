@@ -97,8 +97,7 @@ export default function Navbar() {
         </div>
 
         {/* Dynamic Ministries Switcher */}
-        <div style={{
-          display: 'flex',
+        <div className="desktop-only" style={{
           gap: '0.25rem',
           background: 'rgba(255,255,255,0.02)',
           border: '1px solid var(--border-color)',
@@ -126,7 +125,7 @@ export default function Navbar() {
         </div>
 
         {/* Global Navigation Links */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+        <div className="desktop-only" style={{ alignItems: 'center', gap: '1.25rem' }}>
           <Link to="/" style={{
             display: 'flex',
             alignItems: 'center',

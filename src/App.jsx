@@ -11,6 +11,7 @@ function ScrollToTop() {
 import { GalleryProvider, GalleryContext } from './context/GalleryContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import MobileBottomNav from './components/MobileBottomNav';
 
 // Pages
 import Home from './pages/Home';
@@ -44,6 +45,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <MobileBottomNav />
         </div>
       </Router>
     </GalleryProvider>
