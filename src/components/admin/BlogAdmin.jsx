@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, AlignLeft, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, BookOpen } from 'lucide-react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -13,18 +13,34 @@ export default function BlogAdmin({ triggerSuccess }) {
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
-  const [category, setCategory] = useState('historia');
   const [orderIndex, setOrderIndex] = useState(1);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+
+  const inputStyle = {
+    padding: '0.65rem 1rem',
+    borderRadius: '0.5rem',
+    border: '1px solid var(--border-color)',
+    background: 'rgba(255, 255, 255, 0.05)',
+    color: 'var(--text-primary)',
+    fontSize: '0.9rem',
+    width: '100%',
+    boxSizing: 'border-box'
+  };
+
+  const labelStyle = {
+    fontSize: '0.8rem',
+    fontWeight: 600,
+    marginBottom: '0.35rem',
+    display: 'block'
+  };
 
   const resetForm = () => {
     setTitle('');
     setContent('');
     setImageUrl('');
     setVideoUrl('');
-    setCategory('historia');
-    setOrderIndex(blogPosts.length > 0 ? Math.max(...blogPosts.map(p => p.order_index || 0)) + 1 : 1);
+    setOrderIndex(blogPosts?.length > 0 ? Math.max(...blogPosts.map(p => p.order_index || 0)) + 1 : 1);
     setIsEditing(false);
     setEditId(null);
   };
@@ -34,7 +50,6 @@ export default function BlogAdmin({ triggerSuccess }) {
     setContent(post.content);
     setImageUrl(post.image_url || '');
     setVideoUrl(post.video_url || '');
-    setCategory(post.category || 'historia');
     setOrderIndex(post.order_index || 1);
     setIsEditing(true);
     setEditId(post.id);
@@ -48,8 +63,8 @@ export default function BlogAdmin({ triggerSuccess }) {
       content,
       image_url: imageUrl,
       video_url: videoUrl,
-      category,
-      order_index: parseInt(orderIndex, 10),
+      category: 'historia',
+      order_index: parseInt(orderIndex, 10) || 1,
     };
 
     if (isEditing) {
@@ -71,160 +86,160 @@ export default function BlogAdmin({ triggerSuccess }) {
     triggerSuccess('Bloque eliminado');
   };
 
-  return (
-    <div className="space-y-8">
-      <div>
-        <h2 className="text-2xl font-bold text-gray-800">Historia y Blogs</h2>
-        <p className="text-gray-600 mt-1">Gestiona los bloques de contenido para la página de "Nuestra Historia" o futuras noticias.</p>
-      </div>
+  // Filtrar solo los que sean de historia (por si quedan otros residuales)
+  const historyPosts = (blogPosts || []).filter(post => !post.category || post.category === 'historia');
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">
-          {isEditing ? 'Editar Bloque' : 'Crear Nuevo Bloque'}
-        </h3>
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', margin: 0 }}>
+          <BookOpen size={20} style={{ color: 'var(--accent-color)' }} /> 
+          {isEditing ? 'Editar Bloque de Historia' : 'Crear Nuevo Bloque de Historia'}
+        </h2>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Título</label>
-              <input 
-                type="text" 
-                value={title} 
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Ej. Nuestros Inicios"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Sección (Categoría)</label>
-              <select 
-                value={category} 
-                onChange={(e) => setCategory(e.target.value)}
-                className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="historia">Nuestra Historia</option>
-                <option value="noticia">Blog / Noticias</option>
-              </select>
-            </div>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <div>
+            <label style={labelStyle}>Título del bloque</label>
+            <input 
+              type="text" 
+              value={title} 
+              onChange={(e) => setTitle(e.target.value)}
+              required
+              style={inputStyle}
+              placeholder="Ej. Nuestros Inicios, El primer pastor..."
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Contenido (Texto principal)</label>
+            <label style={labelStyle}>Contenido (Texto principal)</label>
             <textarea 
               value={content} 
               onChange={(e) => setContent(e.target.value)}
               required
               rows={4}
-              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
-              placeholder="Escribe la historia o descripción aquí..."
+              style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }}
+              placeholder="Escribe la historia o descripción de este bloque aquí..."
             ></textarea>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">URL de Imagen (Opcional)</label>
-              <div className="relative">
-                <ImageIcon className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <label style={labelStyle}>URL de Imagen (Opcional)</label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <ImageIcon size={18} style={{ position: 'absolute', left: '10px', color: 'var(--text-muted)' }} />
                 <input 
                   type="text" 
                   value={imageUrl} 
                   onChange={(e) => setImageUrl(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ ...inputStyle, paddingLeft: '2.2rem' }}
                   placeholder="https://..."
                 />
               </div>
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">URL de Video de YouTube (Opcional)</label>
-              <div className="relative">
-                <Video className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <label style={labelStyle}>URL de Video de YouTube (Opcional)</label>
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                <Video size={18} style={{ position: 'absolute', left: '10px', color: 'var(--text-muted)' }} />
                 <input 
                   type="text" 
                   value={videoUrl} 
                   onChange={(e) => setVideoUrl(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  style={{ ...inputStyle, paddingLeft: '2.2rem' }}
                   placeholder="https://www.youtube.com/embed/..."
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1">Usa el formato /embed/ para YouTube.</p>
+              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>Usa el formato /embed/ para YouTube.</p>
             </div>
           </div>
           
-          <div className="w-1/3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">Orden de aparición</label>
+          <div style={{ width: '150px' }}>
+            <label style={labelStyle}>Orden en la línea de tiempo</label>
             <input 
               type="number" 
               value={orderIndex} 
               onChange={(e) => setOrderIndex(e.target.value)}
-              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              style={inputStyle}
             />
           </div>
 
-          <div className="pt-4 flex justify-end gap-3 border-t border-gray-100">
+          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
             {isEditing && (
               <button 
                 type="button" 
                 onClick={resetForm}
-                className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+                className="btn btn-secondary"
               >
                 Cancelar
               </button>
             )}
             <button 
               type="submit"
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors flex items-center gap-2"
+              className="btn btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
             >
-              {isEditing ? <Save className="h-5 w-5" /> : <Plus className="h-5 w-5" />}
-              {isEditing ? 'Guardar Cambios' : 'Añadir Bloque'}
+              {isEditing ? <Save size={16} /> : <Plus size={16} />}
+              {isEditing ? 'Guardar Cambios' : 'Añadir a Historia'}
             </button>
           </div>
         </form>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4 border-b pb-2">Bloques Existentes</h3>
+      <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <h3 style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', margin: 0 }}>Bloques de Nuestra Historia</h3>
         
-        {blogPosts.length === 0 ? (
-          <p className="text-center text-gray-500 py-8">No hay bloques creados aún.</p>
+        {historyPosts.length === 0 ? (
+          <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0' }}>No hay bloques creados aún en tu historia.</p>
         ) : (
-          <div className="space-y-4">
-            {blogPosts.map((post) => (
-              <div key={post.id} className="flex flex-col md:flex-row items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-100">
-                <div className="flex-1 w-full">
-                  <div className="flex items-center gap-3 mb-1">
-                    <span className="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded uppercase">
-                      {post.category || 'historia'}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            {historyPosts.map((post) => (
+              <div key={post.id} style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                padding: '1rem', 
+                background: 'rgba(255,255,255,0.02)', 
+                border: '1px solid var(--border-color)', 
+                borderRadius: '0.5rem',
+                gap: '1rem'
+              }}>
+                <div style={{ flex: '1 1 300px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                    <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 600 }}>
+                      Orden: {post.order_index}
                     </span>
-                    <span className="text-gray-500 text-sm font-medium">Orden: {post.order_index}</span>
                   </div>
-                  <h4 className="font-bold text-gray-800 text-lg">{post.title}</h4>
-                  <p className="text-gray-600 text-sm line-clamp-2 mt-1">{post.content}</p>
+                  <h4 style={{ fontWeight: 'bold', fontSize: '1.1rem', color: 'var(--text-primary)', margin: '0 0 0.25rem 0' }}>{post.title}</h4>
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                    {post.content}
+                  </p>
                 </div>
                 
-                <div className="flex items-center gap-2 mt-4 md:mt-0">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <button 
                     onClick={() => handleEdit(post)}
-                    className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                    className="btn btn-primary"
+                    style={{ padding: '0.5rem' }}
                     title="Editar"
                   >
-                    <Edit className="h-5 w-5" />
+                    <Edit size={16} />
                   </button>
                   
                   {showDeleteConfirm === post.id ? (
-                    <div className="flex items-center bg-red-50 rounded-lg p-1 border border-red-200">
-                      <span className="text-sm text-red-800 px-2 font-medium">¿Eliminar?</span>
+                    <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '0.35rem', padding: '0.25rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+                      <span style={{ fontSize: '0.8rem', color: '#ef4444', padding: '0 0.5rem', fontWeight: 600 }}>¿Eliminar?</span>
                       <button 
                         onClick={() => handleDelete(post.id)}
-                        className="p-1.5 text-white bg-red-600 hover:bg-red-700 rounded transition-colors"
+                        className="btn btn-danger"
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', minHeight: 'auto' }}
                       >
                         Sí
                       </button>
                       <button 
                         onClick={() => setShowDeleteConfirm(null)}
-                        className="p-1.5 ml-1 text-gray-600 hover:bg-gray-200 rounded transition-colors"
+                        className="btn btn-secondary"
+                        style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', marginLeft: '0.25rem', minHeight: 'auto' }}
                       >
                         No
                       </button>
@@ -232,10 +247,11 @@ export default function BlogAdmin({ triggerSuccess }) {
                   ) : (
                     <button 
                       onClick={() => setShowDeleteConfirm(post.id)}
-                      className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="btn btn-danger"
+                      style={{ padding: '0.5rem' }}
                       title="Eliminar"
                     >
-                      <Trash2 className="h-5 w-5" />
+                      <Trash2 size={16} />
                     </button>
                   )}
                 </div>

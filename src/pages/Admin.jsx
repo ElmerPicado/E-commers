@@ -394,7 +394,7 @@ export default function Admin() {
             { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> },
             { id: 'donations', label: 'Diezmos y Ofrendas', icon: <Heart size={16} /> },
             { id: 'contact_forms', label: 'Formularios de Contacto', icon: <Mail size={16} /> },
-            { id: 'blogs', label: 'Noticias / Blogs', icon: <FileText size={16} /> },
+            { id: 'history', label: 'Nuestra Historia', icon: <FileText size={16} /> },
             { id: 'admin_users', label: 'Administradores', icon: <Lock size={16} /> }
           ].map((tab) => (
             <button
@@ -614,8 +614,8 @@ export default function Admin() {
           </div>
         )}
 
-        {/* TAB 4: BLOGS */}
-        {activeTab === 'blogs' && (
+        {/* TAB 4: HISTORY */}
+        {activeTab === 'history' && (
           <div className="animate-fade-in">
             <BlogAdmin triggerSuccess={triggerSuccess} />
           </div>
