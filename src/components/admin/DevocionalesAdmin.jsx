@@ -24,6 +24,8 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
   const [editPrayer, setEditPrayer] = useState('');
   const [editCategoryId, setEditCategoryId] = useState('');
   const [editStatus, setEditStatus] = useState('pending');
+  const [editAuthorName, setEditAuthorName] = useState('');
+  const [editAuthorBio, setEditAuthorBio] = useState('');
 
   const inputStyle = {
     padding: '0.65rem 1rem',
@@ -73,24 +75,36 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
     setEditPrayer(dev.prayer || '');
     setEditCategoryId(dev.category_id || '');
     setEditStatus(dev.status || 'pending');
+    setEditAuthorName(dev.author_name || '');
+    setEditAuthorBio(dev.author_bio || '');
   };
 
   const cancelEditing = () => {
     setEditingDevId(null);
   };
 
-  const handleUpdateDevotional = async (e) => {
-    e.preventDefault();
+  const handleUpdateDevotional = async (e, forcedStatus = null) => {
+    if (e) e.preventDefault();
+    const finalStatus = forcedStatus || editStatus;
+    
     await updateDevotional(editingDevId, {
       title: editTitle,
       verse: editVerse,
       content: editContent,
       prayer: editPrayer,
       category_id: editCategoryId || null,
-      status: editStatus
+      status: finalStatus,
+      author_name: editAuthorName,
+      author_bio: editAuthorBio
     });
     setEditingDevId(null);
-    triggerSuccess('Devocional actualizado exitosamente.');
+    
+    let msg = 'Devocional actualizado exitosamente.';
+    if (forcedStatus === 'published') msg = '¡Devocional publicado exitosamente!';
+    if (forcedStatus === 'pending') msg = 'Devocional despublicado y devuelto a pendientes.';
+    if (forcedStatus === 'rejected') msg = 'Devocional rechazado.';
+    
+    triggerSuccess(msg);
   };
 
   const handleDeleteDevotional = async (id) => {
@@ -159,7 +173,16 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                 return (
                   <form key={dev.id} onSubmit={handleUpdateDevotional} style={{ background: 'rgba(255,255,255,0.03)', padding: '1.5rem', borderRadius: '0.5rem', border: '1px solid var(--accent-color)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 600 }}>Revisión de Devocional</h3>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Autor: {dev.author_name}</p>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1rem', marginTop: '0.5rem', padding: '1rem', background: 'rgba(0,0,0,0.1)', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
+                      <div>
+                        <label style={labelStyle}>Nombre del Autor</label>
+                        <input type="text" value={editAuthorName} onChange={e => setEditAuthorName(e.target.value)} style={inputStyle} required />
+                      </div>
+                      <div>
+                        <label style={labelStyle}>Biografía del Autor</label>
+                        <textarea value={editAuthorBio} onChange={e => setEditAuthorBio(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} />
+                      </div>
+                    </div>
                     
                     <div>
                       <label style={labelStyle}>Título</label>
@@ -226,19 +249,28 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                         </select>
                       </div>
 
-                      <div>
-                        <label style={labelStyle}>Estado</label>
-                        <select value={editStatus} onChange={e => setEditStatus(e.target.value)} style={inputStyle}>
-                          <option value="pending" style={{ color: '#0f172a' }}>Pendiente de revisión</option>
-                          <option value="published" style={{ color: '#0f172a' }}>Publicar</option>
-                          <option value="rejected" style={{ color: '#0f172a' }}>Rechazar (No visible)</option>
-                        </select>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
+                      
+                      <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        {editStatus === 'published' ? (
+                          <button type="button" onClick={() => handleUpdateDevotional(null, 'pending')} className="btn" style={{ background: '#f59e0b', color: '#fff', border: 'none', padding: '0.65rem 1rem', borderRadius: '0.5rem', fontWeight: 600 }}>
+                            Des-publicar
+                          </button>
+                        ) : (
+                          <button type="button" onClick={() => handleUpdateDevotional(null, 'published')} className="btn" style={{ background: '#10b981', color: '#fff', border: 'none', padding: '0.65rem 1rem', borderRadius: '0.5rem', fontWeight: 600 }}>
+                            <CheckCircle size={16} style={{ marginRight: '0.4rem', display: 'inline' }} />
+                            Publicar
+                          </button>
+                        )}
+                        <button type="button" onClick={() => handleUpdateDevotional(null, 'rejected')} className="btn" style={{ background: 'transparent', color: '#ef4444', border: '1px solid #ef4444', padding: '0.65rem 1rem', borderRadius: '0.5rem', fontWeight: 600 }}>
+                          Rechazar
+                        </button>
                       </div>
-                    </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-                      <button type="button" onClick={cancelEditing} className="btn btn-secondary">Cancelar</button>
-                      <button type="submit" className="btn btn-primary"><Save size={16} style={{ marginRight: '0.5rem' }} /> Guardar y Actualizar</button>
+                      <div style={{ display: 'flex', gap: '1rem' }}>
+                        <button type="button" onClick={cancelEditing} className="btn btn-secondary">Cancelar</button>
+                        <button type="submit" className="btn btn-primary"><Save size={16} style={{ marginRight: '0.5rem' }} /> Guardar Cambios</button>
+                      </div>
                     </div>
                   </form>
                 );
