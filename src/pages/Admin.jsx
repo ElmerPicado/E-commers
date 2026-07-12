@@ -5,7 +5,8 @@ import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
 import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
 import DonationsAdmin from '../components/admin/DonationsAdmin';
-import { Heart } from 'lucide-react';
+import ContactFormsAdmin from '../components/admin/ContactFormsAdmin';
+import { Heart, Mail } from 'lucide-react';
 
 export default function Admin() {
   const {
@@ -391,6 +392,7 @@ export default function Admin() {
             { id: 'global_gallery', label: 'Galería General', icon: <Image size={16} />, onClick: () => setActiveMinistryId('general') },
             { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> },
             { id: 'donations', label: 'Diezmos y Ofrendas', icon: <Heart size={16} /> },
+            { id: 'contact_forms', label: 'Formularios de Contacto', icon: <Mail size={16} /> },
             { id: 'blogs', label: 'Noticias / Blogs', icon: <FileText size={16} /> },
             { id: 'admin_users', label: 'Administradores', icon: <Lock size={16} /> }
           ].map((tab) => (
@@ -776,6 +778,13 @@ export default function Admin() {
         {activeTab === 'donations' && (
           <div className="animate-fade-in">
             <DonationsAdmin />
+          </div>
+        )}
+
+        {/* TAB 8: CONTACT FORMS */}
+        {activeTab === 'contact_forms' && (
+          <div className="animate-fade-in">
+            <ContactFormsAdmin />
           </div>
         )}
       </div>

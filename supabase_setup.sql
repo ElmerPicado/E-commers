@@ -255,3 +255,24 @@ SELECT 'imr4', 'r1558'
 WHERE NOT EXISTS (
   SELECT 1 FROM admin_users WHERE username = 'imr4'
 );
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V7: Formularios de Contacto)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS contact_forms (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  nombre TEXT NOT NULL,
+  apellido TEXT NOT NULL,
+  edad INTEGER NOT NULL,
+  sexo TEXT NOT NULL,
+  telefono TEXT NOT NULL,
+  estado TEXT NOT NULL DEFAULT 'no_leido',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE contact_forms ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública contact_forms" ON contact_forms;
+DROP POLICY IF EXISTS "Escritura pública contact_forms" ON contact_forms;
+
+CREATE POLICY "Lectura pública contact_forms" ON contact_forms FOR SELECT USING (true);
+CREATE POLICY "Escritura pública contact_forms" ON contact_forms FOR ALL USING (true) WITH CHECK (true);

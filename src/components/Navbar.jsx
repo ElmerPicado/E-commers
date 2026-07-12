@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles, Home, Menu, X, MapPin } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
+import ContactFormModal from './ContactFormModal';
 
 // Icon mapper for Navbar
 const NavbarIcon = ({ name, color }) => {
@@ -19,6 +20,7 @@ export default function Navbar() {
   const location = useLocation();
   const { livestream, radio, ministries } = useContext(GalleryContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   // Cierra el menú móvil cuando cambia la ruta
   useEffect(() => {
@@ -202,6 +204,28 @@ export default function Navbar() {
               }}></span>
             )}
           </Link>
+
+          <button 
+            onClick={() => setIsContactModalOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              color: 'var(--bg-primary)',
+              background: 'var(--accent-color)',
+              border: 'none',
+              padding: '0.4rem 1rem',
+              borderRadius: '2rem',
+              cursor: 'pointer',
+              transition: 'transform 0.2s, filter 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.filter = 'brightness(1.2)'}
+            onMouseOut={(e) => e.currentTarget.style.filter = 'brightness(1)'}
+          >
+            Deja tus datos
+          </button>
         </div>
 
         {/* Mobile Hamburger Button */}
@@ -300,11 +324,24 @@ export default function Navbar() {
                   Ver en Google Maps &rarr;
                 </a>
               )}
+              
+              <button 
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  setIsContactModalOpen(true);
+                }}
+                className="btn btn-primary"
+                style={{ marginTop: '0.5rem', alignSelf: 'flex-start', padding: '0.5rem 1.5rem', fontWeight: 700 }}
+              >
+                Deja tus datos
+              </button>
             </div>
           </div>
           
         </div>
       )}
+
+      <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
     </>
   );
 }
