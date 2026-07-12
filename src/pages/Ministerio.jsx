@@ -282,26 +282,45 @@ export default function Ministerio() {
                     </div>
                   )}
 
-                  {/* Cuerpo del post */}
-                  <div style={{ padding: '1rem' }}>
-                    <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                      <Heart size={20} style={{ color: 'var(--accent-color)' }} />
-                      <MessageSquare size={20} style={{ color: 'var(--text-secondary)' }} />
+                  {/* Cuerpo del post (Híbrido Evento + Instagram) */}
+                  <div style={{ padding: '1.25rem' }}>
+                    {/* Fecha y Hora prominentes en 12h */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent-color)', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.85rem', textTransform: 'capitalize' }}>
+                       <Calendar size={14} /> 
+                       <span>
+                         {new Date(act.date + 'T00:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
+                       </span>
+                       <span>•</span>
+                       <span>
+                         {(() => {
+                           if (!act.time) return '';
+                           let [h, m] = act.time.split(':');
+                           let ampm = h >= 12 ? 'PM' : 'AM';
+                           h = h % 12 || 12;
+                           return `${h}:${m} ${ampm}`;
+                         })()}
+                       </span>
                     </div>
+
+                    {/* Título de la actividad gigante */}
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.75rem', lineHeight: 1.2 }}>
+                      {act.title}
+                    </h3>
                     
-                    <p style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                      <strong style={{ marginRight: '0.5rem' }}>{ministry.name.split(' ')[0]}</strong> 
-                      <span style={{ fontWeight: 700 }}>{act.title}</span>
-                    </p>
-                    
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: '0.75rem', whiteSpace: 'pre-line' }}>
+                    {/* Descripción */}
+                    <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', lineHeight: 1.6, marginBottom: '1.25rem', whiteSpace: 'pre-line' }}>
                       {act.description}
                     </p>
                     
-                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-                       <Calendar size={12} /> {act.date} a las {act.time} hs
-                       <span>•</span>
-                       <MapPin size={12} /> {ministry.location}
+                    {/* Footer de la tarjeta con ubicación y likes (Instagram feel) */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <MapPin size={14} /> {act.location_url ? <a href={act.location_url} target="_blank" rel="noreferrer" style={{color: 'inherit'}}>{ministry.location}</a> : ministry.location}
+                      </div>
+                      <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <Heart size={18} style={{ color: 'var(--accent-color)', cursor: 'pointer' }} />
+                        <MessageSquare size={18} style={{ color: 'var(--text-secondary)', cursor: 'pointer' }} />
+                      </div>
                     </div>
                   </div>
                 </div>
