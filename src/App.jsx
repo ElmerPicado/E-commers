@@ -23,6 +23,7 @@ import Login from './pages/Login';
 import Donaciones from './pages/Donaciones';
 import Historia from './pages/Historia';
 import Devocionales from './pages/Devocionales';
+import DevocionalDetail from './pages/DevocionalDetail';
 import SubmitDevocional from './pages/SubmitDevocional';
 
 const ProtectedAdminRoute = () => {
@@ -48,6 +49,7 @@ function App() {
               <Route path="/donaciones" element={<Donaciones />} />
               <Route path="/historia" element={<Historia />} />
               <Route path="/devocionales" element={<Devocionales />} />
+              <Route path="/devocionales/:id" element={<DevocionalDetail />} />
               <Route path="/enviar-devocional" element={<SubmitDevocional />} />
               <Route path="/admin" element={<ProtectedAdminRoute />} />
             </Routes>
