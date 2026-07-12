@@ -36,8 +36,6 @@ export default function Admin() {
 
   const triggerSuccess = (msg) => {
     setSuccessMsg(msg);
-    window.alert(`✅ ${msg}`);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
     setTimeout(() => setSuccessMsg(''), 3000);
   };
 
@@ -353,10 +351,34 @@ export default function Admin() {
         </div>
 
         {successMsg && (
-          <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.3)', color: '#10b981', padding: '0.75rem 1.25rem', borderRadius: '0.5rem', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <CheckCircle size={16} /> {successMsg}
+          <div style={{
+            position: 'fixed',
+            bottom: '2rem',
+            right: '2rem',
+            background: 'rgba(16, 185, 129, 0.95)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(16, 185, 129, 1)',
+            color: '#fff',
+            padding: '1rem 1.5rem',
+            borderRadius: '0.75rem',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+            zIndex: 9999,
+            animation: 'slideUp 0.3s ease-out forwards',
+            fontWeight: 600
+          }}>
+            <CheckCircle size={20} /> {successMsg}
           </div>
         )}
+
+        <style>{`
+          @keyframes slideUp {
+            from { transform: translateY(100px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+          }
+        `}</style>
 
         {/* Global Tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -635,8 +657,13 @@ export default function Admin() {
                     <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen Destacada</span>
                     {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setBlogImageFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL de la imagen" value={blogImageUrl} onChange={(e) => setBlogImageUrl(e.target.value)} style={inputStyle} />}
                     {(blogImageUrl || blogImageFile) && (
-                      <div style={{ marginTop: '0.5rem', width: '100px', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                        <img src={blogImageFile ? URL.createObjectURL(blogImageFile) : blogImageUrl} alt="Blog Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+                        <div style={{ width: '100px', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                          <img src={blogImageFile ? URL.createObjectURL(blogImageFile) : blogImageUrl} alt="Blog Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        </div>
+                        <button type="button" onClick={() => { setBlogImageFile(null); setBlogImageUrl(''); }} className="btn btn-secondary" style={{ padding: '0.25rem 0.5rem', fontSize: '0.75rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }}>
+                          Quitar Foto
+                        </button>
                       </div>
                     )}
                   </div>

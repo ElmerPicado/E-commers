@@ -13,7 +13,9 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     albums,
     addAlbum,
     deleteAlbum,
-    addPhotoToAlbum
+    updateAlbum,
+    addPhotoToAlbum,
+    removePhotoFromAlbum
   } = useContext(GalleryContext);
 
   const [activeTab, setActiveTab] = useState(ministryId === 'general' ? 'photos' : 'profile');
@@ -68,6 +70,8 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [newAlbumTitle, setNewAlbumTitle] = useState('');
   const [newAlbumDate, setNewAlbumDate] = useState(new Date().toISOString().split('T')[0]);
   const [newAlbumDesc, setNewAlbumDesc] = useState('');
+  const [newAlbumDriveLink, setNewAlbumDriveLink] = useState('');
+  const [editingAlbumId, setEditingAlbumId] = useState(null);
   const [selectedAlbumId, setSelectedAlbumId] = useState('');
   const [newPhotoUrl, setNewPhotoUrl] = useState('');
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -196,6 +200,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       id: `album-${Date.now()}`,
       title: newAlbumTitle,
       description: newAlbumDesc,
+      drive_link: newAlbumDriveLink,
       category: ministryId, // keep for backward compatibility
       ministry_id: ministryId,
       date: newAlbumDate,
@@ -204,6 +209,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     await addAlbum(newAlbum);
     setNewAlbumTitle('');
     setNewAlbumDesc('');
+    setNewAlbumDriveLink('');
     triggerSuccess('Álbum creado exitosamente.');
   };
 
@@ -228,7 +234,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         for (const file of selectedFiles) {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-          const filePath = `${selectedAlbumId}/${fileName}`;
+          const filePath = `${editingAlbumId || selectedAlbumId}/${fileName}`;
 
           const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, file);
           if (uploadError) throw uploadError;
@@ -237,7 +243,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
           uploadedUrls.push(publicUrl);
         }
         for (const url of uploadedUrls) {
-          await addPhotoToAlbum(selectedAlbumId, url);
+          await addPhotoToAlbum(editingAlbumId || selectedAlbumId, url);
         }
         setSelectedFiles([]);
         triggerSuccess('Fotos subidas y agregadas con éxito al álbum.');
@@ -248,10 +254,40 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         setIsPhotoUploading(false);
       }
     } else if (newPhotoUrl.trim()) {
-      await addPhotoToAlbum(selectedAlbumId, newPhotoUrl.trim());
+      await addPhotoToAlbum(editingAlbumId || selectedAlbumId, newPhotoUrl.trim());
       setNewPhotoUrl('');
       triggerSuccess('Enlace de foto agregado con éxito al álbum.');
     }
+  };
+
+  const handleUpdateAlbum = async (e) => {
+    e.preventDefault();
+    if (!editingAlbumId) return;
+    await updateAlbum(editingAlbumId, {
+      title: newAlbumTitle,
+      date: newAlbumDate,
+      description: newAlbumDesc,
+      drive_link: newAlbumDriveLink
+    });
+    triggerSuccess('Información del álbum actualizada.');
+  };
+
+  const openEditAlbum = (album) => {
+    setEditingAlbumId(album.id);
+    setNewAlbumTitle(album.title || '');
+    setNewAlbumDate(album.date || '');
+    setNewAlbumDesc(album.description || '');
+    setNewAlbumDriveLink(album.drive_link || '');
+  };
+
+  const closeEditAlbum = () => {
+    setEditingAlbumId(null);
+    setNewAlbumTitle('');
+    setNewAlbumDate(new Date().toISOString().split('T')[0]);
+    setNewAlbumDesc('');
+    setNewAlbumDriveLink('');
+    setSelectedFiles([]);
+    setNewPhotoUrl('');
   };
 
   if (!min) return <div>Ministerio no encontrado</div>;
@@ -471,90 +507,182 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
 
       {/* TAB 3: GALLERY */}
       {activeTab === 'photos' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1.5rem' }}>
-          {/* Form Create Album */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <form onSubmit={handleCreateAlbum} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <h3 style={{ fontSize: '1.2rem', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Crear Nuevo Álbum</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título del Álbum</label>
-                <input type="text" value={newAlbumTitle} onChange={(e) => setNewAlbumTitle(e.target.value)} style={inputStyle} required />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Fecha</label>
-                <input type="date" value={newAlbumDate} onChange={(e) => setNewAlbumDate(e.target.value)} style={inputStyle} required />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción (Opcional)</label>
-                <textarea value={newAlbumDesc} onChange={(e) => setNewAlbumDesc(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} />
-              </div>
-              <button type="submit" className="btn btn-primary">
-                <Plus size={16} /> Crear Álbum
-              </button>
-            </form>
-
-            <form onSubmit={handleAddPhoto} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <h3 style={{ fontSize: '1.2rem', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Subir Foto</h3>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Seleccionar Álbum</label>
-                <select value={selectedAlbumId} onChange={(e) => setSelectedAlbumId(e.target.value)} style={selectStyle} required>
-                  <option value="" disabled>-- Elige un álbum --</option>
-                  {minAlbums.map(a => (
-                    <option key={a.id} value={a.id}>{a.title}</option>
-                  ))}
-                </select>
+        <div style={{ display: 'grid', gridTemplateColumns: editingAlbumId ? '1fr' : '1fr 1.5fr', gap: '1.5rem' }}>
+          
+          {editingAlbumId ? (
+            <div className="glass-card animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+                <h3 style={{ fontSize: '1.2rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}><ImageIcon size={18} /> Editar Álbum y Administrar Fotos</h3>
+                <button type="button" onClick={closeEditAlbum} className="btn btn-secondary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.85rem' }}>
+                  Volver a la Lista
+                </button>
               </div>
 
-              {isSupabaseConfigured && (
+              {/* Edit Meta Form */}
+              <form onSubmit={handleUpdateAlbum} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>Archivo(s) Local(es)</label>
-                  <input type="file" accept="image/*" multiple onChange={handleFileChange} style={{ fontSize: '0.8rem' }} />
-                  {selectedFiles.length > 0 && (
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                      {Array.from(selectedFiles).map((file, idx) => (
-                        <div key={idx} style={{ width: '60px', height: '60px', borderRadius: '0.25rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                          <img src={URL.createObjectURL(file)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título del Álbum</label>
+                  <input type="text" value={newAlbumTitle} onChange={(e) => setNewAlbumTitle(e.target.value)} style={inputStyle} required />
                 </div>
-              )}
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>O Enlace URL</label>
-                <input type="text" placeholder="https://..." value={newPhotoUrl} onChange={(e) => { setNewPhotoUrl(e.target.value); setSelectedFiles([]); }} style={inputStyle} />
-              </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Fecha</label>
+                  <input type="date" value={newAlbumDate} onChange={(e) => setNewAlbumDate(e.target.value)} style={inputStyle} required />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace de Google Drive / Externo</label>
+                  <input type="text" placeholder="https://drive.google.com/..." value={newAlbumDriveLink || ''} onChange={(e) => setNewAlbumDriveLink(e.target.value)} style={inputStyle} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción (Opcional)</label>
+                  <textarea value={newAlbumDesc} onChange={(e) => setNewAlbumDesc(e.target.value)} style={{ ...inputStyle, minHeight: '40px' }} />
+                </div>
+                <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end' }}>
+                  <button type="submit" className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
+                    <Save size={14} style={{ marginRight: '0.25rem' }} /> Guardar Información
+                  </button>
+                </div>
+              </form>
 
-              <button type="submit" className="btn btn-primary" disabled={isPhotoUploading}>
-                {isPhotoUploading ? 'Subiendo...' : 'Agregar Foto'}
-              </button>
-            </form>
-          </div>
-
-          {/* Albums List */}
-          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <h3 style={{ fontSize: '1.2rem', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Álbumes del Ministerio</h3>
-            {minAlbums.length === 0 ? (
-              <p style={{ color: 'var(--text-muted)' }}>No hay álbumes para este ministerio.</p>
-            ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                {minAlbums.map(album => (
-                  <div key={album.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}>
-                    <div>
-                      <strong style={{ fontSize: '1.1rem', color: '#fff' }}>{album.title}</strong>
-                      <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
-                        {album.photos?.length || 0} fotos | {album.date}
+              {/* Upload New Photos inside Edit Mode */}
+              <form onSubmit={handleAddPhoto} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+                <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-secondary)' }}>Añadir Nuevas Fotos</h4>
+                {isSupabaseConfigured && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>Archivo(s) Local(es)</label>
+                    <input type="file" accept="image/*" multiple onChange={handleFileChange} style={{ fontSize: '0.8rem' }} />
+                    {selectedFiles.length > 0 && (
+                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                        {Array.from(selectedFiles).map((file, idx) => (
+                          <div key={idx} style={{ width: '60px', height: '60px', borderRadius: '0.25rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                            <img src={URL.createObjectURL(file)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+                        ))}
                       </div>
-                    </div>
-                    <button onClick={() => { deleteAlbum(album.id); triggerSuccess('Álbum eliminado.'); }} className="btn btn-danger" style={{ padding: '0.4rem 0.75rem' }}>
-                      <Trash2 size={16} />
-                    </button>
+                    )}
                   </div>
-                ))}
+                )}
+                {!isSupabaseConfigured && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>O Enlace URL</label>
+                    <input type="text" placeholder="https://..." value={newPhotoUrl} onChange={(e) => setNewPhotoUrl(e.target.value)} style={inputStyle} />
+                  </div>
+                )}
+                <button type="submit" className="btn btn-primary" disabled={isPhotoUploading} style={{ alignSelf: 'flex-start' }}>
+                  {isPhotoUploading ? 'Subiendo...' : <><Plus size={16} /> Subir Foto(s) al Álbum</>}
+                </button>
+              </form>
+
+              {/* Photos Grid for Deletion */}
+              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+                <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>Fotos Actuales en el Álbum</h4>
+                {minAlbums.find(a => a.id === editingAlbumId)?.photos?.length > 0 ? (
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '0.75rem' }}>
+                    {minAlbums.find(a => a.id === editingAlbumId).photos.map((photoUrl, idx) => (
+                      <div key={idx} style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                        <img src={photoUrl} alt={`Foto ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm('¿Seguro que deseas eliminar esta foto?')) {
+                              removePhotoFromAlbum(editingAlbumId, photoUrl);
+                            }
+                          }}
+                          style={{
+                            position: 'absolute',
+                            top: '4px',
+                            right: '4px',
+                            background: 'rgba(239, 68, 68, 0.9)',
+                            border: 'none',
+                            color: 'white',
+                            borderRadius: '0.25rem',
+                            padding: '4px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}
+                          title="Eliminar Foto"
+                        >
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>No hay fotos en este álbum.</p>
+                )}
               </div>
-            )}
-          </div>
+
+            </div>
+          ) : (
+            <>
+              {/* Form Create Album */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <form onSubmit={handleCreateAlbum} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <h3 style={{ fontSize: '1.2rem', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Crear Nuevo Álbum</h3>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título del Álbum</label>
+                    <input type="text" value={newAlbumTitle} onChange={(e) => setNewAlbumTitle(e.target.value)} style={inputStyle} required />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Fecha</label>
+                    <input type="date" value={newAlbumDate} onChange={(e) => setNewAlbumDate(e.target.value)} style={inputStyle} required />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción (Opcional)</label>
+                    <textarea value={newAlbumDesc} onChange={(e) => setNewAlbumDesc(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace de Google Drive / Externo (Opcional)</label>
+                    <input type="text" placeholder="https://drive.google.com/..." value={newAlbumDriveLink || ''} onChange={(e) => setNewAlbumDriveLink(e.target.value)} style={inputStyle} />
+                  </div>
+                  <button type="submit" className="btn btn-primary">
+                    <Plus size={16} /> Crear Álbum
+                  </button>
+                </form>
+              </div>
+
+              {/* Albums List */}
+              <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <h3 style={{ fontSize: '1.2rem', margin: 0, borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Álbumes del Ministerio</h3>
+                {minAlbums.length === 0 ? (
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>No hay álbumes en este ministerio.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {minAlbums.map(album => (
+                      <div key={album.id} 
+                           onClick={() => openEditAlbum(album)}
+                           style={{ 
+                             display: 'flex', 
+                             justifyContent: 'space-between', 
+                             alignItems: 'center', 
+                             padding: '1rem', 
+                             background: 'rgba(255,255,255,0.02)', 
+                             border: '1px solid var(--border-color)', 
+                             borderRadius: '0.5rem',
+                             cursor: 'pointer',
+                             transition: 'background 0.2s ease'
+                           }}
+                           onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                           onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                           >
+                        <div>
+                          <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{album.title}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{album.photos?.length || 0} fotos | {album.date}</div>
+                        </div>
+                        <button type="button" onClick={(e) => {
+                          e.stopPropagation(); // Evitar abrir edición si da clic en borrar
+                          if(window.confirm('¿Seguro que deseas eliminar el álbum entero?')) deleteAlbum(album.id);
+                        }} className="btn btn-secondary" style={{ padding: '0.4rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }} title="Eliminar Álbum Completo">
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
         </div>
       )}
 

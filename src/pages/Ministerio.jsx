@@ -32,6 +32,8 @@ const IconMapper = ({ name, size = 20, className = "" }) => {
 
 export default function Ministerio() {
   const { id } = useParams();
+  const location = useLocation();
+  const queryParams = new URLSearchParams(location.search);
   const { ministries, albums, activities } = useContext(GalleryContext);
 
   const ministry = ministries.find((m) => m.id === id);
@@ -101,7 +103,11 @@ export default function Ministerio() {
       {/* Hero */}
       <section style={{
         position: 'relative',
-        padding: '6.5rem 1.5rem 4rem 1.5rem',
+        padding: '8rem 1.5rem 6rem 1.5rem',
+        minHeight: '65vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         background: ministry.hero_image ? `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.7)), url(${ministry.hero_image})` : `linear-gradient(180deg, rgba(255, 255, 255, 0.02) 0%, rgba(0, 0, 0, 0) 100%)`,
         backgroundColor: '#0a0a0c',
         backgroundSize: 'cover',
@@ -110,7 +116,7 @@ export default function Ministerio() {
         borderBottom: '1px solid var(--border-color)',
         textAlign: 'center'
       }}>
-        <div className="container" style={{ maxWidth: '800px' }}>
+        <div className="container" style={{ maxWidth: '800px', zIndex: 1 }}>
           <div className="hero-badge" style={{ color: 'var(--accent-color)', borderColor: 'var(--accent-color)', background: 'rgba(255,255,255,0.03)' }}>
             {ministry.logo_url ? (
               <img src={ministry.logo_url} alt={ministry.name} style={{ width: '16px', height: '16px', objectFit: 'contain', borderRadius: '50%' }} />
@@ -293,7 +299,7 @@ export default function Ministerio() {
               <h2 style={{ fontSize: '1.8rem', marginBottom: '0.25rem' }}>Fotografías Recientes</h2>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Nuestras últimas reuniones y momentos capturados en fotos.</p>
             </div>
-            <Link to="/galeria" style={{
+            <Link to={`/galeria?min=${ministry.id}`} style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.35rem',
@@ -312,7 +318,7 @@ export default function Ministerio() {
               gap: '1.5rem'
             }}>
               {ministryAlbums.slice(0, 3).map((album) => (
-                <div key={album.id} className="glass-card" style={{ padding: '0', overflow: 'hidden' }}>
+                <Link to={`/galeria?min=${ministry.id}&album=${album.id}`} key={album.id} className="glass-card" style={{ padding: '0', overflow: 'hidden', textDecoration: 'none', color: 'inherit', display: 'block' }}>
                   <div style={{ height: '180px', width: '100%', overflow: 'hidden', position: 'relative' }}>
                     {album.photos && album.photos.length > 0 ? (
                       <img
@@ -343,7 +349,8 @@ export default function Ministerio() {
                       padding: '0.2rem 0.5rem',
                       borderRadius: '0.25rem',
                       fontSize: '0.7rem',
-                      fontWeight: 700
+                      fontWeight: 700,
+                      color: '#fff'
                     }}>
                       {album.photos?.length || 0} Fotos
                     </span>
@@ -352,11 +359,11 @@ export default function Ministerio() {
                     <span style={{ fontSize: '0.7rem', color: 'var(--accent-color)', fontWeight: 700 }}>
                       {album.date}
                     </span>
-                    <h4 style={{ fontSize: '1rem', marginTop: '0.25rem', marginBottom: '0.5rem' }}>
+                    <h4 style={{ fontSize: '1rem', marginTop: '0.25rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
                       {album.title}
                     </h4>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           ) : (

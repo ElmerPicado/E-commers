@@ -301,10 +301,7 @@ export const GalleryProvider = ({ children }) => {
   });
 
   // Auth States
-  const [adminUser, setAdminUser] = useState(() => {
-    const saved = localStorage.getItem('imr4_admin_user');
-    return saved ? JSON.parse(saved) : null;
-  });
+  const [adminUser, setAdminUser] = useState(null);
   const [adminUsersList, setAdminUsersList] = useState([]);
 
   // Local storage backups syncing
@@ -481,6 +478,13 @@ export const GalleryProvider = ({ children }) => {
     }
   };
 
+  const updateAlbum = async (id, updates) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('albums').update(updates).eq('id', id);
+    }
+    setAlbums((prev) => prev.map((album) => (album.id === id ? { ...album, ...updates } : album)));
+  };
+
   const addPhotoToAlbum = async (albumId, photoUrl) => {
     if (isSupabaseConfigured) {
       const { data: album } = await supabase.from('albums').select('photos').eq('id', albumId).single();
@@ -493,6 +497,35 @@ export const GalleryProvider = ({ children }) => {
         prev.map((album) => {
           if (album.id === albumId) {
             return { ...album, photos: [...album.photos, photoUrl] };
+          }
+          return album;
+        })
+      );
+    }
+  };
+
+  const removePhotoFromAlbum = async (albumId, photoUrl) => {
+    if (isSupabaseConfigured) {
+      const { data: album } = await supabase.from('albums').select('photos').eq('id', albumId).single();
+      if (album) {
+        const updatedPhotos = album.photos.filter((url) => url !== photoUrl);
+        await supabase.from('albums').update({ photos: updatedPhotos }).eq('id', albumId);
+        
+        // Try to delete the actual file from Supabase storage (optional cleanup)
+        try {
+          const urlParts = photoUrl.split('/');
+          const fileName = urlParts[urlParts.length - 1];
+          const pathName = `${albumId}/${fileName}`;
+          await supabase.storage.from('photos').remove([pathName]);
+        } catch (e) {
+          console.error("Could not delete file from storage, only removed from album record:", e);
+        }
+      }
+    } else {
+      setAlbums((prev) =>
+        prev.map((album) => {
+          if (album.id === albumId) {
+            return { ...album, photos: album.photos.filter((url) => url !== photoUrl) };
           }
           return album;
         })
@@ -686,7 +719,6 @@ export const GalleryProvider = ({ children }) => {
       
       if (data && !error) {
         setAdminUser(data);
-        localStorage.setItem('imr4_admin_user', JSON.stringify(data));
         return { success: true };
       } else {
         return { success: false, message: 'Usuario o contraseña incorrectos' };
@@ -696,7 +728,6 @@ export const GalleryProvider = ({ children }) => {
       if (username === 'imr4' && password === 'r1558') {
         const user = { username: 'imr4' };
         setAdminUser(user);
-        localStorage.setItem('imr4_admin_user', JSON.stringify(user));
         return { success: true };
       }
       return { success: false, message: 'Usuario o contraseña incorrectos' };
@@ -705,7 +736,6 @@ export const GalleryProvider = ({ children }) => {
 
   const logout = () => {
     setAdminUser(null);
-    localStorage.removeItem('imr4_admin_user');
   };
 
   const fetchAdminUsers = async () => {
@@ -749,7 +779,9 @@ export const GalleryProvider = ({ children }) => {
         radioPrograms,
         addAlbum,
         deleteAlbum,
+        updateAlbum,
         addPhotoToAlbum,
+        removePhotoFromAlbum,
         updateLivestream,
         updateRadio,
         addHomeSection,

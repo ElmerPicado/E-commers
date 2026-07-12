@@ -122,17 +122,24 @@ export default function Galeria() {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const minQuery = queryParams.get('min');
+  const albumQuery = queryParams.get('album');
   
   const [selectedCategory, setSelectedCategory] = useState(minQuery || 'todos');
+  const [activeAlbum, setActiveAlbum] = useState(null);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   
   useEffect(() => {
     if (minQuery) {
       setSelectedCategory(minQuery);
     }
-  }, [minQuery]);
-
-  const [activeAlbum, setActiveAlbum] = useState(null);
-  const [lightboxIndex, setLightboxIndex] = useState(null);
+    if (albumQuery && albums.length > 0) {
+      const target = albums.find(a => a.id === albumQuery);
+      if (target) {
+        setActiveAlbum(target);
+        if (target.category) setSelectedCategory(target.category);
+      }
+    }
+  }, [minQuery, albumQuery, albums]);
 
   // Category tags mappings
   const categories = [
@@ -226,9 +233,16 @@ export default function Galeria() {
                   {activeAlbum.description || `Fotos del ministerio de ${getCategoryLabel(activeAlbum.category)}`}
                 </p>
               </div>
-              <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                {activeAlbum.photos?.length || 0} imágenes
-              </span>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '1rem' }}>
+                <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  {activeAlbum.photos?.length || 0} imágenes cargadas
+                </span>
+                {activeAlbum.drive_link && (
+                  <a href={activeAlbum.drive_link} target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Image size={16} /> Ver Álbum Completo Externo
+                  </a>
+                )}
+              </div>
             </div>
 
             {/* Photos Grid */}
