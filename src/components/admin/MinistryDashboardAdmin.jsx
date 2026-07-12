@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
-import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2 } from 'lucide-react';
 
 export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSuccess }) {
   const {
@@ -604,7 +604,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
               </div>
 
               {/* Edit Meta Form */}
-              <form onSubmit={handleUpdateAlbum} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
+              <form id="album-meta-form" onSubmit={handleUpdateAlbum} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', background: 'rgba(255,255,255,0.02)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                   <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título del Álbum</label>
                   <input type="text" value={newAlbumTitle} onChange={(e) => setNewAlbumTitle(e.target.value)} style={inputStyle} required />
@@ -621,10 +621,8 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                   <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción (Opcional)</label>
                   <textarea value={newAlbumDesc} onChange={(e) => setNewAlbumDesc(e.target.value)} style={{ ...inputStyle, minHeight: '40px' }} />
                 </div>
-                <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end' }}>
-                  <button type="submit" className="btn btn-primary" style={{ padding: '0.4rem 1rem', fontSize: '0.85rem' }}>
-                    <Save size={14} style={{ marginRight: '0.25rem' }} /> Guardar Información
-                  </button>
+                <div style={{ gridColumn: 'span 2', display: 'flex', justifyContent: 'flex-end', display: 'none' }}>
+                  {/* Botón movido al final */}
                 </div>
               </form>
 
@@ -698,6 +696,13 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                 )}
               </div>
 
+              {/* Botón Final de Guardar Todo */}
+              <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+                <button type="submit" form="album-meta-form" className="btn btn-primary" style={{ padding: '0.6rem 1.5rem', fontSize: '0.95rem' }}>
+                  <Save size={16} style={{ marginRight: '0.5rem' }} /> Guardar Información del Álbum
+                </button>
+              </div>
+
             </div>
           ) : (
             <>
@@ -755,12 +760,17 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                           <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{album.title}</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{album.photos?.length || 0} fotos | {album.date}</div>
                         </div>
-                        <button type="button" onClick={(e) => {
-                          e.stopPropagation(); // Evitar abrir edición si da clic en borrar
-                          if(window.confirm('¿Seguro que deseas eliminar el álbum entero?')) deleteAlbum(album.id);
-                        }} className="btn btn-secondary" style={{ padding: '0.4rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }} title="Eliminar Álbum Completo">
-                          <Trash2 size={14} />
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.5rem' }}>
+                          <button type="button" onClick={() => openEditAlbum(album)} className="btn btn-primary" style={{ padding: '0.4rem' }} title="Editar Álbum">
+                            <Edit2 size={14} />
+                          </button>
+                          <button type="button" onClick={(e) => {
+                            e.stopPropagation(); // Evitar abrir edición si da clic en borrar
+                            if(window.confirm('¿Seguro que deseas eliminar el álbum entero?')) deleteAlbum(album.id);
+                          }} className="btn btn-secondary" style={{ padding: '0.4rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }} title="Eliminar Álbum Completo">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
                       </div>
                     ))}
                   </div>
