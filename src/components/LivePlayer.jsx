@@ -7,13 +7,13 @@ export default function LivePlayer() {
   const [inputText, setInputText] = useState('');
   const [userName, setUserName] = useState('');
   const [isRadioPlaying, setIsRadioPlaying] = useState(false);
-  const chatEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
   const audioRef = useRef(null);
 
   // Auto-scroll chat to bottom
   useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [livestream.chatMessages]);
 
@@ -146,7 +146,15 @@ export default function LivePlayer() {
                 <Tv size={48} />
                 <div>
                   <p style={{ fontWeight: 700, color: 'var(--text-primary)' }}>No hay transmisión en vivo en este momento</p>
-                  <p style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>Visita nuestro canal para ver transmisiones anteriores o conéctate en nuestros horarios habituales.</p>
+                  <p style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>
+                    {livestream.youtubeChannelUrl ? (
+                      <a href={livestream.youtubeChannelUrl} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent-color)', textDecoration: 'underline' }}>
+                        Visita nuestro canal
+                      </a>
+                    ) : (
+                      "Visita nuestro canal"
+                    )} para ver transmisiones anteriores o conéctate en nuestros horarios habituales.
+                  </p>
                 </div>
               </div>
             )}
@@ -180,14 +188,17 @@ export default function LivePlayer() {
             </div>
 
             {/* Chat messages */}
-            <div style={{
+            <div 
+              ref={chatContainerRef}
+              style={{
               flex: 1,
               padding: '0.75rem',
               overflowY: 'auto',
               display: 'flex',
               flexDirection: 'column',
               gap: '0.75rem',
-              maxHeight: '260px'
+              maxHeight: '260px',
+              scrollBehavior: 'smooth'
             }}>
               {livestream.chatMessages.map((msg) => (
                 <div key={msg.id} style={{
@@ -206,7 +217,6 @@ export default function LivePlayer() {
                   </span>
                 </div>
               ))}
-              <div ref={chatEndRef} />
             </div>
 
             {/* Chat form inputs */}

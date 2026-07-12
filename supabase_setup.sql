@@ -160,6 +160,7 @@ ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS facebook_url TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS instagram_url TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_email TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_description TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS youtube_channel_url TEXT;
 
 -- ==========================================================
 -- ACTUALIZACIÓN DE ESQUEMA (V3: Radio Programs)
@@ -175,6 +176,9 @@ CREATE TABLE IF NOT EXISTS radio_programs (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+ALTER TABLE radio_programs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública radio_programs" ON radio_programs;
+DROP POLICY IF EXISTS "Escritura pública radio_programs" ON radio_programs;
 CREATE POLICY "Lectura pública radio_programs" ON radio_programs FOR SELECT USING (true);
 CREATE POLICY "Escritura pública radio_programs" ON radio_programs FOR ALL USING (true) WITH CHECK (true);
 
@@ -209,4 +213,23 @@ CREATE POLICY "Lectura pública storage" ON storage.objects FOR SELECT USING (bu
 CREATE POLICY "Inserción pública storage" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'photos');
 CREATE POLICY "Actualización pública storage" ON storage.objects FOR UPDATE USING (bucket_id = 'photos');
 CREATE POLICY "Eliminación pública storage" ON storage.objects FOR DELETE USING (bucket_id = 'photos');
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V5: Noticias y Blogs)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS blog_posts (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  image_url TEXT,
+  order_index INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE blog_posts ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública blog_posts" ON blog_posts;
+DROP POLICY IF EXISTS "Escritura pública blog_posts" ON blog_posts;
+CREATE POLICY "Lectura pública blog_posts" ON blog_posts FOR SELECT USING (true);
+CREATE POLICY "Escritura pública blog_posts" ON blog_posts FOR ALL USING (true) WITH CHECK (true);
+
 

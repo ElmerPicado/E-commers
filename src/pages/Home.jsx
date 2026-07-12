@@ -16,7 +16,7 @@ const MinistryIcon = ({ name, color }) => {
 };
 
 export default function Home() {
-  const { livestream, homeSections, ministries, activities } = useContext(GalleryContext);
+  const { livestream, homeSections, ministries, activities, blogPosts } = useContext(GalleryContext);
 
   // Separate Hero from other sections
   const heroSection = homeSections.find(sec => sec.id === 'hero') || {
@@ -370,7 +370,7 @@ export default function Home() {
                 return (
                   <div key={act.id} style={{
                     display: 'grid',
-                    gridTemplateColumns: '80px 1fr auto',
+                    gridTemplateColumns: act.image_url ? '80px 80px 1fr auto' : '80px 1fr auto',
                     alignItems: 'center',
                     padding: '1.25rem 1.5rem',
                     background: 'var(--bg-surface)',
@@ -394,6 +394,19 @@ export default function Home() {
                         {dateObj.getDate() + 1}
                       </span>
                     </div>
+
+                    {/* Image Block */}
+                    {act.image_url && (
+                      <div style={{
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '0.35rem',
+                        overflow: 'hidden',
+                        background: 'rgba(255,255,255,0.02)'
+                      }}>
+                        <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    )}
 
                     {/* Content */}
                     <div>
@@ -442,6 +455,42 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 5. NEWS / BLOG SECTION */}
+      {blogPosts && blogPosts.length > 0 && (
+        <section style={{
+          padding: '4rem 1.5rem',
+          background: 'var(--bg-surface)'
+        }}>
+          <div className="container" style={{ maxWidth: '1000px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+              <h2 style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>Noticias y Novedades</h2>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>Mantente informado sobre lo último en nuestra congregación.</p>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+              {blogPosts.map((blog) => (
+                <div key={blog.id} className="glass-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                  {blog.image_url && (
+                    <div style={{ height: '200px', width: '100%', overflow: 'hidden' }}>
+                      <img src={blog.image_url} alt={blog.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                  <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <h3 style={{ fontSize: '1.3rem', marginBottom: '0.75rem', fontWeight: 800 }}>{blog.title}</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', flex: 1 }}>
+                      {blog.content}
+                    </p>
+                    <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      <Calendar size={14} /> 
+                      {new Date(blog.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
 
     </div>
   );

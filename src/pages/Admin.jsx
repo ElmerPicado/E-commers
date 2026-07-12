@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash2, Edit, Settings, Image } from 'lucide-react';
+import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash2, Edit, Settings, Image, FileText } from 'lucide-react';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
 import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
@@ -17,7 +17,11 @@ export default function Admin() {
     addHomeSection,
     deleteHomeSection,
     addMinistry,
-    deleteMinistry
+    deleteMinistry,
+    blogPosts,
+    addBlogPost,
+    updateBlogPost,
+    deleteBlogPost
   } = useContext(GalleryContext);
 
   const [activeTab, setActiveTab] = useState('streaming');
@@ -36,6 +40,7 @@ export default function Admin() {
   const [churchName, setChurchName] = useState(livestream.churchName || 'IMR4');
   const [churchLogo, setChurchLogo] = useState(livestream.churchLogo || '');
   const [churchLogoFile, setChurchLogoFile] = useState(null);
+  const [youtubeChannelUrl, setYoutubeChannelUrl] = useState(livestream.youtubeChannelUrl || '');
   const [isStreamingUploading, setIsStreamingUploading] = useState(false);
   const [facebookUrl, setFacebookUrl] = useState(livestream.facebookUrl || '');
   const [instagramUrl, setInstagramUrl] = useState(livestream.instagramUrl || '');
@@ -87,6 +92,34 @@ export default function Admin() {
   const [newMinDesc, setNewMinDesc] = useState('');
   const [newMinColor, setNewMinColor] = useState('#3b82f6');
 
+  // 4. Blogs State
+  const [blogAction, setBlogAction] = useState('create');
+  const [editingBlogId, setEditingBlogId] = useState('');
+  const [blogTitle, setBlogTitle] = useState('');
+  const [blogContent, setBlogContent] = useState('');
+  const [blogImageUrl, setBlogImageUrl] = useState('');
+  const [blogImageFile, setBlogImageFile] = useState(null);
+  const [blogOrder, setBlogOrder] = useState(1);
+  const [isBlogUploading, setIsBlogUploading] = useState(false);
+
+  const loadBlogData = (blogId) => {
+    const blog = blogPosts?.find(b => b.id === blogId);
+    if (blog) {
+      setEditingBlogId(blogId);
+      setBlogTitle(blog.title);
+      setBlogContent(blog.content);
+      setBlogImageUrl(blog.image_url || '');
+      setBlogOrder(blog.order_index || 1);
+      setBlogImageFile(null);
+    }
+  };
+
+  React.useEffect(() => {
+    if (blogPosts?.length > 0 && !blogTitle && blogAction === 'edit') {
+      loadBlogData(blogPosts[0].id);
+    }
+  }, [blogPosts, blogAction]);
+
   // SUBMITS
   const handleUpdateStreaming = async (e) => {
     e.preventDefault();
@@ -125,7 +158,8 @@ export default function Admin() {
       churchAddress: churchAddress,
       churchMapsUrl: churchMapsUrl,
       churchEmail: churchEmail,
-      churchDescription: churchDescription
+      churchDescription: churchDescription,
+      youtubeChannelUrl: youtubeChannelUrl
     });
     setChurchLogo(logoUrl);
     setChurchLogoFile(null);
@@ -205,6 +239,52 @@ export default function Admin() {
     triggerSuccess('Ministerio creado. Entra al dashboard para configurar los detalles.');
   };
 
+  const handleSaveBlog = async (e) => {
+    e.preventDefault();
+    let finalImageUrl = blogImageUrl;
+
+    if (isSupabaseConfigured && blogImageFile) {
+      setIsBlogUploading(true);
+      try {
+        const fileExt = blogImageFile.name.split('.').pop();
+        const fileName = `blog-${Date.now()}.${fileExt}`;
+        const filePath = `blogs/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, blogImageFile);
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        finalImageUrl = publicUrl;
+      } catch (err) {
+        console.error('Error uploading blog image:', err);
+        alert('Error al subir la imagen del blog.');
+        setIsBlogUploading(false);
+        return;
+      }
+      setIsBlogUploading(false);
+    }
+
+    const blogData = {
+      title: blogTitle,
+      content: blogContent,
+      image_url: finalImageUrl,
+      order_index: parseInt(blogOrder, 10)
+    };
+
+    if (blogAction === 'create') {
+      blogData.id = `blog-${Date.now()}`;
+      await addBlogPost(blogData);
+      triggerSuccess('Blog / Noticia creada.');
+      setBlogTitle('');
+      setBlogContent('');
+      setBlogImageFile(null);
+      setBlogImageUrl('');
+    } else {
+      await updateBlogPost(editingBlogId, blogData);
+      triggerSuccess('Blog / Noticia actualizada.');
+    }
+  };
+
   // RENDER MINISTRY DASHBOARD IF SELECTED
   if (activeMinistryId) {
     return (
@@ -253,9 +333,11 @@ export default function Admin() {
         {/* Global Tabs */}
         <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', marginBottom: '2rem', gap: '0.5rem', flexWrap: 'wrap' }}>
           {[
-            { id: 'streaming', label: 'Config. General', icon: <Settings size={16} /> },
+            { id: 'streaming', label: 'Streaming & Radio', icon: <Tv size={16} /> },
+            { id: 'church_data', label: 'Datos de la Iglesia', icon: <Settings size={16} /> },
             { id: 'home_sections', label: 'Banners de Inicio', icon: <Layers size={16} /> },
-            { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> }
+            { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> },
+            { id: 'blogs', label: 'Noticias / Blogs', icon: <FileText size={16} /> }
           ].map((tab) => (
             <button
               key={tab.id}
@@ -279,41 +361,11 @@ export default function Admin() {
             <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}><Tv size={20} style={{ color: 'var(--accent-color)' }} /> Streaming YouTube</h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título</label><input type="text" value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} style={inputStyle} /></div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace Embed</label><input type="text" value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de Transmisión</label><input type="text" value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace Embed (Para el video en vivo)</label><input type="text" value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>URL del Canal de YouTube</label><input type="text" placeholder="https://youtube.com/@..." value={youtubeChannelUrl} onChange={(e) => setYoutubeChannelUrl(e.target.value)} style={inputStyle} /></div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: 'var(--accent-color)' }}>Marca General de la Iglesia</h3>
-                    <button type="button" onClick={() => setActiveMinistryId('general')} className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.8rem' }}>
-                      <Image size={14} style={{ marginRight: '0.35rem' }} /> Galería General
-                    </button>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Nombre / Siglas (ej: IMR4)</label>
-                    <input type="text" value={churchName} onChange={(e) => setChurchName(e.target.value)} style={inputStyle} />
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
-                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo Global (Opcional)</span>
-                    {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setChurchLogoFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} />}
-                    {(churchLogo || churchLogoFile) && (
-                      <div style={{ marginTop: '0.5rem', width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                        <img src={churchLogoFile ? URL.createObjectURL(churchLogoFile) : churchLogo} alt="Logo Preview" style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'rgba(255,255,255,0.1)' }} />
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Facebook Iglesia (URL)</label><input type="text" placeholder="https://facebook.com/..." value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} style={inputStyle} /></div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Instagram Iglesia (URL)</label><input type="text" placeholder="https://instagram.com/..." value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} style={inputStyle} /></div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dirección Física (Texto)</label><input type="text" placeholder="Río Cuarto..." value={churchAddress} onChange={(e) => setChurchAddress(e.target.value)} style={inputStyle} /></div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Google Maps Iglesia (URL)</label><input type="text" placeholder="https://maps.app.goo.gl/..." value={churchMapsUrl} onChange={(e) => setChurchMapsUrl(e.target.value)} style={inputStyle} /></div>
-                
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email de Contacto</label><input type="email" placeholder="contacto@imr4.org" value={churchEmail} onChange={(e) => setChurchEmail(e.target.value)} style={inputStyle} /></div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción de la Iglesia (Footer)</label><textarea value={churchDescription} onChange={(e) => setChurchDescription(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} /></div>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><input type="checkbox" id="isLive" checked={isLive} onChange={(e) => setIsLive(e.target.checked)} style={{ width: '16px', height: '16px' }} /><label htmlFor="isLive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>En Vivo Activo</label></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><input type="checkbox" id="isLive" checked={isLive} onChange={(e) => setIsLive(e.target.checked)} style={{ width: '16px', height: '16px' }} /><label htmlFor="isLive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>Transmisión de Video en Vivo Activa</label></div>
               </div>
             </div>
 
@@ -322,16 +374,63 @@ export default function Admin() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título</label><input type="text" value={radioTitle} onChange={(e) => setRadioTitle(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Stream URL</label><input type="text" value={radioUrl} onChange={(e) => setRadioUrl(e.target.value)} style={inputStyle} /></div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><input type="checkbox" id="isRadioLive" checked={isRadioLive} onChange={(e) => setIsRadioLive(e.target.checked)} style={{ width: '16px', height: '16px' }} /><label htmlFor="isRadioLive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>En Vivo Activo</label></div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><input type="checkbox" id="isRadioLive" checked={isRadioLive} onChange={(e) => setIsRadioLive(e.target.checked)} style={{ width: '16px', height: '16px' }} /><label htmlFor="isRadioLive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>Radio Online Activa</label></div>
               </div>
             </div>
-                <button type="button" onClick={handleUpdateStreaming} className="btn btn-primary" disabled={isStreamingUploading}>
-                  {isStreamingUploading ? 'Subiendo...' : <><Save size={16} /> Guardar Cambios</>}
-                </button>
+            
+            <div style={{ gridColumn: 'span 2' }}>
+              <button type="button" onClick={handleUpdateStreaming} className="btn btn-primary" disabled={isStreamingUploading}>
+                {isStreamingUploading ? 'Subiendo...' : <><Save size={16} /> Guardar Configuración de Streaming</>}
+              </button>
+            </div>
 
             {/* Parrilla de Programación */}
             <div style={{ gridColumn: 'span 2' }}>
               <RadioProgramsAdmin />
+            </div>
+          </div>
+        )}
+
+        {/* TAB 1.5: DATOS DE LA IGLESIA */}
+        {activeTab === 'church_data' && (
+          <div className="animate-fade-in glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}><Settings size={20} style={{ color: 'var(--accent-color)' }} /> Datos Generales de la Iglesia</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }} className="grid-cols-2">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Nombre / Siglas (ej: IMR4)</label>
+                  <input type="text" value={churchName} onChange={(e) => setChurchName(e.target.value)} style={inputStyle} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo Global de la Iglesia</span>
+                    <button type="button" onClick={() => setActiveMinistryId('general')} className="btn btn-primary" style={{ padding: '0.4rem 0.8rem', fontSize: '0.7rem' }}>
+                      <Image size={12} style={{ marginRight: '0.25rem' }} /> Galería General
+                    </button>
+                  </div>
+                  {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setChurchLogoFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} />}
+                  {(churchLogo || churchLogoFile) && (
+                    <div style={{ marginTop: '0.5rem', width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                      <img src={churchLogoFile ? URL.createObjectURL(churchLogoFile) : churchLogo} alt="Logo Preview" style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'rgba(255,255,255,0.1)' }} />
+                    </div>
+                  )}
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción de la Iglesia (Aparece en el pie de página)</label><textarea value={churchDescription} onChange={(e) => setChurchDescription(e.target.value)} style={{ ...inputStyle, minHeight: '100px' }} /></div>
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Facebook (URL)</label><input type="text" placeholder="https://facebook.com/..." value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Instagram (URL)</label><input type="text" placeholder="https://instagram.com/..." value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dirección Física (Texto)</label><input type="text" placeholder="Ej: Río Cuarto..." value={churchAddress} onChange={(e) => setChurchAddress(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Google Maps (URL)</label><input type="text" placeholder="https://maps.app.goo.gl/..." value={churchMapsUrl} onChange={(e) => setChurchMapsUrl(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email de Contacto</label><input type="email" placeholder="contacto@imr4.org" value={churchEmail} onChange={(e) => setChurchEmail(e.target.value)} style={inputStyle} /></div>
+              </div>
+            </div>
+            
+            <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
+              <button type="button" onClick={handleUpdateStreaming} className="btn btn-primary" disabled={isStreamingUploading}>
+                {isStreamingUploading ? 'Subiendo...' : <><Save size={16} /> Guardar Datos de Iglesia</>}
+              </button>
             </div>
           </div>
         )}
@@ -453,10 +552,78 @@ export default function Admin() {
                     </div>
                   </div>
                 ))}
-              </div>
+      </div>
             </div>
             
             <RadioProgramsAdmin />
+          </div>
+        )}
+
+        {/* TAB 4: BLOGS */}
+        {activeTab === 'blogs' && (
+          <div className="glass-card animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+              <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}><FileText size={20} style={{ color: 'var(--accent-color)' }} /> Noticias / Blogs</h2>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
+                <span style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)' }}>Operación:</span>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  <input type="radio" checked={blogAction === 'create'} onChange={() => {
+                    setBlogAction('create'); setBlogTitle(''); setBlogContent(''); setBlogImageUrl(''); setBlogOrder(blogPosts?.length ? blogPosts.length + 1 : 1); setBlogImageFile(null);
+                  }} /> Crear Nueva Noticia
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem', cursor: 'pointer' }}>
+                  <input type="radio" checked={blogAction === 'edit'} onChange={() => { setBlogAction('edit'); if (blogPosts?.length) loadBlogData(blogPosts[0].id); }} /> Editar Existente
+                </label>
+            </div>
+
+            <form onSubmit={handleSaveBlog} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '1.5rem' }} className="grid-cols-2">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {blogAction === 'edit' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Selecciona Noticia</label>
+                      <select value={editingBlogId} onChange={(e) => loadBlogData(e.target.value)} style={selectStyle}>
+                        {(blogPosts || []).map((blog) => (<option key={blog.id} value={blog.id}>{blog.title || blog.id}</option>))}
+                      </select>
+                      {(blogPosts || []).length > 0 && (
+                        <button type="button" onClick={() => { 
+                          if(confirm('¿Eliminar noticia?')) { 
+                            deleteBlogPost(editingBlogId); 
+                            triggerSuccess('Noticia eliminada.'); 
+                            const remaining = blogPosts.filter(b => b.id !== editingBlogId);
+                            if (remaining.length > 0) {
+                              loadBlogData(remaining[0].id);
+                            } else {
+                              setBlogAction('create');
+                              setBlogTitle(''); setBlogContent(''); setBlogImageUrl(''); setBlogOrder(1); setBlogImageFile(null);
+                            }
+                          } 
+                        }} className="btn btn-danger" style={{ marginTop: '0.5rem' }}><Trash2 size={14}/> Eliminar Noticia</button>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título</label><input type="text" value={blogTitle} onChange={(e) => setBlogTitle(e.target.value)} style={inputStyle} required /></div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Contenido</label><textarea value={blogContent} onChange={(e) => setBlogContent(e.target.value)} style={{ ...inputStyle, minHeight: '120px' }} required /></div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Orden</label><input type="number" value={blogOrder} onChange={(e) => setBlogOrder(e.target.value)} style={inputStyle} /></div>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>Imagen de la Noticia</span>
+                    {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setBlogImageFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL de la imagen" value={blogImageUrl} onChange={(e) => setBlogImageUrl(e.target.value)} style={inputStyle} />}
+                    {(blogImageUrl || blogImageFile) && (
+                      <div style={{ marginTop: '0.5rem', border: '1px solid var(--border-color)', borderRadius: '0.35rem', overflow: 'hidden', height: '140px' }}>
+                        <img src={blogImageFile ? URL.createObjectURL(blogImageFile) : blogImageUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end' }} disabled={isBlogUploading}>{isBlogUploading ? 'Guardando...' : 'Guardar Noticia'}</button>
+            </form>
           </div>
         )}
 

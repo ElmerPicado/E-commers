@@ -61,6 +61,8 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [actTime, setActTime] = useState('20:00');
   const [actDesc, setActDesc] = useState('');
   const [actLocationUrl, setActLocationUrl] = useState('');
+  const [actImageFile, setActImageFile] = useState(null);
+  const [isActUploading, setIsActUploading] = useState(false);
 
   // Gallery Form State
   const [newAlbumTitle, setNewAlbumTitle] = useState('');
@@ -149,6 +151,27 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
 
   const handleCreateActivity = async (e) => {
     e.preventDefault();
+    let finalImageUrl = 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80'; // default
+
+    if (actImageFile && isSupabaseConfigured) {
+      setIsActUploading(true);
+      try {
+        const fileExt = actImageFile.name.split('.').pop();
+        const fileName = `act_${Date.now()}.${fileExt}`;
+        const filePath = `activities/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, actImageFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        finalImageUrl = publicUrl;
+      } catch (err) {
+        console.error('Error uploading activity image:', err);
+        alert('Error al subir la imagen de la actividad.');
+        setIsActUploading(false);
+        return;
+      }
+      setIsActUploading(false);
+    }
+
     const newAct = {
       id: `act-${Date.now()}`,
       title: actTitle,
@@ -156,13 +179,14 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       time: actTime,
       description: actDesc,
       location_url: actLocationUrl,
-      image_url: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80', // default
+      image_url: finalImageUrl,
       ministry_id: ministryId
     };
     await addActivity(newAct);
     setActTitle('');
     setActDesc('');
     setActLocationUrl('');
+    setActImageFile(null);
     triggerSuccess('Actividad creada para este ministerio.');
   };
 
@@ -412,8 +436,12 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción</label>
               <textarea value={actDesc} onChange={(e) => setActDesc(e.target.value)} style={{ ...inputStyle, minHeight: '80px' }} required />
             </div>
-            <button type="submit" className="btn btn-primary">
-              <Plus size={16} /> Crear Actividad
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen de la Actividad (Opcional)</label>
+              <input type="file" accept="image/*" onChange={(e) => setActImageFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} />
+            </div>
+            <button type="submit" className="btn btn-primary" disabled={isActUploading}>
+              {isActUploading ? 'Subiendo...' : <><Plus size={16} /> Crear Actividad</>}
             </button>
           </form>
 

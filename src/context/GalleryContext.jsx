@@ -60,6 +60,7 @@ const DEFAULT_LIVESTREAM = {
   churchMapsUrl: '',
   churchEmail: 'contacto@imr4.org',
   churchDescription: 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.',
+  youtubeChannelUrl: '',
   chatMessages: [
     { id: 1, user: 'Carlos M.', text: '¡Bendiciones a toda la iglesia!' },
     { id: 2, user: 'María P.', text: 'Hola a todos desde Río Cuarto.' },
@@ -222,6 +223,17 @@ const DEFAULT_ACTIVITIES = [
   }
 ];
 
+const DEFAULT_BLOG_POSTS = [
+  {
+    id: 'blog-1',
+    title: '¡Bienvenidos a nuestra nueva web!',
+    content: 'Estamos muy felices de presentarles nuestra nueva página web, donde podrán encontrar toda la información sobre nuestros ministerios, horarios y próximas actividades.',
+    image_url: 'https://images.unsplash.com/photo-1510590337019-5ef8d3d32116?w=800&q=80',
+    order_index: 1,
+    created_at: new Date().toISOString()
+  }
+];
+
 export const GalleryProvider = ({ children }) => {
   const [albums, setAlbums] = useState(() => {
     if (!isSupabaseConfigured) {
@@ -248,6 +260,14 @@ export const GalleryProvider = ({ children }) => {
   });
 
   // Dynamic content states
+  const [blogPosts, setBlogPosts] = useState(() => {
+    if (!isSupabaseConfigured) {
+      const saved = localStorage.getItem('imr4_blog_posts');
+      return saved ? JSON.parse(saved) : DEFAULT_BLOG_POSTS;
+    }
+    return DEFAULT_BLOG_POSTS;
+  });
+
   const [homeSections, setHomeSections] = useState(() => {
     if (!isSupabaseConfigured) {
       const saved = localStorage.getItem('imr4_home_sections');
@@ -281,6 +301,12 @@ export const GalleryProvider = ({ children }) => {
   });
 
   // Local storage backups syncing
+  useEffect(() => {
+    if (!isSupabaseConfigured) {
+      localStorage.setItem('imr4_blog_posts', JSON.stringify(blogPosts));
+    }
+  }, [blogPosts]);
+
   useEffect(() => {
     if (!isSupabaseConfigured) {
       localStorage.setItem('imr4_albums', JSON.stringify(albums));
@@ -345,7 +371,8 @@ export const GalleryProvider = ({ children }) => {
           churchAddress: streamConfig.church_address || 'Río Cuarto, Córdoba, Argentina',
           churchMapsUrl: streamConfig.church_maps_url || '',
           churchEmail: streamConfig.church_email || 'contacto@imr4.org',
-          churchDescription: streamConfig.church_description || 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.'
+          churchDescription: streamConfig.church_description || 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.',
+          youtubeChannelUrl: streamConfig.youtube_channel_url || ''
         }));
         setRadio(prev => ({
           ...prev,
@@ -371,8 +398,12 @@ export const GalleryProvider = ({ children }) => {
       if (dbAct) setActivities(dbAct);
 
       // 6. Radio Programs
-      const { data: dbRadioProg } = await supabase.from('radio_programs').select('*').order('created_at', { ascending: true });
-      if (dbRadioProg && dbRadioProg.length > 0) setRadioPrograms(dbRadioProg);
+      const { data: dbRadioProg } = await supabase.from('radio_programs').select('*').order('schedule_time');
+      if (dbRadioProg) setRadioPrograms(dbRadioProg);
+
+      // 7. Blog Posts
+      const { data: dbBlogs } = await supabase.from('blog_posts').select('*').order('order_index');
+      if (dbBlogs) setBlogPosts(dbBlogs);
     } catch (e) {
       console.error('Error fetching data from Supabase:', e);
     }
@@ -397,7 +428,8 @@ export const GalleryProvider = ({ children }) => {
             facebookUrl: updated.facebook_url || '',
             instagramUrl: updated.instagram_url || '',
             churchAddress: updated.church_address || 'Río Cuarto, Córdoba, Argentina',
-            churchMapsUrl: updated.church_maps_url || ''
+            churchMapsUrl: updated.church_maps_url || '',
+            youtubeChannelUrl: updated.youtube_channel_url || ''
           }));
           setRadio(prev => ({
             ...prev,
@@ -415,6 +447,7 @@ export const GalleryProvider = ({ children }) => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'ministries' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'activities' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'radio_programs' }, () => fetchSupabaseData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'blog_posts' }, () => fetchSupabaseData())
         .subscribe();
 
       return () => {
@@ -474,7 +507,8 @@ export const GalleryProvider = ({ children }) => {
         church_address: updates.churchAddress,
         church_maps_url: updates.churchMapsUrl,
         church_email: updates.churchEmail,
-        church_description: updates.churchDescription
+        church_description: updates.churchDescription,
+        youtube_channel_url: updates.youtubeChannelUrl
       }).eq('id', 'main');
     } else {
       setLivestream((prev) => ({ ...prev, ...updates }));
@@ -598,6 +632,34 @@ export const GalleryProvider = ({ children }) => {
     }
   };
 
+  // Blog Posts methods
+  const addBlogPost = async (post) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('blog_posts').insert(post);
+      setBlogPosts((prev) => [...prev, post].sort((a,b) => a.order_index - b.order_index));
+    } else {
+      setBlogPosts((prev) => [...prev, post].sort((a,b) => a.order_index - b.order_index));
+    }
+  };
+
+  const updateBlogPost = async (id, updates) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('blog_posts').update(updates).eq('id', id);
+      setBlogPosts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)).sort((a,b) => a.order_index - b.order_index));
+    } else {
+      setBlogPosts((prev) => prev.map((p) => (p.id === id ? { ...p, ...updates } : p)).sort((a,b) => a.order_index - b.order_index));
+    }
+  };
+
+  const deleteBlogPost = async (id) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('blog_posts').delete().eq('id', id);
+      setBlogPosts((prev) => prev.filter((p) => p.id !== id));
+    } else {
+      setBlogPosts((prev) => prev.filter((p) => p.id !== id));
+    }
+  };
+
   const addChatMessage = (msg) => {
     setLivestream((prev) => ({
       ...prev,
@@ -631,6 +693,10 @@ export const GalleryProvider = ({ children }) => {
         addRadioProgram,
         updateRadioProgram,
         deleteRadioProgram,
+        blogPosts,
+        addBlogPost,
+        updateBlogPost,
+        deleteBlogPost,
         addChatMessage
       }}
     >

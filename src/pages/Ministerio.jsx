@@ -70,7 +70,33 @@ export default function Ministerio() {
   };
 
   return (
-    <div className={getThemeClass(ministry.id)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className={getThemeClass(ministry.id)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+      
+      {/* Decorative Background Elements */}
+      <div style={{
+        position: 'absolute',
+        top: '20%',
+        left: '-10%',
+        width: '40%',
+        height: '40%',
+        background: 'var(--accent-color)',
+        filter: 'blur(150px)',
+        opacity: 0.15,
+        zIndex: 0,
+        pointerEvents: 'none'
+      }}></div>
+      <div style={{
+        position: 'absolute',
+        bottom: '10%',
+        right: '-10%',
+        width: '40%',
+        height: '40%',
+        background: 'var(--accent-color)',
+        filter: 'blur(150px)',
+        opacity: 0.1,
+        zIndex: 0,
+        pointerEvents: 'none'
+      }}></div>
       
       {/* Hero */}
       <section style={{
@@ -115,9 +141,9 @@ export default function Ministerio() {
         </div>
       </section>
 
-      {/* Pillars / Core info (reads pillars array from DB) */}
-      {ministry.pillars && ministry.pillars.length > 0 && (
-        <section style={{ padding: '3.5rem 1.5rem' }}>
+      {/* Pillars / Core info */}
+      {(ministry.schedule || ministry.location || (ministry.pillars && ministry.pillars.some(p => p.title?.trim() || p.desc?.trim()))) && (
+        <section style={{ padding: '3.5rem 1.5rem', position: 'relative', zIndex: 1 }}>
           <div className="container">
               {ministry.schedule && (
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-secondary)' }}>
@@ -149,12 +175,13 @@ export default function Ministerio() {
                   </span>
                 </div>
               )}
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '1.5rem',
-              marginTop: '2rem'
-            }} className="grid-cols-3">
+            {ministry.pillars && ministry.pillars.some(p => p.title?.trim() || p.desc?.trim()) && (
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                gap: '1.5rem',
+                marginTop: '2rem'
+              }}>
               {ministry.pillars.map((pillar, idx) => (
                 <div key={idx} className="glass-card" style={{ padding: '1.5rem' }}>
                   <div style={{
@@ -175,7 +202,8 @@ export default function Ministerio() {
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>{pillar.desc}</p>
                 </div>
               ))}
-            </div>
+              </div>
+            )}
           </div>
         </section>
       )}
@@ -212,7 +240,20 @@ export default function Ministerio() {
                     </span>
                   </div>
 
-                  <div>
+                  {act.image_url && (
+                    <div style={{
+                      width: '70px',
+                      height: '70px',
+                      borderRadius: '0.35rem',
+                      overflow: 'hidden',
+                      background: 'rgba(255,255,255,0.02)',
+                      flexShrink: 0
+                    }}>
+                      <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+
+                  <div style={{ flex: 1 }}>
                     <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.25rem' }}>{act.title}</h4>
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                       <span>Hora: {act.time} hs</span> 
@@ -335,7 +376,8 @@ export default function Ministerio() {
       </section>
 
       {/* CTA / Contact */}
-      <section id="contacto" style={{ padding: '4rem 1.5rem', background: 'rgba(255,255,255,0.01)', borderTop: '1px solid var(--border-color)' }}>
+      {(ministry.contact_email || ministry.contact_link || ministry.contact_title) && (
+      <section id="contacto" style={{ padding: '4rem 1.5rem', background: 'rgba(255,255,255,0.01)', borderTop: '1px solid var(--border-color)', position: 'relative', zIndex: 1 }}>
         <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
           <h2 style={{ fontSize: '1.8rem', marginBottom: '1rem' }}>{ministry.contact_title || 'Conéctate Con Nosotros'}</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginBottom: '2rem', lineHeight: '1.6' }}>
@@ -350,30 +392,35 @@ export default function Ministerio() {
             flexDirection: 'column',
             gap: '1rem'
           }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-              <Mail size={16} style={{ color: 'var(--accent-color)' }} />
-              <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{ministry.contact_email}</span>
-            </div>
-            <a
-              href={ministry.contact_link}
-              target="_blank"
-              rel="noreferrer"
-              className="btn btn-primary"
-              style={{
-                marginTop: '0.5rem',
-                background: 'var(--accent-color)',
-                color: '#000',
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <MessageSquare size={16} /> {ministry.contact_button_text || 'Contactar por WhatsApp'}
-            </a>
+            {ministry.contact_email && (
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                <Mail size={16} style={{ color: 'var(--accent-color)' }} />
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>{ministry.contact_email}</span>
+              </div>
+            )}
+            {ministry.contact_link && (
+              <a
+                href={ministry.contact_link}
+                target="_blank"
+                rel="noreferrer"
+                className="btn btn-primary"
+                style={{
+                  marginTop: '0.5rem',
+                  background: 'var(--accent-color)',
+                  color: '#000',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem'
+                }}
+              >
+                <MessageSquare size={16} /> {ministry.contact_button_text || 'Contactar por WhatsApp'}
+              </a>
+            )}
           </div>
         </div>
       </section>
+      )}
     </div>
   );
 }
