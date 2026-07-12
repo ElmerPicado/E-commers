@@ -50,7 +50,7 @@ function App() {
               <Route path="/historia" element={<Historia />} />
               <Route path="/devocionales" element={<Devocionales />} />
               <Route path="/devocionales/:id" element={<DevocionalDetail />} />
-              <Route path="/enviar-devocional" element={<SubmitDevocional />} />
+              <Route path="/devocional" element={<SubmitDevocional />} />
               <Route path="/admin" element={<ProtectedAdminRoute />} />
             </Routes>
           </main>
