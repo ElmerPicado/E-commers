@@ -517,8 +517,9 @@ export default function SubmitDevocional() {
                   Aparecerá en la parte superior de tu devocional.
                 </p>
               </div>
+            </div>
 
-              {/* Opciones de Registro y Foto */}
+            {/* Opciones de Registro y Foto */}
               {!isLocked && (
                 <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '0.75rem', marginTop: '1.5rem', border: '1px solid var(--border-color)' }}>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
