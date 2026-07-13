@@ -1,7 +1,7 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { BookOpen, User, Calendar, Tag, Sun, Moon, Search } from 'lucide-react';
+import { BookOpen, User, Calendar, Tag, Sun, Moon, Search, ChevronDown, ChevronUp } from 'lucide-react';
 import './Devocionales.css';
 
 const normalizeText = (text) => {
@@ -20,6 +20,10 @@ export default function Devocionales() {
   const [isLightMode, setIsLightMode] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  // Collapsible Sidebar Sections
+  const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(window.innerWidth > 900);
+  const [isAuthorsExpanded, setIsAuthorsExpanded] = useState(window.innerWidth > 900);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -138,43 +142,73 @@ export default function Devocionales() {
             </div>
           </div>
 
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.5rem', marginTop: 0 }}>
+          <h3 
+            onClick={() => setIsCategoriesExpanded(!isCategoriesExpanded)}
+            style={{ 
+              fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', 
+              textTransform: 'uppercase', letterSpacing: '0.05em', 
+              borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', 
+              marginBottom: '1.5rem', marginTop: 0,
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              cursor: 'pointer', userSelect: 'none'
+            }}
+          >
             Categorías
+            {isCategoriesExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </h3>
-          <div 
-            className={`category-item ${activeCategoryId === 'all' ? 'active' : ''}`}
-            onClick={() => setActiveCategoryId('all')}
-          >
-            Todos los temas
-          </div>
-          {(devotionalCategories || []).map(cat => (
-            <div 
-              key={cat.id}
-              className={`category-item ${activeCategoryId === cat.id ? 'active' : ''}`}
-              onClick={() => setActiveCategoryId(cat.id)}
-            >
-              {cat.name}
+          {isCategoriesExpanded && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div 
+                className={`category-item ${activeCategoryId === 'all' ? 'active' : ''}`}
+                onClick={() => setActiveCategoryId('all')}
+              >
+                Todos los temas
+              </div>
+              {(devotionalCategories || []).map(cat => (
+                <div 
+                  key={cat.id}
+                  className={`category-item ${activeCategoryId === cat.id ? 'active' : ''}`}
+                  onClick={() => setActiveCategoryId(cat.id)}
+                >
+                  {cat.name}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
 
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.5rem', marginTop: '2.5rem' }}>
-            Autores
-          </h3>
-          <div 
-            className={`category-item ${activeAuthorName === 'all' ? 'active' : ''}`}
-            onClick={() => setActiveAuthorName('all')}
+          <h3 
+            onClick={() => setIsAuthorsExpanded(!isAuthorsExpanded)}
+            style={{ 
+              fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', 
+              textTransform: 'uppercase', letterSpacing: '0.05em', 
+              borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', 
+              marginBottom: '1.5rem', marginTop: '2.5rem',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              cursor: 'pointer', userSelect: 'none'
+            }}
           >
-            Todos los autores
-          </div>
-          {uniqueAuthors.map(author => (
-            <div 
-              key={author}
-              className={`category-item ${activeAuthorName === author ? 'active' : ''}`}
-              onClick={() => setActiveAuthorName(author)}
-            >
-              {author}
+            Autores
+            {isAuthorsExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </h3>
+          {isAuthorsExpanded && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div 
+                className={`category-item ${activeAuthorName === 'all' ? 'active' : ''}`}
+                onClick={() => setActiveAuthorName('all')}
+              >
+                Todos los autores
+              </div>
+              {uniqueAuthors.map(author => (
+                <div 
+                  key={author}
+                  className={`category-item ${activeAuthorName === author ? 'active' : ''}`}
+                  onClick={() => setActiveAuthorName(author)}
+                >
+                  {author}
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </aside>
 
         <main className="devocionales-grid" style={{ paddingBottom: '4rem' }}>

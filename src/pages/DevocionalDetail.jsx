@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { ArrowLeft, User, Calendar, Tag, Home, BookOpen, Sun, Moon, MessageCircle, Send } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Tag, Home, BookOpen, Sun, Moon, MessageCircle, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import './Devocionales.css';
 
 export default function DevocionalDetail() {
@@ -9,6 +9,10 @@ export default function DevocionalDetail() {
   const navigate = useNavigate();
   const { devotionals, devotionalCategories, devotionalComments, addDevotionalComment } = useContext(GalleryContext);
   const [isLightMode, setIsLightMode] = useState(true);
+  
+  // Collapsible Sidebar Sections
+  const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(window.innerWidth > 900);
+  const [isRecentExpanded, setIsRecentExpanded] = useState(window.innerWidth > 900);
 
   // Comentarios state
   const [newCommentName, setNewCommentName] = useState('');
@@ -99,45 +103,73 @@ export default function DevocionalDetail() {
         <aside className="devocional-left-sidebar" style={{ position: 'sticky', top: '100px' }}>
           
           <div className="categories-sidebar" style={{ position: 'static', marginBottom: '2.5rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.5rem', marginTop: 0 }}>
-              Categorías
-            </h3>
-            <div 
-              className="category-item"
-              onClick={() => navigate('/devocionales')}
+            <h3 
+              onClick={() => setIsCategoriesExpanded(!isCategoriesExpanded)}
+              style={{ 
+                fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', 
+                textTransform: 'uppercase', letterSpacing: '0.05em', 
+                borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', 
+                marginBottom: '1.5rem', marginTop: 0,
+                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                cursor: 'pointer', userSelect: 'none'
+              }}
             >
-              Todos los temas
-            </div>
-            {(devotionalCategories || []).map(cat => (
-              <div 
-                key={cat.id}
-                className="category-item"
-                onClick={() => navigate('/devocionales')}
-              >
-                {cat.name}
-              </div>
-            ))}
-          </div>
-
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
-            Últimos Devocionales
-          </h3>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            {recentDevotionals.length > 0 ? (
-              recentDevotionals.map(dev => (
-                <div key={dev.id} onClick={() => navigate(`/devocionales/${dev.slug || dev.id}`)} style={{ cursor: 'pointer', transition: 'transform 0.2s' }} className="recent-dev-card">
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 0.25rem 0', lineHeight: 1.4 }}>
-                    {dev.title}
-                  </h4>
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
-                    Autor: {dev.author_name}
-                  </p>
+              Categorías
+              {isCategoriesExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+            </h3>
+            {isCategoriesExpanded && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div 
+                  className="category-item"
+                  onClick={() => navigate('/devocionales')}
+                >
+                  Todos los temas
                 </div>
-              ))
-            ) : (
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No hay otros devocionales publicados aún.</p>
+                {(devotionalCategories || []).map(cat => (
+                  <div 
+                    key={cat.id}
+                    className="category-item"
+                    onClick={() => navigate('/devocionales')}
+                  >
+                    {cat.name}
+                  </div>
+                ))}
+              </div>
             )}
           </div>
+
+          <h3 
+            onClick={() => setIsRecentExpanded(!isRecentExpanded)}
+            style={{ 
+              fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', 
+              textTransform: 'uppercase', letterSpacing: '0.05em', 
+              borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', 
+              marginBottom: '1.5rem',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+              cursor: 'pointer', userSelect: 'none'
+            }}
+          >
+            Últimos Devocionales
+            {isRecentExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+          </h3>
+          {isRecentExpanded && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {recentDevotionals.length > 0 ? (
+                recentDevotionals.map(dev => (
+                  <div key={dev.id} onClick={() => navigate(`/devocionales/${dev.slug || dev.id}`)} style={{ cursor: 'pointer', transition: 'transform 0.2s' }} className="recent-dev-card">
+                    <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 0.25rem 0', lineHeight: 1.4 }}>
+                      {dev.title}
+                    </h4>
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+                      Autor: {dev.author_name}
+                    </p>
+                  </div>
+                ))
+              ) : (
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No hay otros devocionales publicados aún.</p>
+              )}
+            </div>
+          )}
         </aside>
 
         {/* Main Content (Middle) */}
