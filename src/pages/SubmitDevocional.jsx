@@ -26,8 +26,10 @@ export default function SubmitDevocional() {
   // Author Codes State
   const [enteredCode, setEnteredCode] = useState('');
   const [isLocked, setIsLocked] = useState(false);
+  const [hasCodeAnswer, setHasCodeAnswer] = useState(null);
   const [wantsToRegister, setWantsToRegister] = useState(false);
-  const [registerEmail, setRegisterEmail] = useState('');
+  const [currentStep, setCurrentStep] = useState(1);
+  const [pendingCode, setPendingCode] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -65,6 +67,24 @@ export default function SubmitDevocional() {
     return `${prefix}-${suffix}`;
   };
 
+  const handleContinueToStep2 = () => {
+    if (!isLocked) {
+      if (!authorName.trim()) {
+        alert("Por favor ingresa tu nombre de autor.");
+        return;
+      }
+      if (!authorBio.trim()) {
+        alert("Por favor ingresa una biografía corta.");
+        return;
+      }
+      if (wantsToRegister && !pendingCode) {
+        setPendingCode(generateRandomCode());
+      }
+    }
+    setCurrentStep(2);
+    window.scrollTo(0, 0);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -82,6 +102,13 @@ export default function SubmitDevocional() {
 
         const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
         finalPhotoUrl = publicUrl;
+
+        if (isLocked && enteredCode) {
+          await supabase
+            .from('devotional_authors')
+            .update({ photo_url: finalPhotoUrl })
+            .eq('code', enteredCode.trim().toUpperCase());
+        }
       } catch (err) {
         console.error('Error uploading photo:', err);
         alert('Hubo un error al subir la foto. Se enviará sin foto.');
@@ -90,15 +117,14 @@ export default function SubmitDevocional() {
       finalPhotoUrl = authorPhotoPreview;
     }
 
-    let savedCode = '';
-    if (wantsToRegister && isSupabaseConfigured) {
+    let savedCode = pendingCode;
+    if (wantsToRegister && isSupabaseConfigured && !isLocked) {
       try {
-        savedCode = generateRandomCode();
         const { error: authorError } = await supabase
           .from('devotional_authors')
           .insert([{
             code: savedCode,
-            email: registerEmail.trim() || null,
+            email: null,
             name: authorName,
             bio: authorBio,
             photo_url: finalPhotoUrl
@@ -227,7 +253,9 @@ export default function SubmitDevocional() {
                 setAuthorBio('');
                 setAuthorPhotoFile(null);
                 setAuthorPhotoPreview('');
+                setPendingCode('');
               }
+              setCurrentStep(1);
             }}
             className="btn btn-secondary"
             style={{ width: '100%', marginBottom: '1rem' }}
@@ -315,14 +343,28 @@ export default function SubmitDevocional() {
           </div>
         </div>
 
-        {/* Login Section */}
-        {!isLocked && (
+        {currentStep === 1 && (
+          <>
+            {/* Login Section */}
+        {!isLocked && hasCodeAnswer === null && (
+          <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '2rem 1.5rem', borderRadius: '1rem', border: '1px dashed var(--accent-color)', marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
+              ¿Ya eres un escritor frecuente y tienes un código?
+            </h3>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <button type="button" onClick={() => setHasCodeAnswer('yes')} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 600 }}>Sí, ya tengo mi código</button>
+              <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>No, soy nuevo</button>
+            </div>
+          </div>
+        )}
+
+        {!isLocked && hasCodeAnswer === 'yes' && (
           <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px dashed var(--accent-color)', marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-              ¿Ya eres un escritor frecuente?
+              Ingresa tu código de escritor frecuente
             </h3>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem', textAlign: 'center' }}>
-              Ingresa tu código para autocompletar tus datos. Si eres nuevo, simplemente llena el formulario abajo.
+              Ingresa tu código para autocompletar tus datos.
             </p>
             <div style={{ display: 'flex', gap: '0.5rem', maxWidth: '400px', width: '100%' }}>
               <input 
@@ -343,6 +385,16 @@ export default function SubmitDevocional() {
               </button>
             </div>
             {loginError && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '0.5rem' }}>{loginError}</p>}
+            <button type="button" onClick={() => setHasCodeAnswer(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline', marginTop: '1rem' }}>Volver atrás</button>
+          </div>
+        )}
+
+        {!isLocked && hasCodeAnswer === 'no' && (
+          <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem 1.5rem', borderRadius: '1rem', border: '1px solid rgba(16, 185, 129, 0.3)', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.95rem' }}>
+              ¡Bienvenido! Por favor completa tus datos de autor a continuación para publicar tu devocional.
+            </p>
+            <button type="button" onClick={() => setHasCodeAnswer(null)} style={{ background: 'transparent', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}>Volver atrás</button>
           </div>
         )}
 
@@ -360,6 +412,7 @@ export default function SubmitDevocional() {
                 setAuthorBio('');
                 setAuthorPhotoPreview('');
                 setEnteredCode('');
+                setHasCodeAnswer(null);
               }}
               style={{ background: 'transparent', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontSize: '0.9rem', textDecoration: 'underline' }}
             >
@@ -407,23 +460,22 @@ export default function SubmitDevocional() {
 
               <div>
                 <label style={labelStyle}><ImageIcon size={14} style={{ display: 'inline', marginRight: '0.25rem' }} /> Foto de Perfil (Opcional)</label>
-                {!isLocked ? (
-                  <input 
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files[0];
-                      if (file) {
-                        setAuthorPhotoFile(file);
-                        setAuthorPhotoPreview(URL.createObjectURL(file));
-                      }
-                    }}
-                    style={{ ...inputStyle, padding: '0.5rem', background: 'var(--input-bg)' }} 
-                  />
-                ) : (
-                  <div style={{ ...inputStyle, background: 'var(--input-bg)', opacity: 0.6, fontSize: '0.85rem' }}>
-                    Foto cargada desde tu perfil
-                  </div>
+                <input 
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setAuthorPhotoFile(file);
+                      setAuthorPhotoPreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  style={{ ...inputStyle, padding: '0.5rem', background: 'var(--input-bg)' }} 
+                />
+                {isLocked && (
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                    Si subes una nueva foto, actualizaremos tu perfil.
+                  </p>
                 )}
                 {authorPhotoPreview && (
                   <div style={{ marginTop: '0.75rem', width: '90px', height: '110px', borderRadius: '8px', overflow: 'hidden', border: '2px solid var(--border-color)' }}>
@@ -434,12 +486,57 @@ export default function SubmitDevocional() {
             </div>
           </div>
 
-          {/* Content Section */}
-          <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
-              <Type size={20} style={{ color: 'var(--accent-color)' }} />
-              Cuerpo del Devocional
-            </h2>
+          {/* Registration Checkbox (Only if not logged in) */}
+          {!isLocked && (
+            <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                <input 
+                  type="checkbox" 
+                  checked={wantsToRegister} 
+                  onChange={(e) => setWantsToRegister(e.target.checked)}
+                  style={{ width: '18px', height: '18px', accentColor: 'var(--accent-color)' }}
+                />
+                <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                  Marcar esta casilla si deseo generar un código para ser escritor frecuente y guardar mi perfil de autor.
+                </span>
+              </label>
+            </div>
+          )}
+
+          <button 
+            type="button" 
+            onClick={handleContinueToStep2}
+            className="btn btn-primary"
+            style={{ padding: '1rem 2rem', fontSize: '1.1rem', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+          >
+            Continuar a redactar devocional
+          </button>
+          </>
+        )}
+
+        {currentStep === 2 && (
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+            
+            {!isLocked && wantsToRegister && pendingCode && (
+              <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '1rem', padding: '2rem', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+                <h3 style={{ color: '#10b981', fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+                  ¡Antes de continuar, guarda este código!
+                </h3>
+                <div style={{ fontSize: '3rem', fontWeight: 900, color: '#10b981', letterSpacing: '3px', marginBottom: '0.5rem' }}>
+                  {pendingCode}
+                </div>
+                <p style={{ color: 'var(--text-primary)', fontSize: '1rem', maxWidth: '500px', margin: '0 auto' }}>
+                  Guarda este código muy bien para futuros devocionales y así no tendrás que volver a llenar tu perfil nunca más.
+                </p>
+              </div>
+            )}
+
+            {/* Content Section */}
+            <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
+                <Type size={20} style={{ color: 'var(--accent-color)' }} />
+                Cuerpo del Devocional
+              </h2>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div>
@@ -527,52 +624,34 @@ export default function SubmitDevocional() {
             </div>
           </div>
 
-          {/* Registration Checkbox (Only if not logged in) */}
-          {!isLocked && (
-            <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-                <input 
-                  type="checkbox" 
-                  checked={wantsToRegister} 
-                  onChange={(e) => setWantsToRegister(e.target.checked)}
-                  style={{ width: '18px', height: '18px', accentColor: 'var(--accent-color)' }}
-                />
-                <span style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  Guardar mis datos para futuros devocionales
-                </span>
-              </label>
-              
-              {wantsToRegister && (
-                <div style={{ marginTop: '0.5rem', paddingLeft: '2.25rem' }}>
-                  <label style={labelStyle}>Correo Electrónico</label>
-                  <input 
-                    type="email" 
-                    value={registerEmail}
-                    onChange={(e) => setRegisterEmail(e.target.value)}
-                    required={wantsToRegister}
-                    placeholder="tucorreo@ejemplo.com"
-                    style={{ ...inputStyle, maxWidth: '400px' }}
-                  />
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                    Solo usaremos tu correo para asociarlo a tu perfil. Al enviar, te daremos un código de acceso en la siguiente pantalla.
-                  </p>
-                </div>
-              )}
             </div>
-          )}
+          </div>
 
-          <button 
-            type="submit" 
-            disabled={isSubmitting}
-            className="btn btn-primary"
-            style={{ padding: '1rem 2rem', fontSize: '1.1rem', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
-          >
-            {isSubmitting ? 'Enviando...' : (
-              <>
-                <Send size={20} /> Enviar Devocional para Revisión
-              </>
-            )}
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+            <button 
+              type="button" 
+              onClick={() => {
+                setCurrentStep(1);
+                window.scrollTo(0, 0);
+              }}
+              className="btn"
+              style={{ padding: '1rem 2rem', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+            >
+              Volver a datos de autor
+            </button>
+            <button 
+              type="submit" 
+              disabled={isSubmitting}
+              className="btn btn-primary"
+              style={{ padding: '1rem 2rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+            >
+              {isSubmitting ? 'Enviando...' : (
+                <>
+                  <Send size={20} /> Enviar Devocional para Revisión
+                </>
+              )}
+            </button>
+          </div>
 
           <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1.5rem' }}>
             <Link to="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'color 0.2s' }}>
