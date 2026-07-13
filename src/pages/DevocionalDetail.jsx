@@ -38,7 +38,7 @@ export default function DevocionalDetail() {
       <div className="devocional-detail-layout">
         
         {/* Main Content (Left) */}
-        <div className="devocional-main">
+        <div className="devocional-main detail-main-column">
           <div style={{ marginBottom: '2rem' }}>
             <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#334155', margin: 0 }}>Devocional diario</h1>
             <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '0.5rem' }}>Un devocional diario para fortalecer tu relación con Dios.</p>
@@ -65,7 +65,7 @@ export default function DevocionalDetail() {
 
           <div 
             className="devocional-content-body" 
-            style={{ minHeight: '30vh', marginBottom: '3rem' }}
+            style={{ minHeight: '30vh', marginBottom: '3rem', maxWidth: '800px' }}
             dangerouslySetInnerHTML={{ __html: devocional.content }}
           />
 

@@ -70,9 +70,11 @@ export default function Devocionales() {
                     <span>{new Date(dev.created_at).toLocaleDateString()}</span>
                   </div>
                   <h2>{dev.title}</h2>
-                  <p className="excerpt">
-                    {typeof dev.content === 'string' ? dev.content.replace(/<[^>]+>/g, '').substring(0, 150) + '...' : ''}
-                  </p>
+                  <div style={{ marginTop: '1rem' }}>
+                    <span style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      Leer devocional <span style={{ fontSize: '1.2rem' }}>→</span>
+                    </span>
+                  </div>
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1.5rem', borderTop: '1px solid #f1f5f9', paddingTop: '1rem' }}>
                     {dev.author_photo ? (

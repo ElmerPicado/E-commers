@@ -52,9 +52,18 @@
   align-items: start;
 }
 
+.detail-main-column {
+  padding-right: 3rem;
+  border-right: 1px solid #e2e8f0;
+}
+
 @media (max-width: 900px) {
   .devocional-detail-layout {
     grid-template-columns: 1fr;
+  }
+  .detail-main-column {
+    padding-right: 0;
+    border-right: none;
   }
 }
 
@@ -217,8 +226,12 @@
 .devocional-content-body {
   font-size: 1.1rem;
   line-height: 1.8;
-  color: #334155;
+  color: #1e293b;
   white-space: pre-wrap;
+  background-color: #f0f9ff;
+  padding: 2rem 2.5rem;
+  border-radius: 1rem;
+  border: 1px solid #e0f2fe;
 }
 
 .devocional-content-body h1, 
