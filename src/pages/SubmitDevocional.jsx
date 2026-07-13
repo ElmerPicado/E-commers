@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { BookOpen, User, Type, Link as LinkIcon, Send, CheckCircle, Image as ImageIcon, Sun, Moon, Home } from 'lucide-react';
+import { BookOpen, User, Type, Link as LinkIcon, Send, CheckCircle, Image as ImageIcon, Sun, Moon, Home, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
@@ -252,10 +252,10 @@ export default function SubmitDevocional() {
   };
 
   return (
-    <div style={{ ...currentTheme, height: '100vh', overflow: 'hidden', ...bgStyle, padding: '2rem 1.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: 'all 0.3s ease' }}>
+    <div style={{ ...currentTheme, minHeight: '100vh', ...bgStyle, padding: '4rem 1.5rem 4rem 1.5rem', display: 'flex', justifyContent: 'center', transition: 'all 0.3s ease' }}>
 
 
-      <div style={{ maxWidth: '800px', width: '100%', maxHeight: '100%', overflowY: 'auto', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '1rem', padding: 'clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 8vw, 4rem)', boxShadow: isLightMode ? '0 10px 25px rgba(0,0,0,0.05)' : 'none', transition: 'all 0.3s ease' }}>
+      <div style={{ maxWidth: '800px', width: '100%', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '1rem', padding: 'clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 8vw, 4rem)', boxShadow: isLightMode ? '0 10px 25px rgba(0,0,0,0.05)' : 'none', transition: 'all 0.3s ease', position: 'relative' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           {livestream?.churchLogo ? (
             <img 
@@ -271,12 +271,47 @@ export default function SubmitDevocional() {
           </h4>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--text-primary)' }}>Escribe un Devocional</h1>
           <div style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: '650px', margin: '0 auto', lineHeight: '1.6', background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)' }}>
-            <p style={{ marginBottom: '0.75rem' }}>
+            <p style={{ marginBottom: '1.5rem' }}>
               <strong>¡Bienvenido!</strong> Este es un espacio abierto para bendecir a otros con la Palabra. Si Dios ha puesto un mensaje en tu corazón, nos encantaría compartirlo con nuestra comunidad.
             </p>
-            <p style={{ fontSize: '0.95rem' }}>
-              <strong>¿Cómo funciona?</strong> Al enviar tu devocional mediante este formulario, entrará a un estado de revisión. Nuestro equipo de administración lo leerá, lo asignará a la categoría correspondiente y, tras ser aprobado, será publicado oficialmente en la plataforma con tus créditos como autor.
-            </p>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem', marginTop: '1rem' }}>
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ display: 'inline-flex', width: '32px', height: '32px', borderRadius: '50%', background: 'var(--accent-color)', color: '#ffffff', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', marginBottom: '0.5rem', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>1</span>
+                <br/>
+                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Tus Datos</span>
+                <p style={{ fontSize: '0.8rem', marginTop: '0.25rem', opacity: 0.8 }}>Ingresa o carga tu perfil de autor.</p>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ display: 'inline-flex', width: '32px', height: '32px', borderRadius: '50%', background: 'var(--accent-color)', color: '#ffffff', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', marginBottom: '0.5rem', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>2</span>
+                <br/>
+                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>El Mensaje</span>
+                <p style={{ fontSize: '0.8rem', marginTop: '0.25rem', opacity: 0.8 }}>Escribe tu devocional y versículo.</p>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <span style={{ display: 'inline-flex', width: '32px', height: '32px', borderRadius: '50%', background: 'var(--accent-color)', color: '#ffffff', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold', marginBottom: '0.5rem', boxShadow: '0 4px 10px rgba(0,0,0,0.1)' }}>3</span>
+                <br/>
+                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>Revisión</span>
+                <p style={{ fontSize: '0.8rem', marginTop: '0.25rem', opacity: 0.8 }}>Lo leeremos y lo publicaremos.</p>
+              </div>
+            </div>
+
+            <style>{`
+              @keyframes bounce-slow {
+                0%, 100% { transform: translateY(-5%); }
+                50% { transform: translateY(5%); }
+              }
+              .animate-bounce-slow {
+                animation: bounce-slow 2s infinite ease-in-out;
+              }
+            `}</style>
+
+            <div style={{ marginTop: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', color: 'var(--accent-color)' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.25rem' }}>
+                Desliza hacia abajo
+              </span>
+              <ChevronDown className="animate-bounce-slow" size={24} />
+            </div>
           </div>
         </div>
 
