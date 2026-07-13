@@ -1,7 +1,8 @@
 import React, { useState, useContext } from 'react';
-import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, BookOpen } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, BookOpen, Upload } from 'lucide-react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { v4 as uuidv4 } from 'uuid';
+import { supabase } from '../../supabaseClient';
 
 export default function BlogAdmin({ triggerSuccess }) {
   const { blogPosts, addBlogPost, updateBlogPost, deleteBlogPost } = useContext(GalleryContext);
@@ -22,8 +23,11 @@ export default function BlogAdmin({ triggerSuccess }) {
   const [tName, setTName] = useState('');
   const [tRole, setTRole] = useState('');
   const [tPhoto, setTPhoto] = useState('');
+  const [tPhotoFile, setTPhotoFile] = useState(null);
   const [tContent, setTContent] = useState('');
   const [tMedia, setTMedia] = useState('');
+  const [tMediaFiles, setTMediaFiles] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
@@ -63,8 +67,10 @@ export default function BlogAdmin({ triggerSuccess }) {
     setTName('');
     setTRole('');
     setTPhoto('');
+    setTPhotoFile(null);
     setTContent('');
     setTMedia('');
+    setTMediaFiles([]);
   };
 
   const handleEdit = (post) => {
@@ -78,20 +84,57 @@ export default function BlogAdmin({ triggerSuccess }) {
     setEditId(post.id);
   };
 
-  const handleSaveTestimony = () => {
+  const handleSaveTestimony = async () => {
     if (!tName.trim() || !tContent.trim()) {
       alert("El nombre y el relato son obligatorios.");
       return;
     }
     
+    setIsUploading(true);
+    let finalPhotoUrl = tPhoto;
+
+    // Upload main photo
+    if (tPhotoFile) {
+      try {
+        const fileExt = tPhotoFile.name.split('.').pop();
+        const fileName = `history_${Date.now()}_${Math.floor(Math.random()*1000)}.${fileExt}`;
+        const filePath = `history/${fileName}`;
+        const { error } = await supabase.storage.from('photos').upload(filePath, tPhotoFile);
+        if (!error) {
+          const { data } = supabase.storage.from('photos').getPublicUrl(filePath);
+          finalPhotoUrl = data.publicUrl;
+        }
+      } catch (err) {
+        console.error("Error uploading photo", err);
+      }
+    }
+
     const mediaList = tMedia.split(',').map(s => s.trim()).filter(Boolean);
+
+    // Upload extra media
+    if (tMediaFiles && tMediaFiles.length > 0) {
+      for (const file of Array.from(tMediaFiles)) {
+        try {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `history_media_${Date.now()}_${Math.floor(Math.random()*1000)}.${fileExt}`;
+          const filePath = `history/${fileName}`;
+          const { error } = await supabase.storage.from('photos').upload(filePath, file);
+          if (!error) {
+            const { data } = supabase.storage.from('photos').getPublicUrl(filePath);
+            mediaList.push(data.publicUrl);
+          }
+        } catch (err) {
+          console.error("Error uploading media", err);
+        }
+      }
+    }
 
     if (editingTestimonyId) {
       setTestimonies(prev => prev.map(t => t.id === editingTestimonyId ? {
         id: editingTestimonyId,
         authorName: tName,
         authorRole: tRole,
-        authorPhoto: tPhoto,
+        authorPhoto: finalPhotoUrl,
         content: tContent,
         mediaUrls: mediaList
       } : t));
@@ -100,11 +143,12 @@ export default function BlogAdmin({ triggerSuccess }) {
         id: `t-${uuidv4()}`,
         authorName: tName,
         authorRole: tRole,
-        authorPhoto: tPhoto,
+        authorPhoto: finalPhotoUrl,
         content: tContent,
         mediaUrls: mediaList
       }]);
     }
+    setIsUploading(false);
     resetTestimonyForm();
   };
 
@@ -284,9 +328,37 @@ export default function BlogAdmin({ triggerSuccess }) {
                   </div>
                 </div>
 
-                <div>
-                  <label style={labelStyle}>URL de Foto de Perfil</label>
-                  <input type="text" value={tPhoto} onChange={e => setTPhoto(e.target.value)} style={inputStyle} placeholder="https://..." />
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>URL de Foto de Perfil (Opcional)</label>
+                    <input type="text" value={tPhoto} onChange={e => setTPhoto(e.target.value)} style={inputStyle} placeholder="https://..." disabled={tPhotoFile !== null} />
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem', marginBottom: '0.5rem' }}>O sube un archivo desde tu dispositivo:</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={e => setTPhotoFile(e.target.files[0])} 
+                        style={{ ...inputStyle, padding: '0.4rem' }} 
+                      />
+                      {tPhotoFile && <button type="button" onClick={() => setTPhotoFile(null)} className="btn btn-danger" style={{ padding: '0.4rem' }}><Trash2 size={16} /></button>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label style={labelStyle}>Media Adicional (Fotos/Videos extra)</label>
+                    <input type="text" value={tMedia} onChange={e => setTMedia(e.target.value)} style={inputStyle} placeholder="URLs de YouTube o fotos separadas por coma" />
+                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem', marginBottom: '0.5rem' }}>O selecciona múltiples fotos para subir:</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <input 
+                        type="file" 
+                        accept="image/*,video/*" 
+                        multiple 
+                        onChange={e => setTMediaFiles(e.target.files)} 
+                        style={{ ...inputStyle, padding: '0.4rem' }} 
+                      />
+                      {tMediaFiles.length > 0 && <button type="button" onClick={() => setTMediaFiles([])} className="btn btn-danger" style={{ padding: '0.4rem' }}><Trash2 size={16} /></button>}
+                    </div>
+                  </div>
                 </div>
 
                 <div>
@@ -294,13 +366,10 @@ export default function BlogAdmin({ triggerSuccess }) {
                   <textarea value={tContent} onChange={e => setTContent(e.target.value)} rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Cuenta la historia desde la perspectiva de esta persona..."></textarea>
                 </div>
 
-                <div>
-                  <label style={labelStyle}>Media Adicional (Fotos/Videos separados por coma)</label>
-                  <input type="text" value={tMedia} onChange={e => setTMedia(e.target.value)} style={inputStyle} placeholder="https://img1.jpg, https://youtu.be/..." />
-                </div>
-
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
-                  <button type="button" onClick={handleSaveTestimony} className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Guardar Personaje</button>
+                  <button type="button" onClick={handleSaveTestimony} disabled={isUploading} className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>
+                    {isUploading ? 'Subiendo archivos...' : 'Guardar Personaje'}
+                  </button>
                   <button type="button" onClick={resetTestimonyForm} className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>Cancelar</button>
                 </div>
               </div>

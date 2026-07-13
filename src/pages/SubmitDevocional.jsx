@@ -361,12 +361,30 @@ export default function SubmitDevocional() {
     background: 'var(--bg-primary)'
   };
 
+  const formCardStyle = {
+    background: 'var(--card-bg)',
+    border: '1px solid var(--border-color)',
+    borderRadius: '0.75rem',
+    padding: 'clamp(1.5rem, 4vw, 2.5rem)',
+    boxShadow: isLightMode ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+    marginBottom: '1.25rem',
+    position: 'relative',
+    overflow: 'hidden'
+  };
+
+  const headerCardStyle = {
+    ...formCardStyle,
+    borderTop: '10px solid var(--accent-color)'
+  };
+
   return (
-    <div style={{ ...currentTheme, minHeight: '100vh', ...bgStyle, padding: '4rem 1.5rem 4rem 1.5rem', display: 'flex', justifyContent: 'center', transition: 'all 0.3s ease' }}>
+    <div style={{ ...currentTheme, minHeight: '100vh', ...bgStyle, padding: '2rem 1rem 4rem 1rem', display: 'flex', justifyContent: 'center', transition: 'all 0.3s ease' }}>
 
-
-      <div style={{ maxWidth: '800px', width: '100%', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '1rem', padding: 'clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 8vw, 4rem)', boxShadow: isLightMode ? '0 10px 25px rgba(0,0,0,0.05)' : 'none', transition: 'all 0.3s ease', position: 'relative' }}>
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+      <div style={{ maxWidth: '768px', width: '100%', display: 'flex', flexDirection: 'column' }}>
+        
+        {/* Header Card */}
+        <div style={headerCardStyle}>
+          <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
           {livestream?.churchLogo ? (
             <img 
               src={livestream.churchLogo} 
@@ -423,46 +441,50 @@ export default function SubmitDevocional() {
               <ChevronDown className="animate-bounce-slow" size={24} />
             </div>
           </div>
+          </div>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column' }}>
           {currentStep === 1 && (
             <>
               {/* Login Section */}
         {!isLocked && hasCodeAnswer === null && (
-          <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '2rem 1.5rem', borderRadius: '1rem', border: '1px dashed var(--accent-color)', marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-              ¿Ya eres un escritor frecuente y tienes un código?
-            </h3>
-            <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', maxWidth: '500px' }}>
-              Si tienes un código de autor, selecciona <strong>"Sí, ya tengo mi código"</strong> para cargar tu perfil. Si solo deseas escribir esta vez o es tu primera vez, selecciona <strong>"Soy ocasional"</strong>.
-            </p>
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <button type="button" onClick={() => setHasCodeAnswer('yes')} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 600 }}>Sí, ya tengo mi código</button>
-              <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>Soy ocasional</button>
-              <button type="button" onClick={() => {
-                setHasCodeAnswer('anon');
-                setAuthorName('Anónimo');
-                setAuthorBio('Espero poder bendecirte con este mensaje poderoso.');
-                setAuthorEmail('');
-                setAuthorPhotoFile(null);
-                setAuthorPhotoPreview('');
-                setIsLocked(true);
-              }} className="btn" style={{ background: 'var(--bg-surface)', border: '1px dashed var(--text-secondary)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>Quiero ser Anónimo</button>
-            </div>
-            <div style={{ marginTop: '1.5rem' }}>
-              <button type="button" onClick={() => setHasCodeAnswer('forgot')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem' }}>
-                ¿Olvidaste tu código?
-              </button>
+          <div style={formCardStyle}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+                ¿Ya eres un escritor frecuente y tienes un código?
+              </h3>
+              <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', maxWidth: '500px' }}>
+                Si tienes un código de autor, selecciona <strong>"Sí, ya tengo mi código"</strong> para cargar tu perfil. Si solo deseas escribir esta vez o es tu primera vez, selecciona <strong>"Soy ocasional"</strong>.
+              </p>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <button type="button" onClick={() => setHasCodeAnswer('yes')} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 600 }}>Sí, ya tengo mi código</button>
+                <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>Soy ocasional</button>
+                <button type="button" onClick={() => {
+                  setHasCodeAnswer('anon');
+                  setAuthorName('Anónimo');
+                  setAuthorBio('Espero poder bendecirte con este mensaje poderoso.');
+                  setAuthorEmail('');
+                  setAuthorPhotoFile(null);
+                  setAuthorPhotoPreview('');
+                  setIsLocked(true);
+                }} className="btn" style={{ background: 'var(--bg-surface)', border: '1px dashed var(--text-secondary)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>Quiero ser Anónimo</button>
+              </div>
+              <div style={{ marginTop: '1.5rem' }}>
+                <button type="button" onClick={() => setHasCodeAnswer('forgot')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem' }}>
+                  ¿Olvidaste tu código?
+                </button>
+              </div>
             </div>
           </div>
         )}
 
         {!isLocked && hasCodeAnswer === 'yes' && (
-          <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px dashed var(--accent-color)', marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
-              Ingresa tu código de escritor frecuente
-            </h3>
+          <div style={formCardStyle}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>
+                Ingresa tu código de escritor frecuente
+              </h3>
             <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '1rem', textAlign: 'center' }}>
               Ingresa tu código para autocompletar tus datos.
             </p>
@@ -486,21 +508,25 @@ export default function SubmitDevocional() {
             </div>
             {loginError && <p style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: '0.5rem' }}>{loginError}</p>}
             <button type="button" onClick={() => setHasCodeAnswer(null)} style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline', marginTop: '1rem' }}>Volver atrás</button>
+            </div>
           </div>
         )}
 
         {!isLocked && hasCodeAnswer === 'no' && (
-          <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem 1.5rem', borderRadius: '1rem', border: '1px solid rgba(16, 185, 129, 0.3)', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ ...formCardStyle, borderLeft: '6px solid #10b981' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.95rem' }}>
               ¡Bienvenido! Por favor completa tus datos de autor a continuación para publicar tu devocional.
             </p>
             <button type="button" onClick={() => setHasCodeAnswer(null)} style={{ background: 'transparent', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline' }}>Volver atrás</button>
+            </div>
           </div>
         )}
 
         {!isLocked && hasCodeAnswer === 'forgot' && (
-          <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid rgba(245, 158, 11, 0.3)', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem' }}>Recuperar código de escritor</h3>
+          <div style={{ ...formCardStyle, borderLeft: '6px solid #f59e0b' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem' }}>Recuperar código de escritor</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Ingresa el correo electrónico con el que te registraste y buscaremos tu código.</p>
             <div style={{ display: 'flex', gap: '0.5rem', maxWidth: '400px' }}>
               <input type="email" value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)} placeholder="tucorreo@ejemplo.com" style={{ ...inputStyle, background: 'var(--input-bg)' }} />
@@ -514,13 +540,15 @@ export default function SubmitDevocional() {
                 <p style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '0.5rem', color: 'var(--text-primary)' }}>{recoveredCode}</p>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Guárdalo en un lugar seguro. Ahora puedes darle a "Volver atrás" y elegir "Sí, ya tengo mi código".</p>
               </div>
-            )}
-            <button type="button" onClick={() => { setHasCodeAnswer(null); setRecoveredCode(null); setRecoveryEmail(''); }} style={{ background: 'transparent', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline', alignSelf: 'flex-start' }}>Volver atrás</button>
+              )}
+              <button type="button" onClick={() => { setHasCodeAnswer(null); setRecoveredCode(null); setRecoveryEmail(''); }} style={{ background: 'transparent', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline', alignSelf: 'flex-start' }}>Volver atrás</button>
+            </div>
           </div>
         )}
 
         {isLocked && (
-          <div style={{ background: 'rgba(37, 99, 235, 0.1)', padding: '1rem 1.5rem', borderRadius: '1rem', border: '1px solid rgba(37, 99, 235, 0.3)', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ ...formCardStyle, borderLeft: '6px solid #2563eb' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.95rem' }}>Escribiendo como: {authorName}</p>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
@@ -545,12 +573,13 @@ export default function SubmitDevocional() {
               Cambiar de autor
             </button>
           </div>
+        </div>
         )}
 
         {/* Author Section */}
         {(isLocked || hasCodeAnswer === 'no') && (
           <>
-            <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
+            <div style={formCardStyle}>
               <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <User size={20} /> Datos del Autor
             </h3>
@@ -652,14 +681,16 @@ export default function SubmitDevocional() {
 
             </div>
 
-            <button 
-              type="button" 
-              onClick={handleContinueToStep2}
-              className="btn btn-primary"
-              style={{ padding: '1rem 2rem', fontSize: '1.1rem', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
-            >
-              Continuar a redactar devocional
-            </button>
+            <div style={{ ...formCardStyle, display: 'flex', justifyContent: 'center' }}>
+              <button 
+                type="button" 
+                onClick={handleContinueToStep2}
+                className="btn btn-primary"
+                style={{ padding: '1rem 2rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+              >
+                Continuar a redactar devocional
+              </button>
+            </div>
           </>
         )}
         </>
@@ -669,7 +700,7 @@ export default function SubmitDevocional() {
           <>
             
             {!isLocked && wantsToRegister && pendingCode && (
-              <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '1rem', padding: '2rem', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
+              <div style={{ ...formCardStyle, borderLeft: '6px solid #10b981', textAlign: 'center' }}>
                 <h3 style={{ color: '#10b981', fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.75rem' }}>
                   ¡Antes de continuar, guarda este código!
                 </h3>
@@ -683,7 +714,7 @@ export default function SubmitDevocional() {
             )}
 
             {/* Content Section */}
-            <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
+            <div style={formCardStyle}>
               <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-primary)' }}>
                 <Type size={20} style={{ color: 'var(--accent-color)' }} />
                 Cuerpo del Devocional
@@ -800,7 +831,7 @@ export default function SubmitDevocional() {
             </div>
           </div>
 
-          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
+          <div style={{ ...formCardStyle, display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
             <button 
               type="button" 
               onClick={() => {
@@ -808,9 +839,9 @@ export default function SubmitDevocional() {
                 window.scrollTo(0, 0);
               }}
               className="btn"
-              style={{ padding: '1rem 2rem', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
+              style={{ padding: '1rem 2rem', background: 'var(--bg-primary)', border: '1px solid var(--border-color)', color: 'var(--text-primary)' }}
             >
-              Volver a datos de autor
+              Volver atrás
             </button>
             <button 
               type="submit" 
@@ -820,7 +851,7 @@ export default function SubmitDevocional() {
             >
               {isSubmitting ? 'Enviando...' : (
                 <>
-                  <Send size={20} /> Enviar Devocional para Revisión
+                  <Send size={20} /> Enviar Devocional
                 </>
               )}
             </button>

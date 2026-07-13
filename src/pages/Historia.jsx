@@ -100,8 +100,10 @@ export default function Historia() {
                           {t.mediaUrls && t.mediaUrls.length > 0 && (
                             <div className="testimony-media-grid">
                               {t.mediaUrls.map((url, idx) => {
-                                const isVideo = url.includes('youtube.com') || url.includes('youtu.be');
-                                if (isVideo) {
+                                const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
+                                const isDirectVideo = url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
+                                
+                                if (isYoutube) {
                                   const videoUrl = url.includes('watch?v=') 
                                     ? url.replace('watch?v=', 'embed/').split('&')[0]
                                     : url.includes('youtu.be/') 
@@ -115,6 +117,15 @@ export default function Historia() {
                                       frameBorder="0" 
                                       allowFullScreen
                                     ></iframe>
+                                  );
+                                } else if (isDirectVideo) {
+                                  return (
+                                    <video 
+                                      key={idx} 
+                                      src={url} 
+                                      controls 
+                                      className="testimony-media-item video-item"
+                                    ></video>
                                   );
                                 }
                                 return <img key={idx} src={url} alt="Media adicional" className="testimony-media-item image-item" />;
