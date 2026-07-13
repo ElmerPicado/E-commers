@@ -227,7 +227,9 @@
   font-size: 1.1rem;
   line-height: 1.8;
   color: #1e293b;
-  white-space: pre-wrap;
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
   background-color: #f0f9ff;
   padding: 2rem 2.5rem;
   border-radius: 1rem;

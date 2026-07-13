@@ -66,7 +66,7 @@ export default function DevocionalDetail() {
           <div 
             className="devocional-content-body" 
             style={{ minHeight: '30vh', marginBottom: '3rem', maxWidth: '800px' }}
-            dangerouslySetInnerHTML={{ __html: devocional.content }}
+            dangerouslySetInnerHTML={{ __html: (devocional.content || '').replace(/&nbsp;/g, ' ') }}
           />
 
           {devocional.prayer && (
