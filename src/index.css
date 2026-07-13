@@ -316,7 +316,8 @@ a {
   }
   .scroll-item {
     width: 100%;
-    max-width: none;
+    max-width: 400px;
+    margin: 0 auto;
   }
 }
 
