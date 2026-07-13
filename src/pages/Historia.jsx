@@ -81,58 +81,68 @@ export default function Historia() {
                 {block.testimonies && block.testimonies.length > 0 && (
                   <div className="testimonies-list">
                     {block.testimonies.map((t) => (
-                      <div key={t.id} className="testimony-row">
-                        <div className="testimony-author">
+                      <div key={t.id} className="newspaper-article">
+                        {/* Newspaper Byline */}
+                        <div className="newspaper-byline-container">
+                          <h3 className="newspaper-headline">Relato Histórico</h3>
+                          <p className="newspaper-byline">
+                            ESCRITO POR: <strong>{t.authorName}</strong> — <span>{t.authorRole}</span>
+                          </p>
+                        </div>
+                        
+                        {/* Newspaper Body */}
+                        <div className="newspaper-body">
                           {t.authorPhoto ? (
-                            <img src={t.authorPhoto} alt={t.authorName} className="testimony-photo" />
+                            <img src={t.authorPhoto} alt={t.authorName} className="newspaper-drop-image" />
                           ) : (
-                            <div className="testimony-photo-placeholder">
+                            <div className="newspaper-drop-image placeholder-image">
                               <User size={48} />
                             </div>
                           )}
-                          <h4 className="testimony-name">{t.authorName}</h4>
-                          <span className="testimony-role">{t.authorRole}</span>
-                        </div>
-                        
-                        <div className="testimony-content">
-                          <p className="testimony-text">{t.content}</p>
                           
-                          {t.mediaUrls && t.mediaUrls.length > 0 && (
-                            <div className="testimony-media-grid">
-                              {t.mediaUrls.map((url, idx) => {
-                                const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
-                                const isDirectVideo = url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
-                                
-                                if (isYoutube) {
-                                  const videoUrl = url.includes('watch?v=') 
-                                    ? url.replace('watch?v=', 'embed/').split('&')[0]
-                                    : url.includes('youtu.be/') 
-                                      ? url.replace('youtu.be/', 'youtube.com/embed/').split('?')[0]
-                                      : url;
-                                  return (
-                                    <iframe 
-                                      key={idx} 
-                                      src={videoUrl} 
-                                      className="testimony-media-item video-item" 
-                                      frameBorder="0" 
-                                      allowFullScreen
-                                    ></iframe>
-                                  );
-                                } else if (isDirectVideo) {
-                                  return (
-                                    <video 
-                                      key={idx} 
-                                      src={url} 
-                                      controls 
-                                      className="testimony-media-item video-item"
-                                    ></video>
-                                  );
-                                }
-                                return <img key={idx} src={url} alt="Media adicional" className="testimony-media-item image-item" />;
-                              })}
-                            </div>
-                          )}
+                          <div className="newspaper-text-container">
+                            <p className="newspaper-text">{t.content}</p>
+                          </div>
+                          
+                          <div style={{ clear: 'both' }}></div>
                         </div>
+
+                        {/* Additional Media */}
+                        {t.mediaUrls && t.mediaUrls.length > 0 && (
+                          <div className="newspaper-media-grid">
+                            {t.mediaUrls.map((url, idx) => {
+                              const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
+                              const isDirectVideo = url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
+                              
+                              if (isYoutube) {
+                                const videoUrl = url.includes('watch?v=') 
+                                  ? url.replace('watch?v=', 'embed/').split('&')[0]
+                                  : url.includes('youtu.be/') 
+                                    ? url.replace('youtu.be/', 'youtube.com/embed/').split('?')[0]
+                                    : url;
+                                return (
+                                  <iframe 
+                                    key={idx} 
+                                    src={videoUrl} 
+                                    className="newspaper-media-item video-item" 
+                                    frameBorder="0" 
+                                    allowFullScreen
+                                  ></iframe>
+                                );
+                              } else if (isDirectVideo) {
+                                return (
+                                  <video 
+                                    key={idx} 
+                                    src={url} 
+                                    controls 
+                                    className="newspaper-media-item video-item"
+                                  ></video>
+                                );
+                              }
+                              return <img key={idx} src={url} alt="Media adicional" className="newspaper-media-item image-item" />;
+                            })}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

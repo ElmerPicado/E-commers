@@ -141,103 +141,130 @@
   line-height: 1.6;
 }
 
-/* Testimonies inside era */
+/* Newspaper Testimonies inside era */
 .testimonies-list {
   display: flex;
   flex-direction: column;
-  gap: 4rem;
+  gap: 5rem;
 }
 
-.testimony-row {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  align-items: flex-start;
-  padding-bottom: 3rem;
-  border-bottom: 1px dashed var(--border-color);
+.newspaper-article {
+  padding-bottom: 4rem;
+  border-bottom: 2px solid var(--border-color);
+  position: relative;
 }
 
-.testimony-row:last-child {
+.newspaper-article:last-child {
   border-bottom: none;
   padding-bottom: 0;
 }
 
-.testimony-author {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+.newspaper-byline-container {
+  margin-bottom: 2rem;
   text-align: center;
-  width: 100%;
 }
 
-.testimony-photo {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+.newspaper-headline {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem 0;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.newspaper-byline {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 0;
+}
+
+.newspaper-byline strong {
+  color: var(--text-primary);
+  font-weight: 800;
+}
+
+.newspaper-byline span {
+  color: var(--accent-color);
+  font-weight: 600;
+}
+
+.newspaper-body {
+  margin-bottom: 2rem;
+}
+
+.newspaper-drop-image {
+  float: left;
+  width: 180px;
+  height: 220px;
   object-fit: cover;
-  border: 4px solid var(--accent-color);
+  margin-right: 1.5rem;
   margin-bottom: 1rem;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  border: 1px solid var(--border-color);
 }
 
-.testimony-photo-placeholder {
-  width: 150px;
-  height: 150px;
-  border-radius: 50%;
+.placeholder-image {
   background: var(--bg-secondary);
-  border: 4px dashed var(--border-color);
+  border: 1px dashed var(--border-color);
   color: var(--text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 1rem;
 }
 
-.testimony-name {
-  font-size: 1.25rem;
-  font-weight: 800;
+.newspaper-text-container {
+  /* Using columns for wide screens */
+  column-count: 1;
+  column-gap: 2rem;
+}
+
+.newspaper-text {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 1.15rem;
+  line-height: 1.9;
   color: var(--text-primary);
-  margin: 0 0 0.25rem 0;
+  text-align: justify;
+  margin: 0;
+  white-space: pre-wrap;
 }
 
-.testimony-role {
-  font-size: 0.9rem;
+.newspaper-text::first-letter {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-size: 4.5em;
+  font-weight: 900;
+  float: left;
+  line-height: 0.8;
+  padding-right: 0.15em;
+  padding-top: 0.1em;
   color: var(--accent-color);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
-.testimony-content {
-  width: 100%;
-}
-
-.testimony-text {
-  font-size: 1.1rem;
-  line-height: 1.8;
-  color: var(--text-secondary);
-  margin: 0 0 2rem 0;
-  white-space: pre-line;
-  font-style: italic;
-  position: relative;
-  padding-left: 1.5rem;
-  border-left: 4px solid var(--accent-color);
-}
-
-.testimony-media-grid {
+.newspaper-media-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  border-top: 1px solid var(--border-color);
+  padding-top: 2rem;
 }
 
-.testimony-media-item {
+.newspaper-media-item {
   width: 100%;
-  border-radius: 0.75rem;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border: 1px solid var(--border-color);
 }
 
 .image-item {
-  height: 150px;
+  height: 200px;
   object-fit: cover;
 }
 
@@ -248,18 +275,8 @@
 
 /* Desktop layout */
 @media (min-width: 768px) {
-  .testimony-row {
-    flex-direction: row;
-    gap: 3rem;
-  }
-
-  .testimony-author {
-    width: 250px;
-    flex-shrink: 0;
-  }
-
-  .testimony-content {
-    flex-grow: 1;
+  .newspaper-text-container {
+    column-count: 2;
   }
 }
 
