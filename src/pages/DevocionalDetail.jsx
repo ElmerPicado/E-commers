@@ -102,23 +102,16 @@ export default function DevocionalDetail() {
         {/* Left Sidebar (Categories + Other Devotionals) */}
         <aside className="devocional-left-sidebar" style={{ position: 'sticky', top: '100px' }}>
           
-          <div className="categories-sidebar" style={{ position: 'static', marginBottom: '2.5rem' }}>
+          <div className="categories-sidebar" style={{ position: 'static', marginBottom: '1.5rem' }}>
             <h3 
               onClick={() => setIsCategoriesExpanded(!isCategoriesExpanded)}
-              style={{ 
-                fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', 
-                textTransform: 'uppercase', letterSpacing: '0.05em', 
-                borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', 
-                marginBottom: '1.5rem', marginTop: 0,
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                cursor: 'pointer', userSelect: 'none'
-              }}
+              className="sidebar-accordion-header"
             >
               Categorías
               {isCategoriesExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </h3>
             {isCategoriesExpanded && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div className="sidebar-accordion-content">
                 <div 
                   className="category-item"
                   onClick={() => navigate('/devocionales')}
@@ -140,20 +133,13 @@ export default function DevocionalDetail() {
 
           <h3 
             onClick={() => setIsRecentExpanded(!isRecentExpanded)}
-            style={{ 
-              fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', 
-              textTransform: 'uppercase', letterSpacing: '0.05em', 
-              borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', 
-              marginBottom: '1.5rem',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              cursor: 'pointer', userSelect: 'none'
-            }}
+            className="sidebar-accordion-header authors-header"
           >
             Últimos Devocionales
             {isRecentExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </h3>
           {isRecentExpanded && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div className="sidebar-accordion-content" style={{ gap: '1.25rem' }}>
               {recentDevotionals.length > 0 ? (
                 recentDevotionals.map(dev => (
                   <div key={dev.id} onClick={() => navigate(`/devocionales/${dev.slug || dev.id}`)} style={{ cursor: 'pointer', transition: 'transform 0.2s' }} className="recent-dev-card">

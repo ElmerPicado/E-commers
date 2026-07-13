@@ -144,20 +144,13 @@ export default function Devocionales() {
 
           <h3 
             onClick={() => setIsCategoriesExpanded(!isCategoriesExpanded)}
-            style={{ 
-              fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', 
-              textTransform: 'uppercase', letterSpacing: '0.05em', 
-              borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', 
-              marginBottom: '1.5rem', marginTop: 0,
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              cursor: 'pointer', userSelect: 'none'
-            }}
+            className="sidebar-accordion-header"
           >
             Categorías
             {isCategoriesExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </h3>
           {isCategoriesExpanded && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="sidebar-accordion-content">
               <div 
                 className={`category-item ${activeCategoryId === 'all' ? 'active' : ''}`}
                 onClick={() => setActiveCategoryId('all')}
@@ -178,20 +171,13 @@ export default function Devocionales() {
 
           <h3 
             onClick={() => setIsAuthorsExpanded(!isAuthorsExpanded)}
-            style={{ 
-              fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', 
-              textTransform: 'uppercase', letterSpacing: '0.05em', 
-              borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', 
-              marginBottom: '1.5rem', marginTop: '2.5rem',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-              cursor: 'pointer', userSelect: 'none'
-            }}
+            className="sidebar-accordion-header authors-header"
           >
             Autores
             {isAuthorsExpanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
           </h3>
           {isAuthorsExpanded && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div className="sidebar-accordion-content">
               <div 
                 className={`category-item ${activeAuthorName === 'all' ? 'active' : ''}`}
                 onClick={() => setActiveAuthorName('all')}
