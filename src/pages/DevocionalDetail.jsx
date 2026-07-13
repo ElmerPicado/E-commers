@@ -189,7 +189,7 @@ export default function DevocionalDetail() {
               <MessageCircle size={22} style={{ color: 'var(--accent-color)' }} /> Comentarios ({devocionalCommentsList.length})
             </h3>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '3rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '3rem', maxHeight: '350px', overflowY: 'auto', paddingRight: '0.5rem' }}>
               {devocionalCommentsList.length === 0 ? (
                 <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>No hay comentarios aún. ¡Sé el primero en comentar!</p>
               ) : (
@@ -243,9 +243,9 @@ export default function DevocionalDetail() {
           </h3>
           <div className="author-sidebar-box" style={{ padding: '1.5rem', background: 'var(--card-bg)', borderRadius: '1rem', border: '1px solid var(--border-color)', textAlign: 'center' }}>
             {devocional.author_photo ? (
-              <img src={devocional.author_photo} alt={devocional.author_name} className="author-photo" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 1rem auto' }} />
+              <img src={devocional.author_photo} alt={devocional.author_name} className="author-photo" style={{ width: '120px', height: '160px', borderRadius: '0.75rem', objectFit: 'cover', margin: '0 auto 1rem auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
             ) : (
-              <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', margin: '0 auto 1rem auto' }}>
+              <div style={{ width: '120px', height: '160px', borderRadius: '0.75rem', background: 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', margin: '0 auto 1rem auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
                 <BookOpen size={48} />
               </div>
             )}

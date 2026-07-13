@@ -1,13 +1,13 @@
 import React, { useState, useContext } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { BookOpen, User, Type, Link as LinkIcon, Send, CheckCircle, Image as ImageIcon, Sun, Moon } from 'lucide-react';
+import { BookOpen, User, Type, Link as LinkIcon, Send, CheckCircle, Image as ImageIcon, Sun, Moon, Home } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 
 export default function SubmitDevocional() {
-  const { addDevotional, devotionalCategories } = useContext(GalleryContext);
+  const { addDevotional, devotionalCategories, livestream } = useContext(GalleryContext);
 
   const [authorName, setAuthorName] = useState('');
   const [authorBio, setAuthorBio] = useState('');
@@ -272,7 +272,18 @@ export default function SubmitDevocional() {
 
       <div style={{ maxWidth: '800px', width: '100%', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '1rem', padding: '3rem 4rem', boxShadow: isLightMode ? '0 10px 25px rgba(0,0,0,0.05)' : 'none', transition: 'all 0.3s ease' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-          <BookOpen size={48} style={{ color: 'var(--accent-color)', margin: '0 auto 1rem auto' }} />
+          {livestream?.churchLogo ? (
+            <img 
+              src={livestream.churchLogo} 
+              alt={livestream.churchName || 'Iglesia Metodista de Río Cuarto'} 
+              style={{ width: '70px', height: '70px', objectFit: 'contain', margin: '0 auto 1rem auto' }} 
+            />
+          ) : (
+            <BookOpen size={48} style={{ color: 'var(--accent-color)', margin: '0 auto 1rem auto' }} />
+          )}
+          <h4 style={{ fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--accent-color)', margin: '0 0 0.5rem 0', fontWeight: 700 }}>
+            {livestream?.churchName || 'Iglesia Metodista de Río Cuarto'}
+          </h4>
           <h1 style={{ fontSize: '2.5rem', fontWeight: 800, marginBottom: '1rem', color: 'var(--text-primary)' }}>Escribe un Devocional</h1>
           <div style={{ color: 'var(--text-secondary)', fontSize: '1.05rem', maxWidth: '650px', margin: '0 auto', lineHeight: '1.6', background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)' }}>
             <p style={{ marginBottom: '0.75rem' }}>
@@ -542,6 +553,15 @@ export default function SubmitDevocional() {
               </>
             )}
           </button>
+
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1.5rem' }}>
+            <Link to="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'color 0.2s' }}>
+              <Home size={16} /> Ir al Inicio
+            </Link>
+            <Link to="/devocionales" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'color 0.2s' }}>
+              <BookOpen size={16} /> Leer Devocionales
+            </Link>
+          </div>
         </form>
       </div>
     </div>
