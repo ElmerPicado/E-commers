@@ -245,20 +245,27 @@
 }
 
 .devocional-content-body {
-  font-family: 'Lora', 'Georgia', 'Times New Roman', serif;
+  font-family: 'Lora', 'Georgia', serif;
   font-size: 1.15rem;
-  line-height: 1.85;
-  color: #1e293b;
-  white-space: normal;
-  overflow-wrap: break-word;
-  word-wrap: break-word;
-  background-color: #f0f9ff;
-  padding: 2.5rem 3rem;
-  border-radius: 1rem;
-  border: 1px solid #e0f2fe;
+  line-height: 1.8;
+  color: #334155;
 }
 
-.devocional-content-body h1, 
+.devocional-content-body p {
+  margin-bottom: 1.75rem;
+}
+
+.devocional-verse-box {
+  background-color: #f6f4f0;
+  border-radius: 0.5rem;
+  padding: 1.75rem 2rem;
+  margin-bottom: 3rem;
+  color: #1e293b;
+  font-size: 1.15rem;
+  line-height: 1.7;
+  font-family: 'Lora', 'Georgia', serif;
+}
+
 .devocional-content-body ul,
 .devocional-content-body ol {
   margin-left: 1.5rem;

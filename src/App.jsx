@@ -11,7 +11,6 @@ function ScrollToTop() {
 import { GalleryProvider, GalleryContext } from './context/GalleryContext';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import MobileBottomNav from './components/MobileBottomNav';
 
 // Pages
 import Home from './pages/Home';
@@ -55,7 +54,6 @@ const LayoutWrapper = () => {
         </Routes>
       </main>
       {!isDevocionalWritePage && <Footer />}
-      {!isDevocionalWritePage && <MobileBottomNav />}
     </div>
   );
 };

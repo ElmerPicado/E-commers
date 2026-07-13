@@ -555,3 +555,8 @@ CREATE POLICY "Escritura pública devotional_authors" ON devotional_authors FOR 
 -- ==========================================================
 ALTER TABLE devotionals ADD COLUMN IF NOT EXISTS verse TEXT;
 ALTER TABLE devotionals ADD COLUMN IF NOT EXISTS prayer TEXT;
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V10: Slugs Amigables para SEO)
+-- ==========================================================
+ALTER TABLE devotionals ADD COLUMN IF NOT EXISTS slug TEXT UNIQUE;

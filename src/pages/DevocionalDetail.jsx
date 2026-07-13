@@ -14,7 +14,7 @@ export default function DevocionalDetail() {
   }, [id]);
 
   const devocional = useMemo(() => {
-    return (devotionals || []).find(d => d.id === id && d.status === 'published');
+    return (devotionals || []).find(d => (d.id === id || d.slug === id) && d.status === 'published');
   }, [devotionals, id]);
 
   const getCategoryName = (catId) => {
@@ -25,9 +25,9 @@ export default function DevocionalDetail() {
 
   const recentDevotionals = useMemo(() => {
     return (devotionals || [])
-      .filter(d => d.status === 'published' && d.id !== id)
+      .filter(d => d.status === 'published' && d.id !== devocional?.id)
       .slice(0, 5); // Tomamos 5 devocionales extra
-  }, [devotionals, id]);
+  }, [devotionals, devocional]);
 
   if (!devocional) {
     return (
@@ -73,7 +73,7 @@ export default function DevocionalDetail() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {recentDevotionals.length > 0 ? (
               recentDevotionals.map(dev => (
-                <div key={dev.id} onClick={() => navigate(`/devocionales/${dev.id}`)} style={{ cursor: 'pointer', transition: 'transform 0.2s' }} className="recent-dev-card">
+                <div key={dev.id} onClick={() => navigate(`/devocionales/${dev.slug || dev.id}`)} style={{ cursor: 'pointer', transition: 'transform 0.2s' }} className="recent-dev-card">
                   <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#334155', margin: '0 0 0.25rem 0', lineHeight: 1.4 }}>
                     {dev.title}
                   </h4>
@@ -109,7 +109,7 @@ export default function DevocionalDetail() {
           </h1>
 
           {devocional.verse && (
-            <div style={{ background: '#f8fafc', padding: '1.5rem 2rem', borderRadius: '0.5rem', marginBottom: '2.5rem', color: '#334155', fontSize: '1.1rem', lineHeight: 1.6 }}>
+            <div className="devocional-verse-box">
               {devocional.verse.split('\n').map((line, i) => <p key={i} style={{ margin: i === 0 ? 0 : '0.5rem 0 0 0' }}>{line}</p>)}
             </div>
           )}

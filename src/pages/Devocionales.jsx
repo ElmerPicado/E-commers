@@ -63,18 +63,23 @@ export default function Devocionales() {
           ) : (
             <>
               {filteredDevotionals.map(dev => (
-                <article key={dev.id} className="devocional-card" onClick={() => navigate(`/devocionales/${dev.id}`)}>
+                <article key={dev.id} className="devocional-card">
                   <div className="meta">
                     <span style={{ color: '#2563eb', fontWeight: 600 }}>{getCategoryName(dev.category_id)}</span>
                     <span>•</span>
                     <span>{new Date(dev.created_at).toLocaleDateString()}</span>
                   </div>
-                  <h2>{dev.title}</h2>
-                  <div style={{ marginTop: '1rem' }}>
-                    <span style={{ color: '#2563eb', fontWeight: 600, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                      Leer devocional <span style={{ fontSize: '1.2rem' }}>→</span>
-                    </span>
-                  </div>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 800, marginBottom: '0.75rem', lineHeight: 1.3 }}>
+                    <Link to={`/devocionales/${dev.slug || dev.id}`} style={{ color: '#0f172a', textDecoration: 'none' }} onMouseOver={(e) => e.target.style.color = '#2563eb'} onMouseOut={(e) => e.target.style.color = '#0f172a'}>
+                      {dev.title}
+                    </Link>
+                  </h2>
+                  <Link to={`/devocionales/${dev.slug || dev.id}`} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '0.5rem', marginTop: '1.5rem',
+                    color: '#2563eb', fontWeight: 600, fontSize: '0.95rem', textDecoration: 'none'
+                  }} onMouseOver={(e) => e.target.style.textDecoration = 'underline'} onMouseOut={(e) => e.target.style.textDecoration = 'none'}>
+                    Leer devocional &rarr;
+                  </Link>
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1.5rem', borderTop: '1px solid #f1f5f9', paddingTop: '1rem' }}>
                     {dev.author_photo ? (

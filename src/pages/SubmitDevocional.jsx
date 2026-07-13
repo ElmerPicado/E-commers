@@ -113,9 +113,12 @@ export default function SubmitDevocional() {
         savedCode = '';
       }
     }
+    const baseSlug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+    const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 8)}`;
 
     const newDevotional = {
       title,
+      slug: uniqueSlug,
       verse: verse,
       content: content,
       prayer: prayer,
