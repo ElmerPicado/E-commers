@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
-import { BookOpen, CheckCircle, Clock, XCircle, Edit, Trash2, Plus, Save } from 'lucide-react';
+import { BookOpen, CheckCircle, Clock, XCircle, Edit, Trash2, Plus, Save, Users, Copy } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
+import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 
 export default function DevocionalesAdmin({ triggerSuccess }) {
   const { 
@@ -16,6 +17,25 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
   } = useContext(GalleryContext);
 
   const [newCatName, setNewCatName] = useState('');
+  
+  // Autores
+  const [authors, setAuthors] = useState([]);
+  const [isLoadingAuthors, setIsLoadingAuthors] = useState(false);
+
+  React.useEffect(() => {
+    if (isSupabaseConfigured) {
+      fetchAuthors();
+    }
+  }, []);
+
+  const fetchAuthors = async () => {
+    setIsLoadingAuthors(true);
+    const { data, error } = await supabase.from('devotional_authors').select('*').order('created_at', { ascending: false });
+    if (!error && data) {
+      setAuthors(data);
+    }
+    setIsLoadingAuthors(false);
+  };
   
   const [editingDevId, setEditingDevId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
@@ -323,6 +343,71 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
           </div>
         )}
       </div>
+      {/* SECCIÓN AUTORES (CÓDIGOS) */}
+      <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginTop: '1rem' }}>
+        <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', margin: 0 }}>
+          <Users size={20} style={{ color: 'var(--accent-color)' }} /> 
+          Códigos de Autores Registrados
+        </h2>
+        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>
+          Aquí puedes ver los códigos de acceso de todos los autores que se han registrado para enviar devocionales. Si algún autor olvida su código, puedes copiarlo desde aquí y enviárselo.
+        </p>
+
+        {isLoadingAuthors ? (
+          <p style={{ color: 'var(--text-muted)' }}>Cargando autores...</p>
+        ) : authors.length === 0 ? (
+          <p style={{ color: 'var(--text-muted)' }}>No hay autores registrados aún.</p>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid var(--border-color)', textAlign: 'left' }}>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Autor</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Email</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Código de Acceso</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Fecha Registro</th>
+                </tr>
+              </thead>
+              <tbody>
+                {authors.map(author => (
+                  <tr key={author.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                    <td style={{ padding: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      {author.photo_url ? (
+                        <img src={author.photo_url} alt="author" style={{ width: '24px', height: '24px', borderRadius: '50%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+                          <BookOpen size={14} />
+                        </div>
+                      )}
+                      <strong>{author.name}</strong>
+                    </td>
+                    <td style={{ padding: '0.75rem' }}>{author.email || 'N/A'}</td>
+                    <td style={{ padding: '0.75rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <code style={{ background: 'rgba(37,99,235,0.1)', color: '#2563eb', padding: '0.2rem 0.5rem', borderRadius: '0.25rem', fontWeight: 'bold' }}>
+                          {author.code}
+                        </code>
+                        <button 
+                          onClick={() => {
+                            navigator.clipboard.writeText(author.code);
+                            triggerSuccess('Código copiado al portapapeles');
+                          }}
+                          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-muted)' }}
+                          title="Copiar código"
+                        >
+                          <Copy size={16} />
+                        </button>
+                      </div>
+                    </td>
+                    <td style={{ padding: '0.75rem' }}>{new Date(author.created_at).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
     </div>
   );
 }

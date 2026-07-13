@@ -23,6 +23,12 @@ export default function DevocionalDetail() {
     return cat ? cat.name : 'Sin categoría';
   };
 
+  const recentDevotionals = useMemo(() => {
+    return (devotionals || [])
+      .filter(d => d.status === 'published' && d.id !== id)
+      .slice(0, 5); // Tomamos 5 devocionales extra
+  }, [devotionals, id]);
+
   if (!devocional) {
     return (
       <div className="devocionales-page" style={{ paddingTop: '120px', textAlign: 'center', minHeight: '60vh' }}>
@@ -37,8 +43,31 @@ export default function DevocionalDetail() {
     <div className="devocionales-page" style={{ paddingTop: '100px' }}>
       <div className="devocional-detail-layout">
         
-        {/* Main Content (Left) */}
-        <div className="devocional-main detail-main-column">
+        {/* Left Sidebar (Other Devotionals) */}
+        <aside className="devocional-left-sidebar" style={{ position: 'sticky', top: '100px' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
+            Últimos Devocionales
+          </h3>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {recentDevotionals.length > 0 ? (
+              recentDevotionals.map(dev => (
+                <div key={dev.id} onClick={() => navigate(`/devocionales/${dev.id}`)} style={{ cursor: 'pointer', transition: 'transform 0.2s' }} className="recent-dev-card">
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#334155', margin: '0 0 0.25rem 0', lineHeight: 1.4 }}>
+                    {dev.title}
+                  </h4>
+                  <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+                    Por {dev.author_name}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>No hay otros devocionales publicados aún.</p>
+            )}
+          </div>
+        </aside>
+
+        {/* Main Content (Middle) */}
+        <div className="devocional-main detail-main-column" style={{ background: '#f8fafc', padding: '2.5rem', borderRadius: '1rem' }}>
           <div style={{ marginBottom: '2rem' }}>
             <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#334155', margin: 0 }}>Devocional diario</h1>
             <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '0.5rem' }}>Un devocional diario para fortalecer tu relación con Dios.</p>
@@ -82,37 +111,38 @@ export default function DevocionalDetail() {
 
           {/* PAUTA / CTA de IMR4 */}
           <div style={{
-            marginTop: '4rem',
-            padding: '2rem',
-            background: 'linear-gradient(135deg, rgba(37,99,235,0.05) 0%, rgba(37,99,235,0.1) 100%)',
-            borderRadius: '1rem',
-            border: '1px solid rgba(37,99,235,0.2)',
+            marginTop: '3rem',
+            padding: '1.25rem 1.5rem',
+            background: '#ffffff',
+            borderLeft: '4px solid #3b82f6',
+            borderRadius: '0 0.5rem 0.5rem 0',
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            textAlign: 'center',
-            gap: '1rem'
+            alignItems: 'flex-start',
+            textAlign: 'left',
+            gap: '0.75rem',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
           }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#1e3a8a', margin: 0 }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e3a8a', margin: 0 }}>
               Iglesia Ministerio Restauración 4
             </h3>
-            <p style={{ color: '#334155', maxWidth: '500px', margin: 0, lineHeight: 1.6 }}>
+            <p style={{ color: '#475569', maxWidth: '100%', margin: 0, lineHeight: 1.5, fontSize: '0.9rem' }}>
               Este devocional ha sido compartido a través de nuestra plataforma. Te invitamos a conocer más de nuestra iglesia y descubrir más recursos espirituales.
             </p>
-            <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
               <Link to="/" style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                background: '#2563eb', color: 'white', padding: '0.75rem 1.5rem',
+                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                background: '#2563eb', color: 'white', padding: '0.5rem 1rem', fontSize: '0.85rem',
                 borderRadius: '0.5rem', fontWeight: 600, textDecoration: 'none', transition: 'background 0.2s'
               }} onMouseOver={(e) => e.currentTarget.style.background = '#1d4ed8'} onMouseOut={(e) => e.currentTarget.style.background = '#2563eb'}>
-                <Home size={18} /> Visitar Sitio Web
+                <Home size={14} /> Visitar Sitio
               </Link>
               <Link to="/devocionales" style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
-                background: 'white', color: '#2563eb', padding: '0.75rem 1.5rem', border: '1px solid #bfdbfe',
+                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
+                background: 'white', color: '#2563eb', padding: '0.5rem 1rem', border: '1px solid #bfdbfe', fontSize: '0.85rem',
                 borderRadius: '0.5rem', fontWeight: 600, textDecoration: 'none', transition: 'background 0.2s'
               }} onMouseOver={(e) => e.currentTarget.style.background = '#f8fafc'} onMouseOut={(e) => e.currentTarget.style.background = 'white'}>
-                <BookOpen size={18} /> Ver más Devocionales
+                <BookOpen size={14} /> Más Devocionales
               </Link>
             </div>
           </div>
@@ -123,12 +153,12 @@ export default function DevocionalDetail() {
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
             Sobre el Autor
           </h3>
-          <div className="author-sidebar-box" style={{ padding: 0, border: 'none', background: 'transparent' }}>
+          <div className="author-sidebar-box" style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '1rem', border: '1px solid #e2e8f0', textAlign: 'center' }}>
             {devocional.author_photo ? (
               <img src={devocional.author_photo} alt={devocional.author_name} className="author-photo" />
             ) : (
               <div className="author-photo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e2e8f0', color: '#94a3b8' }}>
-                <User size={48} />
+                <BookOpen size={48} />
               </div>
             )}
             <div className="author-info">
