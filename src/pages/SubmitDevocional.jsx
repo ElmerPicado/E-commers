@@ -21,7 +21,7 @@ export default function SubmitDevocional() {
   
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isLightMode, setIsLightMode] = useState(true);
+  const isLightMode = false; // Forzamos modo oscuro general
 
   // Author Codes State
   const [enteredCode, setEnteredCode] = useState('');
@@ -147,8 +147,8 @@ export default function SubmitDevocional() {
     padding: '0.75rem 1rem',
     borderRadius: '0.5rem',
     border: '1px solid var(--border-color)',
-    background: 'rgba(255, 255, 255, 0.05)',
-    color: 'var(--text-primary)',
+    background: '#ffffff',
+    color: '#000000',
     fontSize: '0.95rem',
     width: '100%',
     boxSizing: 'border-box'
@@ -242,35 +242,20 @@ export default function SubmitDevocional() {
     );
   }
 
-  return (
-    <div style={{ ...currentTheme, minHeight: '100vh', background: 'var(--bg-primary)', padding: '4rem 1.5rem 4rem 1.5rem', display: 'flex', justifyContent: 'center', transition: 'all 0.3s ease' }}>
-      
-      {/* Theme Toggle Button */}
-      <button 
-        onClick={() => setIsLightMode(!isLightMode)}
-        style={{
-          position: 'fixed',
-          top: '1.5rem',
-          right: '1.5rem',
-          background: 'var(--card-bg)',
-          border: '1px solid var(--border-color)',
-          color: 'var(--text-primary)',
-          width: '44px',
-          height: '44px',
-          borderRadius: '50%',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          cursor: 'pointer',
-          zIndex: 100,
-          boxShadow: isLightMode ? '0 4px 6px rgba(0,0,0,0.05)' : '0 4px 6px rgba(0,0,0,0.2)'
-        }}
-        title={isLightMode ? "Cambiar a modo oscuro" : "Cambiar a modo claro"}
-      >
-        {isLightMode ? <Moon size={20} /> : <Sun size={20} />}
-      </button>
+  const bgStyle = livestream?.formBgUrl ? {
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.85)), url(${livestream.formBgUrl})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundAttachment: 'fixed'
+  } : {
+    background: 'var(--bg-primary)'
+  };
 
-      <div style={{ maxWidth: '800px', width: '100%', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '1rem', padding: '3rem 4rem', boxShadow: isLightMode ? '0 10px 25px rgba(0,0,0,0.05)' : 'none', transition: 'all 0.3s ease' }}>
+  return (
+    <div style={{ ...currentTheme, minHeight: '100vh', ...bgStyle, padding: '4rem 1.5rem 4rem 1.5rem', display: 'flex', justifyContent: 'center', transition: 'all 0.3s ease' }}>
+
+
+      <div style={{ maxWidth: '800px', width: '100%', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '1rem', padding: 'clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 8vw, 4rem)', boxShadow: isLightMode ? '0 10px 25px rgba(0,0,0,0.05)' : 'none', transition: 'all 0.3s ease' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           {livestream?.churchLogo ? (
             <img 
@@ -355,7 +340,7 @@ export default function SubmitDevocional() {
               <User size={20} /> Datos del Autor
             </h3>
             
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
               <div>
                 <label style={labelStyle}>Nombre Completo</label>
                 <input 
@@ -501,7 +486,7 @@ export default function SubmitDevocional() {
                   value={prayer} 
                   onChange={(e) => setPrayer(e.target.value)}
                   placeholder="Señor, te pido que esta palabra..."
-                  style={{ ...inputStyle, background: 'var(--input-bg)', resize: 'vertical', minHeight: '80px' }}
+                  style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }}
                 />
               </div>
             </div>
@@ -531,7 +516,7 @@ export default function SubmitDevocional() {
                     onChange={(e) => setRegisterEmail(e.target.value)}
                     required={wantsToRegister}
                     placeholder="tucorreo@ejemplo.com"
-                    style={{ ...inputStyle, background: 'var(--input-bg)', maxWidth: '400px' }}
+                    style={{ ...inputStyle, maxWidth: '400px' }}
                   />
                   <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
                     Solo usaremos tu correo para asociarlo a tu perfil. Al enviar, te daremos un código de acceso en la siguiente pantalla.

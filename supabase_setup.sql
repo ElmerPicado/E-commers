@@ -626,3 +626,8 @@ CREATE POLICY "Eliminar por admins devotional_comments" ON devotional_comments F
 -- ==========================================================
 ALTER TABLE contact_forms ALTER COLUMN telefono DROP NOT NULL;
 ALTER TABLE contact_forms ADD COLUMN IF NOT EXISTS prayer_request TEXT;
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V14: Fondo de Formulario de Devocionales)
+-- ==========================================================
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS form_bg_url TEXT;

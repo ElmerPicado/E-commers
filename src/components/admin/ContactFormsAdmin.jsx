@@ -1,8 +1,43 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { supabase } from '../../supabaseClient';
-import { Trash2, Mail, MailOpen, Phone, Calendar, User } from 'lucide-react';
+import { Trash2, Mail, MailOpen, Phone, Calendar, User, Image, Save } from 'lucide-react';
+import { GalleryContext } from '../../context/GalleryContext';
 
 export default function ContactFormsAdmin() {
+  const { livestream, updateLivestream } = useContext(GalleryContext);
+  const [bgUrl, setBgUrl] = useState(livestream.formBgUrl || '');
+  const [bgFile, setBgFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  useEffect(() => {
+    if (livestream.formBgUrl) setBgUrl(livestream.formBgUrl);
+  }, [livestream.formBgUrl]);
+
+  const handleSaveBg = async () => {
+    let finalUrl = bgUrl;
+    if (bgFile && !!supabase) {
+      setIsUploading(true);
+      try {
+        const fileExt = bgFile.name.split('.').pop();
+        const fileName = `form_bg_${Date.now()}.${fileExt}`;
+        const filePath = `banners/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, bgFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        finalUrl = publicUrl;
+      } catch (e) {
+        alert('Error al subir imagen');
+        setIsUploading(false);
+        return;
+      }
+    }
+    await updateLivestream({ ...livestream, formBgUrl: finalUrl });
+    setBgFile(null);
+    setBgUrl(finalUrl);
+    setIsUploading(false);
+    alert('Fondo actualizado exitosamente.');
+  };
+
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -93,6 +128,25 @@ export default function ContactFormsAdmin() {
         <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
           Total: {forms.length} | Sin leer: {forms.filter(f => f.estado === 'no_leido').length}
         </div>
+      </div>
+
+      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', padding: '1.5rem', marginBottom: '1rem' }}>
+        <h3 style={{ fontSize: '1.1rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Image size={18} style={{ color: 'var(--accent-color)' }} /> Fondo para Formularios (Ej. Devocionales)
+        </h3>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '250px' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>URL o Archivo de Imagen</label>
+            <input type="file" accept="image/*" onChange={(e) => setBgFile(e.target.files[0])} style={{ marginBottom: '0.5rem', display: 'block', color: 'var(--text-primary)' }} />
+            <input type="text" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} placeholder="https://..." style={{ width: '100%', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'var(--input-bg, rgba(255,255,255,0.05))', color: 'var(--text-primary)' }} />
+          </div>
+          <button onClick={handleSaveBg} disabled={isUploading} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <Save size={16} /> {isUploading ? 'Guardando...' : 'Guardar Fondo'}
+          </button>
+        </div>
+        {bgUrl && (
+          <div style={{ marginTop: '1rem', height: '100px', width: '200px', borderRadius: '0.5rem', backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid var(--border-color)' }}></div>
+        )}
       </div>
 
       {forms.length === 0 ? (
