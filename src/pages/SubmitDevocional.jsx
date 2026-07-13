@@ -381,7 +381,7 @@ export default function SubmitDevocional() {
             </h3>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
               <button type="button" onClick={() => setHasCodeAnswer('yes')} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 600 }}>Sí, ya tengo mi código</button>
-              <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>No, soy nuevo</button>
+              <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>Soy ocasional</button>
             </div>
             <div style={{ marginTop: '1.5rem' }}>
               <button type="button" onClick={() => setHasCodeAnswer('forgot')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem' }}>
