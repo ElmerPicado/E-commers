@@ -438,3 +438,24 @@ a {
     white-space: nowrap;
   }
 }
+
+/* Live Player Layout */
+.live-player-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+@media (min-width: 992px) {
+  .live-player-container {
+    flex-direction: row;
+  }
+  .live-player-container > :first-child {
+    flex: 1; /* Video takes remaining space */
+  }
+  .live-player-container > :last-child {
+    width: 350px; /* Chat is fixed width */
+    flex-shrink: 0;
+  }
+}

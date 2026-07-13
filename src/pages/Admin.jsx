@@ -33,7 +33,8 @@ export default function Admin() {
     logout,
     fetchAdminUsers,
     addAdminUser,
-    deleteAdminUser
+    deleteAdminUser,
+    clearLiveChat
   } = useContext(GalleryContext);
 
   const [activeTab, setActiveTab] = useState('streaming');
@@ -428,6 +429,18 @@ export default function Admin() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>URL del Canal de YouTube</label><input type="text" placeholder="https://youtube.com/@..." value={youtubeChannelUrl} onChange={(e) => setYoutubeChannelUrl(e.target.value)} style={inputStyle} /></div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><input type="checkbox" id="isLive" checked={isLive} onChange={(e) => setIsLive(e.target.checked)} style={{ width: '16px', height: '16px' }} /><label htmlFor="isLive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>Transmisión de Video en Vivo Activa</label></div>
+                
+                <div style={{ marginTop: '0.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+                  <button type="button" onClick={async () => {
+                    if (window.confirm('¿Estás seguro de que deseas vaciar todo el chat de la comunidad? Esto borrará permanentemente todos los mensajes actuales.')) {
+                      await clearLiveChat();
+                      triggerSuccess('El chat en vivo ha sido vaciado.');
+                    }
+                  }} className="btn btn-danger" style={{ fontSize: '0.8rem', padding: '0.5rem 1rem' }}>
+                    <Trash2 size={14} /> Vaciar Chat en Vivo
+                  </button>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>Utiliza esta opción para limpiar el chat antes de comenzar una nueva transmisión.</p>
+                </div>
               </div>
             </div>
 

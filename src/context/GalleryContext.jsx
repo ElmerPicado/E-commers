@@ -511,6 +511,11 @@ export const GalleryProvider = ({ children }) => {
       // 11. Devotional Comments
       const { data: dbComments } = await supabase.from('devotional_comments').select('*').order('created_at', { ascending: true });
       if (dbComments) setDevotionalComments(dbComments);
+      // 12. Live Chat Messages
+      const { data: dbChat } = await supabase.from('live_chat_messages').select('*').order('created_at', { ascending: true });
+      if (dbChat) {
+        setLivestream(prev => ({ ...prev, realtimeChatMessages: dbChat }));
+      }
     } catch (e) {
       console.error('Error fetching data from Supabase:', e);
     }
@@ -562,6 +567,13 @@ export const GalleryProvider = ({ children }) => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'devotional_comments' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'resource_categories' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'resources' }, () => fetchSupabaseData())
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'live_chat_messages' }, (payload) => {
+          setLivestream(prev => {
+            const currentMsgs = prev.realtimeChatMessages || [];
+            return { ...prev, realtimeChatMessages: [...currentMsgs, payload.new] };
+          });
+        })
+        .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'live_chat_messages' }, () => fetchSupabaseData())
         .subscribe();
 
       return () => {
@@ -856,12 +868,30 @@ export const GalleryProvider = ({ children }) => {
     }
   };
 
-  const addChatMessage = (msg) => {
-    setLivestream((prev) => ({
-      ...prev,
-      chatMessages: [...prev.chatMessages, { id: Date.now(), ...msg }]
-    }));
-  };
+  const addChatMessage = async (msg) => {
+    if (isSupabaseConfigured) {
+      await supabase.from('live_chat_messages').insert({
+        user_name: msg.user,
+        message: msg.text
+      });
+    } else {
+      setLivestream((prev) => {
+        const currentMsgs = prev.realtimeChatMessages || prev.chatMessages || [];
+        return {
+        ...prev,
+        realtimeChatMessages: [...currentMsgs, { id: Date.now(), user_name: msg.user, message: msg.text }]
+      };
+    });
+  }
+};
+
+const clearLiveChat = async () => {
+  if (isSupabaseConfigured) {
+    await supabase.from('live_chat_messages').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Delete all
+  } else {
+    setLivestream(prev => ({ ...prev, realtimeChatMessages: [] }));
+  }
+};
 
   const updateDonationsConfig = async (updates) => {
     if (isSupabaseConfigured) {
@@ -1095,6 +1125,7 @@ export const GalleryProvider = ({ children }) => {
         donationsConfig,
         updateDonationsConfig,
         addChatMessage,
+        clearLiveChat,
         adminUser,
         adminUsersList,
         login,

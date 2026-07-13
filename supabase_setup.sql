@@ -631,3 +631,23 @@ ALTER TABLE contact_forms ADD COLUMN IF NOT EXISTS prayer_request TEXT;
 -- ACTUALIZACIÓN DE ESQUEMA (V14: Fondo de Formulario de Devocionales)
 -- ==========================================================
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS form_bg_url TEXT;
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V15: Chat en Vivo en Tiempo Real)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS live_chat_messages (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_name TEXT NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE live_chat_messages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública chat" ON live_chat_messages;
+DROP POLICY IF EXISTS "Escritura pública chat" ON live_chat_messages;
+DROP POLICY IF EXISTS "Borrado de administradores" ON live_chat_messages;
+
+CREATE POLICY "Lectura pública chat" ON live_chat_messages FOR SELECT USING (true);
+CREATE POLICY "Escritura pública chat" ON live_chat_messages FOR INSERT WITH CHECK (true);
+CREATE POLICY "Borrado de administradores" ON live_chat_messages FOR DELETE USING (true);
+

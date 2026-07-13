@@ -110,12 +110,7 @@ export default function LivePlayer() {
         </p>
 
         {/* Video Player and Chat container */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '3fr 1.2fr',
-          gap: '1.5rem',
-          marginTop: '0.5rem'
-        }} className="grid-cols-2">
+        <div className="live-player-container">
           
           {/* Iframe player */}
           <div style={{
@@ -125,7 +120,8 @@ export default function LivePlayer() {
             background: '#000',
             borderRadius: '0.75rem',
             overflow: 'hidden',
-            border: '1px solid var(--border-color)'
+            border: '1px solid var(--border-color)',
+            alignSelf: 'flex-start' // prevent stretching
           }}>
             {livestream.isLive ? (
               <iframe
@@ -212,10 +208,11 @@ export default function LivePlayer() {
               display: 'flex',
               flexDirection: 'column',
               gap: '0.75rem',
-              maxHeight: '260px',
+              maxHeight: '400px', // More height on desktop, ok on mobile
+              minHeight: '200px',
               scrollBehavior: 'smooth'
             }}>
-              {livestream.chatMessages.map((msg) => (
+              {(livestream.realtimeChatMessages || livestream.chatMessages || []).map((msg) => (
                 <div key={msg.id} style={{
                   fontSize: '0.85rem',
                   lineHeight: '1.4',
@@ -225,10 +222,10 @@ export default function LivePlayer() {
                   borderLeft: '2px solid var(--accent-color)'
                 }}>
                   <span style={{ fontWeight: 700, color: 'var(--text-primary)', marginRight: '0.4rem', fontSize: '0.8rem' }}>
-                    {msg.user}:
+                    {msg.user || msg.user_name}:
                   </span>
                   <span style={{ color: 'var(--text-secondary)' }}>
-                    {msg.text}
+                    {msg.text || msg.message}
                   </span>
                 </div>
               ))}
