@@ -1,5 +1,5 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
 import { BookOpen, User, Calendar, Tag } from 'lucide-react';
 import './Devocionales.css';
