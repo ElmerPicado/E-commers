@@ -219,9 +219,7 @@
 }
 
 .newspaper-text-container {
-  /* Using columns for wide screens */
-  column-count: 1;
-  column-gap: 2rem;
+  display: block;
 }
 
 .newspaper-text {
@@ -284,9 +282,7 @@
 
 /* Desktop layout */
 @media (min-width: 768px) {
-  .newspaper-text-container {
-    column-count: 2;
-  }
+  /* No additional container styles needed for now */
 }
 
 @media (max-width: 768px) {

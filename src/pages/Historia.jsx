@@ -80,9 +80,6 @@ export default function Historia() {
 
                 {block.testimonies && block.testimonies.length > 0 && (
                   <div className="testimonies-list">
-                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                      <h3 className="newspaper-headline" style={{ display: 'inline-block', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem' }}>Relatos Históricos</h3>
-                    </div>
                     {block.testimonies.map((t, tIdx) => (
                       <div key={t.id} className="newspaper-article">
                         {/* Newspaper Body */}
