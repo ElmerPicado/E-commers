@@ -35,10 +35,26 @@
   padding: 4rem 2rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .devocionales-layout {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+}
+
+.devocional-detail-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .devocional-detail-layout {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -162,7 +178,7 @@
 
 .author-photo {
   width: 100px;
-  height: 125px;
+  height: 100px;
   border-radius: 8px;
   object-fit: cover;
   border: 2px solid #ffffff;

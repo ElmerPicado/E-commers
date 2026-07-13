@@ -7,13 +7,14 @@ import 'react-quill-new/dist/quill.snow.css';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 
 export default function SubmitDevocional() {
-  const { addDevotional } = useContext(GalleryContext);
+  const { addDevotional, devotionalCategories } = useContext(GalleryContext);
 
   const [authorName, setAuthorName] = useState('');
   const [authorBio, setAuthorBio] = useState('');
   const [authorPhotoFile, setAuthorPhotoFile] = useState(null);
   const [authorPhotoPreview, setAuthorPhotoPreview] = useState('');
   const [title, setTitle] = useState('');
+  const [categoryId, setCategoryId] = useState('');
   const [verse, setVerse] = useState('');
   const [content, setContent] = useState('');
   const [prayer, setPrayer] = useState('');
@@ -115,9 +116,10 @@ export default function SubmitDevocional() {
 
     const newDevotional = {
       title,
-      verse,
-      content,
-      prayer,
+      verse: verse,
+      content: content,
+      prayer: prayer,
+      category_id: categoryId || null,
       author_name: authorName,
       author_bio: authorBio,
       author_photo: finalPhotoUrl,
@@ -207,6 +209,7 @@ export default function SubmitDevocional() {
             onClick={() => {
               setIsSubmitted(false);
               setTitle('');
+              setCategoryId('');
               setVerse('');
               setContent('');
               setPrayer('');
@@ -415,6 +418,21 @@ export default function SubmitDevocional() {
                   placeholder="Un título que atrape..."
                   style={{ ...inputStyle, background: 'var(--input-bg)', fontSize: '1.1rem', fontWeight: 600 }}
                 />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Categoría del Devocional</label>
+                <select 
+                  value={categoryId} 
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  required
+                  style={{ ...inputStyle, background: 'var(--input-bg)' }}
+                >
+                  <option value="" style={{ color: '#0f172a' }}>-- Seleccionar Categoría --</option>
+                  {(devotionalCategories || []).map(c => (
+                    <option key={c.id} value={c.id} style={{ color: '#0f172a' }}>{c.name}</option>
+                  ))}
+                </select>
               </div>
 
               <div>

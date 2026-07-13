@@ -35,26 +35,31 @@ export default function DevocionalDetail() {
 
   return (
     <div className="devocionales-page" style={{ paddingTop: '100px' }}>
-      <div className="devocionales-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 300px', gap: '3rem', maxWidth: '1200px', margin: '0 auto', alignItems: 'start' }}>
+      <div className="devocional-detail-layout">
         
         {/* Main Content (Left) */}
         <div className="devocional-main">
-          <button className="back-button" onClick={() => navigate('/devocionales')} style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', fontWeight: 600 }}>
-            <ArrowLeft size={18} /> Volver a todos los devocionales
-          </button>
-
-          <h1 style={{ fontSize: '2.5rem', fontWeight: 800, color: '#0f172a', marginBottom: '1rem', lineHeight: 1.2 }}>
-            {devocional.title}
-          </h1>
-          
-          <div className="meta" style={{ display: 'flex', gap: '1rem', color: '#64748b', fontSize: '0.9rem', marginBottom: '2rem' }}>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Calendar size={14}/> {new Date(devocional.created_at).toLocaleDateString()}</span>
-            <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}><Tag size={14}/> {getCategoryName(devocional.category_id)}</span>
+          <div style={{ marginBottom: '2rem' }}>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#334155', margin: 0 }}>Devocional diario</h1>
+            <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '0.5rem' }}>Un devocional diario para fortalecer tu relación con Dios.</p>
           </div>
 
+          <div style={{ marginBottom: '1.5rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#334155', margin: 0 }}>Devocional de Hoy</h2>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '0.25rem' }}>
+              {new Date(devocional.created_at).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              <span style={{ margin: '0 0.5rem' }}>•</span>
+              <span style={{ color: '#d97706' }}>{getCategoryName(devocional.category_id)}</span>
+            </div>
+          </div>
+
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#d97706', marginBottom: '1.5rem', lineHeight: 1.2 }}>
+            {devocional.title}
+          </h1>
+
           {devocional.verse && (
-            <div style={{ background: '#f8fafc', borderLeft: '4px solid var(--accent-color)', padding: '1.5rem', borderRadius: '0 0.5rem 0.5rem 0', marginBottom: '2rem', fontStyle: 'italic', color: '#334155', fontSize: '1.15rem', lineHeight: 1.6 }}>
-              {devocional.verse}
+            <div style={{ background: '#f8fafc', padding: '1.5rem 2rem', borderRadius: '0.5rem', marginBottom: '2.5rem', color: '#334155', fontSize: '1.1rem', lineHeight: 1.6 }}>
+              {devocional.verse.split('\n').map((line, i) => <p key={i} style={{ margin: i === 0 ? 0 : '0.5rem 0 0 0' }}>{line}</p>)}
             </div>
           )}
 
@@ -115,7 +120,10 @@ export default function DevocionalDetail() {
 
         {/* Sidebar (Right) */}
         <aside className="devocional-sidebar">
-          <div className="author-sidebar-box">
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
+            Sobre el Autor
+          </h3>
+          <div className="author-sidebar-box" style={{ padding: 0, border: 'none', background: 'transparent' }}>
             {devocional.author_photo ? (
               <img src={devocional.author_photo} alt={devocional.author_name} className="author-photo" />
             ) : (

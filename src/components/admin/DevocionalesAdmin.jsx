@@ -51,7 +51,7 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
     if (!newCatName.trim()) return;
     
     await addDevotionalCategory({
-      id: `cat-${uuidv4()}`,
+      id: uuidv4(),
       name: newCatName
     });
     
