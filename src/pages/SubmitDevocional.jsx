@@ -343,9 +343,10 @@ export default function SubmitDevocional() {
           </div>
         </div>
 
-        {currentStep === 1 && (
-          <>
-            {/* Login Section */}
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          {currentStep === 1 && (
+            <>
+              {/* Login Section */}
         {!isLocked && hasCodeAnswer === null && (
           <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '2rem 1.5rem', borderRadius: '1rem', border: '1px dashed var(--accent-color)', marginBottom: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
@@ -421,9 +422,8 @@ export default function SubmitDevocional() {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          {/* Author Section */}
-          <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
+        {/* Author Section */}
+        <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <User size={20} /> Datos del Autor
             </h3>
@@ -515,7 +515,7 @@ export default function SubmitDevocional() {
         )}
 
         {currentStep === 2 && (
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+          <>
             
             {!isLocked && wantsToRegister && pendingCode && (
               <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '1rem', padding: '2rem', textAlign: 'center', boxShadow: '0 4px 6px rgba(0,0,0,0.05)' }}>
@@ -624,9 +624,6 @@ export default function SubmitDevocional() {
             </div>
           </div>
 
-            </div>
-          </div>
-
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', marginTop: '1.5rem' }}>
             <button 
               type="button" 
@@ -652,16 +649,18 @@ export default function SubmitDevocional() {
               )}
             </button>
           </div>
+          </>
+        )}
 
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1.5rem' }}>
-            <Link to="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'color 0.2s' }}>
-              <Home size={16} /> Ir al Inicio
-            </Link>
-            <Link to="/devocionales" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'color 0.2s' }}>
-              <BookOpen size={16} /> Leer Devocionales
-            </Link>
-          </div>
-        </form>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginTop: '1.5rem' }}>
+          <Link to="/" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'color 0.2s' }}>
+            <Home size={16} /> Ir al Inicio
+          </Link>
+          <Link to="/devocionales" style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem', transition: 'color 0.2s' }}>
+            <BookOpen size={16} /> Leer Devocionales
+          </Link>
+        </div>
+      </form>
       </div>
     </div>
   );
