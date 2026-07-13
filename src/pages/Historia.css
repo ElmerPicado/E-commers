@@ -147,15 +147,12 @@
 
 /* Newspaper Testimonies inside era */
 .testimonies-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  display: block;
 }
 
 .newspaper-article {
-  padding-bottom: 0.5rem;
+  padding-bottom: 0;
   position: relative;
-  overflow: hidden;
 }
 
 .newspaper-article:last-child {
@@ -164,7 +161,7 @@
 
 .newspaper-body {
   display: block;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
 }
 
 .newspaper-author-block.image-left {
@@ -254,18 +251,6 @@
 
 .ql-editor-display em {
   font-style: italic;
-}
-
-/* Letra Capital (Drop Cap) */
-.newspaper-text-container.ql-editor-display > p:first-of-type::first-letter {
-  font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 3em;
-  font-weight: 900;
-  float: left;
-  line-height: 0.9;
-  padding-right: 0.15em;
-  padding-top: 0.05em;
-  color: var(--accent-color);
 }
 
 .newspaper-media-grid {

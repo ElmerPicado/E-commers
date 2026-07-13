@@ -181,12 +181,12 @@ export default function Historia() {
                             className="newspaper-text-container ql-editor-display"
                             dangerouslySetInnerHTML={{ __html: renderHtmlContent(t.content) }}
                           />
-                          
-                          <div style={{ clear: 'both' }}></div>
                         </div>
                       </div>
                     ))}
                     
+                    <div style={{ clear: 'both' }}></div>
+
                     {/* Combined Additional Media Carousel for the entire block */}
                     {(() => {
                       const combinedMedia = block.testimonies.reduce((acc, t) => {
