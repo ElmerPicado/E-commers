@@ -69,59 +69,65 @@ export default function Historia() {
             <p>Pronto compartiremos más detalles sobre nuestra historia.</p>
           </div>
         ) : (
-          <div className="historia-timeline">
-            {/* Línea central vertical */}
-            <div className="timeline-center-line"></div>
-            
-            <div className="timeline-blocks">
-              {historyBlocks.map((block, index) => {
-                const isEven = index % 2 === 0;
-                return (
-                  <div key={block.id} className={`timeline-block ${isEven ? 'block-right' : 'block-left'}`}>
-                    
-                    {/* Marcador del timeline */}
-                    <div className="timeline-marker">
-                      <span>{index + 1}</span>
-                    </div>
+          <div className="historia-blocks-container">
+            {historyBlocks.map((block, index) => (
+              <div key={block.id} className="history-era-block">
+                <div className="era-header">
+                  <div className="era-number">{index + 1}</div>
+                  <h2 className="era-title">{block.title}</h2>
+                  {block.content && <p className="era-description">{block.content}</p>}
+                </div>
 
-                    {/* Contenido (Texto) */}
-                    <div className="timeline-content text-content">
-                      <h3 className="block-title">{block.title}</h3>
-                      <p className="block-text">
-                        {block.content}
-                      </p>
-                    </div>
-
-                    {/* Media (Imagen o Video) */}
-                    <div className="timeline-content media-content">
-                      {(block.image_url || block.video_url) ? (
-                        <div className="media-container">
-                          {block.video_url ? (
-                            <div className="video-wrapper">
-                              <iframe 
-                                src={block.video_url} 
-                                title={block.title}
-                                frameBorder="0" 
-                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                allowFullScreen
-                              ></iframe>
-                            </div>
+                {block.testimonies && block.testimonies.length > 0 && (
+                  <div className="testimonies-list">
+                    {block.testimonies.map((t) => (
+                      <div key={t.id} className="testimony-row">
+                        <div className="testimony-author">
+                          {t.authorPhoto ? (
+                            <img src={t.authorPhoto} alt={t.authorName} className="testimony-photo" />
                           ) : (
-                            <img 
-                              src={block.image_url} 
-                              alt={block.title} 
-                              className="block-image"
-                            />
+                            <div className="testimony-photo-placeholder">
+                              <User size={48} />
+                            </div>
+                          )}
+                          <h4 className="testimony-name">{t.authorName}</h4>
+                          <span className="testimony-role">{t.authorRole}</span>
+                        </div>
+                        
+                        <div className="testimony-content">
+                          <p className="testimony-text">{t.content}</p>
+                          
+                          {t.mediaUrls && t.mediaUrls.length > 0 && (
+                            <div className="testimony-media-grid">
+                              {t.mediaUrls.map((url, idx) => {
+                                const isVideo = url.includes('youtube.com') || url.includes('youtu.be');
+                                if (isVideo) {
+                                  const videoUrl = url.includes('watch?v=') 
+                                    ? url.replace('watch?v=', 'embed/').split('&')[0]
+                                    : url.includes('youtu.be/') 
+                                      ? url.replace('youtu.be/', 'youtube.com/embed/').split('?')[0]
+                                      : url;
+                                  return (
+                                    <iframe 
+                                      key={idx} 
+                                      src={videoUrl} 
+                                      className="testimony-media-item video-item" 
+                                      frameBorder="0" 
+                                      allowFullScreen
+                                    ></iframe>
+                                  );
+                                }
+                                return <img key={idx} src={url} alt="Media adicional" className="testimony-media-item image-item" />;
+                              })}
+                            </div>
                           )}
                         </div>
-                      ) : (
-                        <div className="media-spacer"></div>
-                      )}
-                    </div>
+                      </div>
+                    ))}
                   </div>
-                );
-              })}
-            </div>
+                )}
+              </div>
+            ))}
           </div>
         )}
       </section>

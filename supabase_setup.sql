@@ -653,3 +653,8 @@ CREATE POLICY "Lectura pública chat" ON live_chat_messages FOR SELECT USING (tr
 CREATE POLICY "Escritura pública chat" ON live_chat_messages FOR INSERT WITH CHECK (true);
 CREATE POLICY "Borrado de administradores" ON live_chat_messages FOR DELETE USING (true);
 
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V16: Nuestra Historia en Bloques)
+-- ==========================================================
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS testimonies JSONB DEFAULT '[]'::jsonb;
+

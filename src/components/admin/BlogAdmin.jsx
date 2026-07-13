@@ -14,6 +14,16 @@ export default function BlogAdmin({ triggerSuccess }) {
   const [imageUrl, setImageUrl] = useState('');
   const [videoUrl, setVideoUrl] = useState('');
   const [orderIndex, setOrderIndex] = useState(1);
+  const [testimonies, setTestimonies] = useState([]);
+
+  // Sub-form para testimonios
+  const [isAddingTestimony, setIsAddingTestimony] = useState(false);
+  const [editingTestimonyId, setEditingTestimonyId] = useState(null);
+  const [tName, setTName] = useState('');
+  const [tRole, setTRole] = useState('');
+  const [tPhoto, setTPhoto] = useState('');
+  const [tContent, setTContent] = useState('');
+  const [tMedia, setTMedia] = useState('');
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
@@ -41,8 +51,20 @@ export default function BlogAdmin({ triggerSuccess }) {
     setImageUrl('');
     setVideoUrl('');
     setOrderIndex(blogPosts?.length > 0 ? Math.max(...blogPosts.map(p => p.order_index || 0)) + 1 : 1);
+    setTestimonies([]);
     setIsEditing(false);
     setEditId(null);
+    resetTestimonyForm();
+  };
+
+  const resetTestimonyForm = () => {
+    setIsAddingTestimony(false);
+    setEditingTestimonyId(null);
+    setTName('');
+    setTRole('');
+    setTPhoto('');
+    setTContent('');
+    setTMedia('');
   };
 
   const handleEdit = (post) => {
@@ -51,8 +73,55 @@ export default function BlogAdmin({ triggerSuccess }) {
     setImageUrl(post.image_url || '');
     setVideoUrl(post.video_url || '');
     setOrderIndex(post.order_index || 1);
+    setTestimonies(post.testimonies || []);
     setIsEditing(true);
     setEditId(post.id);
+  };
+
+  const handleSaveTestimony = () => {
+    if (!tName.trim() || !tContent.trim()) {
+      alert("El nombre y el relato son obligatorios.");
+      return;
+    }
+    
+    const mediaList = tMedia.split(',').map(s => s.trim()).filter(Boolean);
+
+    if (editingTestimonyId) {
+      setTestimonies(prev => prev.map(t => t.id === editingTestimonyId ? {
+        id: editingTestimonyId,
+        authorName: tName,
+        authorRole: tRole,
+        authorPhoto: tPhoto,
+        content: tContent,
+        mediaUrls: mediaList
+      } : t));
+    } else {
+      setTestimonies(prev => [...prev, {
+        id: `t-${uuidv4()}`,
+        authorName: tName,
+        authorRole: tRole,
+        authorPhoto: tPhoto,
+        content: tContent,
+        mediaUrls: mediaList
+      }]);
+    }
+    resetTestimonyForm();
+  };
+
+  const handleEditTestimony = (t) => {
+    setTName(t.authorName || '');
+    setTRole(t.authorRole || '');
+    setTPhoto(t.authorPhoto || '');
+    setTContent(t.content || '');
+    setTMedia((t.mediaUrls || []).join(', '));
+    setEditingTestimonyId(t.id);
+    setIsAddingTestimony(true);
+  };
+
+  const handleDeleteTestimony = (id) => {
+    if (window.confirm("¿Seguro que deseas eliminar este testimonio?")) {
+      setTestimonies(prev => prev.filter(t => t.id !== id));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -65,6 +134,7 @@ export default function BlogAdmin({ triggerSuccess }) {
       video_url: videoUrl,
       category: 'historia',
       order_index: parseInt(orderIndex, 10) || 1,
+      testimonies: testimonies
     };
 
     if (isEditing) {
@@ -163,6 +233,80 @@ export default function BlogAdmin({ triggerSuccess }) {
             />
           </div>
 
+          <div style={{ marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.1rem', margin: 0, color: 'var(--text-primary)' }}>Personajes / Testimonios en este Bloque</h3>
+              {!isAddingTestimony && (
+                <button type="button" onClick={() => setIsAddingTestimony(true)} className="btn btn-secondary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+                  + Agregar Personaje
+                </button>
+              )}
+            </div>
+
+            {testimonies.length > 0 && !isAddingTestimony && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+                {testimonies.map(t => (
+                  <div key={t.id} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '0.5rem', padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      {t.authorPhoto ? (
+                        <img src={t.authorPhoto} alt={t.authorName} style={{ width: '40px', height: '40px', borderRadius: '50%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <User size={20} color="var(--text-muted)" />
+                        </div>
+                      )}
+                      <div>
+                        <p style={{ margin: 0, fontWeight: 'bold', color: 'var(--text-primary)' }}>{t.authorName}</p>
+                        <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{t.authorRole}</p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button type="button" onClick={() => handleEditTestimony(t)} className="btn btn-primary" style={{ padding: '0.4rem' }}><Edit size={14} /></button>
+                      <button type="button" onClick={() => handleDeleteTestimony(t.id)} className="btn btn-danger" style={{ padding: '0.4rem' }}><Trash2 size={14} /></button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {isAddingTestimony && (
+              <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px dashed var(--accent-color)', borderRadius: '0.75rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>{editingTestimonyId ? 'Editar' : 'Nuevo'} Personaje</h4>
+                
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <div>
+                    <label style={labelStyle}>Nombre Completo</label>
+                    <input type="text" value={tName} onChange={e => setTName(e.target.value)} style={inputStyle} placeholder="Ej. Yamileth Anchia" />
+                  </div>
+                  <div>
+                    <label style={labelStyle}>Cargo / Título</label>
+                    <input type="text" value={tRole} onChange={e => setTRole(e.target.value)} style={inputStyle} placeholder="Ej. Pastora, Fundadora..." />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={labelStyle}>URL de Foto de Perfil</label>
+                  <input type="text" value={tPhoto} onChange={e => setTPhoto(e.target.value)} style={inputStyle} placeholder="https://..." />
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Relato / Historia</label>
+                  <textarea value={tContent} onChange={e => setTContent(e.target.value)} rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Cuenta la historia desde la perspectiva de esta persona..."></textarea>
+                </div>
+
+                <div>
+                  <label style={labelStyle}>Media Adicional (Fotos/Videos separados por coma)</label>
+                  <input type="text" value={tMedia} onChange={e => setTMedia(e.target.value)} style={inputStyle} placeholder="https://img1.jpg, https://youtu.be/..." />
+                </div>
+
+                <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+                  <button type="button" onClick={handleSaveTestimony} className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>Guardar Personaje</button>
+                  <button type="button" onClick={resetTestimonyForm} className="btn btn-secondary" style={{ padding: '0.5rem 1rem' }}>Cancelar</button>
+                </div>
+              </div>
+            )}
+          </div>
+
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
             {isEditing && (
               <button 
@@ -214,6 +358,13 @@ export default function BlogAdmin({ triggerSuccess }) {
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                     {post.content}
                   </p>
+                  {post.testimonies && post.testimonies.length > 0 && (
+                    <div style={{ marginTop: '0.5rem', display: 'flex', gap: '0.5rem' }}>
+                      <span style={{ fontSize: '0.75rem', background: 'rgba(59, 130, 246, 0.1)', color: '#3b82f6', padding: '0.2rem 0.5rem', borderRadius: '1rem', fontWeight: 600 }}>
+                        {post.testimonies.length} Personaje(s)
+                      </span>
+                    </div>
+                  )}
                 </div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
