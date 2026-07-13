@@ -252,10 +252,10 @@ export default function SubmitDevocional() {
   };
 
   return (
-    <div style={{ ...currentTheme, minHeight: '100vh', ...bgStyle, padding: '4rem 1.5rem 4rem 1.5rem', display: 'flex', justifyContent: 'center', transition: 'all 0.3s ease' }}>
+    <div style={{ ...currentTheme, height: '100vh', overflow: 'hidden', ...bgStyle, padding: '2rem 1.5rem', display: 'flex', justifyContent: 'center', alignItems: 'center', transition: 'all 0.3s ease' }}>
 
 
-      <div style={{ maxWidth: '800px', width: '100%', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '1rem', padding: 'clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 8vw, 4rem)', boxShadow: isLightMode ? '0 10px 25px rgba(0,0,0,0.05)' : 'none', transition: 'all 0.3s ease' }}>
+      <div style={{ maxWidth: '800px', width: '100%', maxHeight: '100%', overflowY: 'auto', background: 'var(--card-bg)', border: '1px solid var(--border-color)', borderRadius: '1rem', padding: 'clamp(1.5rem, 5vw, 3rem) clamp(1.5rem, 8vw, 4rem)', boxShadow: isLightMode ? '0 10px 25px rgba(0,0,0,0.05)' : 'none', transition: 'all 0.3s ease' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           {livestream?.churchLogo ? (
             <img 

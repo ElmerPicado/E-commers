@@ -8,7 +8,58 @@ function ScrollToTop() {
   }, [pathname]);
   return null;
 }
+
 import { GalleryProvider, GalleryContext } from './context/GalleryContext';
+
+const DynamicHead = () => {
+  const { livestream } = useContext(GalleryContext);
+
+  useEffect(() => {
+    if (livestream?.churchName) {
+      document.title = livestream.churchName;
+      let ogTitle = document.querySelector('meta[property="og:title"]');
+      if (ogTitle) ogTitle.setAttribute('content', livestream.churchName);
+    }
+    
+    if (livestream?.churchLogo) {
+      // Hacer el favicon redondo usando Canvas
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 128;
+        canvas.height = 128;
+        const ctx = canvas.getContext('2d');
+        ctx.beginPath();
+        ctx.arc(64, 64, 64, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.clip();
+        ctx.drawImage(img, 0, 0, 128, 128);
+        
+        let link = document.querySelector("link[rel*='icon']");
+        if (!link) {
+          link = document.createElement('link');
+          link.rel = 'icon';
+          document.head.appendChild(link);
+        }
+        link.type = 'image/png';
+        link.href = canvas.toDataURL('image/png');
+      };
+      img.onerror = () => {
+        // Fallback si falla el CORS
+        let link = document.querySelector("link[rel*='icon']");
+        if (link) link.href = livestream.churchLogo;
+      };
+      img.src = livestream.churchLogo;
+      
+      // Actualizar og:image dinámicamente (ayuda a algunos scrapers, aunque no a todos)
+      let ogImage = document.querySelector('meta[property="og:image"]');
+      if (ogImage) ogImage.setAttribute('content', livestream.churchLogo);
+    }
+  }, [livestream?.churchName, livestream?.churchLogo]);
+
+  return null;
+};
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 
@@ -39,6 +90,7 @@ const LayoutWrapper = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <DynamicHead />
       {!isDevocionalWritePage && <Navbar />}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Routes>
