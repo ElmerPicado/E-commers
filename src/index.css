@@ -431,11 +431,12 @@ a {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
-font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 1.5rem;
+  .admin-tabs-container::-webkit-scrollbar {
+    display: none;
+  }
+  .admin-tabs-container button {
+    white-space: nowrap;
+  }
 }
 
 /* Grid Layouts */
