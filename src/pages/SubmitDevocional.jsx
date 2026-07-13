@@ -290,8 +290,8 @@ export default function SubmitDevocional() {
           >
             Escribir otro devocional
           </button>
-          <Link to="/" style={{ color: 'var(--accent-color)', fontSize: '0.9rem', textDecoration: 'underline', display: 'inline-block' }}>
-            Volver al inicio
+          <Link to="/devocionales" style={{ color: 'var(--accent-color)', fontSize: '0.9rem', textDecoration: 'underline', display: 'inline-block' }}>
+            Ir a Devocionales
           </Link>
         </div>
       </div>
@@ -635,20 +635,7 @@ export default function SubmitDevocional() {
                 />
               </div>
 
-              <div>
-                <label style={labelStyle}>Categoría del Devocional</label>
-                <select 
-                  value={categoryId} 
-                  onChange={(e) => setCategoryId(e.target.value)}
-                  required
-                  style={{ ...inputStyle, background: 'var(--input-bg)' }}
-                >
-                  <option value="" style={{ color: '#0f172a' }}>-- Seleccionar Categoría --</option>
-                  {(devotionalCategories || []).map(c => (
-                    <option key={c.id} value={c.id} style={{ color: '#0f172a' }}>{c.name}</option>
-                  ))}
-                </select>
-              </div>
+
 
               <div>
                 <label style={labelStyle}>Versículo Base</label>
@@ -673,7 +660,7 @@ export default function SubmitDevocional() {
                         [{ 'header': [1, 2, 3, false] }],
                         ['bold', 'italic', 'underline', 'strike'],
                         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        ['link', 'clean']
+                        ['link', 'video', 'clean']
                       ]
                     }}
                   />

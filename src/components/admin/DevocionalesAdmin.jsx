@@ -295,7 +295,7 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                               [{ 'header': [1, 2, 3, false] }],
                               ['bold', 'italic', 'underline', 'strike'],
                               [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                              ['link', 'clean']
+                              ['link', 'video', 'clean']
                             ]
                           }}
                         />
