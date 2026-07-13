@@ -43,8 +43,30 @@ export default function DevocionalDetail() {
     <div className="devocionales-page" style={{ paddingTop: '100px' }}>
       <div className="devocional-detail-layout">
         
-        {/* Left Sidebar (Other Devotionals) */}
+        {/* Left Sidebar (Categories + Other Devotionals) */}
         <aside className="devocional-left-sidebar" style={{ position: 'sticky', top: '100px' }}>
+          
+          <div className="categories-sidebar" style={{ position: 'static', marginBottom: '2.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.5rem', marginTop: 0 }}>
+              Categorías
+            </h3>
+            <div 
+              className="category-item"
+              onClick={() => navigate('/devocionales')}
+            >
+              Todos los temas
+            </div>
+            {(devotionalCategories || []).map(cat => (
+              <div 
+                key={cat.id}
+                className="category-item"
+                onClick={() => navigate('/devocionales')}
+              >
+                {cat.name}
+              </div>
+            ))}
+          </div>
+
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
             Últimos Devocionales
           </h3>
@@ -56,7 +78,7 @@ export default function DevocionalDetail() {
                     {dev.title}
                   </h4>
                   <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
-                    Por {dev.author_name}
+                    Autor: {dev.author_name}
                   </p>
                 </div>
               ))
@@ -109,43 +131,6 @@ export default function DevocionalDetail() {
             </div>
           )}
 
-          {/* PAUTA / CTA de IMR4 */}
-          <div style={{
-            marginTop: '3rem',
-            padding: '1.25rem 1.5rem',
-            background: '#ffffff',
-            borderLeft: '4px solid #3b82f6',
-            borderRadius: '0 0.5rem 0.5rem 0',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            textAlign: 'left',
-            gap: '0.75rem',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
-          }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#1e3a8a', margin: 0 }}>
-              Iglesia Ministerio Restauración 4
-            </h3>
-            <p style={{ color: '#475569', maxWidth: '100%', margin: 0, lineHeight: 1.5, fontSize: '0.9rem' }}>
-              Este devocional ha sido compartido a través de nuestra plataforma. Te invitamos a conocer más de nuestra iglesia y descubrir más recursos espirituales.
-            </p>
-            <div style={{ display: 'flex', gap: '0.75rem', marginTop: '0.25rem', flexWrap: 'wrap' }}>
-              <Link to="/" style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                background: '#2563eb', color: 'white', padding: '0.5rem 1rem', fontSize: '0.85rem',
-                borderRadius: '0.5rem', fontWeight: 600, textDecoration: 'none', transition: 'background 0.2s'
-              }} onMouseOver={(e) => e.currentTarget.style.background = '#1d4ed8'} onMouseOut={(e) => e.currentTarget.style.background = '#2563eb'}>
-                <Home size={14} /> Visitar Sitio
-              </Link>
-              <Link to="/devocionales" style={{
-                display: 'inline-flex', alignItems: 'center', gap: '0.35rem',
-                background: 'white', color: '#2563eb', padding: '0.5rem 1rem', border: '1px solid #bfdbfe', fontSize: '0.85rem',
-                borderRadius: '0.5rem', fontWeight: 600, textDecoration: 'none', transition: 'background 0.2s'
-              }} onMouseOver={(e) => e.currentTarget.style.background = '#f8fafc'} onMouseOut={(e) => e.currentTarget.style.background = 'white'}>
-                <BookOpen size={14} /> Más Devocionales
-              </Link>
-            </div>
-          </div>
         </div>
 
         {/* Sidebar (Right) */}
@@ -169,6 +154,42 @@ export default function DevocionalDetail() {
           </div>
         </aside>
 
+      </div>
+
+      {/* PAUTA / CTA de IMR4 (Fuera del devocional, al final) */}
+      <div style={{
+        maxWidth: '800px',
+        margin: '0 auto 4rem auto',
+        paddingTop: '3rem',
+        borderTop: '1px solid #e2e8f0',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        textAlign: 'center',
+        gap: '0.75rem',
+        padding: '2rem'
+      }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e3a8a', margin: 0 }}>
+          Iglesia Ministerio Restauración 4
+        </h3>
+        <p style={{ color: '#475569', margin: 0, lineHeight: 1.6, fontSize: '1rem' }}>
+          Este devocional ha sido compartido a través de nuestra plataforma. Te invitamos a conocer más de nuestra iglesia y descubrir más recursos espirituales.
+        </p>
+        <div style={{ display: 'flex', gap: '1.5rem', marginTop: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+          <Link to="/" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            color: '#2563eb', fontWeight: 600, textDecoration: 'none'
+          }} onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'} onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}>
+            <Home size={18} /> Visitar Sitio
+          </Link>
+          <span style={{ color: '#cbd5e1' }}>|</span>
+          <Link to="/devocionales" style={{
+            display: 'inline-flex', alignItems: 'center', gap: '0.5rem',
+            color: '#2563eb', fontWeight: 600, textDecoration: 'none'
+          }} onMouseOver={(e) => e.currentTarget.style.textDecoration = 'underline'} onMouseOut={(e) => e.currentTarget.style.textDecoration = 'none'}>
+            <BookOpen size={18} /> Más Devocionales
+          </Link>
+        </div>
       </div>
     </div>
   );

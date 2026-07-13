@@ -408,37 +408,16 @@ ALTER TABLE devotional_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE devotionals ENABLE ROW LEVEL SECURITY;
 
 -- Políticas para categorias (públicas para leer, autenticados para escribir)
--- Políticas para categorias (públicas para leer, autenticados para escribir)
 DROP POLICY IF EXISTS "Categorías son públicas" ON devotional_categories;
-CREATE POLICY "Categorías son públicas"
-  ON devotional_categories FOR SELECT
-  USING (true);
-
 DROP POLICY IF EXISTS "Solo autenticados pueden modificar categorías" ON devotional_categories;
-CREATE POLICY "Solo autenticados pueden modificar categorías"
-  ON devotional_categories FOR ALL
-  USING (auth.role() = 'authenticated');
+CREATE POLICY "Acceso total devotional_categories" ON devotional_categories FOR ALL USING (true) WITH CHECK (true);
 
--- Políticas para devocionales (públicos pueden insertar y leer publicados, autenticados todo)
+-- Políticas para devocionales
 DROP POLICY IF EXISTS "Cualquiera puede insertar devocionales (pending)" ON devotionals;
-CREATE POLICY "Cualquiera puede insertar devocionales (pending)"
-  ON devotionals FOR INSERT
-  WITH CHECK (true);
-
 DROP POLICY IF EXISTS "Cualquiera puede leer devocionales publicados" ON devotionals;
-CREATE POLICY "Cualquiera puede leer devocionales publicados"
-  ON devotionals FOR SELECT
-  USING (status = 'published' OR auth.role() = 'authenticated');
-
 DROP POLICY IF EXISTS "Solo autenticados pueden modificar devocionales" ON devotionals;
-CREATE POLICY "Solo autenticados pueden modificar devocionales"
-  ON devotionals FOR UPDATE
-  USING (auth.role() = 'authenticated');
-
 DROP POLICY IF EXISTS "Solo autenticados pueden eliminar devocionales" ON devotionals;
-CREATE POLICY "Solo autenticados pueden eliminar devocionales"
-  ON devotionals FOR DELETE
-  USING (auth.role() = 'authenticated');
+CREATE POLICY "Acceso total devotionals" ON devotionals FOR ALL USING (true) WITH CHECK (true);
 
 -- Trigger para updated_at en devotionals
 DROP TRIGGER IF EXISTS handle_updated_at_devotionals ON devotionals;

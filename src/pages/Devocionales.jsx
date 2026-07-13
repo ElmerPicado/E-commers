@@ -78,13 +78,13 @@ export default function Devocionales() {
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginTop: '1.5rem', borderTop: '1px solid #f1f5f9', paddingTop: '1rem' }}>
                     {dev.author_photo ? (
-                      <img src={dev.author_photo} alt={dev.author_name} style={{ width: '32px', height: '32px', borderRadius: '50%', objectFit: 'cover' }} />
+                      <img src={dev.author_photo} alt={dev.author_name} style={{ width: '32px', height: '32px', borderRadius: '4px', objectFit: 'cover' }} />
                     ) : (
-                      <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
+                      <div style={{ width: '32px', height: '32px', borderRadius: '4px', background: '#e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#94a3b8' }}>
                         <BookOpen size={16} />
                       </div>
                     )}
-                    <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#334155' }}>Por {dev.author_name}</span>
+                    <span style={{ fontSize: '0.9rem', fontWeight: 600, color: '#334155' }}>Autor: {dev.author_name}</span>
                   </div>
                 </article>
               ))}
