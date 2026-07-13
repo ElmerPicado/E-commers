@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
-import { BookOpen, CheckCircle, Clock, XCircle, Edit, Trash2, Plus, Save, Users, Copy } from 'lucide-react';
+import { BookOpen, CheckCircle, Clock, XCircle, Edit, Trash2, Plus, Save, Users, Copy, Image } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
@@ -15,8 +15,43 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
     deleteDevotional, 
     deleteDevotionalComment,
     addDevotionalCategory, 
-    deleteDevotionalCategory 
+    deleteDevotionalCategory,
+    livestream,
+    updateLivestream
   } = useContext(GalleryContext);
+
+  const [bgUrl, setBgUrl] = useState('');
+  const [bgFile, setBgFile] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  React.useEffect(() => {
+    if (livestream?.formBgUrl) setBgUrl(livestream.formBgUrl);
+  }, [livestream?.formBgUrl]);
+
+  const handleSaveBg = async () => {
+    let finalUrl = bgUrl;
+    if (bgFile && isSupabaseConfigured) {
+      setIsUploading(true);
+      try {
+        const fileExt = bgFile.name.split('.').pop();
+        const fileName = `form_bg_${Date.now()}.${fileExt}`;
+        const filePath = `banners/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, bgFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        finalUrl = publicUrl;
+      } catch (e) {
+        alert('Error al subir imagen');
+        setIsUploading(false);
+        return;
+      }
+    }
+    await updateLivestream({ ...livestream, formBgUrl: finalUrl });
+    setBgFile(null);
+    setBgUrl(finalUrl);
+    setIsUploading(false);
+    triggerSuccess('Fondo actualizado exitosamente.');
+  };
 
   const [newCatName, setNewCatName] = useState('');
   
@@ -148,6 +183,27 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      
+      {/* SECCIÓN FONDO FORMULARIO */}
+      <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', margin: 0 }}>
+          <Image size={20} style={{ color: 'var(--accent-color)' }} /> 
+          Fondo del Formulario de Devocionales
+        </h2>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '250px' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>URL o Archivo de Imagen</label>
+            <input type="file" accept="image/*" onChange={(e) => setBgFile(e.target.files[0])} style={{ marginBottom: '0.5rem', display: 'block', color: 'var(--text-primary)' }} />
+            <input type="text" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} placeholder="https://..." style={inputStyle} />
+          </div>
+          <button onClick={handleSaveBg} disabled={isUploading} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem' }}>
+            <Save size={16} /> {isUploading ? 'Guardando...' : 'Guardar Fondo'}
+          </button>
+        </div>
+        {bgUrl && (
+          <div style={{ height: '100px', width: '200px', borderRadius: '0.5rem', backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid var(--border-color)' }}></div>
+        )}
+      </div>
       
       {/* SECCIÓN CATEGORÍAS */}
       <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>

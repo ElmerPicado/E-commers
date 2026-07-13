@@ -21,7 +21,7 @@ export default function SubmitDevocional() {
   
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isLightMode = false; // Forzamos modo oscuro general
+  const isLightMode = true; // Forzamos modo claro para el formulario interior
 
   // Author Codes State
   const [enteredCode, setEnteredCode] = useState('');
@@ -261,7 +261,7 @@ export default function SubmitDevocional() {
             <img 
               src={livestream.churchLogo} 
               alt={livestream.churchName || 'Iglesia Metodista de Río Cuarto'} 
-              style={{ width: '70px', height: '70px', objectFit: 'contain', margin: '0 auto 1rem auto' }} 
+              style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '50%', margin: '0 auto 1rem auto', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }} 
             />
           ) : (
             <BookOpen size={48} style={{ color: 'var(--accent-color)', margin: '0 auto 1rem auto' }} />
