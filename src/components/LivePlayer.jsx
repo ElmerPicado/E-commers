@@ -113,7 +113,7 @@ export default function LivePlayer() {
         <div className="live-player-container">
           
           {/* Iframe player */}
-          <div style={{
+          <div className="edge-to-edge-mobile" style={{
             position: 'relative',
             width: '100%',
             paddingTop: '56.25%', // 16:9 Aspect Ratio
@@ -172,11 +172,9 @@ export default function LivePlayer() {
           </div>
 
           {/* Interactive Chat */}
-          <div style={{
+          <div className="live-chat-wrapper" style={{
             display: 'flex',
             flexDirection: 'column',
-            height: '100%',
-            minHeight: '350px',
             background: 'rgba(255, 255, 255, 0.01)',
             border: '1px solid var(--border-color)',
             borderRadius: '0.75rem',
@@ -201,6 +199,7 @@ export default function LivePlayer() {
             {/* Chat messages */}
             <div 
               ref={chatContainerRef}
+              className="live-chat-box"
               style={{
               flex: 1,
               padding: '0.75rem',
@@ -208,8 +207,6 @@ export default function LivePlayer() {
               display: 'flex',
               flexDirection: 'column',
               gap: '0.75rem',
-              maxHeight: '400px', // More height on desktop, ok on mobile
-              minHeight: '200px',
               scrollBehavior: 'smooth'
             }}>
               {(livestream.realtimeChatMessages || livestream.chatMessages || []).map((msg) => (

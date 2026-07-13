@@ -4,11 +4,11 @@ import { Calendar, HelpCircle } from 'lucide-react';
 
 export default function Live() {
   return (
-    <div className="theme-imr4" style={{ minHeight: '100vh', padding: '6.5rem 1.5rem 4rem 1.5rem' }}>
-      <div className="container" style={{ maxWidth: '1000px' }}>
+    <div className="theme-imr4 live-page-wrapper">
+      <div className="container" style={{ maxWidth: '1000px', padding: 0 }}>
         
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+        <div className="live-header-mobile-hide" style={{ textAlign: 'center', marginBottom: '3rem', padding: '0 1rem' }}>
           <h1 className="gradient-text" style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>
             Sección Multimedia en Vivo
           </h1>
@@ -23,10 +23,9 @@ export default function Live() {
         {/* Informative Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
           gap: '1.5rem',
           marginTop: '2.5rem'
-        }} className="grid-cols-2">
+        }} className="grid-cols-2 live-info-grid">
           
           <div className="glass-card" style={{ padding: '1.5rem' }}>
             <h3 style={{ fontSize: '1.15rem', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>

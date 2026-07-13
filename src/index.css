@@ -431,6 +431,201 @@ a {
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
   }
+font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Grid Layouts */
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* Swipe Indicator (Mobile only) */
+.swipe-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--accent-color);
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 0.75rem;
+  justify-content: center;
+  animation: pulse-horizontal 2s infinite;
+}
+
+@media (min-width: 768px) {
+  .swipe-indicator {
+    display: none;
+  }
+}
+
+@keyframes pulse-horizontal {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(5px); }
+}
+
+@media (max-width: 1024px) {
+  .grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 768px) {
+  .grid-cols-4, .grid-cols-3, .grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+}
+
+/* Horizontal Scroll Containers (Mobile Carousels) */
+.scroll-container {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding-bottom: 1rem;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none; /* Firefox */
+  margin: 0 -1.5rem; /* Full bleed on mobile */
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+.scroll-container::-webkit-scrollbar {
+  display: none;
+}
+.scroll-item {
+  flex: 0 0 auto;
+  width: 85vw;
+  max-width: 350px;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 768px) {
+  .scroll-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    overflow-x: visible;
+    padding-bottom: 0;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .scroll-item {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+/* Hero Section Utilities */
+.hero-content-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+.hero-text-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1 1 min-content;
+}
+
+/* Responsive App Utilities */
+.mobile-only {
+  display: none !important;
+}
+
+.desktop-only {
+  display: flex;
+}
+
+.hero-section {
+  min-height: 85vh;
+  padding: 6rem 1.5rem 4rem 1.5rem;
+  background-attachment: fixed;
+}
+.hero-section-min {
+  min-height: 65vh;
+  padding: 8rem 1.5rem 6rem 1.5rem;
+}
+
+.hero-logo {
+  width: 160px;
+  height: 160px;
+}
+
+.bg-fixed-mobile-scroll {
+  background-attachment: fixed;
+}
+
+@media (max-width: 768px) {
+  .mobile-only {
+    display: flex !important;
+  }
+  .desktop-only {
+    display: none !important;
+  }
+  
+  /* Give space for bottom nav on mobile */
+  #root {
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+
+  .container {
+    padding: 0 1rem;
+  }
+
+  .hero-section {
+    min-height: 70vh;
+    padding: 4rem 1rem 3rem 1rem !important;
+  }
+  .hero-section-min {
+    min-height: 50vh;
+    padding: 5rem 1rem 3rem 1rem !important;
+  }
+  
+  .bg-fixed-mobile-scroll {
+    background-attachment: scroll !important;
+  }
+  /* Centrado en móvil para hero */
+  .hero-content-wrapper {
+    flex-direction: column;
+    text-align: center;
+    gap: 2rem;
+  }
+  .hero-text-wrapper {
+    align-items: center;
+    text-align: center;
+    order: 1; /* Texto arriba */
+  }
+  .hero-content-wrapper .logo-wrapper {
+    order: 2; /* Logo abajo del texto en celular */
+  }
+
+  /* Admin Dashboard Mobile Fixes */
+  .admin-panel {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  .admin-panel [style*="grid-template-columns"],
+  .grid-cols-1, .grid-cols-2, .grid-cols-3, .grid-cols-4 {
+    grid-template-columns: 1fr !important;
+  }
+  .admin-panel table, 
+  .admin-panel .table-wrapper {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  /* Make global tabs scrollable horizontally on mobile */
+  .admin-tabs-container {
+    flex-wrap: nowrap !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
   .admin-tabs-container::-webkit-scrollbar {
     display: none;
   }
@@ -440,11 +635,50 @@ a {
 }
 
 /* Live Player Layout */
+.live-page-wrapper {
+  min-height: 100vh;
+  padding: 6.5rem 1.5rem 4rem 1.5rem;
+}
+
 .live-player-container {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
   margin-top: 0.5rem;
+}
+
+.live-chat-box {
+  max-height: 200px; /* Short on mobile */
+  min-height: 150px;
+}
+
+@media (max-width: 768px) {
+  .live-page-wrapper {
+    padding: 4.5rem 0 3rem 0; /* Remove horizontal padding entirely for edge-to-edge */
+  }
+  
+  .live-header-mobile-hide {
+    display: none !important;
+  }
+  
+  .edge-to-edge-mobile {
+    border-radius: 0 !important;
+    border-left: none !important;
+    border-right: none !important;
+    width: 100vw !important;
+    margin-left: 0 !important;
+  }
+  
+  .live-player-container {
+    gap: 0;
+    margin-top: 0;
+  }
+  
+  /* Add padding back to chat and informative sections since wrapper has 0 padding */
+  .live-chat-wrapper, .live-info-grid {
+    padding: 0 1rem;
+    margin-top: 1rem;
+  }
 }
 
 @media (min-width: 992px) {
@@ -457,5 +691,9 @@ a {
   .live-player-container > :last-child {
     width: 350px; /* Chat is fixed width */
     flex-shrink: 0;
+  }
+  .live-chat-box {
+    max-height: 250px;
+    min-height: 150px;
   }
 }
