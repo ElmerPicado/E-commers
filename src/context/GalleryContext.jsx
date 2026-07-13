@@ -936,7 +936,16 @@ const clearLiveChat = async () => {
         return { success: false, error: error.message };
       }
       if (data && data.length > 0) {
-        setDevotionals(prev => [data[0], ...prev]);
+        const newDev = data[0];
+        setDevotionals(prev => {
+          const updatedPrev = prev.map(d => {
+            if (d.author_name === newDev.author_name) {
+              return { ...d, author_photo: newDev.author_photo };
+            }
+            return d;
+          });
+          return [newDev, ...updatedPrev];
+        });
       }
       return { success: true, data };
     } else {

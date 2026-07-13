@@ -48,12 +48,12 @@ export default function SubmitDevocional() {
     setRecoveredCode(null);
     const { data, error } = await supabase
       .from('devotional_authors')
-      .select('author_code')
+      .select('code')
       .eq('email', recoveryEmail.trim().toLowerCase())
       .single();
     
     if (data) {
-      setRecoveredCode(data.author_code);
+      setRecoveredCode(data.code);
     } else {
       alert("No encontramos ningún código asociado a este correo electrónico.");
     }
@@ -136,13 +136,15 @@ export default function SubmitDevocional() {
         const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
         finalPhotoUrl = publicUrl;
 
-        if (isLocked && enteredCode) {
-          await supabase
-            .from('devotional_authors')
-            .update({ photo_url: finalPhotoUrl })
-            .eq('code', enteredCode.trim().toUpperCase());
-            
-          // Update the photo in all previous devotionals from the same author
+        if ((isLocked && enteredCode) || (wantsToRegister && !isLocked)) {
+          if (isLocked && enteredCode) {
+            await supabase
+              .from('devotional_authors')
+              .update({ photo_url: finalPhotoUrl })
+              .eq('code', enteredCode.trim().toUpperCase());
+          }
+          
+          // Update the photo in all previous devotionals from the same author name
           await supabase
             .from('devotionals')
             .update({ author_photo: finalPhotoUrl })
@@ -168,7 +170,7 @@ export default function SubmitDevocional() {
         const { error: insertError } = await supabase
           .from('devotional_authors')
           .insert({
-            author_code: generatedCode,
+            code: generatedCode,
             name: authorName,
             bio: authorBio,
             photo_url: finalPhotoUrl,
@@ -177,6 +179,8 @@ export default function SubmitDevocional() {
         if (insertError) {
           console.error('Error guardando autor:', insertError);
           savedCode = ''; 
+        } else {
+          savedCode = generatedCode;
         }
       } catch (err) {
         console.error(err);

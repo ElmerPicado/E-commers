@@ -4,6 +4,13 @@ import { GalleryContext } from '../context/GalleryContext';
 import { BookOpen, User, Calendar, Tag, Sun, Moon, Search } from 'lucide-react';
 import './Devocionales.css';
 
+const normalizeText = (text) => {
+  return (text || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+};
+
 export default function Devocionales() {
   const { devotionals, devotionalCategories, livestream } = useContext(GalleryContext);
   const navigate = useNavigate();
@@ -38,11 +45,15 @@ export default function Devocionales() {
       
       let matchSearch = true;
       if (debouncedSearchTerm.trim()) {
-        const query = debouncedSearchTerm.toLowerCase();
-        const contentStr = (d.content || '').toLowerCase();
-        const titleStr = (d.title || '').toLowerCase();
-        const verseStr = (d.verse || '').toLowerCase();
-        matchSearch = titleStr.includes(query) || contentStr.includes(query) || verseStr.includes(query);
+        const query = normalizeText(debouncedSearchTerm);
+        const contentStr = normalizeText(d.content);
+        const titleStr = normalizeText(d.title);
+        const verseStr = normalizeText(d.verse);
+        const authorStr = normalizeText(d.author_name);
+        matchSearch = titleStr.includes(query) || 
+                      contentStr.includes(query) || 
+                      verseStr.includes(query) || 
+                      authorStr.includes(query);
       }
 
       return matchCategory && matchAuthor && matchSearch;
