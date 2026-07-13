@@ -273,7 +273,7 @@ export default function DevocionalDetail() {
         padding: '2rem'
       }}>
         <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#1e3a8a', margin: 0 }}>
-          Iglesia Ministerio Restauración 4
+          Iglesia Metodista Río Cuarto
         </h3>
         <p style={{ color: '#475569', margin: 0, lineHeight: 1.6, fontSize: '1rem' }}>
           Este devocional ha sido compartido a través de nuestra plataforma. Te invitamos a conocer más de nuestra iglesia y descubrir más recursos espirituales.

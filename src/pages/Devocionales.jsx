@@ -1,7 +1,7 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { BookOpen, User, Calendar, Tag, Sun, Moon } from 'lucide-react';
+import { BookOpen, User, Calendar, Tag, Sun, Moon, Search } from 'lucide-react';
 import './Devocionales.css';
 
 export default function Devocionales() {
@@ -9,17 +9,45 @@ export default function Devocionales() {
   const navigate = useNavigate();
   
   const [activeCategoryId, setActiveCategoryId] = useState('all');
+  const [activeAuthorName, setActiveAuthorName] = useState('all');
   const [isLightMode, setIsLightMode] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 400); // 400ms debounce to prevent lag
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Filtrar solo los publicados
   const publishedDevotionals = useMemo(() => {
     return (devotionals || []).filter(d => d.status === 'published');
   }, [devotionals]);
 
+  const uniqueAuthors = useMemo(() => {
+    const authors = publishedDevotionals.map(d => d.author_name).filter(Boolean);
+    return [...new Set(authors)].sort((a, b) => a.localeCompare(b));
+  }, [publishedDevotionals]);
+
   const filteredDevotionals = useMemo(() => {
-    if (activeCategoryId === 'all') return publishedDevotionals;
-    return publishedDevotionals.filter(d => d.category_id === activeCategoryId);
-  }, [publishedDevotionals, activeCategoryId]);
+    return publishedDevotionals.filter(d => {
+      const matchCategory = activeCategoryId === 'all' || d.category_id === activeCategoryId;
+      const matchAuthor = activeAuthorName === 'all' || d.author_name === activeAuthorName;
+      
+      let matchSearch = true;
+      if (debouncedSearchTerm.trim()) {
+        const query = debouncedSearchTerm.toLowerCase();
+        const contentStr = (d.content || '').toLowerCase();
+        const titleStr = (d.title || '').toLowerCase();
+        const verseStr = (d.verse || '').toLowerCase();
+        matchSearch = titleStr.includes(query) || contentStr.includes(query) || verseStr.includes(query);
+      }
+
+      return matchCategory && matchAuthor && matchSearch;
+    });
+  }, [publishedDevotionals, activeCategoryId, activeAuthorName, debouncedSearchTerm]);
 
   const getCategoryName = (id) => {
     if (!id) return 'Sin categoría';
@@ -73,7 +101,35 @@ export default function Devocionales() {
 
       <div className="devocionales-layout">
         <aside className="categories-sidebar">
-          <h3>Categorías</h3>
+          <div style={{ marginBottom: '2.5rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.5rem', marginTop: 0 }}>
+              Buscar
+            </h3>
+            <div style={{ position: 'relative' }}>
+              <input 
+                type="text" 
+                placeholder="Palabras clave..." 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem 0.75rem 2.5rem',
+                  borderRadius: '0.5rem',
+                  border: '1px solid var(--border-color)',
+                  background: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
+                  outline: 'none',
+                  fontSize: '0.95rem',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <Search size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-secondary)' }} />
+            </div>
+          </div>
+
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.5rem', marginTop: 0 }}>
+            Categorías
+          </h3>
           <div 
             className={`category-item ${activeCategoryId === 'all' ? 'active' : ''}`}
             onClick={() => setActiveCategoryId('all')}
@@ -87,6 +143,25 @@ export default function Devocionales() {
               onClick={() => setActiveCategoryId(cat.id)}
             >
               {cat.name}
+            </div>
+          ))}
+
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.5rem', marginTop: '2.5rem' }}>
+            Autores
+          </h3>
+          <div 
+            className={`category-item ${activeAuthorName === 'all' ? 'active' : ''}`}
+            onClick={() => setActiveAuthorName('all')}
+          >
+            Todos los autores
+          </div>
+          {uniqueAuthors.map(author => (
+            <div 
+              key={author}
+              className={`category-item ${activeAuthorName === author ? 'active' : ''}`}
+              onClick={() => setActiveAuthorName(author)}
+            >
+              {author}
             </div>
           ))}
         </aside>

@@ -19,6 +19,9 @@ export default function SubmitDevocional() {
   const [verse, setVerse] = useState('');
   const [content, setContent] = useState('');
   const [prayer, setPrayer] = useState('');
+  const [youtubeLink, setYoutubeLink] = useState('');
+  const [devotionalImageFile, setDevotionalImageFile] = useState(null);
+  const [devotionalImagePreview, setDevotionalImagePreview] = useState('');
   
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -96,6 +99,13 @@ export default function SubmitDevocional() {
         alert("Por favor ingresa tu nombre de autor.");
         return;
       }
+      
+      const lowerName = authorName.trim().toLowerCase();
+      if (lowerName === 'anónimo' || lowerName === 'anonimo') {
+        alert('El nombre "Anónimo" está reservado. Por favor, utiliza la opción "Quiero ser Anónimo" al inicio si no deseas mostrar tu nombre, o usa tu nombre real.');
+        return;
+      }
+
       if (!authorBio.trim()) {
         alert("Por favor ingresa una biografía corta.");
         return;
@@ -131,6 +141,12 @@ export default function SubmitDevocional() {
             .from('devotional_authors')
             .update({ photo_url: finalPhotoUrl })
             .eq('code', enteredCode.trim().toUpperCase());
+            
+          // Update the photo in all previous devotionals from the same author
+          await supabase
+            .from('devotionals')
+            .update({ author_photo: finalPhotoUrl })
+            .eq('author_name', authorName);
         }
       } catch (err) {
         console.error('Error uploading photo:', err);
@@ -170,11 +186,46 @@ export default function SubmitDevocional() {
     const baseSlug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 8)}`;
 
+    let finalDevotionalContent = content;
+
+    // Upload devotional image if present
+    let finalDevotionalImageUrl = '';
+    if (devotionalImageFile && isSupabaseConfigured) {
+      try {
+        const fileExt = devotionalImageFile.name.split('.').pop();
+        const fileName = `dev_image_${Date.now()}.${fileExt}`;
+        const filePath = `devotionals/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, devotionalImageFile);
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+          finalDevotionalImageUrl = publicUrl;
+        }
+      } catch (err) {
+        console.error('Error uploading devotional image:', err);
+      }
+    }
+
+    if (finalDevotionalImageUrl) {
+      finalDevotionalContent += `<div style="margin-top: 2rem; text-align: center;"><img src="${finalDevotionalImageUrl}" style="max-width: 100%; border-radius: 0.5rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" alt="Imagen del devocional" /></div>`;
+    }
+
+    if (youtubeLink.trim()) {
+      const match = youtubeLink.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/);
+      const videoId = (match && match[2].length === 11) ? match[2] : null;
+      if (videoId) {
+        finalDevotionalContent += `<div style="margin-top: 2rem; text-align: center;"><iframe width="100%" height="400" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 0.5rem; max-width: 800px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);"></iframe></div>`;
+      } else {
+        // Fallback for non-youtube links or malformed links
+        finalDevotionalContent += `<div style="margin-top: 2rem; text-align: center;"><a href="${youtubeLink}" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: underline;">Ver video adjunto</a></div>`;
+      }
+    }
+
     const newDevotional = {
       title,
       slug: uniqueSlug,
       verse: verse,
-      content: content,
+      content: finalDevotionalContent,
       prayer: prayer,
       category_id: categoryId || null,
       author_name: authorName,
@@ -283,6 +334,9 @@ export default function SubmitDevocional() {
                 setAuthorPhotoPreview('');
                 setPendingCode('');
               }
+              setYoutubeLink('');
+              setDevotionalImageFile(null);
+              setDevotionalImagePreview('');
               setCurrentStep(1);
             }}
             className="btn btn-secondary"
@@ -386,6 +440,15 @@ export default function SubmitDevocional() {
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
               <button type="button" onClick={() => setHasCodeAnswer('yes')} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 600 }}>Sí, ya tengo mi código</button>
               <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>Soy ocasional</button>
+              <button type="button" onClick={() => {
+                setHasCodeAnswer('anon');
+                setAuthorName('Anónimo');
+                setAuthorBio('Espero poder bendecirte con este mensaje poderoso.');
+                setAuthorEmail('');
+                setAuthorPhotoFile(null);
+                setAuthorPhotoPreview('');
+                setIsLocked(true);
+              }} className="btn" style={{ background: 'var(--bg-surface)', border: '1px dashed var(--text-secondary)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>Quiero ser Anónimo</button>
             </div>
             <div style={{ marginTop: '1.5rem' }}>
               <button type="button" onClick={() => setHasCodeAnswer('forgot')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem' }}>
@@ -460,7 +523,11 @@ export default function SubmitDevocional() {
           <div style={{ background: 'rgba(37, 99, 235, 0.1)', padding: '1rem 1.5rem', borderRadius: '1rem', border: '1px solid rgba(37, 99, 235, 0.3)', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
               <p style={{ color: 'var(--text-primary)', fontWeight: 600, fontSize: '0.95rem' }}>Escribiendo como: {authorName}</p>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>Tus datos han sido cargados automáticamente.</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                {hasCodeAnswer === 'anon' 
+                  ? 'Tus datos han sido cargados como Anónimo y tu identidad estará oculta.' 
+                  : 'Tus datos han sido cargados automáticamente.'}
+              </p>
             </div>
             <button 
               type="button" 
@@ -536,7 +603,7 @@ export default function SubmitDevocional() {
                 </div>
               )}
 
-              {(isLocked || wantsToRegister) && (
+              {(isLocked || wantsToRegister) && hasCodeAnswer !== 'anon' && (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
                   {wantsToRegister && !isLocked && (
                     <div>
@@ -691,6 +758,44 @@ export default function SubmitDevocional() {
                   placeholder="Señor, te pido que esta palabra..."
                   style={{ ...inputStyle, resize: 'vertical', minHeight: '80px' }}
                 />
+              </div>
+
+              <div>
+                <label style={labelStyle}>Imagen Adjunta (Opcional)</label>
+                <input 
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setDevotionalImageFile(file);
+                      setDevotionalImagePreview(URL.createObjectURL(file));
+                    }
+                  }}
+                  style={{ ...inputStyle, padding: '0.5rem', background: 'var(--input-bg)' }} 
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                  Si deseas agregar una imagen al final del devocional.
+                </p>
+                {devotionalImagePreview && (
+                  <div style={{ marginTop: '0.75rem', maxWidth: '200px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                    <img src={devotionalImagePreview} alt="Preview" style={{ width: '100%', height: 'auto', display: 'block' }} />
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label style={labelStyle}>Enlace de YouTube (Opcional)</label>
+                <input 
+                  type="url" 
+                  value={youtubeLink} 
+                  onChange={(e) => setYoutubeLink(e.target.value)}
+                  placeholder="Ej. https://www.youtube.com/watch?v=..."
+                  style={{ ...inputStyle, background: 'var(--input-bg)' }}
+                />
+                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                  Aparecerá como un video al final de tu devocional.
+                </p>
               </div>
             </div>
           </div>

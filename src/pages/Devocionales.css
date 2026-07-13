@@ -125,12 +125,16 @@
 
 .category-item {
   padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border-color);
   cursor: pointer;
   transition: all 0.2s ease;
   color: var(--text-secondary);
   font-weight: 500;
-  border: 1px solid transparent;
+}
+
+.category-item:last-child {
+  border-bottom: none;
 }
 
 .category-item:hover {
@@ -293,6 +297,16 @@
 .devocional-content-body ol {
   margin-left: 1.5rem;
   margin-bottom: 1.5rem;
+}
+
+.recent-dev-card {
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 1rem;
+}
+
+.recent-dev-card:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
 .recent-dev-card:hover h4 {
