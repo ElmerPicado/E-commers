@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
-import { Plus, Trash2, Edit, FileText, Video, Link as LinkIcon, Upload } from 'lucide-react';
+import { Plus, Trash2, Edit, FileText, Video, Link as LinkIcon, Upload, Image } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 
 export default function RecursosAdmin({ triggerSuccess }) {
@@ -11,8 +11,43 @@ export default function RecursosAdmin({ triggerSuccess }) {
     deleteResourceCategory,
     addResource,
     updateResource,
-    deleteResource
+    deleteResource,
+    livestream,
+    updateLivestream
   } = useContext(GalleryContext);
+
+  const [bgUrl, setBgUrl] = useState('');
+  const [bgFile, setBgFile] = useState(null);
+  const [isBgUploading, setIsBgUploading] = useState(false);
+
+  React.useEffect(() => {
+    if (livestream?.resourcesBgUrl) setBgUrl(livestream.resourcesBgUrl);
+  }, [livestream?.resourcesBgUrl]);
+
+  const handleSaveBg = async () => {
+    let finalUrl = bgUrl;
+    if (bgFile && isSupabaseConfigured) {
+      setIsBgUploading(true);
+      try {
+        const fileExt = bgFile.name.split('.').pop();
+        const fileName = `resources_bg_${Date.now()}.${fileExt}`;
+        const filePath = `banners/${fileName}`;
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, bgFile);
+        if (uploadError) throw uploadError;
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        finalUrl = publicUrl;
+      } catch (e) {
+        alert('Error al subir imagen');
+        setIsBgUploading(false);
+        return;
+      }
+    }
+    await updateLivestream({ ...livestream, resourcesBgUrl: finalUrl });
+    setBgFile(null);
+    setBgUrl(finalUrl);
+    setIsBgUploading(false);
+    triggerSuccess('Fondo de Biblioteca actualizado exitosamente.');
+  };
 
   // Category State
   const [catName, setCatName] = useState('');
@@ -154,6 +189,30 @@ export default function RecursosAdmin({ triggerSuccess }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
+      {/* SECCIÓN FONDO DE PANTALLA */}
+      <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '0.75rem' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <Image size={18} style={{ color: 'var(--accent-color)' }} /> Imagen de Portada (Biblioteca)
+        </h3>
+        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {isSupabaseConfigured ? (
+              <input type="file" accept="image/*" onChange={(e) => setBgFile(e.target.files[0])} style={{ fontSize: '0.85rem' }} />
+            ) : (
+              <input type="text" placeholder="URL de la imagen" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} style={{ padding: '0.5rem', borderRadius: '0.35rem', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%' }} />
+            )}
+            <button type="button" onClick={handleSaveBg} disabled={isBgUploading} className="btn btn-primary" style={{ alignSelf: 'flex-start', padding: '0.5rem 1rem' }}>
+              {isBgUploading ? 'Subiendo...' : 'Guardar Imagen'}
+            </button>
+          </div>
+          {(bgUrl || bgFile) && (
+            <div style={{ width: '250px', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+              <img src={bgFile ? URL.createObjectURL(bgFile) : bgUrl} alt="Fondo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+          )}
+        </div>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '2rem' }} className="grid-cols-2">
         
         {/* PANEL IZQUIERDO: CATEGORÍAS */}

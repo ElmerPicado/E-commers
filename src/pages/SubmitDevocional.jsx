@@ -11,6 +11,7 @@ export default function SubmitDevocional() {
 
   const [authorName, setAuthorName] = useState('');
   const [authorBio, setAuthorBio] = useState('');
+  const [authorEmail, setAuthorEmail] = useState('');
   const [authorPhotoFile, setAuthorPhotoFile] = useState(null);
   const [authorPhotoPreview, setAuthorPhotoPreview] = useState('');
   const [title, setTitle] = useState('');
@@ -26,6 +27,11 @@ export default function SubmitDevocional() {
   // Author Codes State
   const [enteredCode, setEnteredCode] = useState('');
   const [isLocked, setIsLocked] = useState(false);
+
+  // Recovery State
+  const [recoveryEmail, setRecoveryEmail] = useState('');
+  const [recoveredCode, setRecoveredCode] = useState(null);
+  const [isRecovering, setIsRecovering] = useState(false);
   const [hasCodeAnswer, setHasCodeAnswer] = useState(null);
   const [wantsToRegister, setWantsToRegister] = useState(false);
   const [currentStep, setCurrentStep] = useState(1);
@@ -33,6 +39,23 @@ export default function SubmitDevocional() {
   const [generatedCode, setGeneratedCode] = useState('');
   const [loginError, setLoginError] = useState('');
   const [isSearching, setIsSearching] = useState(false);
+
+  const handleRecoverCode = async () => {
+    setIsRecovering(true);
+    setRecoveredCode(null);
+    const { data, error } = await supabase
+      .from('devotional_authors')
+      .select('author_code')
+      .eq('email', recoveryEmail.trim().toLowerCase())
+      .single();
+    
+    if (data) {
+      setRecoveredCode(data.author_code);
+    } else {
+      alert("No encontramos ningún código asociado a este correo electrónico.");
+    }
+    setIsRecovering(false);
+  };
 
   const handleLoginCode = async () => {
     if (!enteredCode.trim()) return;
@@ -118,22 +141,26 @@ export default function SubmitDevocional() {
     }
 
     let savedCode = pendingCode;
-    if (wantsToRegister && isSupabaseConfigured && !isLocked) {
-      try {
-        const { error: authorError } = await supabase
-          .from('devotional_authors')
-          .insert([{
-            code: savedCode,
-            email: null,
-            name: authorName,
-            bio: authorBio,
-            photo_url: finalPhotoUrl
-          }]);
-        if (authorError) {
-          console.error('Error guardando autor:', authorError);
-          // Proceed anyway but don't show code
+    if (wantsToRegister && !isLocked && !authorEmail) {
+      alert("Por favor, ingresa tu correo electrónico para poder registrarte.");
+      return;
+    }
+
+    if (wantsToRegister && !isLocked) {
+      const generatedCode = `AUT-${Math.floor(1000 + Math.random() * 9000)}`;
+      
+      const { error: insertError } = await supabase
+        .from('devotional_authors')
+        .insert({
+          author_code: generatedCode,
+          name: authorName,
+          bio: authorBio,
+          photo_url: finalPhotoUrl,
+          email: authorEmail.trim().toLowerCase()
+        });
+        if (insertError) {
+          console.error('Error guardando autor:', insertError);
           savedCode = ''; 
-        }
       } catch (err) {
         console.error(err);
         savedCode = '';
@@ -356,6 +383,11 @@ export default function SubmitDevocional() {
               <button type="button" onClick={() => setHasCodeAnswer('yes')} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 600 }}>Sí, ya tengo mi código</button>
               <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>No, soy nuevo</button>
             </div>
+            <div style={{ marginTop: '1.5rem' }}>
+              <button type="button" onClick={() => setHasCodeAnswer('forgot')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem' }}>
+                ¿Olvidaste tu código?
+              </button>
+            </div>
           </div>
         )}
 
@@ -399,6 +431,27 @@ export default function SubmitDevocional() {
           </div>
         )}
 
+        {!isLocked && hasCodeAnswer === 'forgot' && (
+          <div style={{ background: 'rgba(245, 158, 11, 0.1)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid rgba(245, 158, 11, 0.3)', marginBottom: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <h3 style={{ color: 'var(--text-primary)', fontWeight: 700, fontSize: '1.1rem' }}>Recuperar código de escritor</h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Ingresa el correo electrónico con el que te registraste y buscaremos tu código.</p>
+            <div style={{ display: 'flex', gap: '0.5rem', maxWidth: '400px' }}>
+              <input type="email" value={recoveryEmail} onChange={e => setRecoveryEmail(e.target.value)} placeholder="tucorreo@ejemplo.com" style={{ ...inputStyle, background: 'var(--input-bg)' }} />
+              <button type="button" onClick={handleRecoverCode} disabled={isRecovering || !recoveryEmail} className="btn btn-primary" style={{ padding: '0 1.5rem' }}>
+                {isRecovering ? 'Buscando...' : 'Recuperar'}
+              </button>
+            </div>
+            {recoveredCode && (
+              <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid #10b981', padding: '1rem', borderRadius: '0.5rem', marginTop: '0.5rem' }}>
+                <p style={{ color: '#10b981', fontWeight: 600, fontSize: '0.95rem' }}>¡Código encontrado!</p>
+                <p style={{ fontSize: '1.25rem', fontWeight: 800, marginTop: '0.5rem', color: 'var(--text-primary)' }}>{recoveredCode}</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Guárdalo en un lugar seguro. Ahora puedes darle a "Volver atrás" y elegir "Sí, ya tengo mi código".</p>
+              </div>
+            )}
+            <button type="button" onClick={() => { setHasCodeAnswer(null); setRecoveredCode(null); setRecoveryEmail(''); }} style={{ background: 'transparent', border: 'none', color: 'var(--accent-color)', cursor: 'pointer', fontSize: '0.85rem', textDecoration: 'underline', alignSelf: 'flex-start' }}>Volver atrás</button>
+          </div>
+        )}
+
         {isLocked && (
           <div style={{ background: 'rgba(37, 99, 235, 0.1)', padding: '1rem 1.5rem', borderRadius: '1rem', border: '1px solid rgba(37, 99, 235, 0.3)', marginBottom: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
@@ -411,6 +464,7 @@ export default function SubmitDevocional() {
                 setIsLocked(false);
                 setAuthorName('');
                 setAuthorBio('');
+                setAuthorEmail('');
                 setAuthorPhotoPreview('');
                 setEnteredCode('');
                 setHasCodeAnswer(null);
@@ -423,8 +477,10 @@ export default function SubmitDevocional() {
         )}
 
         {/* Author Section */}
-        <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        {(isLocked || hasCodeAnswer === 'no') && (
+          <>
+            <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)' }}>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <User size={20} /> Datos del Autor
             </h3>
             
@@ -458,61 +514,84 @@ export default function SubmitDevocional() {
                 </p>
               </div>
 
-              <div>
-                <label style={labelStyle}><ImageIcon size={14} style={{ display: 'inline', marginRight: '0.25rem' }} /> Foto de Perfil (Opcional)</label>
-                <input 
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) {
-                      setAuthorPhotoFile(file);
-                      setAuthorPhotoPreview(URL.createObjectURL(file));
-                    }
-                  }}
-                  style={{ ...inputStyle, padding: '0.5rem', background: 'var(--input-bg)' }} 
-                />
-                {isLocked && (
-                  <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                    Si subes una nueva foto, actualizaremos tu perfil.
-                  </p>
-                )}
-                {authorPhotoPreview && (
-                  <div style={{ marginTop: '0.75rem', width: '90px', height: '110px', borderRadius: '8px', overflow: 'hidden', border: '2px solid var(--border-color)' }}>
-                    <img src={authorPhotoPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {/* Opciones de Registro y Foto */}
+              {!isLocked && (
+                <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '0.75rem', marginTop: '1.5rem', border: '1px solid var(--border-color)' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
+                    <input 
+                      type="checkbox" 
+                      checked={wantsToRegister} 
+                      onChange={(e) => setWantsToRegister(e.target.checked)}
+                      style={{ width: '18px', height: '18px', accentColor: 'var(--accent-color)' }}
+                    />
+                    <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>
+                      Quiero registrarme como escritor frecuente (Me permite subir una foto de perfil y recuperar mi código por correo).
+                    </span>
+                  </label>
+                </div>
+              )}
+
+              {(isLocked || wantsToRegister) && (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem', marginTop: '1.5rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
+                  {wantsToRegister && !isLocked && (
+                    <div>
+                      <label style={labelStyle}>Correo Electrónico (Para recuperar tu código)</label>
+                      <input 
+                        type="email" 
+                        value={authorEmail} 
+                        onChange={(e) => setAuthorEmail(e.target.value)}
+                        required
+                        placeholder="ejemplo@correo.com"
+                        style={{ ...inputStyle, background: 'var(--input-bg)' }} 
+                      />
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                        No será público, solo se usa si olvidas tu código.
+                      </p>
+                    </div>
+                  )}
+
+                  <div>
+                    <label style={labelStyle}><ImageIcon size={14} style={{ display: 'inline', marginRight: '0.25rem' }} /> Foto de Perfil (Opcional)</label>
+                    <input 
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setAuthorPhotoFile(file);
+                          setAuthorPhotoPreview(URL.createObjectURL(file));
+                        }
+                      }}
+                      style={{ ...inputStyle, padding: '0.5rem', background: 'var(--input-bg)' }} 
+                    />
+                    {isLocked && (
+                      <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
+                        Si subes una nueva foto, actualizaremos tu perfil.
+                      </p>
+                    )}
+                    {authorPhotoPreview && (
+                      <div style={{ marginTop: '0.75rem', width: '90px', height: '110px', borderRadius: '8px', overflow: 'hidden', border: '2px solid var(--border-color)' }}>
+                        <img src={authorPhotoPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-            </div>
-          </div>
+                </div>
+              )}
 
-          {/* Registration Checkbox (Only if not logged in) */}
-          {!isLocked && (
-            <div style={{ background: isLightMode ? '#f8fafc' : 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
-                <input 
-                  type="checkbox" 
-                  checked={wantsToRegister} 
-                  onChange={(e) => setWantsToRegister(e.target.checked)}
-                  style={{ width: '18px', height: '18px', accentColor: 'var(--accent-color)' }}
-                />
-                <span style={{ fontSize: '0.95rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                  Marcar esta casilla si deseo generar un código para ser escritor frecuente y guardar mi perfil de autor.
-                </span>
-              </label>
             </div>
-          )}
 
-          <button 
-            type="button" 
-            onClick={handleContinueToStep2}
-            className="btn btn-primary"
-            style={{ padding: '1rem 2rem', fontSize: '1.1rem', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
-          >
-            Continuar a redactar devocional
-          </button>
+            <button 
+              type="button" 
+              onClick={handleContinueToStep2}
+              className="btn btn-primary"
+              style={{ padding: '1rem 2rem', fontSize: '1.1rem', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+            >
+              Continuar a redactar devocional
+            </button>
           </>
         )}
+        </>
+      )}
 
         {currentStep === 2 && (
           <>

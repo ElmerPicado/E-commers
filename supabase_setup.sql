@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS streaming_config (
   radio_title TEXT NOT NULL DEFAULT 'Radio IMR4 - Música de Bendición',
   radio_url TEXT NOT NULL DEFAULT 'https://stream.zeno.fm/f3s8m3n8vy8uv',
   is_radio_live BOOLEAN NOT NULL DEFAULT false,
+  resources_bg_url TEXT NOT NULL DEFAULT '',
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
@@ -72,7 +73,7 @@ CREATE TABLE IF NOT EXISTS activities (
 
 -- A. Configuración de Streaming
 INSERT INTO streaming_config (
-  id, live_title, live_url, is_live, radio_title, radio_url, is_radio_live
+  id, live_title, live_url, is_live, radio_title, radio_url, is_radio_live, resources_bg_url
 ) VALUES (
   'main', 
   'Culto de Adoración y Palabra - IMR4 Domingo', 
@@ -80,7 +81,8 @@ INSERT INTO streaming_config (
   true, 
   'Radio IMR4 - Música de Bendición', 
   'https://stream.zeno.fm/f3s8m3n8vy8uv', 
-  false
+  false,
+  ''
 )
 ON CONFLICT (id) DO NOTHING;
 

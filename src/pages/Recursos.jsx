@@ -25,8 +25,8 @@ export default function Recursos() {
     });
   }, [resources, activeCategory, activeType, searchTerm]);
 
-  const headerBgStyle = livestream?.formBgUrl ? {
-    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.75)), url(${livestream.formBgUrl})`,
+  const headerBgStyle = livestream?.resourcesBgUrl ? {
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.75)), url(${livestream.resourcesBgUrl})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
     backgroundAttachment: 'fixed',
@@ -66,8 +66,8 @@ export default function Recursos() {
       </button>
 
       <header className="recursos-header" style={headerBgStyle}>
-        <h1 style={livestream?.formBgUrl ? { color: '#ffffff' } : {}}>Biblioteca de Recursos</h1>
-        <p style={livestream?.formBgUrl ? { color: 'rgba(255, 255, 255, 0.9)' } : {}}>Material de estudio, enseñanzas y herramientas para tu crecimiento espiritual.</p>
+        <h1 style={livestream?.resourcesBgUrl ? { color: '#ffffff' } : {}}>Biblioteca de Recursos</h1>
+        <p style={livestream?.resourcesBgUrl ? { color: 'rgba(255, 255, 255, 0.9)' } : {}}>Material de estudio, enseñanzas y herramientas para tu crecimiento espiritual.</p>
       </header>
 
       <div className="recursos-container">

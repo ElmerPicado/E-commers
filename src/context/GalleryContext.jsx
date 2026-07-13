@@ -450,7 +450,8 @@ export const GalleryProvider = ({ children }) => {
           churchEmail: streamConfig.church_email || 'contacto@imr4.org',
           churchDescription: streamConfig.church_description || 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.',
           youtubeChannelUrl: streamConfig.youtube_channel_url || '',
-          formBgUrl: streamConfig.form_bg_url || ''
+          formBgUrl: streamConfig.form_bg_url || '',
+          resourcesBgUrl: streamConfig.resources_bg_url || ''
         }));
         setRadio(prev => ({
           ...prev,
@@ -542,7 +543,8 @@ export const GalleryProvider = ({ children }) => {
             churchAddress: updated.church_address || 'Río Cuarto, Córdoba, Argentina',
             churchMapsUrl: updated.church_maps_url || '',
             youtubeChannelUrl: updated.youtube_channel_url || '',
-            formBgUrl: updated.form_bg_url || ''
+            formBgUrl: updated.form_bg_url || '',
+            resourcesBgUrl: updated.resources_bg_url || ''
           }));
           setRadio(prev => ({
             ...prev,
@@ -703,7 +705,8 @@ export const GalleryProvider = ({ children }) => {
         church_email: updates.churchEmail,
         church_description: updates.churchDescription,
         youtube_channel_url: updates.youtubeChannelUrl,
-        form_bg_url: updates.formBgUrl
+        form_bg_url: updates.formBgUrl,
+        resources_bg_url: updates.resourcesBgUrl
       }).eq('id', 'main');
     } else {
       setLivestream((prev) => ({ ...prev, ...updates }));
