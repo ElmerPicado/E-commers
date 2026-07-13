@@ -83,8 +83,8 @@ export default function Historia() {
                     {block.testimonies.map((t, tIdx) => (
                       <div key={t.id} className="newspaper-article">
                         {/* Newspaper Body */}
-                        <div className="newspaper-body">
-                          <div className={`newspaper-author-block ${tIdx % 2 === 0 ? 'image-left' : 'image-right'}`}>
+                        <div className={`newspaper-body ${tIdx % 2 !== 0 ? 'reverse-layout' : ''}`}>
+                          <div className="newspaper-author-block">
                             {t.authorPhoto ? (
                               <img src={t.authorPhoto} alt={t.authorName} className="newspaper-author-image" />
                             ) : (
@@ -124,36 +124,37 @@ export default function Historia() {
                         {/* Additional Media */}
                         {t.mediaUrls && t.mediaUrls.length > 0 && (
                           <div className="newspaper-media-grid">
-                            {t.mediaUrls.map((url, idx) => {
+                            {t.mediaUrls.map((media, mIdx) => {
+                              const isString = typeof media === 'string';
+                              const url = isString ? media : media.url;
+                              const caption = isString ? '' : media.caption;
                               const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
                               const isDirectVideo = url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
-                              
-                              if (isYoutube) {
-                                const videoUrl = url.includes('watch?v=') 
-                                  ? url.replace('watch?v=', 'embed/').split('&')[0]
-                                  : url.includes('youtu.be/') 
-                                    ? url.replace('youtu.be/', 'youtube.com/embed/').split('?')[0]
-                                    : url;
-                                return (
-                                  <iframe 
-                                    key={idx} 
-                                    src={videoUrl} 
-                                    className="newspaper-media-item video-item" 
-                                    frameBorder="0" 
-                                    allowFullScreen
-                                  ></iframe>
-                                );
-                              } else if (isDirectVideo) {
-                                return (
-                                  <video 
-                                    key={idx} 
-                                    src={url} 
-                                    controls 
-                                    className="newspaper-media-item video-item"
-                                  ></video>
-                                );
-                              }
-                              return <img key={idx} src={url} alt="Media adicional" className="newspaper-media-item image-item" />;
+
+                              return (
+                                <figure key={mIdx} className="newspaper-media-item" style={{ margin: 0, overflow: 'hidden' }}>
+                                  {isYoutube ? (
+                                    <iframe 
+                                      src={url.includes('watch?v=') ? url.replace('watch?v=', 'embed/').split('&')[0] : url.replace('youtu.be/', 'youtube.com/embed/').split('?')[0]} 
+                                      title={`Video adicional ${mIdx + 1}`}
+                                      frameBorder="0" 
+                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                      allowFullScreen
+                                      className="video-item"
+                                      style={{ width: '100%', display: 'block' }}
+                                    ></iframe>
+                                  ) : isDirectVideo ? (
+                                    <video src={url} controls className="video-item" style={{ width: '100%', display: 'block' }}></video>
+                                  ) : (
+                                    <img src={url} alt={caption || 'Media adicional'} className="image-item" style={{ width: '100%', display: 'block' }} />
+                                  )}
+                                  {caption && (
+                                    <figcaption style={{ padding: '0.6rem 1rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic', borderTop: '1px solid var(--border-color)', background: 'var(--bg-secondary)', textAlign: 'center', margin: 0 }}>
+                                      {caption}
+                                    </figcaption>
+                                  )}
+                                </figure>
+                              );
                             })}
                           </div>
                         )}

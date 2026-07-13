@@ -30,8 +30,7 @@ export default function BlogAdmin({ triggerSuccess }) {
   const [tPhoto, setTPhoto] = useState('');
   const [tPhotoFile, setTPhotoFile] = useState(null);
   const [tContent, setTContent] = useState('');
-  const [tMedia, setTMedia] = useState('');
-  const [tMediaFiles, setTMediaFiles] = useState([]);
+  const [tMediaItems, setTMediaItems] = useState([]); // [{ url: '', caption: '', file: null }]
   const [isUploading, setIsUploading] = useState(false);
   
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
@@ -74,8 +73,7 @@ export default function BlogAdmin({ triggerSuccess }) {
     setTPhoto('');
     setTPhotoFile(null);
     setTContent('');
-    setTMedia('');
-    setTMediaFiles([]);
+    setTMediaItems([]);
   };
 
   const handleEdit = (post) => {
@@ -114,23 +112,27 @@ export default function BlogAdmin({ triggerSuccess }) {
       }
     }
 
-    const mediaList = tMedia.split(',').map(s => s.trim()).filter(Boolean);
+    const finalMediaList = [];
 
-    // Upload extra media
-    if (tMediaFiles && tMediaFiles.length > 0) {
-      for (const file of Array.from(tMediaFiles)) {
+    // Upload extra media items
+    for (const item of tMediaItems) {
+      let finalUrl = item.url;
+      if (item.file) {
         try {
-          const fileExt = file.name.split('.').pop();
+          const fileExt = item.file.name.split('.').pop();
           const fileName = `history_media_${Date.now()}_${Math.floor(Math.random()*1000)}.${fileExt}`;
           const filePath = `history/${fileName}`;
-          const { error } = await supabase.storage.from('photos').upload(filePath, file);
+          const { error } = await supabase.storage.from('photos').upload(filePath, item.file);
           if (!error) {
             const { data } = supabase.storage.from('photos').getPublicUrl(filePath);
-            mediaList.push(data.publicUrl);
+            finalUrl = data.publicUrl;
           }
         } catch (err) {
           console.error("Error uploading media", err);
         }
+      }
+      if (finalUrl) {
+        finalMediaList.push({ url: finalUrl, caption: item.caption });
       }
     }
 
@@ -141,7 +143,7 @@ export default function BlogAdmin({ triggerSuccess }) {
         authorRole: tRole,
         authorPhoto: finalPhotoUrl,
         content: tContent,
-        mediaUrls: mediaList
+        mediaUrls: finalMediaList
       } : t));
     } else {
       setTestimonies(prev => [...prev, {
@@ -150,7 +152,7 @@ export default function BlogAdmin({ triggerSuccess }) {
         authorRole: tRole,
         authorPhoto: finalPhotoUrl,
         content: tContent,
-        mediaUrls: mediaList
+        mediaUrls: finalMediaList
       }]);
     }
     setIsUploading(false);
@@ -162,7 +164,10 @@ export default function BlogAdmin({ triggerSuccess }) {
     setTRole(t.authorRole || '');
     setTPhoto(t.authorPhoto || '');
     setTContent(t.content || '');
-    setTMedia((t.mediaUrls || []).join(', '));
+    setTMediaItems((t.mediaUrls || []).map(m => {
+      if (typeof m === 'string') return { url: m, caption: '', file: null };
+      return { url: m.url || '', caption: m.caption || '', file: null };
+    }));
     setEditingTestimonyId(t.id);
     setIsAddingTestimony(true);
   };
@@ -420,20 +425,50 @@ export default function BlogAdmin({ triggerSuccess }) {
                     </div>
                   </div>
 
-                  <div>
-                    <label style={labelStyle}>Media Adicional (Fotos/Videos extra)</label>
-                    <input type="text" value={tMedia} onChange={e => setTMedia(e.target.value)} style={inputStyle} placeholder="URLs de YouTube o fotos separadas por coma" />
-                    <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem', marginBottom: '0.5rem' }}>O selecciona múltiples fotos para subir:</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <input 
-                        type="file" 
-                        accept="image/*,video/*" 
-                        multiple 
-                        onChange={e => setTMediaFiles(e.target.files)} 
-                        style={{ ...inputStyle, padding: '0.4rem' }} 
-                      />
-                      {tMediaFiles.length > 0 && <button type="button" onClick={() => setTMediaFiles([])} className="btn btn-danger" style={{ padding: '0.4rem' }}><Trash2 size={16} /></button>}
-                    </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label style={{ ...labelStyle, display: 'flex', justifyContent: 'space-between' }}>
+                      Media Adicional (Fotos extra)
+                      <button type="button" onClick={() => setTMediaItems([...tMediaItems, { url: '', caption: '', file: null }])} className="btn btn-secondary" style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem' }}>
+                        + Agregar Foto
+                      </button>
+                    </label>
+                    
+                    {tMediaItems.length === 0 && (
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>No hay fotos adicionales.</p>
+                    )}
+
+                    {tMediaItems.map((item, idx) => (
+                      <div key={idx} style={{ background: 'rgba(0,0,0,0.1)', padding: '0.75rem', borderRadius: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <input 
+                            type="file" 
+                            accept="image/*"
+                            onChange={e => {
+                              const file = e.target.files[0];
+                              if(file) {
+                                const newItems = [...tMediaItems];
+                                newItems[idx].file = file;
+                                setTMediaItems(newItems);
+                              }
+                            }}
+                            style={{ ...inputStyle, padding: '0.4rem', flex: 1 }}
+                          />
+                          {!item.file && item.url && <span style={{ fontSize: '0.75rem', color: 'var(--accent-color)' }}>Imagen actual guardada</span>}
+                          <button type="button" onClick={() => setTMediaItems(tMediaItems.filter((_, i) => i !== idx))} className="btn btn-danger" style={{ padding: '0.4rem' }}><Trash2 size={16} /></button>
+                        </div>
+                        <input 
+                          type="text" 
+                          placeholder="Pie de foto (ej. Celebración del 2010)" 
+                          value={item.caption}
+                          onChange={e => {
+                            const newItems = [...tMediaItems];
+                            newItems[idx].caption = e.target.value;
+                            setTMediaItems(newItems);
+                          }}
+                          style={inputStyle}
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
 
