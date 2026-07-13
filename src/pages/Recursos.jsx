@@ -1,6 +1,6 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { FileText, Video, Link as LinkIcon, Search, Download, ExternalLink } from 'lucide-react';
+import { FileText, Video, Link as LinkIcon, Search, Download, ExternalLink, Sun, Moon } from 'lucide-react';
 import './Recursos.css';
 
 export default function Recursos() {
@@ -9,6 +9,7 @@ export default function Recursos() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeType, setActiveType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLightMode, setIsLightMode] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -24,11 +25,49 @@ export default function Recursos() {
     });
   }, [resources, activeCategory, activeType, searchTerm]);
 
+  const headerBgStyle = livestream?.formBgUrl ? {
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.75)), url(${livestream.formBgUrl})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundAttachment: 'fixed',
+    color: '#ffffff',
+    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+  } : {};
+
   return (
-    <div className="recursos-page" style={{ paddingTop: '100px' }}>
-      <header className="recursos-header">
-        <h1>Biblioteca de Recursos</h1>
-        <p>Material de estudio, enseñanzas y herramientas para tu crecimiento espiritual.</p>
+    <div className={`recursos-page ${!isLightMode ? 'dark' : ''}`}>
+      
+      {/* Floating Theme Toggle */}
+      <button 
+        onClick={() => setIsLightMode(!isLightMode)}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          zIndex: 50,
+          background: 'var(--accent-color)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '50%',
+          width: '50px',
+          height: '50px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+          transition: 'transform 0.3s ease'
+        }}
+        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        <Moon size={24} style={{ display: isLightMode ? 'block' : 'none' }} />
+        <Sun size={24} style={{ display: !isLightMode ? 'block' : 'none' }} />
+      </button>
+
+      <header className="recursos-header" style={headerBgStyle}>
+        <h1 style={livestream?.formBgUrl ? { color: '#ffffff' } : {}}>Biblioteca de Recursos</h1>
+        <p style={livestream?.formBgUrl ? { color: 'rgba(255, 255, 255, 0.9)' } : {}}>Material de estudio, enseñanzas y herramientas para tu crecimiento espiritual.</p>
       </header>
 
       <div className="recursos-container">

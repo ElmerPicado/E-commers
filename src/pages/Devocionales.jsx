@@ -5,7 +5,7 @@ import { BookOpen, User, Calendar, Tag, Sun, Moon } from 'lucide-react';
 import './Devocionales.css';
 
 export default function Devocionales() {
-  const { devotionals, devotionalCategories } = useContext(GalleryContext);
+  const { devotionals, devotionalCategories, livestream } = useContext(GalleryContext);
   const navigate = useNavigate();
   
   const [activeCategoryId, setActiveCategoryId] = useState('all');
@@ -26,6 +26,15 @@ export default function Devocionales() {
     const cat = devotionalCategories?.find(c => c.id === id);
     return cat ? cat.name : 'Sin categoría';
   };
+
+  const headerBgStyle = livestream?.formBgUrl ? {
+    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.75)), url(${livestream.formBgUrl})`,
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundAttachment: 'fixed',
+    color: '#ffffff',
+    textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+  } : {};
 
   return (
     <div className={`devocionales-page ${!isLightMode ? 'dark' : ''}`}>
@@ -57,9 +66,9 @@ export default function Devocionales() {
         {isLightMode ? <Moon size={24} /> : <Sun size={24} />}
       </button>
 
-      <div className="devocionales-header">
-        <h1>Devocionales</h1>
-        <p>Un espacio de reflexión, crecimiento espiritual y comunión con la palabra de Dios, escrito por nuestra comunidad.</p>
+      <div className="devocionales-header" style={headerBgStyle}>
+        <h1 style={livestream?.formBgUrl ? { color: '#ffffff' } : {}}>Devocionales</h1>
+        <p style={livestream?.formBgUrl ? { color: 'rgba(255, 255, 255, 0.9)' } : {}}>Un espacio de reflexión, crecimiento espiritual y comunión con la palabra de Dios, escrito por nuestra comunidad.</p>
       </div>
 
       <div className="devocionales-layout">

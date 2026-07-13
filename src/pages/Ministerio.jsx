@@ -168,9 +168,9 @@ export default function Ministerio() {
             <a href="#contacto" className="btn btn-primary" style={{ background: 'var(--accent-color)', color: '#000' }}>
               Participar
             </a>
-            <Link to={`/galeria?min=${ministry.id}`} className="btn btn-secondary">
+            <a href="#galeria" className="btn btn-secondary">
               Ver Fotos
-            </Link>
+            </a>
             {ministry.instagram_url && (
               <a href={ministry.instagram_url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ padding: '0 0.8rem', display: 'flex', alignItems: 'center' }}>
                 <InstagramIcon size={18} />
@@ -380,7 +380,7 @@ export default function Ministerio() {
       )}
 
       {/* Gallery moments */}
-      <section style={{ padding: '4rem 1.5rem' }}>
+      <section id="galeria" style={{ padding: '4rem 1.5rem' }}>
         <div className="container">
           <div style={{
             display: 'flex',

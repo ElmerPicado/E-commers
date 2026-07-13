@@ -1,10 +1,11 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Clock, BookOpen, Video, Image as ImageIcon } from 'lucide-react';
+import { Clock, BookOpen, Video, Image as ImageIcon, Sun, Moon } from 'lucide-react';
 import './Historia.css';
 
 export default function Historia() {
-  const { blogPosts } = useContext(GalleryContext);
+  const { blogPosts, livestream } = useContext(GalleryContext);
+  const [isLightMode, setIsLightMode] = useState(true);
 
   // Filtrar solo los de la categoría 'historia' y ordenarlos
   const historyBlocks = (blogPosts || [])
@@ -12,19 +13,49 @@ export default function Historia() {
     .sort((a, b) => a.order_index - b.order_index);
 
   return (
-    <div className="historia-page">
+    <div className={`historia-page ${!isLightMode ? 'dark' : ''}`}>
+      
+      {/* Floating Theme Toggle */}
+      <button 
+        onClick={() => setIsLightMode(!isLightMode)}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          zIndex: 50,
+          background: 'var(--accent-color)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '50%',
+          width: '50px',
+          height: '50px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+          transition: 'transform 0.3s ease'
+        }}
+        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        <Moon size={24} style={{ display: isLightMode ? 'block' : 'none' }} />
+        <Sun size={24} style={{ display: !isLightMode ? 'block' : 'none' }} />
+      </button>
+
       {/* Hero Section */}
-      <section className="historia-hero">
-        <div className="historia-hero-bg">
-          <img 
-            src="https://images.unsplash.com/photo-1438029071396-1e831a7fa6d8?w=1600&q=80" 
-            alt="Fondo historia" 
-          />
-        </div>
+      <section className="historia-hero" style={livestream?.formBgUrl ? {
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.75)), url(${livestream.formBgUrl})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        color: '#ffffff',
+        textShadow: '0 2px 4px rgba(0,0,0,0.5)'
+      } : {}}>
         <div className="historia-hero-content">
           <BookOpen size={64} className="hero-icon" />
-          <h1 className="hero-title">Nuestra Historia</h1>
-          <p className="hero-subtitle">
+          <h1 className="hero-title" style={livestream?.formBgUrl ? { color: '#ffffff' } : {}}>Nuestra Historia</h1>
+          <p className="hero-subtitle" style={livestream?.formBgUrl ? { color: 'rgba(255, 255, 255, 0.9)' } : {}}>
             Descubre cómo Dios ha guiado cada paso de nuestra iglesia desde sus inicios hasta el día de hoy.
           </p>
         </div>
