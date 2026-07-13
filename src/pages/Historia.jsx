@@ -64,6 +64,19 @@ const MediaCarousel = ({ mediaUrls }) => {
   );
 };
 
+const renderHtmlContent = (content) => {
+  if (!content) return '';
+  // Si ya es HTML generado por Quill, lo devolvemos tal cual
+  if (content.includes('<p>') || content.includes('<h') || content.includes('<ul>')) {
+    return content;
+  }
+  // Si es texto plano antiguo, lo convertimos a párrafos HTML
+  return content.split('\n')
+    .filter(line => line.trim())
+    .map(line => `<p>${line}</p>`)
+    .join('');
+};
+
 export default function Historia() {
   const { blogPosts, livestream } = useContext(GalleryContext);
   const [isLightMode, setIsLightMode] = useState(true);
@@ -139,7 +152,7 @@ export default function Historia() {
                   {block.content && (
                     <div 
                       className="era-description ql-editor-display" 
-                      dangerouslySetInnerHTML={{ __html: block.content }} 
+                      dangerouslySetInnerHTML={{ __html: renderHtmlContent(block.content) }} 
                     />
                   )}
                 </div>
@@ -166,7 +179,7 @@ export default function Historia() {
                           
                           <div 
                             className="newspaper-text-container ql-editor-display"
-                            dangerouslySetInnerHTML={{ __html: t.content }}
+                            dangerouslySetInnerHTML={{ __html: renderHtmlContent(t.content) }}
                           />
                           
                           <div style={{ clear: 'both' }}></div>
