@@ -149,11 +149,11 @@
 .testimonies-list {
   display: flex;
   flex-direction: column;
-  gap: 5rem;
+  gap: 1.5rem;
 }
 
 .newspaper-article {
-  padding-bottom: 2rem;
+  padding-bottom: 0.5rem;
   position: relative;
   overflow: hidden;
 }
