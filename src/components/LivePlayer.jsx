@@ -42,6 +42,21 @@ export default function LivePlayer() {
     setIsRadioPlaying(!isRadioPlaying);
   };
 
+  // Auto-convert standard YouTube URLs to embed URLs
+  const getEmbedUrl = (url) => {
+    if (!url) return '';
+    if (url.includes('youtube.com/embed/')) return url;
+
+    // Matches youtu.be/, watch?v=, live/
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|live\/)([^#&?]*).*/;
+    const match = url.match(regExp);
+
+    if (match && match[2].length === 11) {
+      return `https://www.youtube.com/embed/${match[2]}`;
+    }
+    return url;
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
@@ -114,7 +129,7 @@ export default function LivePlayer() {
           }}>
             {livestream.isLive ? (
               <iframe
-                src={livestream.videoUrl}
+                src={getEmbedUrl(livestream.videoUrl)}
                 style={{
                   position: 'absolute',
                   top: 0,

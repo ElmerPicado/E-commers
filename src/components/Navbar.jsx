@@ -21,6 +21,7 @@ export default function Navbar() {
   const { livestream, radio, ministries } = useContext(GalleryContext);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Cierra el menú móvil cuando cambia la ruta
   useEffect(() => {
@@ -122,32 +123,82 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Dynamic Ministries Switcher */}
-        <div className="desktop-only" style={{
-          gap: '0.25rem',
-          background: 'rgba(255,255,255,0.02)',
-          border: '1px solid var(--border-color)',
-          padding: '0.25rem',
-          borderRadius: '9999px',
-          flexWrap: 'wrap'
-        }}>
-          {ministries.map((m) => (
-            <Link
-              key={m.id}
-              to={`/ministerio/${m.id}`}
-              style={{
-                fontSize: '0.75rem',
-                fontWeight: 600,
-                padding: '0.35rem 0.75rem',
-                borderRadius: '9999px',
-                background: isActive(`/ministerio/${m.id}`) ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
-                color: isActive(`/ministerio/${m.id}`) ? m.accent_color : 'var(--text-secondary)',
-                transition: 'all 0.2s'
-              }}
-            >
-              {m.name.split(' - ')[0]}
-            </Link>
-          ))}
+        {/* Dynamic Ministries Switcher (Dropdown) */}
+        <div 
+          className="desktop-only" 
+          style={{ position: 'relative' }}
+          onMouseEnter={() => setIsDropdownOpen(true)}
+          onMouseLeave={() => setIsDropdownOpen(false)}
+        >
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.25rem',
+            background: 'rgba(255,255,255,0.02)',
+            border: '1px solid var(--border-color)',
+            padding: '0.5rem 1rem',
+            borderRadius: '9999px',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+            cursor: 'pointer'
+          }}>
+            Ministerios <span style={{ fontSize: '0.7rem', marginLeft: '0.25rem' }}>▼</span>
+          </div>
+
+          <div style={{
+            position: 'absolute',
+            top: '100%',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            marginTop: '0.5rem',
+            background: 'var(--bg-surface)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '1rem',
+            padding: '0.5rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.25rem',
+            minWidth: '200px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+            opacity: isDropdownOpen ? 1 : 0,
+            visibility: isDropdownOpen ? 'visible' : 'hidden',
+            transition: 'all 0.2s',
+            zIndex: 100
+          }}>
+            {ministries.map((m) => (
+              <Link
+                key={m.id}
+                to={`/ministerio/${m.id}`}
+                onClick={() => setIsDropdownOpen(false)}
+                style={{
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  padding: '0.75rem 1rem',
+                  borderRadius: '0.5rem',
+                  background: isActive(`/ministerio/${m.id}`) ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+                  color: isActive(`/ministerio/${m.id}`) ? m.accent_color : 'var(--text-secondary)',
+                  transition: 'all 0.2s',
+                  display: 'block',
+                  textAlign: 'center'
+                }}
+                onMouseOver={(e) => {
+                  if (!isActive(`/ministerio/${m.id}`)) {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                    e.currentTarget.style.color = 'var(--text-primary)';
+                  }
+                }}
+                onMouseOut={(e) => {
+                  if (!isActive(`/ministerio/${m.id}`)) {
+                    e.currentTarget.style.background = 'transparent';
+                    e.currentTarget.style.color = 'var(--text-secondary)';
+                  }
+                }}
+              >
+                {m.name}
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Global Navigation Links */}
