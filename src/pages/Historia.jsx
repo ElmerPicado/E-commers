@@ -144,8 +144,8 @@ export default function Historia() {
                     {block.testimonies.map((t, tIdx) => (
                       <div key={t.id} className="newspaper-article">
                         {/* Newspaper Body */}
-                        <div className={`newspaper-body ${tIdx % 2 !== 0 ? 'reverse-layout' : ''}`}>
-                          <div className="newspaper-author-block">
+                        <div className="newspaper-body">
+                          <div className={`newspaper-author-block ${tIdx % 2 === 0 ? 'image-left' : 'image-right'}`}>
                             {t.authorPhoto ? (
                               <img src={t.authorPhoto} alt={t.authorName} className="newspaper-author-image" />
                             ) : (
@@ -181,13 +181,27 @@ export default function Historia() {
                           
                           <div style={{ clear: 'both' }}></div>
                         </div>
-
-                        {/* Additional Media Carousel */}
-                        {t.mediaUrls && t.mediaUrls.length > 0 && (
-                          <MediaCarousel mediaUrls={t.mediaUrls} />
-                        )}
                       </div>
                     ))}
+                    
+                    {/* Combined Additional Media Carousel for the entire block */}
+                    {(() => {
+                      const combinedMedia = block.testimonies.reduce((acc, t) => {
+                        if (t.mediaUrls && t.mediaUrls.length > 0) {
+                          return [...acc, ...t.mediaUrls];
+                        }
+                        return acc;
+                      }, []);
+
+                      if (combinedMedia.length > 0) {
+                        return (
+                          <div style={{ marginTop: '2rem' }}>
+                            <MediaCarousel mediaUrls={combinedMedia} />
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
                   </div>
                 )}
               </div>
