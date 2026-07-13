@@ -3,6 +3,8 @@ import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, BookOpen, Upload }
 import { GalleryContext } from '../../context/GalleryContext';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../../supabaseClient';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 export default function BlogAdmin({ triggerSuccess }) {
   const { blogPosts, addBlogPost, updateBlogPost, deleteBlogPost, livestream, updateLivestream } = useContext(GalleryContext);
@@ -307,14 +309,15 @@ export default function BlogAdmin({ triggerSuccess }) {
 
           <div>
             <label style={labelStyle}>Contenido (Texto principal)</label>
-            <textarea 
-              value={content} 
-              onChange={(e) => setContent(e.target.value)}
-              required
-              rows={4}
-              style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }}
-              placeholder="Escribe la historia o descripción de este bloque aquí..."
-            ></textarea>
+            <div style={{ background: '#ffffff', borderRadius: '0.5rem', overflow: 'hidden' }}>
+              <ReactQuill 
+                theme="snow" 
+                value={content} 
+                onChange={setContent} 
+                style={{ color: '#000000' }}
+                placeholder="Escribe la historia o descripción de este bloque aquí..."
+              />
+            </div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem' }}>
@@ -474,7 +477,15 @@ export default function BlogAdmin({ triggerSuccess }) {
 
                 <div>
                   <label style={labelStyle}>Relato / Historia</label>
-                  <textarea value={tContent} onChange={e => setTContent(e.target.value)} rows={4} style={{ ...inputStyle, resize: 'vertical' }} placeholder="Cuenta la historia desde la perspectiva de esta persona..."></textarea>
+                  <div style={{ background: '#ffffff', borderRadius: '0.5rem', overflow: 'hidden' }}>
+                    <ReactQuill 
+                      theme="snow" 
+                      value={tContent} 
+                      onChange={setTContent} 
+                      style={{ color: '#000000' }}
+                      placeholder="Cuenta la historia desde la perspectiva de esta persona..."
+                    />
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>

@@ -136,7 +136,12 @@ export default function Historia() {
                 <div className="era-header">
                   <div className="era-number">{index + 1}</div>
                   <h2 className="era-title">{block.title}</h2>
-                  {block.content && <p className="era-description">{block.content}</p>}
+                  {block.content && (
+                    <div 
+                      className="era-description ql-editor-display" 
+                      dangerouslySetInnerHTML={{ __html: block.content }} 
+                    />
+                  )}
                 </div>
 
                 {block.testimonies && block.testimonies.length > 0 && (
@@ -159,25 +164,10 @@ export default function Historia() {
                             </div>
                           </div>
                           
-                          <div className="newspaper-text-container">
-                            {t.content.split('\n').map((paragraph, pIdx) => {
-                              if (!paragraph.trim()) return null;
-                              // Si empieza con ¿ o termina con ? o empieza con P:
-                              const isQuestion = paragraph.trim().startsWith('¿') || 
-                                                 paragraph.trim().endsWith('?') || 
-                                                 paragraph.trim().toUpperCase().startsWith('P:');
-                              
-                              if (isQuestion) {
-                                return (
-                                  <h4 key={pIdx} className="newspaper-question">
-                                    {paragraph}
-                                  </h4>
-                                );
-                              }
-                              
-                              return <p key={pIdx} className="newspaper-text">{paragraph}</p>;
-                            })}
-                          </div>
+                          <div 
+                            className="newspaper-text-container ql-editor-display"
+                            dangerouslySetInnerHTML={{ __html: t.content }}
+                          />
                           
                           <div style={{ clear: 'both' }}></div>
                         </div>
