@@ -83,11 +83,11 @@ export default function Historia() {
                     <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
                       <h3 className="newspaper-headline" style={{ display: 'inline-block', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem' }}>Relatos Históricos</h3>
                     </div>
-                    {block.testimonies.map((t) => (
+                    {block.testimonies.map((t, tIdx) => (
                       <div key={t.id} className="newspaper-article">
                         {/* Newspaper Body */}
                         <div className="newspaper-body">
-                          <div className="newspaper-author-block">
+                          <div className={`newspaper-author-block ${tIdx % 2 === 0 ? 'image-left' : 'image-right'}`}>
                             {t.authorPhoto ? (
                               <img src={t.authorPhoto} alt={t.authorName} className="newspaper-author-image" />
                             ) : (

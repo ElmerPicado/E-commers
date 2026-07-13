@@ -41,6 +41,10 @@
   text-align: center;
   max-width: 800px;
   width: 100%;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .hero-icon {
@@ -152,6 +156,7 @@
   padding-bottom: 4rem;
   border-bottom: 2px solid var(--border-color);
   position: relative;
+  overflow: hidden;
 }
 
 .newspaper-article:last-child {
@@ -159,10 +164,18 @@
   padding-bottom: 0;
 }
 
-.newspaper-author-block {
+.newspaper-author-block.image-left {
   float: left;
   width: 180px;
   margin-right: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.newspaper-author-block.image-right {
+  float: right;
+  width: 180px;
+  margin-left: 1.5rem;
   margin-bottom: 1rem;
   text-align: center;
 }
