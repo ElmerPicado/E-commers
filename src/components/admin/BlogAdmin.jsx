@@ -5,10 +5,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../../supabaseClient';
 
 export default function BlogAdmin({ triggerSuccess }) {
-  const { blogPosts, addBlogPost, updateBlogPost, deleteBlogPost } = useContext(GalleryContext);
+  const { blogPosts, addBlogPost, updateBlogPost, deleteBlogPost, livestream, updateLivestream } = useContext(GalleryContext);
   
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
+  
+  // History Hero Background Config
+  const [historyBgUrl, setHistoryBgUrl] = useState(livestream?.historyBgUrl || '');
+  const [historyBgFile, setHistoryBgFile] = useState(null);
+  const [isBgUploading, setIsBgUploading] = useState(false);
   
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
@@ -203,8 +208,79 @@ export default function BlogAdmin({ triggerSuccess }) {
   // Filtrar solo los que sean de historia (por si quedan otros residuales)
   const historyPosts = (blogPosts || []).filter(post => !post.category || post.category === 'historia');
 
+  const handleUpdateHistoryBg = async () => {
+    let finalBgUrl = historyBgUrl;
+
+    if (historyBgFile) {
+      setIsBgUploading(true);
+      try {
+        const fileExt = historyBgFile.name.split('.').pop();
+        const fileName = `history_bg_${Date.now()}.${fileExt}`;
+        const filePath = `banners/${fileName}`;
+        const { error } = await supabase.storage.from('photos').upload(filePath, historyBgFile);
+        if (!error) {
+          const { data } = supabase.storage.from('photos').getPublicUrl(filePath);
+          finalBgUrl = data.publicUrl;
+        }
+      } catch (err) {
+        console.error("Error uploading background", err);
+      }
+      setIsBgUploading(false);
+    }
+
+    await updateLivestream({ ...livestream, historyBgUrl: finalBgUrl });
+    setHistoryBgUrl(finalBgUrl);
+    setHistoryBgFile(null);
+    triggerSuccess('Foto de portada actualizada');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      
+      {/* Background Config */}
+      <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', margin: 0 }}>
+          <ImageIcon size={20} style={{ color: 'var(--accent-color)' }} /> 
+          Foto de Portada General (Nuestra Historia)
+        </h2>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
+            Esta es la foto de fondo grande que aparece en la parte superior de la página "Nuestra Historia".
+          </p>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
+            <div style={{ flex: 1, minWidth: '250px' }}>
+              <input 
+                type="text" 
+                value={historyBgUrl} 
+                onChange={(e) => setHistoryBgUrl(e.target.value)}
+                style={inputStyle}
+                placeholder="URL de la imagen (o sube un archivo)..."
+                disabled={historyBgFile !== null}
+              />
+              <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={e => setHistoryBgFile(e.target.files[0])} 
+                  style={{ ...inputStyle, padding: '0.4rem' }} 
+                />
+                {historyBgFile && <button type="button" onClick={() => setHistoryBgFile(null)} className="btn btn-danger" style={{ padding: '0.4rem' }}><Trash2 size={16} /></button>}
+              </div>
+            </div>
+            {(historyBgUrl || historyBgFile) && (
+              <div style={{ width: '150px', height: '80px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}>
+                <img src={historyBgFile ? URL.createObjectURL(historyBgFile) : historyBgUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              </div>
+            )}
+          </div>
+          <div>
+            <button type="button" onClick={handleUpdateHistoryBg} disabled={isBgUploading} className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>
+              {isBgUploading ? 'Subiendo...' : 'Guardar Portada'}
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', margin: 0 }}>
           <BookOpen size={20} style={{ color: 'var(--accent-color)' }} /> 

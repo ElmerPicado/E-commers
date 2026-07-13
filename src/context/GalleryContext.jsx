@@ -61,6 +61,7 @@ const DEFAULT_LIVESTREAM = {
   churchEmail: 'contacto@imr4.org',
   churchDescription: 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.',
   youtubeChannelUrl: '',
+  historyBgUrl: '',
   chatMessages: [
     { id: 1, user: 'Carlos M.', text: '¡Bendiciones a toda la iglesia!' },
     { id: 2, user: 'María P.', text: 'Hola a todos desde Río Cuarto.' },
@@ -451,7 +452,8 @@ export const GalleryProvider = ({ children }) => {
           churchDescription: streamConfig.church_description || 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.',
           youtubeChannelUrl: streamConfig.youtube_channel_url || '',
           formBgUrl: streamConfig.form_bg_url || '',
-          resourcesBgUrl: streamConfig.resources_bg_url || ''
+          resourcesBgUrl: streamConfig.resources_bg_url || '',
+          historyBgUrl: streamConfig.history_bg_url || ''
         }));
         setRadio(prev => ({
           ...prev,
@@ -544,7 +546,8 @@ export const GalleryProvider = ({ children }) => {
             churchMapsUrl: updated.church_maps_url || '',
             youtubeChannelUrl: updated.youtube_channel_url || '',
             formBgUrl: updated.form_bg_url || '',
-            resourcesBgUrl: updated.resources_bg_url || ''
+            resourcesBgUrl: updated.resources_bg_url || '',
+            historyBgUrl: updated.history_bg_url || ''
           }));
           setRadio(prev => ({
             ...prev,
@@ -706,7 +709,8 @@ export const GalleryProvider = ({ children }) => {
         church_description: updates.churchDescription,
         youtube_channel_url: updates.youtubeChannelUrl,
         form_bg_url: updates.formBgUrl,
-        resources_bg_url: updates.resourcesBgUrl
+        resources_bg_url: updates.resourcesBgUrl,
+        history_bg_url: updates.historyBgUrl
       }).eq('id', 'main');
     } else {
       setLivestream((prev) => ({ ...prev, ...updates }));

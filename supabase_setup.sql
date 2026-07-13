@@ -657,4 +657,5 @@ CREATE POLICY "Borrado de administradores" ON live_chat_messages FOR DELETE USIN
 -- ACTUALIZACIÓN DE ESQUEMA (V16: Nuestra Historia en Bloques)
 -- ==========================================================
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS testimonies JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS history_bg_url TEXT;
 

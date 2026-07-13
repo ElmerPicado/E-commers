@@ -44,8 +44,8 @@ export default function Historia() {
       </button>
 
       {/* Hero Section */}
-      <section className="historia-hero" style={livestream?.formBgUrl ? {
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.75)), url(${livestream.formBgUrl})`,
+      <section className="historia-hero" style={livestream?.historyBgUrl ? {
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.75)), url(${livestream.historyBgUrl})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundAttachment: 'fixed',
@@ -54,8 +54,8 @@ export default function Historia() {
       } : {}}>
         <div className="historia-hero-content">
           <BookOpen size={64} className="hero-icon" />
-          <h1 className="hero-title" style={livestream?.formBgUrl ? { color: '#ffffff' } : {}}>Nuestra Historia</h1>
-          <p className="hero-subtitle" style={livestream?.formBgUrl ? { color: 'rgba(255, 255, 255, 0.9)' } : {}}>
+          <h1 className="hero-title" style={livestream?.historyBgUrl ? { color: '#ffffff' } : {}}>Nuestra Historia</h1>
+          <p className="hero-subtitle" style={livestream?.historyBgUrl ? { color: 'rgba(255, 255, 255, 0.9)' } : {}}>
             Descubre cómo Dios ha guiado cada paso de nuestra iglesia desde sus inicios hasta el día de hoy.
           </p>
         </div>
@@ -80,28 +80,45 @@ export default function Historia() {
 
                 {block.testimonies && block.testimonies.length > 0 && (
                   <div className="testimonies-list">
+                    <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+                      <h3 className="newspaper-headline" style={{ display: 'inline-block', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.5rem' }}>Relatos Históricos</h3>
+                    </div>
                     {block.testimonies.map((t) => (
                       <div key={t.id} className="newspaper-article">
-                        {/* Newspaper Byline */}
-                        <div className="newspaper-byline-container">
-                          <h3 className="newspaper-headline">Relato Histórico</h3>
-                          <p className="newspaper-byline">
-                            ESCRITO POR: <strong>{t.authorName}</strong> — <span>{t.authorRole}</span>
-                          </p>
-                        </div>
-                        
                         {/* Newspaper Body */}
                         <div className="newspaper-body">
-                          {t.authorPhoto ? (
-                            <img src={t.authorPhoto} alt={t.authorName} className="newspaper-drop-image" />
-                          ) : (
-                            <div className="newspaper-drop-image placeholder-image">
-                              <User size={48} />
+                          <div className="newspaper-author-block">
+                            {t.authorPhoto ? (
+                              <img src={t.authorPhoto} alt={t.authorName} className="newspaper-author-image" />
+                            ) : (
+                              <div className="newspaper-author-image placeholder-image">
+                                <User size={48} />
+                              </div>
+                            )}
+                            <div className="newspaper-author-info">
+                              <p className="newspaper-author-name">{t.authorName}</p>
+                              <p className="newspaper-author-role">{t.authorRole}</p>
                             </div>
-                          )}
+                          </div>
                           
                           <div className="newspaper-text-container">
-                            <p className="newspaper-text">{t.content}</p>
+                            {t.content.split('\n').map((paragraph, pIdx) => {
+                              if (!paragraph.trim()) return null;
+                              // Si empieza con ¿ o termina con ? o empieza con P:
+                              const isQuestion = paragraph.trim().startsWith('¿') || 
+                                                 paragraph.trim().endsWith('?') || 
+                                                 paragraph.trim().toUpperCase().startsWith('P:');
+                              
+                              if (isQuestion) {
+                                return (
+                                  <h4 key={pIdx} className="newspaper-question">
+                                    {paragraph}
+                                  </h4>
+                                );
+                              }
+                              
+                              return <p key={pIdx} className="newspaper-text">{paragraph}</p>;
+                            })}
                           </div>
                           
                           <div style={{ clear: 'both' }}></div>

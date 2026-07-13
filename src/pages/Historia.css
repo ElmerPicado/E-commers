@@ -159,56 +159,41 @@
   padding-bottom: 0;
 }
 
-.newspaper-byline-container {
-  margin-bottom: 2rem;
+.newspaper-author-block {
+  float: left;
+  width: 180px;
+  margin-right: 1.5rem;
+  margin-bottom: 1rem;
   text-align: center;
 }
 
-.newspaper-headline {
-  font-family: 'Playfair Display', 'Georgia', serif;
-  font-size: 2rem;
-  font-weight: 900;
-  color: var(--text-primary);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 1rem 0;
-  border-bottom: 1px solid var(--border-color);
-  padding-bottom: 1rem;
-}
-
-.newspaper-byline {
-  font-family: 'Inter', sans-serif;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin: 0;
-}
-
-.newspaper-byline strong {
-  color: var(--text-primary);
-  font-weight: 800;
-}
-
-.newspaper-byline span {
-  color: var(--accent-color);
-  font-weight: 600;
-}
-
-.newspaper-body {
-  margin-bottom: 2rem;
-}
-
-.newspaper-drop-image {
-  float: left;
-  width: 180px;
+.newspaper-author-image {
+  width: 100%;
   height: 220px;
   object-fit: cover;
-  margin-right: 1.5rem;
-  margin-bottom: 1rem;
   border-radius: 0.5rem;
   box-shadow: 0 4px 15px rgba(0,0,0,0.15);
   border: 1px solid var(--border-color);
+  margin-bottom: 0.75rem;
+}
+
+.newspaper-author-name {
+  font-family: 'Playfair Display', serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+.newspaper-author-role {
+  font-family: 'Inter', sans-serif;
+  font-size: 0.75rem;
+  color: var(--accent-color);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0.25rem 0 0 0;
+  font-weight: 600;
 }
 
 .placeholder-image {
@@ -227,16 +212,27 @@
 }
 
 .newspaper-text {
-  font-family: 'Georgia', 'Times New Roman', serif;
-  font-size: 1.15rem;
-  line-height: 1.9;
-  color: var(--text-primary);
+  font-family: 'Merriweather', serif;
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: var(--text-color);
+  margin-bottom: 1.5rem;
   text-align: justify;
-  margin: 0;
-  white-space: pre-wrap;
 }
 
-.newspaper-text::first-letter {
+.newspaper-question {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid var(--accent-color);
+  padding-left: 1rem;
+  font-style: italic;
+}
+
+.newspaper-text-container > p.newspaper-text:first-of-type::first-letter {
   font-family: 'Playfair Display', 'Georgia', serif;
   font-size: 4.5em;
   font-weight: 900;
