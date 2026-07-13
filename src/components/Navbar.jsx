@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles, Home, Menu, X, MapPin, BookOpen } from 'lucide-react';
+import { Tv, Image, Settings, Sun, Heart, Flame, Shield, Sparkles, Home, Menu, X, MapPin, BookOpen, Library } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
 import ContactFormModal from './ContactFormModal';
 
@@ -191,6 +191,19 @@ export default function Navbar() {
             Devocionales
           </Link>
 
+          <Link to="/recursos" style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.85rem',
+            fontWeight: 600,
+            color: isActive('/recursos') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            transition: 'color 0.2s'
+          }}>
+            <Library size={15} />
+            Recursos
+          </Link>
+
           <Link to="/galeria" style={{
             display: 'flex',
             alignItems: 'center',
@@ -250,7 +263,7 @@ export default function Navbar() {
             onMouseOver={(e) => e.currentTarget.style.filter = 'brightness(1.2)'}
             onMouseOut={(e) => e.currentTarget.style.filter = 'brightness(1)'}
           >
-            Deja tus datos
+            Petición de Oración
           </button>
         </div>
 
@@ -266,9 +279,13 @@ export default function Navbar() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              gap: '0.5rem',
               padding: '0.25rem'
             }}
           >
+            <span style={{ fontSize: '0.9rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--text-primary)' }}>
+              {isMobileMenuOpen ? 'Cerrar' : 'Menú'}
+            </span>
             {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
           </button>
         </div>
@@ -333,6 +350,9 @@ export default function Navbar() {
               Recursos
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <Link to="/recursos" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/recursos') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+                <Library size={20} /> Biblioteca de Recursos
+              </Link>
               <Link to="/galeria" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/galeria') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
                 <Image size={20} /> Galería de Fotos
               </Link>
@@ -365,7 +385,7 @@ export default function Navbar() {
                 className="btn btn-primary"
                 style={{ marginTop: '0.5rem', alignSelf: 'flex-start', padding: '0.5rem 1.5rem', fontWeight: 700 }}
               >
-                Deja tus datos
+                Petición de Oración
               </button>
             </div>
           </div>

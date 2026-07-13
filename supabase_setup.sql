@@ -560,3 +560,69 @@ ALTER TABLE devotionals ADD COLUMN IF NOT EXISTS prayer TEXT;
 -- ACTUALIZACIÓN DE ESQUEMA (V10: Slugs Amigables para SEO)
 -- ==========================================================
 ALTER TABLE devotionals ADD COLUMN IF NOT EXISTS slug TEXT UNIQUE;
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V11: Biblioteca de Recursos)
+-- ==========================================================
+
+-- 1. Categorías de Recursos
+CREATE TABLE IF NOT EXISTS resource_categories (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  name TEXT NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE resource_categories ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública resource_categories" ON resource_categories;
+DROP POLICY IF EXISTS "Escritura pública resource_categories" ON resource_categories;
+CREATE POLICY "Lectura pública resource_categories" ON resource_categories FOR SELECT USING (true);
+CREATE POLICY "Escritura pública resource_categories" ON resource_categories FOR ALL USING (true) WITH CHECK (true);
+
+-- Datos por defecto para categorías de recursos
+INSERT INTO resource_categories (name, description) VALUES
+('Material de Estudio', 'Documentos, PDFs y guías para estudio bíblico y grupos pequeños.'),
+('Enseñanzas y Sermones', 'Videos y audios de prédicas y series de enseñanzas.')
+ON CONFLICT DO NOTHING;
+
+-- 2. Recursos (Archivos, Enlaces, Videos)
+CREATE TABLE IF NOT EXISTS resources (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  title TEXT NOT NULL,
+  description TEXT,
+  category_id UUID REFERENCES resource_categories(id) ON DELETE SET NULL,
+  type TEXT NOT NULL, -- 'document', 'video', 'link'
+  file_url TEXT, -- URL de Storage de Supabase o URL externa
+  status TEXT NOT NULL DEFAULT 'published',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE resources ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública resources" ON resources;
+DROP POLICY IF EXISTS "Escritura pública resources" ON resources;
+CREATE POLICY "Lectura pública resources" ON resources FOR SELECT USING (true);
+CREATE POLICY "Escritura pública resources" ON resources FOR ALL USING (true) WITH CHECK (true);
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V12: Comentarios en Devocionales)
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS devotional_comments (
+  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  devotional_id UUID REFERENCES devotionals(id) ON DELETE CASCADE,
+  author_name TEXT NOT NULL,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE devotional_comments ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura pública devotional_comments" ON devotional_comments;
+DROP POLICY IF EXISTS "Escritura pública devotional_comments" ON devotional_comments;
+CREATE POLICY "Lectura pública devotional_comments" ON devotional_comments FOR SELECT USING (true);
+CREATE POLICY "Escritura pública devotional_comments" ON devotional_comments FOR INSERT WITH CHECK (true);
+CREATE POLICY "Eliminar por admins devotional_comments" ON devotional_comments FOR DELETE USING (auth.role() = 'authenticated');
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V13: Peticiones de Oración)
+-- ==========================================================
+ALTER TABLE contact_forms ALTER COLUMN telefono DROP NOT NULL;
+ALTER TABLE contact_forms ADD COLUMN IF NOT EXISTS prayer_request TEXT;

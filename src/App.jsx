@@ -24,6 +24,7 @@ import Historia from './pages/Historia';
 import Devocionales from './pages/Devocionales';
 import DevocionalDetail from './pages/DevocionalDetail';
 import SubmitDevocional from './pages/SubmitDevocional';
+import Recursos from './pages/Recursos';
 
 const ProtectedAdminRoute = () => {
   const { adminUser } = useContext(GalleryContext);
@@ -50,6 +51,8 @@ const LayoutWrapper = () => {
           <Route path="/devocionales" element={<Devocionales />} />
           <Route path="/devocionales/:id" element={<DevocionalDetail />} />
           <Route path="/devocional" element={<SubmitDevocional />} />
+          <Route path="/devocionales/nuevo" element={<SubmitDevocional />} />
+          <Route path="/recursos" element={<Recursos />} />
           <Route path="/admin" element={<ProtectedAdminRoute />} />
         </Routes>
       </main>

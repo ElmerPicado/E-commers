@@ -10,8 +10,10 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
   const { 
     devotionals, 
     devotionalCategories, 
+    devotionalComments,
     updateDevotional, 
     deleteDevotional, 
+    deleteDevotionalComment,
     addDevotionalCategory, 
     deleteDevotionalCategory 
   } = useContext(GalleryContext);
@@ -107,8 +109,18 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
     if (e) e.preventDefault();
     const finalStatus = forcedStatus || editStatus;
     
+    // Find original to check if slug exists
+    const originalDev = devotionals.find(d => d.id === editingDevId);
+    let finalSlug = originalDev?.slug;
+    
+    if (!finalSlug) {
+      const baseSlug = editTitle.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      finalSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 8)}`;
+    }
+
     await updateDevotional(editingDevId, {
       title: editTitle,
+      slug: finalSlug,
       verse: editVerse,
       content: editContent,
       prayer: editPrayer,
@@ -288,9 +300,51 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                         </button>
                       </div>
 
-                      <div style={{ display: 'flex', gap: '1rem' }}>
-                        <button type="button" onClick={cancelEditing} className="btn btn-secondary">Cancelar</button>
-                        <button type="submit" className="btn btn-primary"><Save size={16} style={{ marginRight: '0.5rem' }} /> Guardar Cambios</button>
+                      <div style={{ display: 'flex', gap: '0.75rem' }}>
+                        <button type="submit" className="btn btn-primary" style={{ padding: '0.65rem 1.5rem', borderRadius: '0.5rem', display: 'flex', alignItems: 'center' }}>
+                          <Save size={18} style={{ marginRight: '0.5rem' }} />
+                          Guardar Cambios
+                        </button>
+                        <button type="button" onClick={() => setEditingDevId(null)} className="btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'var(--text-primary)', border: 'none', padding: '0.65rem 1.5rem', borderRadius: '0.5rem' }}>
+                          Cancelar
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Comentarios del Devocional */}
+                    <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border-color)' }}>
+                      <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        Comentarios en este Devocional
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                        {(devotionalComments || []).filter(c => c.devotional_id === dev.id).length === 0 ? (
+                          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontStyle: 'italic' }}>No hay comentarios.</p>
+                        ) : (
+                          (devotionalComments || []).filter(c => c.devotional_id === dev.id).map(comment => (
+                            <div key={comment.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '0.5rem' }}>
+                              <div>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '0.25rem' }}>
+                                  <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{comment.author_name}</span>
+                                  <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>{new Date(comment.created_at).toLocaleDateString()}</span>
+                                </div>
+                                <p style={{ margin: 0, color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{comment.content}</p>
+                              </div>
+                              <button 
+                                type="button"
+                                onClick={() => {
+                                  if (window.confirm('¿Seguro que deseas eliminar este comentario?')) {
+                                    deleteDevotionalComment(comment.id);
+                                    triggerSuccess('Comentario eliminado');
+                                  }
+                                }}
+                                style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}
+                                title="Eliminar Comentario"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </div>
+                          ))
+                        )}
                       </div>
                     </div>
                   </form>

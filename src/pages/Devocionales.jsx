@@ -1,7 +1,7 @@
 import React, { useContext, useState, useMemo, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { BookOpen, User, Calendar, Tag } from 'lucide-react';
+import { BookOpen, User, Calendar, Tag, Sun, Moon } from 'lucide-react';
 import './Devocionales.css';
 
 export default function Devocionales() {
@@ -9,6 +9,7 @@ export default function Devocionales() {
   const navigate = useNavigate();
   
   const [activeCategoryId, setActiveCategoryId] = useState('all');
+  const [isLightMode, setIsLightMode] = useState(true);
 
   // Filtrar solo los publicados
   const publishedDevotionals = useMemo(() => {
@@ -27,11 +28,39 @@ export default function Devocionales() {
   };
 
   return (
-    <div className="devocionales-page">
-      <header className="devocionales-header">
+    <div className={`devocionales-page ${!isLightMode ? 'dark' : ''}`}>
+      
+      {/* Floating Theme Toggle */}
+      <button 
+        onClick={() => setIsLightMode(!isLightMode)}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          zIndex: 50,
+          background: 'var(--accent-color)',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '50%',
+          width: '50px',
+          height: '50px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+          transition: 'transform 0.3s ease'
+        }}
+        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        {isLightMode ? <Moon size={24} /> : <Sun size={24} />}
+      </button>
+
+      <div className="devocionales-header">
         <h1>Devocionales</h1>
         <p>Un espacio de reflexión, crecimiento espiritual y comunión con la palabra de Dios, escrito por nuestra comunidad.</p>
-      </header>
+      </div>
 
       <div className="devocionales-layout">
         <aside className="categories-sidebar">
@@ -63,7 +92,7 @@ export default function Devocionales() {
           ) : (
             <>
               {filteredDevotionals.map(dev => (
-                <article key={dev.id} className="devocional-card">
+                <article key={dev.id} className="devocional-card" onClick={() => navigate(`/devocionales/${dev.slug || dev.id}`)} style={{ cursor: 'pointer' }}>
                   <div className="meta">
                     <span style={{ color: '#2563eb', fontWeight: 600 }}>{getCategoryName(dev.category_id)}</span>
                     <span>•</span>

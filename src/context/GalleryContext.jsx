@@ -246,6 +246,13 @@ const DEFAULT_DEVOTIONAL_CATEGORIES = [
 
 const DEFAULT_DEVOTIONALS = [];
 
+const DEFAULT_RESOURCE_CATEGORIES = [
+  { id: '1', name: 'Material de Estudio', description: 'Documentos, PDFs y guías para estudio bíblico y grupos pequeños.' },
+  { id: '2', name: 'Enseñanzas y Sermones', description: 'Videos y audios de prédicas y series de enseñanzas.' }
+];
+
+const DEFAULT_RESOURCES = [];
+
 export const GalleryProvider = ({ children }) => {
   const [albums, setAlbums] = useState(() => {
     if (!isSupabaseConfigured) {
@@ -340,6 +347,30 @@ export const GalleryProvider = ({ children }) => {
     return [];
   });
 
+  const [resourceCategories, setResourceCategories] = useState(() => {
+    if (!isSupabaseConfigured) {
+      const saved = localStorage.getItem('imr4_resource_categories');
+      return saved ? JSON.parse(saved) : DEFAULT_RESOURCE_CATEGORIES;
+    }
+    return [];
+  });
+
+  const [resources, setResources] = useState(() => {
+    if (!isSupabaseConfigured) {
+      const saved = localStorage.getItem('imr4_resources');
+      return saved ? JSON.parse(saved) : DEFAULT_RESOURCES;
+    }
+    return [];
+  });
+
+  const [devotionalComments, setDevotionalComments] = useState(() => {
+    if (!isSupabaseConfigured) {
+      const saved = localStorage.getItem('imr4_devotional_comments');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
   // Local storage backups syncing
   useEffect(() => {
     if (!isSupabaseConfigured) {
@@ -386,20 +417,14 @@ export const GalleryProvider = ({ children }) => {
   useEffect(() => {
     if (!isSupabaseConfigured) {
       localStorage.setItem('imr4_radio_programs', JSON.stringify(radioPrograms));
-    }
-  }, [radioPrograms]);
-
-  useEffect(() => {
-    if (!isSupabaseConfigured) {
+      localStorage.setItem('imr4_donations_config', JSON.stringify(donationsConfig));
       localStorage.setItem('imr4_devotional_categories', JSON.stringify(devotionalCategories));
-    }
-  }, [devotionalCategories]);
-
-  useEffect(() => {
-    if (!isSupabaseConfigured) {
       localStorage.setItem('imr4_devotionals', JSON.stringify(devotionals));
+      localStorage.setItem('imr4_resource_categories', JSON.stringify(resourceCategories));
+      localStorage.setItem('imr4_resources', JSON.stringify(resources));
+      localStorage.setItem('imr4_devotional_comments', JSON.stringify(devotionalComments));
     }
-  }, [devotionals]);
+  }, [albums, livestream, radio, homeSections, ministries, activities, radioPrograms, blogPosts, donationsConfig, devotionalCategories, devotionals, resourceCategories, resources, devotionalComments]);
 
   // Fetch Supabase data function
   const fetchSupabaseData = async () => {
@@ -475,6 +500,16 @@ export const GalleryProvider = ({ children }) => {
 
       const { data: dbDevotionals } = await supabase.from('devotionals').select('*').order('created_at', { ascending: false });
       if (dbDevotionals) setDevotionals(dbDevotionals);
+
+      // 10. Resources
+      const { data: dbResourceCats } = await supabase.from('resource_categories').select('*').order('name');
+      if (dbResourceCats) setResourceCategories(dbResourceCats);
+      const { data: dbResources } = await supabase.from('resources').select('*').order('created_at', { ascending: false });
+      if (dbResources) setResources(dbResources);
+
+      // 11. Devotional Comments
+      const { data: dbComments } = await supabase.from('devotional_comments').select('*').order('created_at', { ascending: true });
+      if (dbComments) setDevotionalComments(dbComments);
     } catch (e) {
       console.error('Error fetching data from Supabase:', e);
     }
@@ -522,6 +557,9 @@ export const GalleryProvider = ({ children }) => {
         .on('postgres_changes', { event: '*', schema: 'public', table: 'donations_config' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'devotional_categories' }, () => fetchSupabaseData())
         .on('postgres_changes', { event: '*', schema: 'public', table: 'devotionals' }, () => fetchSupabaseData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'devotional_comments' }, () => fetchSupabaseData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'resource_categories' }, () => fetchSupabaseData())
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'resources' }, () => fetchSupabaseData())
         .subscribe();
 
       return () => {
@@ -883,6 +921,31 @@ export const GalleryProvider = ({ children }) => {
     }
   };
 
+  const addDevotionalComment = async (comment) => {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('devotional_comments').insert(comment).select();
+      if (error) {
+        console.error("Error inserting comment:", error);
+        return { success: false, error: error.message };
+      }
+      if (data && data.length > 0) {
+        setDevotionalComments(prev => [...prev, data[0]]);
+      }
+      return { success: true };
+    } else {
+      const newComment = { ...comment, id: Date.now().toString(), created_at: new Date().toISOString() };
+      setDevotionalComments(prev => [...prev, newComment]);
+      return { success: true };
+    }
+  };
+
+  const deleteDevotionalComment = async (id) => {
+    setDevotionalComments(prev => prev.filter(c => c.id !== id));
+    if (isSupabaseConfigured) {
+      await supabase.from('devotional_comments').delete().eq('id', id);
+    }
+  };
+
   // Auth & Admin Users Methods
   const login = async (username, password) => {
     if (isSupabaseConfigured) {
@@ -943,6 +1006,56 @@ export const GalleryProvider = ({ children }) => {
     }
   };
 
+  // Resource Categories Methods
+  const addResourceCategory = async (category) => {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('resource_categories').insert(category).select();
+      if (error) return { success: false, error: error.message };
+      if (data) setResourceCategories(prev => [...prev, data[0]]);
+      return { success: true, data };
+    } else {
+      const newCategory = { ...category, id: Date.now().toString() };
+      setResourceCategories(prev => [...prev, newCategory]);
+      return { success: true };
+    }
+  };
+
+  const deleteResourceCategory = async (id) => {
+    setResourceCategories(prev => prev.filter(c => c.id !== id));
+    if (isSupabaseConfigured) {
+      await supabase.from('resource_categories').delete().eq('id', id);
+    }
+  };
+
+  // Resources Methods
+  const addResource = async (resource) => {
+    if (isSupabaseConfigured) {
+      const { data, error } = await supabase.from('resources').insert(resource).select();
+      if (error) return { success: false, error: error.message };
+      if (data) setResources(prev => [data[0], ...prev]);
+      return { success: true, data };
+    } else {
+      const newResource = { ...resource, id: Date.now().toString(), created_at: new Date().toISOString() };
+      setResources(prev => [newResource, ...prev]);
+      return { success: true };
+    }
+  };
+
+  const updateResource = async (id, updates) => {
+    setResources(prev => prev.map(r => r.id === id ? { ...r, ...updates } : r));
+    if (isSupabaseConfigured) {
+      const { error } = await supabase.from('resources').update(updates).eq('id', id);
+      if (error) fetchSupabaseData();
+    }
+  };
+
+  const deleteResource = async (id) => {
+    setResources(prev => prev.filter(r => r.id !== id));
+    if (isSupabaseConfigured) {
+      await supabase.from('resources').delete().eq('id', id);
+    }
+  };
+
   return (
     <GalleryContext.Provider
       value={{
@@ -988,11 +1101,21 @@ export const GalleryProvider = ({ children }) => {
         deleteAdminUser,
         devotionalCategories,
         devotionals,
+        devotionalComments,
         addDevotionalCategory,
         deleteDevotionalCategory,
         addDevotional,
         updateDevotional,
-        deleteDevotional
+        deleteDevotional,
+        addDevotionalComment,
+        deleteDevotionalComment,
+        resourceCategories,
+        resources,
+        addResourceCategory,
+        deleteResourceCategory,
+        addResource,
+        updateResource,
+        deleteResource
       }}
     >
       {children}

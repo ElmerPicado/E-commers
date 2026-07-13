@@ -1,27 +1,47 @@
 .devocionales-page {
-  background-color: #ffffff;
-  color: #333333;
+  --bg-primary: #fdfcfb;
+  --bg-secondary: #f4f1ea;
+  --text-primary: #334155;
+  --text-secondary: #64748b;
+  --border-color: #e2e8f0;
+  --accent-color: #d97706;
+  --card-bg: #ffffff;
+
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   min-height: 100vh;
   font-family: 'Inter', sans-serif;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.devocionales-page.dark {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --border-color: #334155;
+  --accent-color: #fbbf24;
+  --card-bg: #1e293b;
 }
 
 .devocionales-header {
-  background: #f8fafc;
+  background: var(--bg-secondary);
   padding: 8rem 2rem 4rem;
   text-align: center;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .devocionales-header h1 {
   font-size: 3rem;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--text-primary);
   margin-bottom: 1rem;
 }
 
 .devocionales-header p {
   font-size: 1.1rem;
-  color: #64748b;
+  color: var(--text-secondary);
   max-width: 600px;
   margin: 0 auto;
 }
@@ -54,8 +74,9 @@
 
 .detail-main-column {
   padding: 0 2.5rem;
-  border-left: 1px solid #e2e8f0;
-  border-right: 1px solid #e2e8f0;
+  border-left: 1px solid var(--border-color);
+  border-right: 1px solid var(--border-color);
+  transition: border-color 0.3s ease;
 }
 
 @media (max-width: 1100px) {
@@ -83,7 +104,7 @@
     position: static !important;
     margin-top: 2rem;
     padding-top: 2rem;
-    border-top: 2px solid #e2e8f0;
+    border-top: 2px solid var(--border-color);
   }
 }
 
@@ -96,7 +117,7 @@
 .categories-sidebar h3 {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   margin-bottom: 1rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -107,20 +128,20 @@
   border-radius: 0.5rem;
   cursor: pointer;
   transition: all 0.2s ease;
-  color: #475569;
+  color: var(--text-secondary);
   font-weight: 500;
   border: 1px solid transparent;
 }
 
 .category-item:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .category-item.active {
-  background: #eff6ff;
-  color: #2563eb;
-  border: 1px solid #bfdbfe;
+  background: var(--bg-secondary);
+  color: var(--accent-color);
+  border: 1px solid var(--border-color);
 }
 
 .devocionales-grid {
@@ -132,16 +153,17 @@
 .devocional-card {
   padding: 2rem;
   border-radius: 1rem;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
   transition: all 0.3s ease;
   cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
 }
 
 .devocional-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
-  border-color: #cbd5e1;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  border-color: var(--text-secondary);
 }
 
 .devocional-card .meta {
@@ -222,9 +244,9 @@
   text-align: center;
   gap: 1rem;
   padding: 2rem;
-  background: #f8fafc;
+  background: var(--bg-secondary);
   border-radius: 1rem;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-color);
   position: sticky;
   top: 100px;
 }
@@ -232,13 +254,13 @@
 .author-info h4 {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-primary);
   margin-bottom: 0.25rem;
   margin-top: 0;
 }
 
 .author-info p {
-  color: #475569;
+  color: var(--text-secondary);
   font-size: 0.95rem;
   line-height: 1.5;
   margin: 0;
@@ -248,7 +270,7 @@
   font-family: 'Lora', 'Georgia', serif;
   font-size: 1.15rem;
   line-height: 1.8;
-  color: #334155;
+  color: var(--text-primary);
 }
 
 .devocional-content-body p {
@@ -256,14 +278,15 @@
 }
 
 .devocional-verse-box {
-  background-color: #f6f4f0;
+  background-color: var(--bg-secondary);
   border-radius: 0.5rem;
   padding: 1.75rem 2rem;
   margin-bottom: 3rem;
-  color: #1e293b;
+  color: var(--text-primary);
   font-size: 1.15rem;
   line-height: 1.7;
   font-family: 'Lora', 'Georgia', serif;
+  border: 1px solid var(--border-color);
 }
 
 .devocional-content-body ul,
@@ -279,7 +302,7 @@
 .devocional-content-body h1, 
 .devocional-content-body h2, 
 .devocional-content-body h3 {
-  color: #0f172a;
+  color: var(--text-primary);
   margin-top: 2rem;
   margin-bottom: 1rem;
 }

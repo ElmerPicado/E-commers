@@ -8,7 +8,8 @@ export default function ContactFormModal({ isOpen, onClose }) {
     apellido: '',
     edad: '',
     sexo: '',
-    telefono: ''
+    telefono: '',
+    prayer_request: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -34,7 +35,8 @@ export default function ContactFormModal({ isOpen, onClose }) {
           apellido: formData.apellido,
           edad: parseInt(formData.edad, 10),
           sexo: formData.sexo,
-          telefono: formData.telefono
+          telefono: formData.telefono || null,
+          prayer_request: formData.prayer_request || null
         }]);
 
       if (submitError) throw submitError;
@@ -42,7 +44,7 @@ export default function ContactFormModal({ isOpen, onClose }) {
       setIsSuccess(true);
       setTimeout(() => {
         setIsSuccess(false);
-        setFormData({ nombre: '', apellido: '', edad: '', sexo: '', telefono: '' });
+        setFormData({ nombre: '', apellido: '', edad: '', sexo: '', telefono: '', prayer_request: '' });
         onClose();
       }, 3000);
     } catch (err) {
@@ -103,9 +105,9 @@ export default function ContactFormModal({ isOpen, onClose }) {
           </div>
         ) : (
           <>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem' }}>Déjanos tus datos</h3>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem' }}>Petición de Oración</h3>
             <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-              Completa el formulario y nos pondremos en contacto contigo.
+              Déjanos tu petición o testimonio. Estaremos orando por ti.
             </p>
 
             {error && <div style={{ color: '#ef4444', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</div>}
@@ -138,12 +140,17 @@ export default function ContactFormModal({ isOpen, onClose }) {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Número de Teléfono *</label>
-                <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} style={inputStyle} placeholder="+506 ..." required />
+                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Petición o Testimonio</label>
+                <textarea name="prayer_request" value={formData.prayer_request} onChange={handleChange} style={{ ...inputStyle, minHeight: '80px', resize: 'vertical' }} placeholder="Escribe aquí tu petición..."></textarea>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Número de Teléfono (Opcional)</label>
+                <input type="tel" name="telefono" value={formData.telefono} onChange={handleChange} style={inputStyle} placeholder="+506 ..." />
               </div>
 
               <button type="submit" className="btn btn-primary" style={{ marginTop: '0.5rem', display: 'flex', justifyContent: 'center' }} disabled={isSubmitting}>
-                {isSubmitting ? 'Enviando...' : <><Send size={18} /> Enviar Datos</>}
+                {isSubmitting ? 'Enviando...' : <><Send size={18} /> Enviar Petición</>}
               </button>
             </form>
           </>

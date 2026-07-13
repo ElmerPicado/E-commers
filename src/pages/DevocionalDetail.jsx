@@ -1,13 +1,19 @@
-import React, { useContext, useEffect, useMemo } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { ArrowLeft, User, Calendar, Tag, Home, BookOpen } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Tag, Home, BookOpen, Sun, Moon, MessageCircle, Send } from 'lucide-react';
 import './Devocionales.css';
 
 export default function DevocionalDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { devotionals, devotionalCategories } = useContext(GalleryContext);
+  const { devotionals, devotionalCategories, devotionalComments, addDevotionalComment } = useContext(GalleryContext);
+  const [isLightMode, setIsLightMode] = useState(true);
+
+  // Comentarios state
+  const [newCommentName, setNewCommentName] = useState('');
+  const [newCommentText, setNewCommentText] = useState('');
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -39,8 +45,54 @@ export default function DevocionalDetail() {
     );
   }
 
+  const devocionalCommentsList = (devotionalComments || []).filter(c => c.devotional_id === devocional.id);
+
+  const handleCommentSubmit = async (e) => {
+    e.preventDefault();
+    if (!newCommentName.trim() || !newCommentText.trim()) return;
+    setIsSubmittingComment(true);
+    const success = await addDevotionalComment({
+      devotional_id: devocional.id,
+      author_name: newCommentName,
+      content: newCommentText
+    });
+    if (success) {
+      setNewCommentName('');
+      setNewCommentText('');
+    }
+    setIsSubmittingComment(false);
+  };
+
   return (
-    <div className="devocionales-page" style={{ paddingTop: '100px' }}>
+    <div className={`devocionales-page ${!isLightMode ? 'dark' : ''}`} style={{ paddingTop: '100px' }}>
+      
+      {/* Floating Theme Toggle */}
+      <button 
+        onClick={() => setIsLightMode(!isLightMode)}
+        style={{
+          position: 'fixed',
+          bottom: '2rem',
+          right: '2rem',
+          zIndex: 50,
+          background: '#d97706',
+          color: '#ffffff',
+          border: 'none',
+          borderRadius: '50%',
+          width: '50px',
+          height: '50px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          cursor: 'pointer',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.2)',
+          transition: 'transform 0.3s ease'
+        }}
+        onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.1)'}
+        onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+      >
+        {isLightMode ? <Moon size={24} /> : <Sun size={24} />}
+      </button>
+
       <div className="devocional-detail-layout">
         
         {/* Left Sidebar (Categories + Other Devotionals) */}
@@ -67,44 +119,44 @@ export default function DevocionalDetail() {
             ))}
           </div>
 
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
             Últimos Devocionales
           </h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             {recentDevotionals.length > 0 ? (
               recentDevotionals.map(dev => (
                 <div key={dev.id} onClick={() => navigate(`/devocionales/${dev.slug || dev.id}`)} style={{ cursor: 'pointer', transition: 'transform 0.2s' }} className="recent-dev-card">
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#334155', margin: '0 0 0.25rem 0', lineHeight: 1.4 }}>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--text-primary)', margin: '0 0 0.25rem 0', lineHeight: 1.4 }}>
                     {dev.title}
                   </h4>
-                  <p style={{ fontSize: '0.75rem', color: '#64748b', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', margin: 0, textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 600 }}>
                     Autor: {dev.author_name}
                   </p>
                 </div>
               ))
             ) : (
-              <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>No hay otros devocionales publicados aún.</p>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>No hay otros devocionales publicados aún.</p>
             )}
           </div>
         </aside>
 
         {/* Main Content (Middle) */}
-        <div className="devocional-main detail-main-column" style={{ background: '#f8fafc', padding: '2.5rem', borderRadius: '1rem' }}>
+        <div className="devocional-main detail-main-column" style={{ background: 'var(--card-bg)', padding: '2.5rem', borderRadius: '1rem' }}>
           <div style={{ marginBottom: '2rem' }}>
-            <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: '#334155', margin: 0 }}>Devocional diario</h1>
-            <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '0.5rem' }}>Un devocional diario para fortalecer tu relación con Dios.</p>
+            <h1 style={{ fontSize: '2.2rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Devocional diario</h1>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '0.5rem' }}>Un devocional diario para fortalecer tu relación con Dios.</p>
           </div>
 
           <div style={{ marginBottom: '1.5rem' }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#334155', margin: 0 }}>Devocional de Hoy</h2>
-            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '0.25rem' }}>
+            <h2 style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', margin: 0 }}>Devocional de Hoy</h2>
+            <div style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '0.25rem' }}>
               {new Date(devocional.created_at).toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               <span style={{ margin: '0 0.5rem' }}>•</span>
-              <span style={{ color: '#d97706' }}>{getCategoryName(devocional.category_id)}</span>
+              <span style={{ color: 'var(--accent-color)' }}>{getCategoryName(devocional.category_id)}</span>
             </div>
           </div>
 
-          <h1 style={{ fontSize: '2rem', fontWeight: 800, color: '#d97706', marginBottom: '1.5rem', lineHeight: 1.2 }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 800, color: 'var(--accent-color)', marginBottom: '1.5rem', lineHeight: 1.2 }}>
             {devocional.title}
           </h1>
 
@@ -121,35 +173,86 @@ export default function DevocionalDetail() {
           />
 
           {devocional.prayer && (
-            <div style={{ background: 'rgba(37, 99, 235, 0.05)', border: '1px dashed rgba(37, 99, 235, 0.3)', padding: '1.5rem', borderRadius: '0.75rem', marginBottom: '3rem' }}>
-              <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', color: '#1e3a8a', marginTop: 0, marginBottom: '1rem' }}>
+            <div style={{ background: 'var(--bg-secondary)', border: '1px dashed var(--border-color)', padding: '1.5rem', borderRadius: '0.75rem', marginBottom: '3rem' }}>
+              <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', color: 'var(--text-primary)', marginTop: 0, marginBottom: '1rem' }}>
                 <BookOpen size={18} /> Oración Final
               </h4>
-              <p style={{ margin: 0, whiteSpace: 'pre-wrap', color: '#334155', lineHeight: 1.6, fontStyle: 'italic' }}>
+              <p style={{ margin: 0, whiteSpace: 'pre-wrap', color: 'var(--text-secondary)', lineHeight: 1.6, fontStyle: 'italic' }}>
                 {devocional.prayer}
               </p>
             </div>
           )}
 
+          {/* Sección de Comentarios */}
+          <div style={{ marginTop: '4rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
+            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
+              <MessageCircle size={22} style={{ color: 'var(--accent-color)' }} /> Comentarios ({devocionalCommentsList.length})
+            </h3>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem', marginBottom: '3rem' }}>
+              {devocionalCommentsList.length === 0 ? (
+                <p style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>No hay comentarios aún. ¡Sé el primero en comentar!</p>
+              ) : (
+                devocionalCommentsList.map(c => (
+                  <div key={c.id} style={{ background: 'var(--bg-secondary)', padding: '1.25rem', borderRadius: '0.75rem', border: '1px solid var(--border-color)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{c.author_name}</span>
+                      <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>{new Date(c.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <p style={{ margin: 0, color: 'var(--text-primary)', lineHeight: 1.5 }}>{c.content}</p>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div style={{ background: 'var(--card-bg)', padding: '1.5rem', borderRadius: '1rem', border: '1px solid var(--border-color)', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.05)' }}>
+              <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>Deja un comentario</h4>
+              <form onSubmit={handleCommentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div>
+                  <input 
+                    type="text" 
+                    value={newCommentName} 
+                    onChange={e => setNewCommentName(e.target.value)} 
+                    placeholder="Tu Nombre" 
+                    required
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: 'inherit', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <div>
+                  <textarea 
+                    value={newCommentText} 
+                    onChange={e => setNewCommentText(e.target.value)} 
+                    placeholder="Escribe tu comentario o testimonio aquí..." 
+                    required
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: 'inherit', minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' }}
+                  />
+                </div>
+                <button type="submit" disabled={isSubmittingComment} className="btn btn-primary" style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1.5rem' }}>
+                  {isSubmittingComment ? 'Enviando...' : <><Send size={16} /> Enviar Comentario</>}
+                </button>
+              </form>
+            </div>
+          </div>
+
         </div>
 
         {/* Sidebar (Right) */}
         <aside className="devocional-sidebar">
-          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid #e2e8f0', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
+          <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
             Sobre el Autor
           </h3>
-          <div className="author-sidebar-box" style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '1rem', border: '1px solid #e2e8f0', textAlign: 'center' }}>
+          <div className="author-sidebar-box" style={{ padding: '1.5rem', background: 'var(--card-bg)', borderRadius: '1rem', border: '1px solid var(--border-color)', textAlign: 'center' }}>
             {devocional.author_photo ? (
-              <img src={devocional.author_photo} alt={devocional.author_name} className="author-photo" />
+              <img src={devocional.author_photo} alt={devocional.author_name} className="author-photo" style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 1rem auto' }} />
             ) : (
-              <div className="author-photo" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e2e8f0', color: '#94a3b8' }}>
+              <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', margin: '0 auto 1rem auto' }}>
                 <BookOpen size={48} />
               </div>
             )}
             <div className="author-info">
-              <span style={{ fontSize: '0.8rem', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Escrito por</span>
-              <h4 style={{ fontSize: '1.25rem', marginTop: '0.25rem' }}>{devocional.author_name}</h4>
-              <p style={{ fontSize: '0.9rem', marginTop: '0.5rem' }}>{devocional.author_bio}</p>
+              <h4 style={{ color: 'var(--text-primary)' }}>{devocional.author_name}</h4>
+              {devocional.author_role && <p style={{ color: 'var(--accent-color)', fontWeight: 600, fontSize: '0.85rem', marginBottom: '0.5rem' }}>{devocional.author_role}</p>}
+              <p style={{ color: 'var(--text-secondary)' }}>{devocional.author_bio || "Escritor(a) de la comunidad de IMR4."}</p>
             </div>
           </div>
         </aside>
