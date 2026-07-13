@@ -4,7 +4,7 @@ import { FileText, Video, Link as LinkIcon, Search, Download, ExternalLink, Sun,
 import './Recursos.css';
 
 export default function Recursos() {
-  const { resources, resourceCategories } = useContext(GalleryContext);
+  const { resources, resourceCategories, livestream } = useContext(GalleryContext);
 
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeType, setActiveType] = useState('all');
