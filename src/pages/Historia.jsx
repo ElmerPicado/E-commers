@@ -1,7 +1,68 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Clock, BookOpen, Video, Image as ImageIcon, Sun, Moon } from 'lucide-react';
+import { Clock, BookOpen, Video, Image as ImageIcon, Sun, Moon, ChevronLeft, ChevronRight } from 'lucide-react';
 import './Historia.css';
+
+const MediaCarousel = ({ mediaUrls }) => {
+  const scrollRef = useRef(null);
+
+  const scroll = (direction) => {
+    if (scrollRef.current) {
+      const { current } = scrollRef;
+      const scrollAmount = direction === 'left' ? -current.offsetWidth / 2 : current.offsetWidth / 2;
+      current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <div style={{ position: 'relative', marginTop: '2rem', paddingTop: '2rem', borderTop: '1px solid var(--border-color)' }}>
+      {mediaUrls.length > 3 && (
+        <>
+          <button onClick={() => scroll('left')} className="carousel-nav-btn left">
+            <ChevronLeft size={24} />
+          </button>
+          <button onClick={() => scroll('right')} className="carousel-nav-btn right">
+            <ChevronRight size={24} />
+          </button>
+        </>
+      )}
+      <div ref={scrollRef} className="newspaper-media-grid" style={{ marginTop: 0, borderTop: 'none', paddingTop: 0 }}>
+        {mediaUrls.map((media, mIdx) => {
+          const isString = typeof media === 'string';
+          const url = isString ? media : media.url;
+          const caption = isString ? '' : media.caption;
+          const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
+          const isDirectVideo = url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
+
+          return (
+            <figure key={mIdx} className="newspaper-media-item" style={{ margin: 0, overflow: 'hidden' }}>
+              {isYoutube ? (
+                <iframe 
+                  src={url.includes('watch?v=') ? url.replace('watch?v=', 'embed/').split('&')[0] : url.replace('youtu.be/', 'youtube.com/embed/').split('?')[0]} 
+                  title={`Video adicional ${mIdx + 1}`}
+                  frameBorder="0" 
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                  allowFullScreen
+                  className="video-item"
+                  style={{ width: '100%', display: 'block' }}
+                ></iframe>
+              ) : isDirectVideo ? (
+                <video src={url} controls className="video-item" style={{ width: '100%', display: 'block' }}></video>
+              ) : (
+                <img src={url} alt={caption || 'Media adicional'} className="image-item" style={{ width: '100%', display: 'block' }} />
+              )}
+              {caption && (
+                <figcaption style={{ padding: '0.6rem 1rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic', borderTop: '1px solid var(--border-color)', background: 'var(--bg-secondary)', textAlign: 'center', margin: 0 }}>
+                  {caption}
+                </figcaption>
+              )}
+            </figure>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 export default function Historia() {
   const { blogPosts, livestream } = useContext(GalleryContext);
@@ -121,42 +182,9 @@ export default function Historia() {
                           <div style={{ clear: 'both' }}></div>
                         </div>
 
-                        {/* Additional Media */}
+                        {/* Additional Media Carousel */}
                         {t.mediaUrls && t.mediaUrls.length > 0 && (
-                          <div className="newspaper-media-grid">
-                            {t.mediaUrls.map((media, mIdx) => {
-                              const isString = typeof media === 'string';
-                              const url = isString ? media : media.url;
-                              const caption = isString ? '' : media.caption;
-                              const isYoutube = url.includes('youtube.com') || url.includes('youtu.be');
-                              const isDirectVideo = url.match(/\.(mp4|webm|ogg)(\?.*)?$/i);
-
-                              return (
-                                <figure key={mIdx} className="newspaper-media-item" style={{ margin: 0, overflow: 'hidden' }}>
-                                  {isYoutube ? (
-                                    <iframe 
-                                      src={url.includes('watch?v=') ? url.replace('watch?v=', 'embed/').split('&')[0] : url.replace('youtu.be/', 'youtube.com/embed/').split('?')[0]} 
-                                      title={`Video adicional ${mIdx + 1}`}
-                                      frameBorder="0" 
-                                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                      allowFullScreen
-                                      className="video-item"
-                                      style={{ width: '100%', display: 'block' }}
-                                    ></iframe>
-                                  ) : isDirectVideo ? (
-                                    <video src={url} controls className="video-item" style={{ width: '100%', display: 'block' }}></video>
-                                  ) : (
-                                    <img src={url} alt={caption || 'Media adicional'} className="image-item" style={{ width: '100%', display: 'block' }} />
-                                  )}
-                                  {caption && (
-                                    <figcaption style={{ padding: '0.6rem 1rem', fontSize: '0.85rem', color: 'var(--text-secondary)', fontStyle: 'italic', borderTop: '1px solid var(--border-color)', background: 'var(--bg-secondary)', textAlign: 'center', margin: 0 }}>
-                                      {caption}
-                                    </figcaption>
-                                  )}
-                                </figure>
-                              );
-                            })}
-                          </div>
+                          <MediaCarousel mediaUrls={t.mediaUrls} />
                         )}
                       </div>
                     ))}
