@@ -141,53 +141,44 @@ export default function Ministerio() {
       {/* Hero */}
       <section className="hero-section-min" style={{
         position: 'relative',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        minHeight: '75vh',
-        paddingBottom: '10vh',
         backgroundColor: 'var(--bg-base)',
         borderBottom: '1px solid var(--border-color)',
         textAlign: 'center',
         overflow: 'hidden'
       }}>
-        {/* Capa 1: Fondo borroso estirado */}
-        {ministry.hero_image && (
-          <div style={{
-            position: 'absolute',
-            top: '-5%', left: '-5%', right: '-5%', bottom: '-5%', // Evita bordes blancos del blur
-            backgroundImage: `url("${ministry.hero_image}")`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            filter: 'blur(25px) brightness(0.25)',
-            zIndex: 0
-          }}></div>
-        )}
         
-        {/* Capa 2: Imagen nítida sin recortes (contain) */}
+        {/* Imagen en su tamaño original sin recortes */}
         {ministry.hero_image && (
-          <div style={{
-            position: 'absolute',
-            top: 0, left: 0, right: 0, bottom: 0,
-            backgroundImage: `url("${ministry.hero_image}")`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat',
-            zIndex: 1
-          }}></div>
+          <img 
+            src={ministry.hero_image} 
+            alt={ministry.name}
+            style={{
+              width: '100%',
+              height: 'auto',
+              display: 'block',
+              objectFit: 'contain'
+            }}
+          />
         )}
 
-        {/* Capa 3: Gradiente oscuro superior e inferior para que el texto resalte */}
+        {/* Capa de Gradiente */}
         <div style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 40%, var(--bg-base) 100%)',
+          background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, transparent 40%, var(--bg-base) 100%)',
           zIndex: 2,
           pointerEvents: 'none'
         }}></div>
 
-        <div className="container" style={{ maxWidth: '800px', zIndex: 3, position: 'relative' }}>
+        <div className="container" style={{ 
+          position: 'absolute', 
+          bottom: '5%', 
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '90%',
+          maxWidth: '800px', 
+          zIndex: 3 
+        }}>
           <div className="hero-badge" style={{ color: 'var(--accent-color)', borderColor: 'var(--accent-color)', background: 'rgba(255,255,255,0.03)' }}>
             {ministry.logo_url ? (
               <img src={ministry.logo_url} alt={ministry.name} style={{ width: '16px', height: '16px', objectFit: 'contain', borderRadius: '50%' }} />

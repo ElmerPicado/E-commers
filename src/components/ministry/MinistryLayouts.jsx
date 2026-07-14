@@ -96,29 +96,35 @@ export const SoftLayout = ({ ministry, ministryActivities, customThemeVars, getT
   return (
     <div className={getThemeClass(ministry)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', fontFamily: '"Georgia", serif', background: 'var(--bg-base)' }}>
       
-      {/* Soft Elegant Background OR Hero Image */}
-      {ministry.hero_image ? (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '75vh', backgroundImage: `url("${ministry.hero_image}")`, backgroundSize: 'cover', backgroundPosition: 'center', zIndex: 0, opacity: 0.6, filter: 'saturate(0.8)' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 30%, var(--bg-base) 100%)' }}></div>
+      {/* Hero Section */}
+      <div style={{ position: 'relative', width: '100%', minHeight: ministry.hero_image ? 'auto' : '400px' }}>
+        {ministry.hero_image ? (
+          <>
+            <img src={ministry.hero_image} alt="Hero" style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9 }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 40%, var(--bg-base) 100%)' }}></div>
+          </>
+        ) : (
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, var(--border-color), transparent)', opacity: 0.5 }}></div>
+        )}
+        
+        {/* Header Text Overlay */}
+        <div style={{ position: 'absolute', bottom: '5%', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+          <div style={{ textAlign: 'center', maxWidth: '700px', width: '100%', padding: '0 1.5rem' }}>
+            <h1 style={{ fontSize: '3.5rem', fontWeight: 400, color: 'var(--text-primary)', marginBottom: '1rem', fontStyle: 'italic' }}>
+              {ministry.hero_title || ministry.name}
+            </h1>
+            <div style={{ width: '50px', height: '2px', background: 'var(--accent-color)', margin: '0 auto 1.5rem auto' }}></div>
+            <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
+              {ministry.hero_desc}
+            </p>
+          </div>
         </div>
-      ) : (
-        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '400px', background: 'linear-gradient(to bottom, var(--border-color), transparent)', zIndex: 0, opacity: 0.5 }}></div>
-      )}
-      <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '300px', height: '300px', background: 'var(--accent-color)', borderRadius: '50%', filter: 'blur(100px)', opacity: 0.1, zIndex: 0 }}></div>
+      </div>
+
+      <div style={{ position: 'absolute', top: '50%', right: '-10%', width: '300px', height: '300px', background: 'var(--accent-color)', borderRadius: '50%', filter: 'blur(100px)', opacity: 0.1, zIndex: 0 }}></div>
 
       {/* Content wrapper */}
-      <div style={{ position: 'relative', zIndex: 1, padding: '4rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '75vh', justifyContent: 'flex-end', paddingBottom: '10vh' }}>
-        
-        {/* Header Text */}
-        <div style={{ textAlign: 'center', maxWidth: '700px', marginBottom: '3rem', width: '100%' }}>
-          <h1 style={{ fontSize: '3rem', fontWeight: 400, color: 'var(--text-primary)', marginBottom: '1rem', fontStyle: 'italic' }}>
-            {ministry.hero_title || ministry.name}
-          </h1>
-          <div style={{ width: '50px', height: '2px', background: 'var(--accent-color)', margin: '0 auto 1.5rem auto' }}></div>
-          <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
-            {ministry.hero_desc}
-          </p>
-        </div>
+      <div style={{ position: 'relative', zIndex: 1, padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
         {/* Message / Contact Focus */}
         <div style={{ background: 'var(--bg-surface)', padding: '3rem', borderRadius: '1rem', boxShadow: '0 20px 40px rgba(0,0,0,0.03)', maxWidth: '800px', width: '100%', textAlign: 'center', border: '1px solid var(--border-color)' }}>
