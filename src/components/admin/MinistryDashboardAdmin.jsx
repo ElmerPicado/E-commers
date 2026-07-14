@@ -4,15 +4,6 @@ import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette } from 'lucide-react';
 import ImageUploadDropzone from './ImageUploadDropzone';
 
-const inputStyle = {
-  background: 'rgba(255, 255, 255, 0.03)', border: '1px solid var(--border-color)', color: 'var(--text-primary)',
-  padding: '0.55rem 0.75rem', borderRadius: '0.35rem', outline: 'none', fontSize: '0.9rem', width: '100%', transition: 'border-color 0.2s'
-};
-const selectStyle = {
-  background: 'rgba(18, 18, 22, 0.95)', border: '1px solid var(--border-color)', color: 'var(--text-primary)',
-  padding: '0.55rem 0.75rem', borderRadius: '0.35rem', outline: 'none', fontSize: '0.9rem', width: '100%', cursor: 'pointer'
-};
-
 export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSuccess }) {
   const {
     ministries,
