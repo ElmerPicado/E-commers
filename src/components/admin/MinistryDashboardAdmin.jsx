@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
-import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2 } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette } from 'lucide-react';
 import ImageUploadDropzone from './ImageUploadDropzone';
 
 export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSuccess }) {
@@ -51,6 +51,13 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [minContactTitle, setMinContactTitle] = useState(min?.contact_title || '');
   const [minContactDesc, setMinContactDesc] = useState(min?.contact_desc || '');
   const [minContactButtonText, setMinContactButtonText] = useState(min?.contact_button_text || '');
+  
+  // Visual Settings State
+  const [minThemeMode, setMinThemeMode] = useState(min?.visual_settings?.theme_mode || 'dark');
+  const [minLayoutStyle, setMinLayoutStyle] = useState(min?.visual_settings?.layout_style || 'modern');
+  const [minPrimaryActionText, setMinPrimaryActionText] = useState(min?.visual_settings?.primary_action_text || 'Participar');
+  const [minPrimaryActionUrl, setMinPrimaryActionUrl] = useState(min?.visual_settings?.primary_action_url || '#contacto');
+  const [minPillarsLabel, setMinPillarsLabel] = useState(min?.visual_settings?.custom_labels?.pillars || 'Pilares');
   
   const [minPillars, setMinPillars] = useState(() => {
     if (min?.pillars && min.pillars.length > 0) {
@@ -198,7 +205,14 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       contact_title: minContactTitle,
       contact_desc: minContactDesc,
       contact_button_text: minContactButtonText,
-      pillars: finalPillars
+      pillars: finalPillars,
+      visual_settings: {
+        theme_mode: minThemeMode,
+        layout_style: minLayoutStyle,
+        primary_action_text: minPrimaryActionText,
+        primary_action_url: minPrimaryActionUrl,
+        custom_labels: { pillars: minPillarsLabel }
+      }
     };
     await updateMinistry(ministryId, updates);
     setMinLogoUrl(finalLogoUrl);
@@ -375,7 +389,12 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
         {ministryId !== 'general' && (
           <button onClick={() => setActiveTab('profile')} className={`btn ${activeTab === 'profile' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'profile' ? 'transparent' : '', color: activeTab !== 'profile' ? 'var(--text-secondary)' : '' }}>
-            <User size={16} /> Perfil y Configuración
+            <User size={16} /> Perfil
+          </button>
+        )}
+        {ministryId !== 'general' && (
+          <button onClick={() => setActiveTab('visual')} className={`btn ${activeTab === 'visual' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'visual' ? 'transparent' : '', color: activeTab !== 'visual' ? 'var(--text-secondary)' : '' }}>
+            <Palette size={16} /> Identidad Visual
           </button>
         )}
         {ministryId !== 'general' && (
@@ -539,6 +558,59 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
 
            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isMinLogoUploading || isMinHeroUploading}>
              {(isMinLogoUploading || isMinHeroUploading) ? 'Subiendo...' : <><Save size={16} /> Guardar Perfil del Ministerio</>}
+           </button>
+        </form>
+      )}
+
+      {/* TAB VISUAL */}
+      {activeTab === 'visual' && (
+        <form onSubmit={handleSaveProfile} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+           <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Identidad Visual y Estilo</h3>
+           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '-0.5rem' }}>
+             Configura el aspecto y sensación de este ministerio para darle su propia personalidad.
+           </p>
+
+           <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem', marginTop: '1rem' }}>
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+               <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Modo de Tema</label>
+               <select value={minThemeMode} onChange={(e) => setMinThemeMode(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
+                 <option value="dark">Modo Oscuro (Ej: Jóvenes, Hombres)</option>
+                 <option value="light">Modo Claro (Ej: Mujeres, Niños)</option>
+               </select>
+             </div>
+             
+             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+               <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Estilo de Diseño (Layout)</label>
+               <select value={minLayoutStyle} onChange={(e) => setMinLayoutStyle(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
+                 <option value="modern">Moderno (Industrial, Neón)</option>
+                 <option value="warm">Cálido (Acogedor, Delicado)</option>
+                 <option value="playful">Divertido (Bordes redondeados, Juguetón)</option>
+               </select>
+             </div>
+           </div>
+
+           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+             <h4 style={{ fontSize: '1rem', margin: 0 }}>Textos de Secciones</h4>
+             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Cambia los títulos genéricos por los que mejor se adapten a tu ministerio.</p>
+             
+             <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem', marginTop: '0.5rem' }}>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título para "Pilares" (Ej: Grupos de Apoyo, Clases)</label>
+                 <input type="text" value={minPillarsLabel} onChange={(e) => setMinPillarsLabel(e.target.value)} style={inputStyle} placeholder="Pilares" />
+               </div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Botón Principal de Llamado a la Acción</label>
+                 <input type="text" value={minPrimaryActionText} onChange={(e) => setMinPrimaryActionText(e.target.value)} style={inputStyle} placeholder="Participar" />
+               </div>
+               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Destino del Botón Principal</label>
+                 <input type="text" value={minPrimaryActionUrl} onChange={(e) => setMinPrimaryActionUrl(e.target.value)} style={inputStyle} placeholder="#contacto" />
+               </div>
+             </div>
+           </div>
+
+           <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '1rem' }} disabled={isMinLogoUploading || isMinHeroUploading}>
+             <Save size={16} /> Guardar Identidad Visual
            </button>
         </form>
       )}

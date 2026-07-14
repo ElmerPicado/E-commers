@@ -58,8 +58,11 @@ export default function Ministerio() {
   const ministryActivities = activities.filter((act) => act.ministry_id === ministry.id);
 
   // Compute local dark themes based on ministry ID to give it a custom background style
-  const getThemeClass = (mid) => {
-    switch (mid) {
+  const getThemeClass = (min) => {
+    if (min.visual_settings?.theme_mode === 'light') {
+       return 'theme-light';
+    }
+    switch (min.id) {
       case 'unanimes': return 'theme-unanimes';
       case 'mujeres': return 'theme-mujeres';
       case 'hombres': return 'theme-hombres';
@@ -68,14 +71,35 @@ export default function Ministerio() {
     }
   };
 
+  const visualSettings = ministry.visual_settings || {};
+  const layoutStyle = visualSettings.layout_style || 'modern';
+  const primaryActionText = visualSettings.primary_action_text || 'Participar';
+  const primaryActionUrl = visualSettings.primary_action_url || '#contacto';
+  const pillarsLabel = visualSettings.custom_labels?.pillars || 'Pilares del Ministerio';
+
+  // Helper to get RGB from Hex for dynamic neon backgrounds
+  const hexToRgb = (hex) => {
+    let r = 0, g = 0, b = 0;
+    if (hex.length === 4) {
+      r = parseInt(hex[1] + hex[1], 16);
+      g = parseInt(hex[2] + hex[2], 16);
+      b = parseInt(hex[3] + hex[3], 16);
+    } else if (hex.length === 7) {
+      r = parseInt(hex.substring(1, 3), 16);
+      g = parseInt(hex.substring(3, 5), 16);
+      b = parseInt(hex.substring(5, 7), 16);
+    }
+    return `${r}, ${g}, ${b}`;
+  };
+
   // Custom inline theme variable overrides for newly created ministries
   const customThemeVars = {
     '--accent-color': ministry.accent_color,
-    '--accent-color-rgb': '16, 185, 129', // placeholder
+    '--accent-color-rgb': hexToRgb(ministry.accent_color), 
   };
 
   return (
-    <div className={getThemeClass(ministry.id)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
+    <div className={getThemeClass(ministry)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
       
       {/* Decorative Background Elements */}
       <div style={{
@@ -165,8 +189,8 @@ export default function Ministerio() {
             {ministry.hero_desc}
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-            <a href="#contacto" className="btn btn-primary" style={{ background: 'var(--accent-color)', color: '#000' }}>
-              Participar
+            <a href={primaryActionUrl} className="btn btn-primary" style={{ background: 'var(--accent-color)', color: visualSettings.theme_mode === 'light' ? '#fff' : '#000' }}>
+              {primaryActionText}
             </a>
             <a href="#galeria" className="btn btn-secondary">
               Ver Fotos
@@ -199,7 +223,7 @@ export default function Ministerio() {
             {/* Horario Principal */}
             {ministry.schedule && (
               <div style={{ marginBottom: '2rem' }}>
-                <h2 style={{ fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                <h2 style={{ fontSize: '2.5rem', fontWeight: 800, textTransform: 'uppercase', color: visualSettings.theme_mode === 'light' ? 'var(--text-primary)' : '#fff', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
                   {ministry.schedule}
                 </h2>
               </div>
@@ -239,6 +263,9 @@ export default function Ministerio() {
       {ministry.pillars && ministry.pillars.some(p => p.title?.trim() || p.desc?.trim()) && (
         <section style={{ padding: '4rem 1.5rem', position: 'relative', zIndex: 1 }}>
           <div className="container" style={{ display: 'flex', flexDirection: 'column', gap: '4rem', maxWidth: '1000px' }}>
+              <h2 style={{ fontSize: '2rem', textAlign: 'center', marginBottom: '-1.5rem', color: visualSettings.theme_mode === 'light' ? 'var(--text-primary)' : '#fff' }}>
+                {pillarsLabel}
+              </h2>
               {ministry.pillars.map((pillar, idx) => {
                 const isEven = idx % 2 === 0;
                 return (
@@ -252,11 +279,12 @@ export default function Ministerio() {
                       order: isEven ? 1 : 2,
                       width: '100%', 
                       aspectRatio: '16/10',
-                      borderRadius: '1rem',
+                      borderRadius: layoutStyle === 'playful' ? '2rem' : '1rem',
                       overflow: 'hidden',
                       position: 'relative',
-                      background: 'rgba(255,255,255,0.02)',
-                      border: '1px solid var(--border-color)'
+                      background: visualSettings.theme_mode === 'light' ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)',
+                      border: layoutStyle === 'warm' ? 'none' : '1px solid var(--border-color)',
+                      boxShadow: layoutStyle === 'warm' ? '0 10px 30px -10px rgba(0,0,0,0.05)' : 'none'
                     }}>
                       {pillar.image_url ? (
                         <img src={pillar.image_url} alt={pillar.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -269,7 +297,7 @@ export default function Ministerio() {
                     
                     {/* Texto */}
                     <div style={{ order: isEven ? 2 : 1, padding: '1rem' }}>
-                      <h3 style={{ fontSize: '2.2rem', fontWeight: 800, marginBottom: '1rem', color: '#fff', lineHeight: 1.1 }}>
+                      <h3 style={{ fontSize: layoutStyle === 'playful' ? '2.5rem' : '2.2rem', fontWeight: 800, marginBottom: '1rem', color: visualSettings.theme_mode === 'light' ? 'var(--text-primary)' : '#fff', lineHeight: 1.1, fontFamily: layoutStyle === 'playful' ? 'var(--font-display)' : 'inherit' }}>
                         {pillar.title}
                       </h3>
                       <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', lineHeight: '1.7' }}>
@@ -549,7 +577,7 @@ export default function Ministerio() {
                 style={{
                   marginTop: '0.5rem',
                   background: 'var(--accent-color)',
-                  color: '#000',
+                  color: visualSettings.theme_mode === 'light' ? '#fff' : '#000',
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',

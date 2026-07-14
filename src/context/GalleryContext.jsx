@@ -118,7 +118,8 @@ const DEFAULT_MINISTRIES = [
     schedule: 'Sábados 20:30 hs',
     location: 'Salón Principal',
     contact_email: 'jovenes@imr4.org',
-    contact_link: 'https://wa.me/1'
+    contact_link: 'https://wa.me/1',
+    visual_settings: { theme_mode: "dark", layout_style: "modern", primary_action_text: "Participar", primary_action_url: "#contacto", custom_labels: { pillars: "Pilares" } }
   },
   {
     id: 'mujeres',
@@ -136,7 +137,8 @@ const DEFAULT_MINISTRIES = [
     schedule: 'Viernes quincenales 18:00 hs',
     location: 'Salón de Conferencias',
     contact_email: 'mujeres@imr4.org',
-    contact_link: 'https://wa.me/2'
+    contact_link: 'https://wa.me/2',
+    visual_settings: { theme_mode: "light", layout_style: "warm", primary_action_text: "¿Necesitas oración?", primary_action_url: "#contacto", custom_labels: { pillars: "Grupos de Apoyo" } }
   },
   {
     id: 'hombres',
@@ -154,7 +156,8 @@ const DEFAULT_MINISTRIES = [
     schedule: 'Viernes quincenales 20:00 hs',
     location: 'Auditorio Secundario',
     contact_email: 'hombres@imr4.org',
-    contact_link: 'https://wa.me/3'
+    contact_link: 'https://wa.me/3',
+    visual_settings: { theme_mode: "dark", layout_style: "modern", primary_action_text: "Únete a la Tropa", primary_action_url: "#contacto", custom_labels: { pillars: "Principios" } }
   },
   {
     id: 'ninos',
@@ -173,7 +176,8 @@ const DEFAULT_MINISTRIES = [
     location: 'Aulas Infantiles',
     location_url: '',
     contact_email: 'ninos@imr4.org',
-    contact_link: 'https://wa.me/4'
+    contact_link: 'https://wa.me/4',
+    visual_settings: { theme_mode: "light", layout_style: "playful", primary_action_text: "Escuela Dominical", primary_action_url: "#contacto", custom_labels: { pillars: "Clases" } }
   }
 ];
 
