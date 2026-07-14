@@ -110,7 +110,7 @@ export const SoftLayout = ({ ministry, ministryActivities, customThemeVars, getT
       <div style={{ position: 'relative', zIndex: 1, padding: '4rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: '75vh', justifyContent: 'flex-end', paddingBottom: '10vh' }}>
         
         {/* Header Text */}
-        <div style={{ textAlign: 'center', maxWidth: '700px', marginBottom: '3rem' }}>
+        <div style={{ textAlign: 'center', maxWidth: '700px', marginBottom: '3rem', width: '100%' }}>
           <h1 style={{ fontSize: '3rem', fontWeight: 400, color: 'var(--text-primary)', marginBottom: '1rem', fontStyle: 'italic' }}>
             {ministry.hero_title || ministry.name}
           </h1>

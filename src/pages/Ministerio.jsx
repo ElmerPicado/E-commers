@@ -140,8 +140,9 @@ export default function Ministerio() {
       <section className="hero-section-min" style={{
         position: 'relative',
         display: 'flex',
-        alignItems: 'flex-end',
-        justifyContent: 'center',
+        flexDirection: 'column',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
         minHeight: '75vh',
         paddingBottom: '10vh',
         backgroundColor: '#0a0a0c',
