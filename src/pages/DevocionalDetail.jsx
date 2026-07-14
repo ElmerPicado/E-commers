@@ -201,6 +201,27 @@ export default function DevocionalDetail() {
             </div>
           )}
 
+          {/* Author Info (Mobile Only) */}
+          <div className="author-mobile-only" style={{ marginBottom: '3rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '1.5rem', textAlign: 'center' }}>
+              Sobre el Autor
+            </h3>
+            <div className="author-sidebar-box" style={{ padding: '1.5rem', background: 'var(--bg-secondary)', borderRadius: '1rem', border: '1px solid var(--border-color)', textAlign: 'center' }}>
+              {devocional.author_photo ? (
+                <img src={devocional.author_photo} alt={devocional.author_name} className="author-photo" style={{ width: '100px', height: '100px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 1rem auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
+              ) : (
+                <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'var(--border-color)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', margin: '0 auto 1rem auto', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }}>
+                  <User size={40} />
+                </div>
+              )}
+              <div className="author-info">
+                <h4 style={{ color: 'var(--text-primary)', fontSize: '1.2rem', marginBottom: '0.25rem' }}>{devocional.author_name}</h4>
+                {devocional.author_role && <p style={{ color: 'var(--accent-color)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '0.5rem' }}>{devocional.author_role}</p>}
+                <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>{devocional.author_bio || "Escritor(a) de la comunidad de IMR4."}</p>
+              </div>
+            </div>
+          </div>
+
           {/* Sección de Comentarios */}
           <div style={{ marginTop: '4rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
             <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.4rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '1.5rem' }}>
@@ -254,8 +275,8 @@ export default function DevocionalDetail() {
 
         </div>
 
-        {/* Sidebar (Right) */}
-        <aside className="devocional-sidebar">
+        {/* Sidebar (Right) - Desktop Only */}
+        <aside className="devocional-sidebar author-desktop-only">
           <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', borderBottom: '2px solid var(--border-color)', paddingBottom: '0.75rem', marginBottom: '1.5rem' }}>
             Sobre el Autor
           </h3>

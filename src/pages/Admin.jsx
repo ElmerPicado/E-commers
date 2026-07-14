@@ -61,6 +61,8 @@ export default function Admin() {
   const [churchMapsUrl, setChurchMapsUrl] = useState(livestream.churchMapsUrl || '');
   const [churchEmail, setChurchEmail] = useState(livestream.churchEmail || 'contacto@imr4.org');
   const [churchDescription, setChurchDescription] = useState(livestream.churchDescription || 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.');
+  const [scheduleText, setScheduleText] = useState(livestream.scheduleText || '');
+  const [connectionText, setConnectionText] = useState(livestream.connectionText || '');
   const [radioTitle, setRadioTitle] = useState(radio.title);
   const [radioUrl, setRadioUrl] = useState(radio.audioUrl);
   const [isRadioLive, setIsRadioLive] = useState(radio.isLive);
@@ -183,7 +185,9 @@ export default function Admin() {
       churchMapsUrl: churchMapsUrl,
       churchEmail: churchEmail,
       churchDescription: churchDescription,
-      youtubeChannelUrl: youtubeChannelUrl
+      youtubeChannelUrl: youtubeChannelUrl,
+      scheduleText: scheduleText,
+      connectionText: connectionText
     });
     setChurchLogo(logoUrl);
     setChurchLogoFile(null);
@@ -427,6 +431,14 @@ export default function Admin() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de Transmisión</label><input type="text" value={liveTitle} onChange={(e) => setLiveTitle(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace Embed (Para el video en vivo)</label><input type="text" value={liveUrl} onChange={(e) => setLiveUrl(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>URL del Canal de YouTube</label><input type="text" placeholder="https://youtube.com/@..." value={youtubeChannelUrl} onChange={(e) => setYoutubeChannelUrl(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Programación de Transmisiones</label>
+                  <textarea value={scheduleText} onChange={(e) => setScheduleText(e.target.value)} style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }} placeholder="Detalles de la programación (ej. Domingos 10:00hs)..." />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Texto de Ayuda / Problemas de Conexión</label>
+                  <textarea value={connectionText} onChange={(e) => setConnectionText(e.target.value)} style={{ ...inputStyle, minHeight: '100px', resize: 'vertical' }} placeholder="Instrucciones si hay problemas de conexión..." />
+                </div>
                 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><input type="checkbox" id="isLive" checked={isLive} onChange={(e) => setIsLive(e.target.checked)} style={{ width: '16px', height: '16px' }} /><label htmlFor="isLive" style={{ fontSize: '0.85rem', fontWeight: 600, cursor: 'pointer' }}>Transmisión de Video en Vivo Activa</label></div>
                 

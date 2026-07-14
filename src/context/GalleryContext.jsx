@@ -61,7 +61,11 @@ const DEFAULT_LIVESTREAM = {
   churchEmail: 'contacto@imr4.org',
   churchDescription: 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.',
   youtubeChannelUrl: '',
+  formBgUrl: '',
+  resourcesBgUrl: '',
   historyBgUrl: '',
+  scheduleText: 'Nos conectamos en directo para nuestros cultos generales semanales:\n\nDomingos 10:00 hs - Servicio de Adoración Dominical (Mañana)\nDomingos 19:30 hs - Culto de Celebración y Palabra (Tarde)\nEventos Especiales - Conferencias juveniles y seminarios (se anuncia con antelación)',
+  connectionText: 'Si experimentas cortes en la reproducción del video, asegúrate de tener una velocidad de internet mínima de 5 Mbps. En caso de que la transmisión oficial se interrumpa, puedes sintonizar de respaldo directamente en nuestro canal de YouTube buscando "Iglesia Metodista Río Cuarto".\n\nPara la radio, si el reproductor no inicia, recarga la página o verifica que el firewall de tu red no bloquee flujos de audio streaming.',
   chatMessages: [
     { id: 1, user: 'Carlos M.', text: '¡Bendiciones a toda la iglesia!' },
     { id: 2, user: 'María P.', text: 'Hola a todos desde Río Cuarto.' },
@@ -453,7 +457,9 @@ export const GalleryProvider = ({ children }) => {
           youtubeChannelUrl: streamConfig.youtube_channel_url || '',
           formBgUrl: streamConfig.form_bg_url || '',
           resourcesBgUrl: streamConfig.resources_bg_url || '',
-          historyBgUrl: streamConfig.history_bg_url || ''
+          historyBgUrl: streamConfig.history_bg_url || '',
+          scheduleText: streamConfig.schedule_text || DEFAULT_LIVESTREAM.scheduleText,
+          connectionText: streamConfig.connection_text || DEFAULT_LIVESTREAM.connectionText
         }));
         setRadio(prev => ({
           ...prev,
@@ -940,12 +946,32 @@ const clearLiveChat = async () => {
         setDevotionals(prev => {
           const updatedPrev = prev.map(d => {
             if (d.author_name === newDev.author_name) {
-              return { ...d, author_photo: newDev.author_photo };
+              return { 
+                ...d, 
+                author_photo: newDev.author_photo,
+                author_role: newDev.author_role,
+                author_bio: newDev.author_bio
+              };
             }
             return d;
           });
           return [newDev, ...updatedPrev];
         });
+
+        // Also update Supabase for previous cards with this author
+        if (newDev.author_name) {
+          const authorUpdates = {};
+          if (newDev.author_photo !== undefined) authorUpdates.author_photo = newDev.author_photo;
+          if (newDev.author_role !== undefined) authorUpdates.author_role = newDev.author_role;
+          if (newDev.author_bio !== undefined) authorUpdates.author_bio = newDev.author_bio;
+          
+          if (Object.keys(authorUpdates).length > 0) {
+            // We run it asynchronously in the background so it doesn't block the UI
+            supabase.from('devotionals').update(authorUpdates).eq('author_name', newDev.author_name).then(({error}) => {
+               if (error) console.error("Error bulk updating author info:", error);
+            });
+          }
+        }
       }
       return { success: true, data };
     } else {
@@ -955,10 +981,43 @@ const clearLiveChat = async () => {
   };
 
   const updateDevotional = async (id, updates) => {
-    setDevotionals(prev => prev.map(d => d.id === id ? { ...d, ...updates } : d));
+    let currentAuthorName = null;
+    const hasAuthorChanges = updates.author_name !== undefined || updates.author_photo !== undefined || updates.author_role !== undefined || updates.author_bio !== undefined;
+
+    setDevotionals(prev => {
+      const current = prev.find(d => d.id === id);
+      if (current) currentAuthorName = current.author_name;
+
+      return prev.map(d => {
+        if (d.id === id) {
+          return { ...d, ...updates };
+        }
+        if (hasAuthorChanges && currentAuthorName && d.author_name === currentAuthorName) {
+          return {
+            ...d,
+            ...(updates.author_name !== undefined ? { author_name: updates.author_name } : {}),
+            ...(updates.author_photo !== undefined ? { author_photo: updates.author_photo } : {}),
+            ...(updates.author_role !== undefined ? { author_role: updates.author_role } : {}),
+            ...(updates.author_bio !== undefined ? { author_bio: updates.author_bio } : {})
+          };
+        }
+        return d;
+      });
+    });
+
     if (isSupabaseConfigured) {
       const { error } = await supabase.from('devotionals').update(updates).eq('id', id);
-      if (error) fetchSupabaseData();
+      if (error) {
+        fetchSupabaseData();
+      } else if (hasAuthorChanges && currentAuthorName) {
+        const authorUpdates = {};
+        if (updates.author_name !== undefined) authorUpdates.author_name = updates.author_name;
+        if (updates.author_photo !== undefined) authorUpdates.author_photo = updates.author_photo;
+        if (updates.author_role !== undefined) authorUpdates.author_role = updates.author_role;
+        if (updates.author_bio !== undefined) authorUpdates.author_bio = updates.author_bio;
+        
+        await supabase.from('devotionals').update(authorUpdates).eq('author_name', currentAuthorName);
+      }
     }
   };
 

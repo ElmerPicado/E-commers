@@ -79,7 +79,17 @@
   transition: border-color 0.3s ease;
 }
 
+.author-mobile-only {
+  display: none;
+}
+
 @media (max-width: 1100px) {
+  .author-mobile-only {
+    display: block;
+  }
+  .author-desktop-only {
+    display: none;
+  }
   .devocional-detail-layout {
     display: flex;
     flex-direction: column;

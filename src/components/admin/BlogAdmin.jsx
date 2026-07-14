@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react';
-import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, BookOpen, Upload } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, BookOpen, Upload, X } from 'lucide-react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../../supabaseClient';
 import ReactQuill from 'react-quill-new';
+import ImageUploadDropzone from './ImageUploadDropzone';
 import 'react-quill-new/dist/quill.snow.css';
 
 export default function BlogAdmin({ triggerSuccess }) {
@@ -254,31 +255,20 @@ export default function BlogAdmin({ triggerSuccess }) {
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0 }}>
             Esta es la foto de fondo grande que aparece en la parte superior de la página "Nuestra Historia".
           </p>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '250px' }}>
-              <input 
-                type="text" 
-                value={historyBgUrl} 
-                onChange={(e) => setHistoryBgUrl(e.target.value)}
-                style={inputStyle}
-                placeholder="URL de la imagen (o sube un archivo)..."
-                disabled={historyBgFile !== null}
-              />
-              <div style={{ marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  onChange={e => setHistoryBgFile(e.target.files[0])} 
-                  style={{ ...inputStyle, padding: '0.4rem' }} 
-                />
-                {historyBgFile && <button type="button" onClick={() => setHistoryBgFile(null)} className="btn btn-danger" style={{ padding: '0.4rem' }}><Trash2 size={16} /></button>}
-              </div>
-            </div>
-            {(historyBgUrl || historyBgFile) && (
-              <div style={{ width: '150px', height: '80px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: 'var(--bg-secondary)' }}>
-                <img src={historyBgFile ? URL.createObjectURL(historyBgFile) : historyBgUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              </div>
-            )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <input 
+              type="text" 
+              value={historyBgUrl} 
+              onChange={(e) => setHistoryBgUrl(e.target.value)}
+              style={inputStyle}
+              placeholder="URL de la imagen (o sube un archivo)..."
+              disabled={historyBgFile !== null}
+            />
+            <ImageUploadDropzone 
+              onFileSelect={setHistoryBgFile} 
+              previewUrl={historyBgFile ? URL.createObjectURL(historyBgFile) : (historyBgUrl || null)} 
+              size="small" 
+            />
           </div>
           <div>
             <button type="button" onClick={handleUpdateHistoryBg} disabled={isBgUploading} className="btn btn-primary" style={{ padding: '0.5rem 1rem' }}>
@@ -417,14 +407,13 @@ export default function BlogAdmin({ triggerSuccess }) {
                     <label style={labelStyle}>URL de Foto de Perfil (Opcional)</label>
                     <input type="text" value={tPhoto} onChange={e => setTPhoto(e.target.value)} style={inputStyle} placeholder="https://..." disabled={tPhotoFile !== null} />
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem', marginBottom: '0.5rem' }}>O sube un archivo desde tu dispositivo:</p>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={e => setTPhotoFile(e.target.files[0])} 
-                        style={{ ...inputStyle, padding: '0.4rem' }} 
+                    <div style={{ marginTop: '0.25rem' }}>
+                      <ImageUploadDropzone 
+                        onFileSelect={setTPhotoFile} 
+                        previewUrl={tPhotoFile ? URL.createObjectURL(tPhotoFile) : (tPhoto || null)} 
+                        size="small" 
+                        label="Foto de Perfil"
                       />
-                      {tPhotoFile && <button type="button" onClick={() => setTPhotoFile(null)} className="btn btn-danger" style={{ padding: '0.4rem' }}><Trash2 size={16} /></button>}
                     </div>
                   </div>
 
@@ -443,21 +432,21 @@ export default function BlogAdmin({ triggerSuccess }) {
                     {tMediaItems.map((item, idx) => (
                       <div key={idx} style={{ background: 'rgba(0,0,0,0.1)', padding: '0.75rem', borderRadius: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                          <input 
-                            type="file" 
-                            accept="image/*"
-                            onChange={e => {
-                              const file = e.target.files[0];
-                              if(file) {
-                                const newItems = [...tMediaItems];
-                                newItems[idx].file = file;
-                                setTMediaItems(newItems);
-                              }
-                            }}
-                            style={{ ...inputStyle, padding: '0.4rem', flex: 1 }}
-                          />
-                          {!item.file && item.url && <span style={{ fontSize: '0.75rem', color: 'var(--accent-color)' }}>Imagen actual guardada</span>}
-                          <button type="button" onClick={() => setTMediaItems(tMediaItems.filter((_, i) => i !== idx))} className="btn btn-danger" style={{ padding: '0.4rem' }}><Trash2 size={16} /></button>
+                          <div style={{ flex: 1 }}>
+                            <ImageUploadDropzone 
+                              onFileSelect={(file) => {
+                                if(file) {
+                                  const newItems = [...tMediaItems];
+                                  newItems[idx].file = file;
+                                  setTMediaItems(newItems);
+                                }
+                              }}
+                              previewUrl={item.file ? URL.createObjectURL(item.file) : (item.url || null)}
+                              size="small"
+                              label="Foto Extra"
+                            />
+                          </div>
+                          <button type="button" onClick={() => setTMediaItems(tMediaItems.filter((_, i) => i !== idx))} className="btn btn-danger" style={{ padding: '0.5rem', alignSelf: 'center' }}><Trash2 size={16} /></button>
                         </div>
                         <input 
                           type="text" 

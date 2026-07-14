@@ -45,7 +45,7 @@ const AlbumCard = ({ album, onClick, getCategoryLabel }) => {
         height: '100%'
       }}
     >
-      <div style={{ height: '180px', width: '100%', overflow: 'hidden', position: 'relative', background: '#000' }}>
+      <div style={{ height: '240px', width: '100%', overflow: 'hidden', position: 'relative', background: '#000' }}>
         {displayPhotos.length > 0 ? (
           <img
             src={displayPhotos[currentIdx]}
@@ -101,17 +101,32 @@ const AlbumCard = ({ album, onClick, getCategoryLabel }) => {
       </div>
 
       <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.25rem', marginBottom: '0.35rem' }}>
-          <Calendar size={10} /> {album.date}
-        </span>
-        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '0.5rem', flexGrow: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent-color)', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.85rem', textTransform: 'capitalize' }}>
+           <Calendar size={14} /> 
+           <span>{album.date}</span>
+        </div>
+        <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '0.75rem', lineHeight: 1.2 }}>
           {album.title}
         </h3>
+        
         {album.description && (
-          <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+          <p style={{ 
+            fontSize: '0.9rem', 
+            color: 'var(--text-secondary)', 
+            lineHeight: 1.6, 
+            whiteSpace: 'pre-line',
+            display: '-webkit-box',
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden',
+            margin: '0 0 0.5rem 0'
+          }}>
             {album.description}
           </p>
         )}
+        <span style={{ color: 'var(--accent-color)', fontWeight: 700, fontSize: '0.85rem', display: 'inline-block', marginTop: 'auto' }}>
+          Leer más...
+        </span>
       </div>
     </div>
   );

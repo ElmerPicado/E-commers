@@ -223,6 +223,18 @@ export default function Ministerio() {
         </section>
       )}
 
+      {/* Ministry Description */}
+      {ministry.description && (
+        <section style={{ padding: '3rem 1.5rem', background: 'rgba(255,255,255,0.01)', borderBottom: '1px solid var(--border-color)', textAlign: 'center' }}>
+          <div className="container" style={{ maxWidth: '800px' }}>
+            <h2 style={{ fontSize: '1.8rem', marginBottom: '1.5rem', color: 'var(--accent-color)', fontWeight: 800 }}>Acerca de {ministry.name}</h2>
+            <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)', lineHeight: '1.8', whiteSpace: 'pre-line' }}>
+              {ministry.description}
+            </p>
+          </div>
+        </section>
+      )}
+
       {/* Pillars / Core info (Estilo Alternado Zig-Zag) */}
       {ministry.pillars && ministry.pillars.some(p => p.title?.trim() || p.desc?.trim()) && (
         <section style={{ padding: '4rem 1.5rem', position: 'relative', zIndex: 1 }}>
@@ -422,7 +434,7 @@ export default function Ministerio() {
                   className="glass-card" 
                   style={{ padding: '0', overflow: 'hidden', cursor: 'pointer', color: 'inherit', display: 'block' }}
                 >
-                  <div style={{ height: '180px', width: '100%', overflow: 'hidden', position: 'relative' }}>
+                  <div style={{ height: '240px', width: '100%', overflow: 'hidden', position: 'relative', background: '#000' }}>
                     {album.photos && album.photos.length > 0 ? (
                       <img
                         src={album.photos[0]}
@@ -458,13 +470,33 @@ export default function Ministerio() {
                       {album.photos?.length || 0} Fotos
                     </span>
                   </div>
-                  <div style={{ padding: '1.25rem' }}>
-                    <span style={{ fontSize: '0.7rem', color: 'var(--accent-color)', fontWeight: 700 }}>
-                      {album.date}
-                    </span>
-                    <h4 style={{ fontSize: '1rem', marginTop: '0.25rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>
+                  <div style={{ padding: '1.25rem', display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--accent-color)', marginBottom: '0.5rem', fontWeight: 700, fontSize: '0.85rem', textTransform: 'capitalize' }}>
+                       <Calendar size={14} /> 
+                       <span>{album.date}</span>
+                    </div>
+                    <h3 style={{ fontSize: '1.3rem', fontWeight: 800, marginBottom: '0.75rem', lineHeight: 1.2, color: 'var(--text-primary)' }}>
                       {album.title}
-                    </h4>
+                    </h3>
+                    
+                    {album.description && (
+                      <p style={{ 
+                        fontSize: '0.9rem', 
+                        color: 'var(--text-secondary)', 
+                        lineHeight: 1.6, 
+                        whiteSpace: 'pre-line',
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden',
+                        margin: '0 0 0.5rem 0'
+                      }}>
+                        {album.description}
+                      </p>
+                    )}
+                    <span style={{ color: 'var(--accent-color)', fontWeight: 700, fontSize: '0.85rem', display: 'inline-block', marginTop: 'auto' }}>
+                      Leer más...
+                    </span>
                   </div>
                 </div>
               ))}

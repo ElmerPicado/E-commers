@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import LivePlayer from '../components/LivePlayer';
 import { Calendar, HelpCircle } from 'lucide-react';
+import { GalleryContext } from '../context/GalleryContext';
 
 export default function Live() {
+  const { livestream } = useContext(GalleryContext);
   return (
     <div className="theme-imr4 live-page-wrapper">
       <div className="container" style={{ maxWidth: '1000px', padding: 0 }}>
@@ -32,21 +34,9 @@ export default function Live() {
               <Calendar size={18} style={{ color: 'var(--accent-color)' }} />
               Programación de Transmisiones
             </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', lineHeight: '1.5' }}>
-              Nos conectamos en directo para nuestros cultos generales semanales:
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+              {livestream?.scheduleText}
             </p>
-            <ul style={{
-              listStyle: 'none',
-              fontSize: '0.85rem',
-              color: 'var(--text-secondary)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.35rem'
-            }}>
-              <li><strong>Domingos 10:00 hs</strong> - Servicio de Adoración Dominical (Mañana)</li>
-              <li><strong>Domingos 19:30 hs</strong> - Culto de Celebración y Palabra (Tarde)</li>
-              <li><strong>Eventos Especiales</strong> - Conferencias juveniles y seminarios (se anuncia con antelación)</li>
-            </ul>
           </div>
 
           <div className="glass-card" style={{ padding: '1.5rem' }}>
@@ -54,11 +44,8 @@ export default function Live() {
               <HelpCircle size={18} style={{ color: 'var(--accent-color)' }} />
               ¿Problemas de Conexión?
             </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
-              Si experimentas cortes en la reproducción del video, asegúrate de tener una velocidad de internet mínima de 5 Mbps. En caso de que la transmisión oficial se interrumpa, puedes sintonizar de respaldo directamente en nuestro canal de YouTube buscando "Iglesia Metodista Río Cuarto".
-            </p>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginTop: '0.5rem', lineHeight: '1.5' }}>
-              Para la radio, si el reproductor no inicia, recarga la página o verifica que el firewall de tu red no bloquee flujos de audio streaming.
+            <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
+              {livestream?.connectionText}
             </p>
           </div>
 
