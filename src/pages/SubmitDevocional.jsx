@@ -166,12 +166,12 @@ export default function SubmitDevocional() {
     }
 
     if (wantsToRegister && !isLocked) {
-      const generatedCode = `AUT-${Math.floor(1000 + Math.random() * 9000)}`;
+      const codeToSave = pendingCode || generateRandomCode();
       try {
         const { error: insertError } = await supabase
           .from('devotional_authors')
           .insert({
-            code: generatedCode,
+            code: codeToSave,
             name: authorName,
             bio: authorBio,
             photo_url: finalPhotoUrl,
@@ -181,7 +181,7 @@ export default function SubmitDevocional() {
           console.error('Error guardando autor:', insertError);
           savedCode = ''; 
         } else {
-          savedCode = generatedCode;
+          savedCode = codeToSave;
         }
       } catch (err) {
         console.error(err);
