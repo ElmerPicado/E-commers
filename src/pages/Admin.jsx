@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Layers, Mail, Library } from 'lucide-react';
+import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Layers, Mail, Library, CheckCircle } from 'lucide-react';
 import ImageUploadDropzone from '../components/admin/ImageUploadDropzone';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
