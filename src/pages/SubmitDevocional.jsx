@@ -111,9 +111,6 @@ export default function SubmitDevocional() {
         alert("Por favor ingresa una biografía corta.");
         return;
       }
-      if (wantsToRegister && !pendingCode) {
-        setPendingCode(generateRandomCode());
-      }
     }
     setCurrentStep(2);
     window.scrollTo(0, 0);
@@ -159,14 +156,14 @@ export default function SubmitDevocional() {
       finalPhotoUrl = authorPhotoPreview;
     }
 
-    let savedCode = pendingCode;
+    let savedCode = '';
     if (wantsToRegister && !isLocked && !authorEmail) {
       alert("Por favor, ingresa tu correo electrónico para poder registrarte.");
       return;
     }
 
     if (wantsToRegister && !isLocked) {
-      const codeToSave = pendingCode || generateRandomCode();
+      const codeToSave = generateRandomCode();
       try {
         const { error: insertError } = await supabase
           .from('devotional_authors')
@@ -705,19 +702,7 @@ export default function SubmitDevocional() {
         {currentStep === 2 && (
           <>
             
-            {!isLocked && wantsToRegister && pendingCode && (
-              <div style={{ ...formCardStyle, borderLeft: '6px solid #10b981', textAlign: 'center' }}>
-                <h3 style={{ color: '#10b981', fontSize: '1.35rem', fontWeight: 800, marginBottom: '0.75rem' }}>
-                  ¡Antes de continuar, guarda este código!
-                </h3>
-                <div style={{ fontSize: '3rem', fontWeight: 900, color: '#10b981', letterSpacing: '3px', marginBottom: '0.5rem' }}>
-                  {pendingCode}
-                </div>
-                <p style={{ color: 'var(--text-primary)', fontSize: '1rem', maxWidth: '500px', margin: '0 auto' }}>
-                  Guarda este código muy bien para futuros devocionales y así no tendrás que volver a llenar tu perfil nunca más.
-                </p>
-              </div>
-            )}
+
 
             {/* Content Section */}
             <div style={formCardStyle}>
