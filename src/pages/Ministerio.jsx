@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
 import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { PlayfulLayout, SoftLayout } from '../components/ministry/MinistryLayouts';
 
 const InstagramIcon = ({ size = 24, color = "currentColor" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -97,6 +98,14 @@ export default function Ministerio() {
     '--accent-color': ministry.accent_color,
     '--accent-color-rgb': hexToRgb(ministry.accent_color), 
   };
+
+  if (layoutStyle === 'playful') {
+    return <PlayfulLayout ministry={ministry} ministryActivities={ministryActivities} customThemeVars={customThemeVars} getThemeClass={getThemeClass} />;
+  }
+
+  if (layoutStyle === 'soft') {
+    return <SoftLayout ministry={ministry} ministryActivities={ministryActivities} customThemeVars={customThemeVars} getThemeClass={getThemeClass} />;
+  }
 
   return (
     <div className={getThemeClass(ministry)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>

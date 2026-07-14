@@ -64,7 +64,7 @@ export default function Navbar() {
       position: 'sticky',
       top: 0,
       zIndex: 50,
-      background: 'rgba(10, 10, 12, 0.8)',
+      background: 'var(--bg-surface)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
       borderBottom: '1px solid var(--border-color)',
@@ -91,7 +91,7 @@ export default function Navbar() {
                 fontWeight: 800,
                 fontSize: '1.5rem',
                 letterSpacing: '-0.03em',
-                background: 'linear-gradient(135deg, #ffffff 40%, var(--accent-color) 100%)',
+                background: 'linear-gradient(135deg, var(--text-primary) 40%, var(--accent-color) 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 textShadow: '0 2px 10px rgba(0,0,0,0.5)',
@@ -136,7 +136,7 @@ export default function Navbar() {
               display: 'flex',
               alignItems: 'center',
               gap: '0.25rem',
-              background: 'rgba(255,255,255,0.02)',
+              background: 'var(--bg-surface-hover)',
               border: '1px solid var(--border-color)',
               padding: '0.5rem 1rem',
               borderRadius: '9999px',
@@ -178,7 +178,7 @@ export default function Navbar() {
                     fontWeight: 600,
                     padding: '0.75rem 1rem',
                     borderRadius: '0.5rem',
-                    background: isActive(`/ministerio/${m.id}`) ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
+                    background: isActive(`/ministerio/${m.id}`) ? 'var(--bg-surface-hover)' : 'transparent',
                     color: isActive(`/ministerio/${m.id}`) ? m.accent_color : 'var(--text-secondary)',
                     transition: 'all 0.2s',
                     display: 'block',
@@ -186,7 +186,7 @@ export default function Navbar() {
                   }}
                   onMouseOver={(e) => {
                     if (!isActive(`/ministerio/${m.id}`)) {
-                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.02)';
+                      e.currentTarget.style.background = 'var(--bg-surface-hover)';
                       e.currentTarget.style.color = 'var(--text-primary)';
                     }
                   }}

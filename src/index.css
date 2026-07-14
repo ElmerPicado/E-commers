@@ -49,13 +49,20 @@
 }
 
 .theme-mujeres {
-  --bg-base: #0a0507;
-  --bg-surface: #140b0f;
-  --bg-surface-hover: #22121a;
-  --border-color: #331724;
-  --accent-color: #dc2626; /* Deep Red */
-  --accent-color-rgb: 220, 38, 38;
-  --accent-glow: rgba(220, 38, 38, 0.2);
+  --bg-base: #fff0f5; /* LavenderBlush / Soft pink */
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #fdf5f8;
+  --border-color: #fbcfe8;
+  --text-primary: #4c1d95; /* Deep purple */
+  --text-secondary: #831843; /* Deep pink */
+  --text-muted: #9d174d;
+  --accent-color: #db2777; /* Vibrant Pink */
+  --accent-color-rgb: 219, 39, 119;
+  --accent-glow: rgba(219, 39, 119, 0.15);
+  --border-glow: rgba(219, 39, 119, 0.05);
+  --scrollbar-track: #fdf2f8;
+  --scrollbar-thumb: #f472b6;
+  --scrollbar-thumb-hover: #ec4899;
 }
 
 .theme-hombres {
@@ -63,19 +70,28 @@
   --bg-surface: #09120e;
   --bg-surface-hover: #102018;
   --border-color: #173024;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
   --accent-color: #10b981; /* Emerald Green */
   --accent-color-rgb: 16, 185, 129;
   --accent-glow: rgba(16, 185, 129, 0.2);
 }
 
 .theme-ninos {
-  --bg-base: #080502;
-  --bg-surface: #140d07;
-  --bg-surface-hover: #20150d;
-  --border-color: #301f12;
-  --accent-color: #f97316; /* Bright Orange / Warm kids tone */
+  --bg-base: #fef08a; /* Soft playful yellow */
+  --bg-surface: #ffffff;
+  --bg-surface-hover: #fef9c3;
+  --border-color: #fde047;
+  --text-primary: #1e3a8a; /* Deep blue text for contrast */
+  --text-secondary: #0369a1; /* Light blue secondary */
+  --text-muted: #0284c7;
+  --accent-color: #f97316; /* Bright Orange */
   --accent-color-rgb: 249, 115, 22;
   --accent-glow: rgba(249, 115, 22, 0.25);
+  --border-glow: rgba(249, 115, 22, 0.05);
+  --scrollbar-track: #fef3c7;
+  --scrollbar-thumb: #fbbf24;
+  --scrollbar-thumb-hover: #f59e0b;
 }
 
 .theme-light {
