@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Layers, Mail, Library, CheckCircle, Tv } from 'lucide-react';
+import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Layers, Mail, Library, CheckCircle, Tv, Users, FileText, Lock } from 'lucide-react';
 import ImageUploadDropzone from '../components/admin/ImageUploadDropzone';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
@@ -397,7 +397,7 @@ export default function Admin() {
             { id: 'streaming', label: 'Streaming & Radio', icon: <Tv size={16} /> },
             { id: 'church_data', label: 'Datos de la Iglesia', icon: <Settings size={16} /> },
             { id: 'home_sections', label: 'Banners de Inicio', icon: <Layers size={16} /> },
-            { id: 'global_gallery', label: 'Galería General', icon: <Image size={16} />, onClick: () => setActiveMinistryId('general') },
+            { id: 'global_gallery', label: 'Galería General', icon: <ImageIcon size={16} />, onClick: () => setActiveMinistryId('general') },
             { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> },
             { id: 'donations', label: 'Diezmos y Ofrendas', icon: <Heart size={16} /> },
             { id: 'contact_forms', label: 'Formularios de Contacto', icon: <Mail size={16} /> },
