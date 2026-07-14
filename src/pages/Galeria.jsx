@@ -253,7 +253,7 @@ export default function Galeria() {
                 </span>
                 {activeAlbum.drive_link && (
                   <a href={activeAlbum.drive_link} target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ padding: '0.5rem 1rem', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <Image size={16} /> Ver Álbum Completo Externo
+                    <ImageIcon size={16} /> Ver Álbum Completo Externo
                   </a>
                 )}
               </div>

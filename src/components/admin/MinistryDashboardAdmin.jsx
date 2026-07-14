@@ -293,8 +293,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     if (isSupabaseConfigured && selectedFiles.length > 0) {
       setIsPhotoUploading(true);
       try {
-        let uploadedUrls = [];
-        for (const file of selectedFiles) {
+        const uploadPromises = selectedFiles.map(async (file) => {
           const fileExt = file.name.split('.').pop();
           const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
           const filePath = `${targetAlbumId}/${fileName}`;
@@ -303,11 +302,13 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
           if (uploadError) throw uploadError;
 
           const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
-          uploadedUrls.push(publicUrl);
-        }
-        for (const url of uploadedUrls) {
-          await addPhotoToAlbum(targetAlbumId, url);
-        }
+          return publicUrl;
+        });
+        
+        const uploadedUrls = await Promise.all(uploadPromises);
+
+        const addPromises = uploadedUrls.map(url => addPhotoToAlbum(targetAlbumId, url));
+        await Promise.all(addPromises);
         setSelectedFiles([]);
         triggerSuccess('Fotos subidas y agregadas con éxito al álbum.');
       } catch (err) {
@@ -630,16 +631,30 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
               <form onSubmit={handleAddPhoto} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.5rem' }}>
                 <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-secondary)' }}>Añadir Nuevas Fotos</h4>
                 {isSupabaseConfigured && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>Archivo(s) Local(es)</label>
-                    <input type="file" accept="image/*" multiple onChange={handleFileChange} style={{ fontSize: '0.8rem' }} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <label style={{ 
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      padding: '2rem', border: '2px dashed var(--accent-color)', borderRadius: '0.5rem',
+                      cursor: 'pointer', background: 'rgba(255,255,255,0.02)', transition: 'all 0.3s'
+                    }}
+                    onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                    onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                    >
+                      <Upload size={32} style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }} />
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Haz clic para seleccionar fotos</span>
+                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Puedes subir múltiples fotos a la vez</span>
+                      <input type="file" accept="image/*" multiple onChange={handleFileChange} style={{ display: 'none' }} />
+                    </label>
                     {selectedFiles.length > 0 && (
-                      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                        {Array.from(selectedFiles).map((file, idx) => (
-                          <div key={idx} style={{ width: '60px', height: '60px', borderRadius: '0.25rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                            <img src={URL.createObjectURL(file)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          </div>
-                        ))}
+                      <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
+                        <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', fontWeight: 600 }}>{selectedFiles.length} foto(s) seleccionada(s):</p>
+                        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+                          {Array.from(selectedFiles).map((file, idx) => (
+                            <div key={idx} style={{ position: 'relative', width: '80px', height: '80px', borderRadius: '0.5rem', overflow: 'hidden', border: '2px solid var(--border-color)', boxShadow: '0 4px 6px rgba(0,0,0,0.1)' }}>
+                              <img src={URL.createObjectURL(file)} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>
