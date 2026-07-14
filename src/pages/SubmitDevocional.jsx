@@ -179,13 +179,21 @@ export default function SubmitDevocional() {
           });
         if (insertError) {
           console.error('Error guardando autor:', insertError);
-          savedCode = ''; 
+          if (insertError.code === '23505') {
+            alert("Error: El correo electrónico ya está registrado con otro código de autor. Por favor, usa otro correo o ingresa con tu código anterior.");
+          } else {
+            alert("Error al registrar autor: " + insertError.message);
+          }
+          setIsSubmitting(false);
+          return;
         } else {
           savedCode = codeToSave;
         }
       } catch (err) {
         console.error(err);
-        savedCode = '';
+        alert("Error al registrar tu perfil de autor.");
+        setIsSubmitting(false);
+        return;
       }
     }
     const baseSlug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
