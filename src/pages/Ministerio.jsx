@@ -140,8 +140,10 @@ export default function Ministerio() {
       <section className="hero-section-min" style={{
         position: 'relative',
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'center',
+        minHeight: '75vh',
+        paddingBottom: '10vh',
         backgroundColor: '#0a0a0c',
         borderBottom: '1px solid var(--border-color)',
         textAlign: 'center',
@@ -166,7 +168,7 @@ export default function Ministerio() {
             position: 'absolute',
             top: 0, left: 0, right: 0, bottom: 0,
             backgroundImage: `url("${ministry.hero_image}")`,
-            backgroundSize: 'contain',
+            backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
             zIndex: 1
@@ -177,7 +179,7 @@ export default function Ministerio() {
         <div style={{
           position: 'absolute',
           top: 0, left: 0, right: 0, bottom: 0,
-          background: 'linear-gradient(rgba(10, 10, 12, 0.7) 0%, rgba(10, 10, 12, 0.45) 50%, rgba(10, 10, 12, 0.9) 100%)',
+          background: 'linear-gradient(rgba(10, 10, 12, 0.3) 0%, rgba(10, 10, 12, 0.1) 40%, rgba(10, 10, 12, 0.95) 100%)',
           zIndex: 2,
           pointerEvents: 'none'
         }}></div>
