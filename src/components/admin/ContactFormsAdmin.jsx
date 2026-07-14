@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { supabase } from '../../supabaseClient';
+import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 import { Trash2, Mail, MailOpen, Phone, Calendar, User, Image, Save } from 'lucide-react';
 import { GalleryContext } from '../../context/GalleryContext';
+import ImageUploadDropzone from './ImageUploadDropzone';
 
 export default function ContactFormsAdmin() {
   const { livestream, updateLivestream } = useContext(GalleryContext);
@@ -136,17 +137,27 @@ export default function ContactFormsAdmin() {
         </h3>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: '250px' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>URL o Archivo de Imagen</label>
-            <input type="file" accept="image/*" onChange={(e) => setBgFile(e.target.files[0])} style={{ marginBottom: '0.5rem', display: 'block', color: 'var(--text-primary)' }} />
-            <input type="text" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} placeholder="https://..." style={{ width: '100%', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'var(--input-bg, rgba(255,255,255,0.05))', color: 'var(--text-primary)' }} />
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Fondo (Subir o URL)</label>
+            {isSupabaseConfigured ? (
+              <ImageUploadDropzone 
+                onFileSelect={(file) => setBgFile(file)} 
+                previewUrl={bgFile ? URL.createObjectURL(bgFile) : bgUrl} 
+                label="Subir Fondo" 
+                size="large"
+              />
+            ) : (
+              <>
+                <input type="text" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} placeholder="https://..." style={{ width: '100%', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'var(--input-bg, rgba(255,255,255,0.05))', color: 'var(--text-primary)' }} />
+                {bgUrl && (
+                  <div style={{ marginTop: '1rem', height: '100px', width: '200px', borderRadius: '0.5rem', backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid var(--border-color)' }}></div>
+                )}
+              </>
+            )}
           </div>
           <button onClick={handleSaveBg} disabled={isUploading} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <Save size={16} /> {isUploading ? 'Guardando...' : 'Guardar Fondo'}
           </button>
         </div>
-        {bgUrl && (
-          <div style={{ marginTop: '1rem', height: '100px', width: '200px', borderRadius: '0.5rem', backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid var(--border-color)' }}></div>
-        )}
       </div>
 
       {forms.length === 0 ? (

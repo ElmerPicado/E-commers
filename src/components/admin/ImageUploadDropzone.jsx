@@ -7,7 +7,8 @@ export default function ImageUploadDropzone({
   size = 'small', // 'small' or 'large'
   label = 'Haz clic para seleccionar foto',
   multiple = false,
-  onFilesSelect // Optional, for multiple files
+  onFilesSelect, // Optional, for multiple files
+  accept = "image/*"
 }) {
   const isLarge = size === 'large';
   const padding = isLarge ? '2rem' : '1rem';
@@ -34,7 +35,7 @@ export default function ImageUploadDropzone({
         <Upload size={isLarge ? 32 : 20} style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }} />
         <span style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: isLarge ? '1rem' : '0.85rem' }}>{label}</span>
         {isLarge && multiple && <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Puedes subir múltiples fotos a la vez</span>}
-        <input type="file" accept="image/*" multiple={multiple} onChange={handleFileChange} style={{ display: 'none' }} />
+        <input type="file" accept={accept} multiple={multiple} onChange={handleFileChange} style={{ display: 'none' }} />
       </label>
       
       {!multiple && previewUrl && (

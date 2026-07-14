@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
+import ImageUploadDropzone from './ImageUploadDropzone';
 
 export default function DevocionalesAdmin({ triggerSuccess }) {
   const { 
@@ -192,17 +193,27 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
         </h2>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <div style={{ flex: 1, minWidth: '250px' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>URL o Archivo de Imagen</label>
-            <input type="file" accept="image/*" onChange={(e) => setBgFile(e.target.files[0])} style={{ marginBottom: '0.5rem', display: 'block', color: 'var(--text-primary)' }} />
-            <input type="text" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} placeholder="https://..." style={inputStyle} />
+            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Fondo (Subir o URL)</label>
+            {isSupabaseConfigured ? (
+              <ImageUploadDropzone 
+                onFileSelect={(file) => setBgFile(file)} 
+                previewUrl={bgFile ? URL.createObjectURL(bgFile) : bgUrl} 
+                label="Subir Fondo" 
+                size="large"
+              />
+            ) : (
+              <>
+                <input type="text" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} placeholder="https://..." style={inputStyle} />
+                {bgUrl && (
+                  <div style={{ marginTop: '0.5rem', height: '100px', width: '200px', borderRadius: '0.5rem', backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid var(--border-color)' }}></div>
+                )}
+              </>
+            )}
           </div>
           <button onClick={handleSaveBg} disabled={isUploading} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.65rem 1rem' }}>
             <Save size={16} /> {isUploading ? 'Guardando...' : 'Guardar Fondo'}
           </button>
         </div>
-        {bgUrl && (
-          <div style={{ height: '100px', width: '200px', borderRadius: '0.5rem', backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid var(--border-color)' }}></div>
-        )}
       </div>
       
       {/* SECCIÓN CATEGORÍAS */}

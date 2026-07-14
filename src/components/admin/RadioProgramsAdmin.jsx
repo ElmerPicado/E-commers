@@ -1,8 +1,9 @@
 import React, { useState, useContext, useRef } from 'react';
-import { supabase } from '../../supabaseClient';
+import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 import { GalleryContext } from '../../context/GalleryContext';
 import { UploadCloud, Trash2, Edit2, CheckCircle, Radio } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import ImageUploadDropzone from './ImageUploadDropzone';
 
 export default function RadioProgramsAdmin() {
   const { radioPrograms, addRadioProgram, updateRadioProgram, deleteRadioProgram } = useContext(GalleryContext);
@@ -161,12 +162,23 @@ export default function RadioProgramsAdmin() {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Portada del Programa (Archivo Local)</label>
-              <input type="file" accept="image/*" onChange={(e) => setImageFile(e.target.files[0])} ref={fileInputRef} style={inputStyle} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>O usar Imagen por URL</label>
-              <input type="text" placeholder="https://..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} style={inputStyle} />
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Portada del Programa (Subir o URL)</label>
+              {isSupabaseConfigured ? (
+                <ImageUploadDropzone 
+                  onFileSelect={(file) => setImageFile(file)} 
+                  previewUrl={imageFile ? URL.createObjectURL(imageFile) : imageUrl} 
+                  label="Subir Portada" 
+                />
+              ) : (
+                <>
+                  <input type="text" placeholder="https://..." value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} style={inputStyle} />
+                  {(imageUrl) && (
+                    <div style={{ marginTop: '0.5rem', width: '60px', height: '60px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                      <img src={imageUrl} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>

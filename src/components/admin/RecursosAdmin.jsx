@@ -2,6 +2,7 @@ import React, { useContext, useState, useRef } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { Plus, Trash2, Edit, FileText, Video, Link as LinkIcon, Upload, Image } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
+import ImageUploadDropzone from './ImageUploadDropzone';
 
 export default function RecursosAdmin({ triggerSuccess }) {
   const {
@@ -197,19 +198,26 @@ export default function RecursosAdmin({ triggerSuccess }) {
         <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {isSupabaseConfigured ? (
-              <input type="file" accept="image/*" onChange={(e) => setBgFile(e.target.files[0])} style={{ fontSize: '0.85rem' }} />
+              <ImageUploadDropzone 
+                onFileSelect={(file) => setBgFile(file)} 
+                previewUrl={bgFile ? URL.createObjectURL(bgFile) : bgUrl} 
+                label="Subir Imagen de Portada" 
+                size="large"
+              />
             ) : (
-              <input type="text" placeholder="URL de la imagen" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} style={{ padding: '0.5rem', borderRadius: '0.35rem', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%' }} />
+              <>
+                <input type="text" placeholder="URL de la imagen" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} style={{ padding: '0.5rem', borderRadius: '0.35rem', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'white', width: '100%' }} />
+                {(bgUrl) && (
+                  <div style={{ width: '250px', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                    <img src={bgUrl} alt="Fondo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
+              </>
             )}
             <button type="button" onClick={handleSaveBg} disabled={isBgUploading} className="btn btn-primary" style={{ alignSelf: 'flex-start', padding: '0.5rem 1rem' }}>
               {isBgUploading ? 'Subiendo...' : 'Guardar Imagen'}
             </button>
           </div>
-          {(bgUrl || bgFile) && (
-            <div style={{ width: '250px', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-              <img src={bgFile ? URL.createObjectURL(bgFile) : bgUrl} alt="Fondo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          )}
         </div>
       </div>
 
@@ -314,7 +322,12 @@ export default function RecursosAdmin({ triggerSuccess }) {
               {resType === 'document' ? (
                 <div style={{ marginTop: '0.5rem' }}>
                   <label style={labelStyle}>Subir Archivo {resAction === 'edit' && resExternalUrl && '(Deja en blanco para conservar el actual)'}</label>
-                  <input type="file" ref={fileInputRef} onChange={e => setResFile(e.target.files[0])} style={{ display: 'block', marginTop: '0.5rem', fontSize: '0.85rem' }} />
+                  <ImageUploadDropzone 
+                    onFileSelect={(file) => setResFile(file)} 
+                    previewUrl={null} 
+                    label={resFile ? resFile.name : "Subir Documento (PDF, Doc, etc)"} 
+                    accept="*/*"
+                  />
                   {resAction === 'edit' && resExternalUrl && (
                     <a href={resExternalUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '0.5rem', fontSize: '0.8rem', color: 'var(--accent-color)' }}>Ver archivo actual</a>
                   )}

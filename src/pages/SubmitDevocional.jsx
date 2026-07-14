@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
+import ImageUploadDropzone from '../components/admin/ImageUploadDropzone';
 
 export default function SubmitDevocional() {
   const { addDevotional, devotionalCategories, livestream } = useContext(GalleryContext);
@@ -657,27 +658,20 @@ export default function SubmitDevocional() {
 
                   <div>
                     <label style={labelStyle}><ImageIcon size={14} style={{ display: 'inline', marginRight: '0.25rem' }} /> Foto de Perfil (Opcional)</label>
-                    <input 
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => {
-                        const file = e.target.files[0];
+                    <ImageUploadDropzone 
+                      onFileSelect={(file) => {
                         if (file) {
                           setAuthorPhotoFile(file);
                           setAuthorPhotoPreview(URL.createObjectURL(file));
                         }
-                      }}
-                      style={{ ...inputStyle, padding: '0.5rem', background: 'var(--input-bg)' }} 
+                      }} 
+                      previewUrl={authorPhotoPreview} 
+                      label="Subir Foto de Perfil" 
                     />
                     {isLocked && (
                       <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                         Si subes una nueva foto, actualizaremos tu perfil.
                       </p>
-                    )}
-                    {authorPhotoPreview && (
-                      <div style={{ marginTop: '0.75rem', width: '90px', height: '110px', borderRadius: '8px', overflow: 'hidden', border: '2px solid var(--border-color)' }}>
-                        <img src={authorPhotoPreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
                     )}
                   </div>
                 </div>
@@ -797,26 +791,20 @@ export default function SubmitDevocional() {
 
               <div>
                 <label style={labelStyle}>Imagen Adjunta (Opcional)</label>
-                <input 
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files[0];
+                <ImageUploadDropzone 
+                  onFileSelect={(file) => {
                     if (file) {
                       setDevotionalImageFile(file);
                       setDevotionalImagePreview(URL.createObjectURL(file));
                     }
-                  }}
-                  style={{ ...inputStyle, padding: '0.5rem', background: 'var(--input-bg)' }} 
+                  }} 
+                  previewUrl={devotionalImagePreview} 
+                  label="Subir Portadilla" 
+                  size="large"
                 />
                 <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
                   Si deseas agregar una imagen al final del devocional.
                 </p>
-                {devotionalImagePreview && (
-                  <div style={{ marginTop: '0.75rem', maxWidth: '200px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                    <img src={devotionalImagePreview} alt="Preview" style={{ width: '100%', height: 'auto', display: 'block' }} />
-                  </div>
-                )}
               </div>
 
               <div>

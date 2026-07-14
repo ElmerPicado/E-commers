@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { ImageIcon, Calendar, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Image as ImageIcon, Calendar, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const AlbumCard = ({ album, onClick, getCategoryLabel }) => {
   const [currentIdx, setCurrentIdx] = useState(0);

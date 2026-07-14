@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2 } from 'lucide-react';
+import ImageUploadDropzone from './ImageUploadDropzone';
 
 export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSuccess }) {
   const {
@@ -402,14 +403,24 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                <input type="color" value={minColor} onChange={(e) => setMinColor(e.target.value)} style={{ ...inputStyle, padding: '0.2rem', height: '38px', cursor: 'pointer' }} />
              </div>
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo del Ministerio (Subir o URL)</label>
-               {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setMinLogoFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="https://..." value={minLogoUrl} onChange={(e) => setMinLogoUrl(e.target.value)} style={inputStyle} />}
-               {(minLogoUrl || minLogoFile) && (
-                 <div style={{ marginTop: '0.5rem', width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#000' }}>
-                   <img src={minLogoFile ? URL.createObjectURL(minLogoFile) : minLogoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                 </div>
-               )}
-             </div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo del Ministerio (Subir o URL)</label>
+                {isSupabaseConfigured ? (
+                  <ImageUploadDropzone 
+                    onFileSelect={(file) => setMinLogoFile(file)} 
+                    previewUrl={minLogoFile ? URL.createObjectURL(minLogoFile) : minLogoUrl} 
+                    label="Subir Logo" 
+                  />
+                ) : (
+                  <>
+                    <input type="text" placeholder="https://..." value={minLogoUrl} onChange={(e) => setMinLogoUrl(e.target.value)} style={inputStyle} />
+                    {(minLogoUrl) && (
+                      <div style={{ marginTop: '0.5rem', width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#000' }}>
+                        <img src={minLogoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
            </div>
 
            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
@@ -429,14 +440,25 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
            </div>
 
            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
-             <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Foto de Portada del Ministerio (Fondo)</label>
-             {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setMinHeroImageFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL..." value={minHeroImageUrl} onChange={(e) => setMinHeroImageUrl(e.target.value)} style={inputStyle} />}
-             {(minHeroImageUrl || minHeroImageFile) && (
-               <div style={{ marginTop: '0.5rem', width: '100%', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
-                 <img src={minHeroImageFile ? URL.createObjectURL(minHeroImageFile) : minHeroImageUrl} alt="Hero Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-               </div>
-             )}
-           </div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Foto de Portada del Ministerio (Fondo)</label>
+              {isSupabaseConfigured ? (
+                 <ImageUploadDropzone 
+                   onFileSelect={(file) => setMinHeroImageFile(file)} 
+                   previewUrl={minHeroImageFile ? URL.createObjectURL(minHeroImageFile) : minHeroImageUrl} 
+                   label="Subir Portada" 
+                   size="large"
+                 />
+              ) : (
+                <>
+                  <input type="text" placeholder="URL..." value={minHeroImageUrl} onChange={(e) => setMinHeroImageUrl(e.target.value)} style={inputStyle} />
+                  {(minHeroImageUrl) && (
+                    <div style={{ marginTop: '0.5rem', width: '100%', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
+                      <img src={minHeroImageUrl} alt="Hero Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  )}
+                </>
+              )}
+            </div>
 
            {/* Core Pillars */}
            <div style={{ border: '1px solid var(--border-color)', padding: '1.25rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.01)' }}>
@@ -458,12 +480,13 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                      <textarea placeholder="Texto explicativo..." value={pillar.desc} onChange={(e) => updatePillar(pillar._localId, 'desc', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0', minHeight: '68px' }} />
                    </div>
                    <div>
-                     <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Imagen de Fondo</span>
-                     <input type="file" accept="image/*" onChange={(e) => updatePillar(pillar._localId, 'file', e.target.files[0])} style={{ fontSize: '0.7rem', width: '100%', margin: '4px 0' }} />
-                     {(pillar.image_url || pillar.file) && (
-                       <img src={pillar.file ? URL.createObjectURL(pillar.file) : pillar.image_url} alt="Preview" style={{ width: '100%', height: '40px', objectFit: 'cover', borderRadius: '4px' }} />
-                     )}
-                   </div>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Imagen de Fondo</span>
+                      <ImageUploadDropzone 
+                        onFileSelect={(file) => updatePillar(pillar._localId, 'file', file)} 
+                        previewUrl={pillar.file ? URL.createObjectURL(pillar.file) : pillar.image_url} 
+                        label="Fondo" 
+                      />
+                    </div>
                    <button type="button" onClick={() => removePillar(pillar._localId)} className="btn" style={{ padding: '0.5rem', color: 'var(--danger-color)' }}>
                      <Trash2 size={16} />
                    </button>
@@ -632,19 +655,12 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                 <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-secondary)' }}>Añadir Nuevas Fotos</h4>
                 {isSupabaseConfigured && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <label style={{ 
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                      padding: '2rem', border: '2px dashed var(--accent-color)', borderRadius: '0.5rem',
-                      cursor: 'pointer', background: 'rgba(255,255,255,0.02)', transition: 'all 0.3s'
-                    }}
-                    onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                    onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                    >
-                      <Upload size={32} style={{ color: 'var(--accent-color)', marginBottom: '0.5rem' }} />
-                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>Haz clic para seleccionar fotos</span>
-                      <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Puedes subir múltiples fotos a la vez</span>
-                      <input type="file" accept="image/*" multiple onChange={handleFileChange} style={{ display: 'none' }} />
-                    </label>
+                    <ImageUploadDropzone 
+                      onFilesSelect={(files) => setSelectedFiles(files)} 
+                      multiple={true}
+                      size="large"
+                      label="Haz clic para seleccionar fotos" 
+                    />
                     {selectedFiles.length > 0 && (
                       <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
                         <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.85rem', fontWeight: 600 }}>{selectedFiles.length} foto(s) seleccionada(s):</p>

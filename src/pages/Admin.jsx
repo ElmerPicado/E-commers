@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Tv, Radio, Layers, Users, CheckCircle, AlertTriangle, Save, Plus, Trash2, Edit, Settings, Image, FileText, LogOut, Lock, UserPlus } from 'lucide-react';
+import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Layers } from 'lucide-react';
+import ImageUploadDropzone from '../components/admin/ImageUploadDropzone';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
 import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
@@ -492,11 +493,21 @@ export default function Admin() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.25rem' }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo Global de la Iglesia</span>
                   </div>
-                  {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setChurchLogoFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} />}
-                  {(churchLogo || churchLogoFile) && (
-                    <div style={{ marginTop: '0.5rem', width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
-                      <img src={churchLogoFile ? URL.createObjectURL(churchLogoFile) : churchLogo} alt="Logo Preview" style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'rgba(255,255,255,0.1)' }} />
-                    </div>
+                  {isSupabaseConfigured ? (
+                    <ImageUploadDropzone 
+                      onFileSelect={(file) => setChurchLogoFile(file)} 
+                      previewUrl={churchLogoFile ? URL.createObjectURL(churchLogoFile) : churchLogo} 
+                      label="Subir Logo" 
+                    />
+                  ) : (
+                    <>
+                      <input type="text" placeholder="URL" value={churchLogo} onChange={(e) => setChurchLogo(e.target.value)} style={inputStyle} />
+                      {(churchLogo) && (
+                        <div style={{ marginTop: '0.5rem', width: '60px', height: '60px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
+                          <img src={churchLogo} alt="Logo Preview" style={{ width: '100%', height: '100%', objectFit: 'contain', background: 'rgba(255,255,255,0.1)' }} />
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción de la Iglesia (Aparece en el pie de página)</label><textarea value={churchDescription} onChange={(e) => setChurchDescription(e.target.value)} style={{ ...inputStyle, minHeight: '100px' }} /></div>
@@ -577,11 +588,22 @@ export default function Admin() {
                   
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
                     <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--accent-color)' }}>Imagen de Fondo</span>
-                    {isSupabaseConfigured ? <input type="file" accept="image/*" onChange={(e) => setSectionBgFile(e.target.files[0])} style={{ fontSize: '0.8rem' }} /> : <input type="text" placeholder="URL" value={sectionBgUrlText} onChange={(e) => setSectionBgUrlText(e.target.value)} style={inputStyle} />}
-                    {(sectionBgUrlText || sectionBgFile) && (
-                      <div style={{ marginTop: '0.5rem', border: '1px solid var(--border-color)', borderRadius: '0.35rem', overflow: 'hidden', height: '140px' }}>
-                        <img src={sectionBgFile ? URL.createObjectURL(sectionBgFile) : sectionBgUrlText} alt="Fondo Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
+                    {isSupabaseConfigured ? (
+                       <ImageUploadDropzone 
+                         onFileSelect={(file) => setSectionBgFile(file)} 
+                         previewUrl={sectionBgFile ? URL.createObjectURL(sectionBgFile) : sectionBgUrlText} 
+                         label="Subir Fondo" 
+                         size="large"
+                       />
+                    ) : (
+                      <>
+                        <input type="text" placeholder="URL" value={sectionBgUrlText} onChange={(e) => setSectionBgUrlText(e.target.value)} style={inputStyle} />
+                        {(sectionBgUrlText) && (
+                          <div style={{ marginTop: '0.5rem', border: '1px solid var(--border-color)', borderRadius: '0.35rem', overflow: 'hidden', height: '140px' }}>
+                            <img src={sectionBgUrlText} alt="Fondo Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
 
