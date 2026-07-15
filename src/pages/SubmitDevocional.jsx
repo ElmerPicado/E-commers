@@ -94,6 +94,80 @@ export default function SubmitDevocional() {
     return `${prefix}-${suffix}`;
   };
 
+  const handleRegisterAuthor = async () => {
+    if (!authorName.trim()) {
+      alert("Por favor ingresa tu nombre de autor.");
+      return;
+    }
+    if (!authorBio.trim()) {
+      alert("Por favor ingresa una biografía corta.");
+      return;
+    }
+    if (!authorEmail.trim()) {
+      alert("Por favor, ingresa tu correo electrónico para poder registrarte.");
+      return;
+    }
+    
+    setIsSubmitting(true);
+    let finalPhotoUrl = '';
+    
+    if (authorPhotoFile && isSupabaseConfigured) {
+      try {
+        const fileExt = authorPhotoFile.name.split('.').pop();
+        const fileName = `author_${Date.now()}.${fileExt}`;
+        const filePath = `authors/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, authorPhotoFile);
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+        finalPhotoUrl = publicUrl;
+      } catch (err) {
+        console.error('Error uploading photo:', err);
+        alert('Hubo un error al subir la foto. Se guardará sin foto.');
+      }
+    }
+
+    const codeToSave = generateRandomCode();
+    try {
+      const { error: insertError } = await supabase
+        .from('devotional_authors')
+        .insert({
+          code: codeToSave,
+          name: authorName,
+          bio: authorBio,
+          photo_url: finalPhotoUrl,
+          email: authorEmail.trim().toLowerCase()
+        });
+      if (insertError) {
+        if (insertError.code === '23505') {
+          alert("Error: El correo electrónico ya está registrado. Por favor, usa otro correo o recupera tu código.");
+        } else {
+          alert("Error al registrar autor: " + insertError.message);
+        }
+        setIsSubmitting(false);
+        return;
+      }
+      
+      // Success
+      setGeneratedCode(codeToSave);
+      setEnteredCode(codeToSave);
+      setIsLocked(true);
+      setWantsToRegister(false); // They are now registered
+      setIsSubmitting(false);
+      if (finalPhotoUrl) {
+        setAuthorPhotoPreview(finalPhotoUrl);
+        setAuthorPhotoFile(null);
+      }
+      alert(`✅ Autor registrado correctamente.\n\nTu código de autor es:\n${codeToSave}\n\nGuárdalo para futuros devocionales. Ahora puedes continuar escribiendo.`);
+    } catch (err) {
+      console.error(err);
+      alert("Error al registrar tu perfil de autor.");
+      setIsSubmitting(false);
+    }
+  };
+
+
   const handleContinueToStep2 = () => {
     if (!isLocked) {
       if (!authorName.trim()) {
@@ -134,13 +208,11 @@ export default function SubmitDevocional() {
         const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
         finalPhotoUrl = publicUrl;
 
-        if ((isLocked && enteredCode) || (wantsToRegister && !isLocked)) {
-          if (isLocked && enteredCode) {
-            await supabase
-              .from('devotional_authors')
-              .update({ photo_url: finalPhotoUrl })
-              .eq('code', enteredCode.trim().toUpperCase());
-          }
+        if (isLocked && enteredCode) {
+          await supabase
+            .from('devotional_authors')
+            .update({ photo_url: finalPhotoUrl })
+            .eq('code', enteredCode.trim().toUpperCase());
           
           // Update the photo in all previous devotionals from the same author name
           await supabase
@@ -156,43 +228,6 @@ export default function SubmitDevocional() {
       finalPhotoUrl = authorPhotoPreview;
     }
 
-    let savedCode = '';
-    if (wantsToRegister && !isLocked && !authorEmail) {
-      alert("Por favor, ingresa tu correo electrónico para poder registrarte.");
-      return;
-    }
-
-    if (wantsToRegister && !isLocked) {
-      const codeToSave = generateRandomCode();
-      try {
-        const { error: insertError } = await supabase
-          .from('devotional_authors')
-          .insert({
-            code: codeToSave,
-            name: authorName,
-            bio: authorBio,
-            photo_url: finalPhotoUrl,
-            email: authorEmail.trim().toLowerCase()
-          });
-        if (insertError) {
-          console.error('Error guardando autor:', insertError);
-          if (insertError.code === '23505') {
-            alert("Error: El correo electrónico ya está registrado con otro código de autor. Por favor, usa otro correo o ingresa con tu código anterior.");
-          } else {
-            alert("Error al registrar autor: " + insertError.message);
-          }
-          setIsSubmitting(false);
-          return;
-        } else {
-          savedCode = codeToSave;
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Error al registrar tu perfil de autor.");
-        setIsSubmitting(false);
-        return;
-      }
-    }
     const baseSlug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
     const uniqueSlug = `${baseSlug}-${Math.random().toString(36).substring(2, 8)}`;
 
@@ -253,7 +288,6 @@ export default function SubmitDevocional() {
       return;
     }
     
-    setGeneratedCode(savedCode);
     setIsSubmitting(false);
     setIsSubmitted(true);
   };
@@ -684,15 +718,27 @@ export default function SubmitDevocional() {
 
             </div>
 
-            <div style={{ ...formCardStyle, display: 'flex', justifyContent: 'center' }}>
-              <button 
-                type="button" 
-                onClick={handleContinueToStep2}
-                className="btn btn-primary"
-                style={{ padding: '1rem 2rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
-              >
-                Continuar a redactar devocional
-              </button>
+            <div style={{ ...formCardStyle, display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+              {wantsToRegister && !isLocked ? (
+                <button 
+                  type="button" 
+                  onClick={handleRegisterAuthor}
+                  disabled={isSubmitting}
+                  className="btn btn-primary"
+                  style={{ padding: '1rem 2rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+                >
+                  {isSubmitting ? 'Registrando...' : 'Registrarme Ahora'}
+                </button>
+              ) : (
+                <button 
+                  type="button" 
+                  onClick={handleContinueToStep2}
+                  className="btn btn-primary"
+                  style={{ padding: '1rem 2rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}
+                >
+                  Continuar a redactar devocional
+                </button>
+              )}
             </div>
           </>
         )}

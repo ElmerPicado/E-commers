@@ -61,9 +61,24 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
   const [isLoadingAuthors, setIsLoadingAuthors] = useState(false);
 
   React.useEffect(() => {
+    let subscription;
     if (isSupabaseConfigured) {
       fetchAuthors();
+      
+      // Suscripción en tiempo real a la tabla devotional_authors
+      subscription = supabase
+        .channel('realtime:devotional_authors')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'devotional_authors' }, () => {
+          fetchAuthors();
+        })
+        .subscribe();
     }
+    
+    return () => {
+      if (subscription) {
+        supabase.removeChannel(subscription);
+      }
+    };
   }, []);
 
   const fetchAuthors = async () => {
@@ -74,6 +89,21 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
     }
     setIsLoadingAuthors(false);
   };
+  
+  const handleDeleteAuthor = async (id) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar a este autor? Esta acción no se puede deshacer.')) {
+      try {
+        const { error } = await supabase.from('devotional_authors').delete().eq('id', id);
+        if (error) throw error;
+        triggerSuccess('Autor eliminado exitosamente.');
+        // La suscripción en tiempo real actualizará la lista, pero también podemos hacerlo optimísticamente
+        setAuthors(authors.filter(a => a.id !== id));
+      } catch (err) {
+        alert('Error al eliminar el autor: ' + err.message);
+      }
+    }
+  };
+
   
   const [editingDevId, setEditingDevId] = useState(null);
   const [editTitle, setEditTitle] = useState('');
@@ -487,6 +517,7 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                   <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Email</th>
                   <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Código de Acceso</th>
                   <th style={{ padding: '0.75rem', color: 'var(--text-secondary)' }}>Fecha Registro</th>
+                  <th style={{ padding: '0.75rem', color: 'var(--text-secondary)', textAlign: 'center' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -521,6 +552,15 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                       </div>
                     </td>
                     <td style={{ padding: '0.75rem' }}>{new Date(author.created_at).toLocaleDateString()}</td>
+                    <td style={{ padding: '0.75rem', textAlign: 'center' }}>
+                      <button 
+                        onClick={() => handleDeleteAuthor(author.id)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444' }}
+                        title="Eliminar Autor"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
