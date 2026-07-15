@@ -1,6 +1,7 @@
-﻿import React, { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock, MessageCircle, ArrowRight, Share2 } from 'lucide-react';
+import MinistryIcon from '../components/MinistryIcon';
 import { GalleryContext } from '../context/GalleryContext';
 
 // Función para formatear hora 24h a 12h AM/PM
@@ -14,17 +15,7 @@ const formatTime12h = (timeStr) => {
   return `${hours}:${m} ${ampm}`;
 };
 
-// Icon mapper for dynamic ministry icons
-const MinistryIcon = ({ name, color }) => {
-  const style = { color: color };
-  switch (name) {
-    case 'Flame': return <Flame size={28} style={style} />;
-    case 'Heart': return <Heart size={28} style={style} />;
-    case 'Shield': return <Shield size={28} style={style} />;
-    case 'Sun': return <Sun size={28} style={style} />;
-    default: return <Sparkles size={28} style={style} />;
-  }
-};
+
 
 export default function Home() {
   const { livestream, homeSections, ministries, activities, blogPosts } = useContext(GalleryContext);
@@ -469,7 +460,7 @@ export default function Home() {
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(${window.location.origin}/actividad/);
+                            navigator.clipboard.writeText(`${window.location.origin}/actividad/${act.id}`);
                             alert('¡Enlace copiado al portapapeles!');
                           }}
                           style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
@@ -657,4 +648,6 @@ export default function Home() {
     </div>
   );
 }
+
+
 

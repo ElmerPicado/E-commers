@@ -1,4 +1,4 @@
-﻿import React, { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
 import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
@@ -406,14 +406,41 @@ export default function Ministerio() {
                       </button>
                     )}
                     
+                    {act.registration_url && (
+                        <div style={{ marginTop: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '0.5rem', border: `1px solid var(--accent-color)40` }}>
+                          <p style={{ fontSize: '0.85rem', marginBottom: '0.5rem', color: '#fff', fontWeight: 600 }}>
+                            ¡Inscripciones Abiertas!
+                          </p>
+                          {act.registration_deadline && (
+                            <p style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginBottom: '0.75rem' }}>
+                              Cierre: {new Date(act.registration_deadline).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute:'2-digit' })}
+                            </p>
+                          )}
+                          <a href={act.registration_url} target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ display: 'block', width: '100%', padding: '0.5rem', fontSize: '0.85rem', textAlign: 'center', background: 'var(--accent-color)', color: '#000', border: 'none' }} onClick={(e) => e.stopPropagation()}>
+                            Inscríbete Aquí
+                          </a>
+                        </div>
+                    )}
+                    
                     {/* Footer de la tarjeta con ubicación y likes (Instagram feel) */}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem' }}>
                       <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <MapPin size={14} /> {act.location_url ? <a href={act.location_url} target="_blank" rel="noreferrer" style={{color: 'inherit'}}>{ministry.location}</a> : ministry.location}
                       </div>
-                      <div style={{ display: 'flex', gap: '0.75rem' }}>
+                      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
                         <Heart size={18} style={{ color: 'var(--accent-color)', cursor: 'pointer' }} />
                         <MessageSquare size={18} style={{ color: 'var(--text-secondary)', cursor: 'pointer' }} />
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(`${window.location.origin}/actividad/${act.id}`);
+                            alert('¡Enlace copiado al portapapeles!');
+                          }}
+                          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', marginLeft: '0.25rem' }}
+                          title="Compartir"
+                        >
+                          <Share2 size={18} style={{ color: 'var(--text-secondary)' }} />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -793,4 +820,5 @@ export default function Ministerio() {
     </div>
   );
 }
+
 
