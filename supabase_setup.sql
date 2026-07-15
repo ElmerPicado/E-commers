@@ -1,4 +1,4 @@
--- ==========================================================
+﻿-- ==========================================================
 -- SCRIPT DE CONFIGURACIÓN COMPLETO PARA SUPABASE (IMR4)
 -- Copia y pega este script en el editor SQL de tu panel de Supabase
 -- ==========================================================
@@ -258,6 +258,8 @@ ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_maps_url TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_name TEXT DEFAULT 'IMR4';
 ALTER TABLE ministries ADD COLUMN IF NOT EXISTS location_url TEXT;
 ALTER TABLE activities ADD COLUMN IF NOT EXISTS location_url TEXT;
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS registration_url TEXT;
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS registration_deadline TIMESTAMP WITH TIME ZONE;
 
 -- ==========================================================
 -- INSTRUCCIONES PARA EL ALMACENAMIENTO (STORAGE):
@@ -442,6 +444,8 @@ ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_maps_url TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS church_name TEXT DEFAULT 'IMR4';
 ALTER TABLE ministries ADD COLUMN IF NOT EXISTS location_url TEXT;
 ALTER TABLE activities ADD COLUMN IF NOT EXISTS location_url TEXT;
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS registration_url TEXT;
+ALTER TABLE activities ADD COLUMN IF NOT EXISTS registration_deadline TIMESTAMP WITH TIME ZONE;
 
 -- ==========================================================
 -- INSTRUCCIONES PARA EL ALMACENAMIENTO (STORAGE):
@@ -659,4 +663,5 @@ CREATE POLICY "Borrado de administradores" ON live_chat_messages FOR DELETE USIN
 -- ==========================================================
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS testimonies JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS history_bg_url TEXT;
+
 

@@ -64,6 +64,9 @@ const DEFAULT_LIVESTREAM = {
   formBgUrl: '',
   resourcesBgUrl: '',
   historyBgUrl: '',
+  homeMinistriesBgUrl: '',
+  homeActivitiesBgUrl: '',
+  homeNewsBgUrl: '',
   scheduleText: 'Nos conectamos en directo para nuestros cultos generales semanales:\n\nDomingos 10:00 hs - Servicio de Adoración Dominical (Mañana)\nDomingos 19:30 hs - Culto de Celebración y Palabra (Tarde)\nEventos Especiales - Conferencias juveniles y seminarios (se anuncia con antelación)',
   connectionText: 'Si experimentas cortes en la reproducción del video, asegúrate de tener una velocidad de internet mínima de 5 Mbps. En caso de que la transmisión oficial se interrumpa, puedes sintonizar de respaldo directamente en nuestro canal de YouTube buscando "Iglesia Metodista Río Cuarto".\n\nPara la radio, si el reproductor no inicia, recarga la página o verifica que el firewall de tu red no bloquee flujos de audio streaming.',
   chatMessages: [

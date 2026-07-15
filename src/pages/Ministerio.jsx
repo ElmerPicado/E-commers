@@ -1,7 +1,7 @@
-import React, { useContext, useState } from 'react';
+﻿import React, { useContext, useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { PlayfulLayout, SoftLayout } from '../components/ministry/MinistryLayouts';
 
 const InstagramIcon = ({ size = 24, color = "currentColor" }) => (
@@ -793,3 +793,4 @@ export default function Ministerio() {
     </div>
   );
 }
+

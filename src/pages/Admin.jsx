@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
+﻿import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Edit, Layers, Mail, Library, CheckCircle, Tv, Users, FileText, Lock, UserPlus } from 'lucide-react';
+import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Edit, Layers, Mail, Library, CheckCircle, Tv, Users, FileText, Lock, UserPlus, Calendar } from 'lucide-react';
 import ImageUploadDropzone from '../components/admin/ImageUploadDropzone';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
@@ -39,6 +39,7 @@ export default function Admin() {
 
   const [activeTab, setActiveTab] = useState('streaming');
   const [activeMinistryId, setActiveMinistryId] = useState(null);
+  const [activeMinTab, setActiveMinTab] = useState(null);
   const [successMsg, setSuccessMsg] = useState('');
 
   const triggerSuccess = (msg) => {
@@ -63,6 +64,9 @@ export default function Admin() {
   const [churchDescription, setChurchDescription] = useState(livestream.churchDescription || 'Una comunidad apasionada por compartir la gracia, fe y esperanza en Río Cuarto. Buscamos impactar vidas a través del amor y el servicio integral.');
   const [scheduleText, setScheduleText] = useState(livestream.scheduleText || '');
   const [connectionText, setConnectionText] = useState(livestream.connectionText || '');
+  const [homeMinistriesBgUrl, setHomeMinistriesBgUrl] = useState(livestream.homeMinistriesBgUrl || '');
+  const [homeActivitiesBgUrl, setHomeActivitiesBgUrl] = useState(livestream.homeActivitiesBgUrl || '');
+  const [homeNewsBgUrl, setHomeNewsBgUrl] = useState(livestream.homeNewsBgUrl || '');
   const [radioTitle, setRadioTitle] = useState(radio.title);
   const [radioUrl, setRadioUrl] = useState(radio.audioUrl);
   const [isRadioLive, setIsRadioLive] = useState(radio.isLive);
@@ -187,7 +191,10 @@ export default function Admin() {
       churchDescription: churchDescription,
       youtubeChannelUrl: youtubeChannelUrl,
       scheduleText: scheduleText,
-      connectionText: connectionText
+      connectionText: connectionText,
+      homeMinistriesBgUrl: homeMinistriesBgUrl,
+      homeActivitiesBgUrl: homeActivitiesBgUrl,
+      homeNewsBgUrl: homeNewsBgUrl
     });
     setChurchLogo(logoUrl);
     setChurchLogoFile(null);
@@ -397,7 +404,8 @@ export default function Admin() {
             { id: 'streaming', label: 'Streaming & Radio', icon: <Tv size={16} /> },
             { id: 'church_data', label: 'Datos de la Iglesia', icon: <Settings size={16} /> },
             { id: 'home_sections', label: 'Banners de Inicio', icon: <Layers size={16} /> },
-            { id: 'global_gallery', label: 'Galería General', icon: <ImageIcon size={16} />, onClick: () => setActiveMinistryId('general') },
+            { id: 'global_gallery', label: 'Galería General', icon: <ImageIcon size={16} />, onClick: () => { setActiveMinistryId('general'); setActiveMinTab('photos'); } },
+            { id: 'global_events', label: 'Eventos Generales', icon: <Calendar size={16} />, onClick: () => { setActiveMinistryId('general'); setActiveMinTab('activities'); } },
             { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> },
             { id: 'donations', label: 'Diezmos y Ofrendas', icon: <Heart size={16} /> },
             { id: 'contact_forms', label: 'Formularios de Contacto', icon: <Mail size={16} /> },
@@ -518,6 +526,11 @@ export default function Admin() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dirección Física (Texto)</label><input type="text" placeholder="Ej: Río Cuarto..." value={churchAddress} onChange={(e) => setChurchAddress(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Google Maps (URL)</label><input type="text" placeholder="https://maps.app.goo.gl/..." value={churchMapsUrl} onChange={(e) => setChurchMapsUrl(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email de Contacto</label><input type="email" placeholder="contacto@imr4.org" value={churchEmail} onChange={(e) => setChurchEmail(e.target.value)} style={inputStyle} /></div>
+                <div style={{ borderTop: '1px solid var(--border-color)', margin: '1rem 0' }}></div>
+                <h3 style={{ fontSize: '1rem', color: 'var(--accent-color)', marginBottom: '0.5rem' }}>Fondos Fijos (Página Principal)</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Fondo "Nuestros Ministerios" (URL)</label><input type="text" placeholder="https://..." value={homeMinistriesBgUrl} onChange={(e) => setHomeMinistriesBgUrl(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Fondo "Próximas Actividades" (URL)</label><input type="text" placeholder="https://..." value={homeActivitiesBgUrl} onChange={(e) => setHomeActivitiesBgUrl(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Fondo "Noticias y Novedades" (URL)</label><input type="text" placeholder="https://..." value={homeNewsBgUrl} onChange={(e) => setHomeNewsBgUrl(e.target.value)} style={inputStyle} /></div>
               </div>
             </div>
             
@@ -787,3 +800,5 @@ const selectStyle = {
   background: 'rgba(18, 18, 22, 0.95)', border: '1px solid var(--border-color)', color: 'var(--text-primary)',
   padding: '0.55rem 0.75rem', borderRadius: '0.35rem', outline: 'none', fontSize: '0.9rem', width: '100%', cursor: 'pointer'
 };
+
+

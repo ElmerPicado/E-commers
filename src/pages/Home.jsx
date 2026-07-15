@@ -1,6 +1,6 @@
-import React, { useContext, useState } from 'react';
+﻿import React, { useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock, MessageCircle, ArrowRight } from 'lucide-react';
+import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock, MessageCircle, ArrowRight, Share2 } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
 
 // Función para formatear hora 24h a 12h AM/PM
@@ -336,11 +336,16 @@ export default function Home() {
         </section>
       ))}
 
-      {/* 3. DYNAMIC MINISTRIES GRID (NUESTRAS DIVISIONES) */}
-      <section style={{ padding: '4rem 1.5rem' }}>
+      {/* 3. DYNAMIC MINISTRIES GRID (NUESTROS MINISTERIOS) */}
+      <section style={{ 
+        padding: '4rem 1.5rem',
+        backgroundImage: livestream?.homeMinistriesBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.95)), url(${livestream.homeMinistriesBgUrl})` : 'none',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}>
         <div className="container">
           <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <h2 style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>Nuestras Divisiones</h2>
+            <h2 style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>Nuestros Ministerios</h2>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
               Espacios adaptados especialmente para cada etapa de la vida y necesidad espiritual.
             </p>
@@ -400,7 +405,9 @@ export default function Home() {
       {/* 4. UPCOMING ACTIVITIES CALENDAR */}
       <section style={{
         padding: '4rem 1.5rem',
-        background: 'rgba(255,255,255,0.01)',
+        background: livestream?.homeActivitiesBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.95)), url(${livestream.homeActivitiesBgUrl})` : 'rgba(255,255,255,0.01)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         borderTop: '1px solid var(--border-color)',
         borderBottom: '1px solid var(--border-color)'
       }}>
@@ -455,9 +462,21 @@ export default function Home() {
 
                     {/* Cuerpo del post */}
                     <div style={{ padding: '1.25rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                      <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', alignItems: 'center' }}>
                         <Heart size={20} style={{ color: 'var(--accent-color)' }} />
                         <MessageCircle size={20} style={{ color: 'var(--text-muted)' }} />
+                        <div style={{ flex: 1 }}></div>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigator.clipboard.writeText(${window.location.origin}/actividad/);
+                            alert('¡Enlace copiado al portapapeles!');
+                          }}
+                          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                          title="Compartir"
+                        >
+                          <Share2 size={20} style={{ color: 'var(--text-muted)' }} />
+                        </button>
                       </div>
 
                       {/* Título de la actividad, Fecha y Hora */}
@@ -532,7 +551,9 @@ export default function Home() {
       {blogPosts && blogPosts.length > 0 && (
         <section style={{
           padding: '4rem 1.5rem',
-          background: 'var(--bg-surface)'
+          background: livestream?.homeNewsBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.95)), url(${livestream.homeNewsBgUrl})` : 'var(--bg-surface)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
         }}>
           <div className="container" style={{ maxWidth: '1000px' }}>
             <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
@@ -636,3 +657,4 @@ export default function Home() {
     </div>
   );
 }
+

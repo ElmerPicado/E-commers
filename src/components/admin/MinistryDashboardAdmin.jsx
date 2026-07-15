@@ -1,10 +1,10 @@
-import React, { useState, useContext, useEffect } from 'react';
+﻿import React, { useState, useContext, useEffect } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette } from 'lucide-react';
 import ImageUploadDropzone from './ImageUploadDropzone';
 
-export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSuccess }) {
+export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSuccess, initialTab }) {
   const {
     ministries,
     updateMinistry,
@@ -20,7 +20,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     removePhotoFromAlbum
   } = useContext(GalleryContext);
 
-  const [activeTab, setActiveTab] = useState(ministryId === 'general' ? 'photos' : 'profile');
+  const [activeTab, setActiveTab] = useState(initialTab || (ministryId === 'general' ? 'photos' : 'profile'));
   
   // Ministry data
   const min = ministryId === 'general' 
@@ -911,3 +911,5 @@ const selectStyle = {
   width: '100%',
   cursor: 'pointer'
 };
+
+
