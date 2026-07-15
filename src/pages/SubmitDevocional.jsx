@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+﻿import React, { useState, useContext } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
 import { BookOpen, User, Type, Link as LinkIcon, Send, CheckCircle, Image as ImageIcon, Sun, Moon, Home, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -6,6 +6,18 @@ import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import ImageUploadDropzone from '../components/admin/ImageUploadDropzone';
+
+const AlertModal = ({ isOpen, message, onClose }) => {
+  if (!isOpen) return null;
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+      <div style={{ background: 'var(--card-bg, #1e293b)', padding: '2rem', borderRadius: '1rem', maxWidth: '400px', width: '90%', border: '1px solid var(--border-color)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <p style={{ color: 'var(--text-primary)', marginBottom: '1.75rem', lineHeight: 1.5, fontSize: '1rem', whiteSpace: 'pre-line' }}>{message}</p>
+        <button onClick={onClose} className="btn btn-primary" style={{ padding: '0.65rem 2rem' }}>Aceptar</button>
+      </div>
+    </div>
+  );
+};
 
 export default function SubmitDevocional() {
   const { addDevotional, devotionalCategories, livestream } = useContext(GalleryContext);
@@ -38,6 +50,10 @@ export default function SubmitDevocional() {
   const [isRecovering, setIsRecovering] = useState(false);
   const [hasCodeAnswer, setHasCodeAnswer] = useState(null);
   const [wantsToRegister, setWantsToRegister] = useState(false);
+  const [alertState, setAlertState] = useState({ isOpen: false, message: '' });
+  const showAlert = (message) => setAlertState({ isOpen: true, message });
+  const closeAlert = () => setAlertState({ ...alertState, isOpen: false });
+
   const [currentStep, setCurrentStep] = useState(1);
   const [pendingCode, setPendingCode] = useState('');
   const [generatedCode, setGeneratedCode] = useState('');
@@ -56,7 +72,7 @@ export default function SubmitDevocional() {
     if (data) {
       setRecoveredCode(data.code);
     } else {
-      alert("No encontramos ningún código asociado a este correo electrónico.");
+      showAlert("No encontramos ningún código asociado a este correo electrónico.");
     }
     setIsRecovering(false);
   };
@@ -96,15 +112,15 @@ export default function SubmitDevocional() {
 
   const handleRegisterAuthor = async () => {
     if (!authorName.trim()) {
-      alert("Por favor ingresa tu nombre de autor.");
+      showAlert("Por favor ingresa tu nombre de autor.");
       return;
     }
     if (!authorBio.trim()) {
-      alert("Por favor ingresa una biografía corta.");
+      showAlert("Por favor ingresa una biografía corta.");
       return;
     }
     if (!authorEmail.trim()) {
-      alert("Por favor, ingresa tu correo electrónico para poder registrarte.");
+      showAlert("Por favor, ingresa tu correo electrónico para poder registrarte.");
       return;
     }
     
@@ -124,7 +140,7 @@ export default function SubmitDevocional() {
         finalPhotoUrl = publicUrl;
       } catch (err) {
         console.error('Error uploading photo:', err);
-        alert('Hubo un error al subir la foto. Se guardará sin foto.');
+        showAlert('Hubo un error al subir la foto. Se guardará sin foto.');
       }
     }
 
@@ -141,9 +157,9 @@ export default function SubmitDevocional() {
         });
       if (insertError) {
         if (insertError.code === '23505') {
-          alert("Error: El correo electrónico ya está registrado. Por favor, usa otro correo o recupera tu código.");
+          showAlert("Error: El correo electrónico ya está registrado. Por favor, usa otro correo o recupera tu código.");
         } else {
-          alert("Error al registrar autor: " + insertError.message);
+          showAlert("Error al registrar autor: " + insertError.message);
         }
         setIsSubmitting(false);
         return;
@@ -159,10 +175,10 @@ export default function SubmitDevocional() {
         setAuthorPhotoPreview(finalPhotoUrl);
         setAuthorPhotoFile(null);
       }
-      alert(`✅ Autor registrado correctamente.\n\nTu código de autor es:\n${codeToSave}\n\nGuárdalo para futuros devocionales. Ahora puedes continuar escribiendo.`);
+      showAlert(`✅ Autor registrado correctamente.\n\nTu código de autor es:\n${codeToSave}\n\nGuárdalo para futuros devocionales. Ahora puedes continuar escribiendo.`);
     } catch (err) {
       console.error(err);
-      alert("Error al registrar tu perfil de autor.");
+      showAlert("Error al registrar tu perfil de autor.");
       setIsSubmitting(false);
     }
   };
@@ -171,18 +187,18 @@ export default function SubmitDevocional() {
   const handleContinueToStep2 = () => {
     if (!isLocked) {
       if (!authorName.trim()) {
-        alert("Por favor ingresa tu nombre de autor.");
+        showAlert("Por favor ingresa tu nombre de autor.");
         return;
       }
       
       const lowerName = authorName.trim().toLowerCase();
       if (lowerName === 'anónimo' || lowerName === 'anonimo') {
-        alert('El nombre "Anónimo" está reservado. Por favor, utiliza la opción "Quiero ser Anónimo" al inicio si no deseas mostrar tu nombre, o usa tu nombre real.');
+        showAlert('El nombre "Anónimo" está reservado. Por favor, utiliza la opción "Quiero ser Anónimo" al inicio si no deseas mostrar tu nombre, o usa tu nombre real.');
         return;
       }
 
       if (!authorBio.trim()) {
-        alert("Por favor ingresa una biografía corta.");
+        showAlert("Por favor ingresa una biografía corta.");
         return;
       }
     }
@@ -222,7 +238,7 @@ export default function SubmitDevocional() {
         }
       } catch (err) {
         console.error('Error uploading photo:', err);
-        alert('Hubo un error al subir la foto. Se enviará sin foto.');
+        showAlert('Hubo un error al subir la foto. Se enviará sin foto.');
       }
     } else if (isLocked && authorPhotoPreview && typeof authorPhotoPreview === 'string' && authorPhotoPreview.startsWith('http')) {
       finalPhotoUrl = authorPhotoPreview;
@@ -283,7 +299,7 @@ export default function SubmitDevocional() {
     const result = await addDevotional(newDevotional);
     
     if (result && !result.success) {
-      alert("Hubo un error al guardar tu devocional: " + result.error + "\nPor favor verifica tu conexión o contacta a soporte.");
+      showAlert("Hubo un error al guardar tu devocional: " + result.error + "\nPor favor verifica tu conexión o contacta a soporte.");
       setIsSubmitting(false);
       return;
     }
@@ -907,3 +923,4 @@ export default function SubmitDevocional() {
     </div>
   );
 }
+
