@@ -186,8 +186,21 @@ export default function DevocionalDetail() {
 
           <div 
             className="devocional-content-body" 
-            style={{ minHeight: '30vh', marginBottom: '3rem', maxWidth: '800px' }}
-            dangerouslySetInnerHTML={{ __html: (devocional.content || '').replace(/&nbsp;/g, ' ') }}
+            style={{ minHeight: '30vh', marginBottom: '3rem', maxWidth: '100%', overflowWrap: 'break-word', wordWrap: 'break-word', wordBreak: 'break-word' }}
+            dangerouslySetInnerHTML={{ __html: (() => {
+              let html = (devocional.content || '').replace(/&nbsp;/g, ' ');
+              // 1. Reemplazar tags <a> que contienen enlaces de youtube
+              html = html.replace(
+                /<a[^>]*href=["']?(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})[^"']*)["']?[^>]*>.*?<\/a>/gi,
+                '<div class="video-responsive" style="margin: 1.5rem 0; width: 100%; aspect-ratio: 16/9;"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 0.5rem;"></iframe></div>'
+              );
+              // 2. Reemplazar texto plano de youtube (que no esté ya en un iframe/attr)
+              html = html.replace(
+                /(^|[^"'>])(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})[^\s<]*)/gi,
+                '$1<div class="video-responsive" style="margin: 1.5rem 0; width: 100%; aspect-ratio: 16/9;"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 0.5rem;"></iframe></div>'
+              );
+              return html;
+            })() }}
           />
 
           {devocional.prayer && (
