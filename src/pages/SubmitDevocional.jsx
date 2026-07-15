@@ -503,7 +503,7 @@ export default function SubmitDevocional() {
               </p>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '1rem' }}>
                 <button type="button" onClick={() => setHasCodeAnswer('yes')} className="btn btn-primary" style={{ padding: '0.85rem 2rem', fontSize: '1.05rem', fontWeight: 700 }}>Sí, ya tengo mi código</button>
-                <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '2px solid var(--accent-color)', color: 'var(--text-primary)', padding: '0.85rem 2rem', fontSize: '1.05rem', fontWeight: 700 }}>Soy nuevo</button>
+                <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: '#f97316', border: 'none', color: '#ffffff', padding: '0.85rem 2rem', fontSize: '1.05rem', fontWeight: 700 }}>Soy nuevo</button>
               </div>
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', marginTop: '1rem' }}>
                 <button type="button" onClick={() => {
