@@ -7,6 +7,22 @@ import 'react-quill-new/dist/quill.snow.css';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 import ImageUploadDropzone from './ImageUploadDropzone';
 
+const ConfirmModal = ({ isOpen, title, message, onConfirm, onCancel }) => {
+  if (!isOpen) return null;
+  return (
+    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+      <div style={{ background: 'var(--card-bg, #1e293b)', padding: '2rem', borderRadius: '1rem', maxWidth: '400px', width: '90%', border: '1px solid var(--border-color)', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+        <h3 style={{ marginTop: 0, marginBottom: '1rem', color: 'var(--text-primary)', fontSize: '1.25rem', fontWeight: 600 }}>{title}</h3>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.75rem', lineHeight: 1.5, fontSize: '0.95rem' }}>{message}</p>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+          <button onClick={onCancel} className="btn" style={{ background: 'transparent', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.65rem 1.25rem' }}>Cancelar</button>
+          <button onClick={onConfirm} className="btn btn-danger" style={{ padding: '0.65rem 1.25rem' }}>Eliminar</button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function DevocionalesAdmin({ triggerSuccess }) {
   const { 
     devotionals, 
@@ -24,6 +40,17 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
   const [bgUrl, setBgUrl] = useState('');
   const [bgFile, setBgFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+
+  const [confirmModal, setConfirmModal] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+  });
+
+  const closeConfirmModal = () => {
+    setConfirmModal({ ...confirmModal, isOpen: false });
+  };
 
   React.useEffect(() => {
     if (livestream?.formBgUrl) setBgUrl(livestream.formBgUrl);
@@ -90,18 +117,24 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
     setIsLoadingAuthors(false);
   };
   
-  const handleDeleteAuthor = async (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar a este autor? Esta acción no se puede deshacer.')) {
-      try {
-        const { error } = await supabase.from('devotional_authors').delete().eq('id', id);
-        if (error) throw error;
-        triggerSuccess('Autor eliminado exitosamente.');
-        // La suscripción en tiempo real actualizará la lista, pero también podemos hacerlo optimísticamente
-        setAuthors(authors.filter(a => a.id !== id));
-      } catch (err) {
-        alert('Error al eliminar el autor: ' + err.message);
+  const handleDeleteAuthor = (id) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Eliminar Autor',
+      message: '¿Estás seguro de que deseas eliminar a este autor? Esta acción no se puede deshacer.',
+      onConfirm: async () => {
+        closeConfirmModal();
+        try {
+          const { error } = await supabase.from('devotional_authors').delete().eq('id', id);
+          if (error) throw error;
+          triggerSuccess('Autor eliminado exitosamente.');
+          // La suscripción en tiempo real actualizará la lista, pero también podemos hacerlo optimísticamente
+          setAuthors(authors.filter(a => a.id !== id));
+        } catch (err) {
+          alert('Error al eliminar el autor: ' + err.message);
+        }
       }
-    }
+    });
   };
 
   
@@ -147,11 +180,17 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
     triggerSuccess('Categoría creada exitosamente.');
   };
 
-  const handleDeleteCategory = async (id) => {
-    if (window.confirm('¿Seguro que deseas eliminar esta categoría? Los devocionales que la tengan asignada quedarán sin categoría.')) {
-      await deleteDevotionalCategory(id);
-      triggerSuccess('Categoría eliminada.');
-    }
+  const handleDeleteCategory = (id) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Eliminar Categoría',
+      message: '¿Seguro que deseas eliminar esta categoría? Los devocionales que la tengan asignada quedarán sin categoría.',
+      onConfirm: async () => {
+        closeConfirmModal();
+        await deleteDevotionalCategory(id);
+        triggerSuccess('Categoría eliminada.');
+      }
+    });
   };
 
   // Devocionales
@@ -205,15 +244,28 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
     triggerSuccess(msg);
   };
 
-  const handleDeleteDevotional = async (id) => {
-    if (window.confirm('¿Eliminar devocional permanentemente?')) {
-      await deleteDevotional(id);
-      triggerSuccess('Devocional eliminado.');
-    }
+  const handleDeleteDevotional = (id) => {
+    setConfirmModal({
+      isOpen: true,
+      title: 'Eliminar Devocional',
+      message: '¿Estás seguro de que deseas eliminar este devocional permanentemente?',
+      onConfirm: async () => {
+        closeConfirmModal();
+        await deleteDevotional(id);
+        triggerSuccess('Devocional eliminado.');
+      }
+    });
   };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+      <ConfirmModal 
+        isOpen={confirmModal.isOpen} 
+        title={confirmModal.title} 
+        message={confirmModal.message} 
+        onConfirm={confirmModal.onConfirm} 
+        onCancel={closeConfirmModal} 
+      />
       
       {/* SECCIÓN FONDO FORMULARIO */}
       <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
@@ -429,10 +481,16 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
                               <button 
                                 type="button"
                                 onClick={() => {
-                                  if (window.confirm('¿Seguro que deseas eliminar este comentario?')) {
-                                    deleteDevotionalComment(comment.id);
-                                    triggerSuccess('Comentario eliminado');
-                                  }
+                                  setConfirmModal({
+                                    isOpen: true,
+                                    title: 'Eliminar Comentario',
+                                    message: '¿Seguro que deseas eliminar este comentario?',
+                                    onConfirm: () => {
+                                      closeConfirmModal();
+                                      deleteDevotionalComment(comment.id);
+                                      triggerSuccess('Comentario eliminado');
+                                    }
+                                  });
                                 }}
                                 style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}
                                 title="Eliminar Comentario"

@@ -501,9 +501,11 @@ export default function SubmitDevocional() {
               <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', maxWidth: '500px' }}>
                 Si tienes un código de autor, selecciona <strong>"Sí, ya tengo mi código"</strong> para cargar tu perfil. Si solo deseas escribir esta vez o es tu primera vez, selecciona <strong>"Soy nuevo"</strong>.
               </p>
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <button type="button" onClick={() => setHasCodeAnswer('yes')} className="btn btn-primary" style={{ padding: '0.75rem 1.5rem', fontWeight: 600 }}>Sí, ya tengo mi código</button>
-                <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>Soy nuevo</button>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', marginBottom: '1rem' }}>
+                <button type="button" onClick={() => setHasCodeAnswer('yes')} className="btn btn-primary" style={{ padding: '0.85rem 2rem', fontSize: '1.05rem', fontWeight: 700 }}>Sí, ya tengo mi código</button>
+                <button type="button" onClick={() => setHasCodeAnswer('no')} className="btn" style={{ background: 'var(--bg-surface)', border: '2px solid var(--accent-color)', color: 'var(--text-primary)', padding: '0.85rem 2rem', fontSize: '1.05rem', fontWeight: 700 }}>Soy nuevo</button>
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', marginTop: '1rem' }}>
                 <button type="button" onClick={() => {
                   setHasCodeAnswer('anon');
                   setAuthorName('Anónimo');
@@ -512,10 +514,12 @@ export default function SubmitDevocional() {
                   setAuthorPhotoFile(null);
                   setAuthorPhotoPreview('');
                   setIsLocked(true);
-                }} className="btn" style={{ background: 'var(--bg-surface)', border: '1px dashed var(--text-secondary)', color: 'var(--text-primary)', padding: '0.75rem 1.5rem', fontWeight: 600 }}>Quiero ser Anónimo</button>
+                }} className="btn" style={{ background: 'var(--bg-surface)', border: '1px dashed var(--text-secondary)', color: 'var(--text-secondary)', padding: '0.5rem 1.25rem', fontSize: '0.9rem', fontWeight: 600 }}>
+                  Quiero ser Anónimo
+                </button>
               </div>
-              <div style={{ marginTop: '1.5rem' }}>
-                <button type="button" onClick={() => setHasCodeAnswer('forgot')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem' }}>
+              <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                <button type="button" onClick={() => setHasCodeAnswer('forgot')} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', textDecoration: 'underline', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 500 }}>
                   ¿Olvidaste tu código?
                 </button>
               </div>
