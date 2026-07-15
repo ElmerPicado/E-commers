@@ -1,4 +1,4 @@
-﻿import React, { useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
 import { BookOpen, User, Type, Link as LinkIcon, Send, CheckCircle, Image as ImageIcon, Sun, Moon, Home, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -530,6 +530,8 @@ export default function SubmitDevocional() {
                   setAuthorPhotoFile(null);
                   setAuthorPhotoPreview('');
                   setIsLocked(true);
+                  setCurrentStep(2);
+                  window.scrollTo(0, 0);
                 }} className="btn" style={{ background: 'var(--bg-surface)', border: '1px dashed var(--text-secondary)', color: 'var(--text-secondary)', padding: '0.5rem 1.25rem', fontSize: '0.9rem', fontWeight: 600 }}>
                   Quiero ser Anónimo
                 </button>

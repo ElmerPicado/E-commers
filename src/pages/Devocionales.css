@@ -293,6 +293,15 @@
   word-break: break-word;
 }
 
+.devocional-content-body img {
+  max-width: 100% !important;
+  height: auto !important;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 1.5rem auto;
+}
+
 .devocional-content-body p {
   margin-bottom: 1.5rem;
 }
