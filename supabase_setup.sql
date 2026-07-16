@@ -1,4 +1,4 @@
-﻿-- ==========================================================
+-- ==========================================================
 -- SCRIPT DE CONFIGURACIÓN COMPLETO PARA SUPABASE (IMR4)
 -- Copia y pega este script en el editor SQL de tu panel de Supabase
 -- ==========================================================
@@ -664,4 +664,11 @@ CREATE POLICY "Borrado de administradores" ON live_chat_messages FOR DELETE USIN
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS testimonies JSONB DEFAULT '[]'::jsonb;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS history_bg_url TEXT;
 
-
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V17: Bienvenida Pastoral)
+-- ==========================================================
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS welcome_title TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS welcome_text TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS welcome_image_url TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS welcome_pastors_title TEXT;
+ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS welcome_pastors_subtitle TEXT;

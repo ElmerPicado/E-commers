@@ -67,6 +67,11 @@ const DEFAULT_LIVESTREAM = {
   homeMinistriesBgUrl: '',
   homeActivitiesBgUrl: '',
   homeNewsBgUrl: '',
+  welcomeTitle: 'Un Mensaje de Bienvenida',
+  welcomeText: 'Te saludamos en el amor de Cristo Jesús. Como la Iglesia Metodista Río Cuarto, buscamos ser una comunidad que refleje la gracia, la fe y la esperanza en cada paso. Nos alegra tenerte aquí y queremos que sepas que en esta casa hay un lugar para ti y tu familia. Estaremos encantados de conocerte en nuestras reuniones generales y ministerios.',
+  welcomeImageUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80',
+  welcomePastorsTitle: 'Nuestros Pastores',
+  welcomePastorsSubtitle: 'Liderazgo Pastoral de IMR4',
   scheduleText: 'Nos conectamos en directo para nuestros cultos generales semanales:\n\nDomingos 10:00 hs - Servicio de Adoración Dominical (Mañana)\nDomingos 19:30 hs - Culto de Celebración y Palabra (Tarde)\nEventos Especiales - Conferencias juveniles y seminarios (se anuncia con antelación)',
   connectionText: 'Si experimentas cortes en la reproducción del video, asegúrate de tener una velocidad de internet mínima de 5 Mbps. En caso de que la transmisión oficial se interrumpa, puedes sintonizar de respaldo directamente en nuestro canal de YouTube buscando "Iglesia Metodista Río Cuarto".\n\nPara la radio, si el reproductor no inicia, recarga la página o verifica que el firewall de tu red no bloquee flujos de audio streaming.',
   chatMessages: [
@@ -465,6 +470,11 @@ export const GalleryProvider = ({ children }) => {
           formBgUrl: streamConfig.form_bg_url || '',
           resourcesBgUrl: streamConfig.resources_bg_url || '',
           historyBgUrl: streamConfig.history_bg_url || '',
+          welcomeTitle: streamConfig.welcome_title || DEFAULT_LIVESTREAM.welcomeTitle,
+          welcomeText: streamConfig.welcome_text || DEFAULT_LIVESTREAM.welcomeText,
+          welcomeImageUrl: streamConfig.welcome_image_url || DEFAULT_LIVESTREAM.welcomeImageUrl,
+          welcomePastorsTitle: streamConfig.welcome_pastors_title || DEFAULT_LIVESTREAM.welcomePastorsTitle,
+          welcomePastorsSubtitle: streamConfig.welcome_pastors_subtitle || DEFAULT_LIVESTREAM.welcomePastorsSubtitle,
           scheduleText: streamConfig.schedule_text || DEFAULT_LIVESTREAM.scheduleText,
           connectionText: streamConfig.connection_text || DEFAULT_LIVESTREAM.connectionText
         }));
@@ -560,7 +570,12 @@ export const GalleryProvider = ({ children }) => {
             youtubeChannelUrl: updated.youtube_channel_url || '',
             formBgUrl: updated.form_bg_url || '',
             resourcesBgUrl: updated.resources_bg_url || '',
-            historyBgUrl: updated.history_bg_url || ''
+            historyBgUrl: updated.history_bg_url || '',
+            welcomeTitle: updated.welcome_title || DEFAULT_LIVESTREAM.welcomeTitle,
+            welcomeText: updated.welcome_text || DEFAULT_LIVESTREAM.welcomeText,
+            welcomeImageUrl: updated.welcome_image_url || DEFAULT_LIVESTREAM.welcomeImageUrl,
+            welcomePastorsTitle: updated.welcome_pastors_title || DEFAULT_LIVESTREAM.welcomePastorsTitle,
+            welcomePastorsSubtitle: updated.welcome_pastors_subtitle || DEFAULT_LIVESTREAM.welcomePastorsSubtitle
           }));
           setRadio(prev => ({
             ...prev,
@@ -723,7 +738,12 @@ export const GalleryProvider = ({ children }) => {
         youtube_channel_url: updates.youtubeChannelUrl,
         form_bg_url: updates.formBgUrl,
         resources_bg_url: updates.resourcesBgUrl,
-        history_bg_url: updates.historyBgUrl
+        history_bg_url: updates.historyBgUrl,
+        welcome_title: updates.welcomeTitle,
+        welcome_text: updates.welcomeText,
+        welcome_image_url: updates.welcomeImageUrl,
+        welcome_pastors_title: updates.welcomePastorsTitle,
+        welcome_pastors_subtitle: updates.welcomePastorsSubtitle
       }).eq('id', 'main');
     } else {
       setLivestream((prev) => ({ ...prev, ...updates }));

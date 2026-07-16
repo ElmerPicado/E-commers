@@ -18,29 +18,7 @@ const formatTime12h = (timeStr) => {
 
 
 
-const DEFAULT_LEADERS = [
-  {
-    id: 'pastor-1',
-    name: 'Rev. Nelson Rodríguez',
-    role: 'Pastor Principal',
-    image_url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=500&q=80',
-    message: 'Nuestra visión es guiar a las personas a una relación personal con Jesús, sirviendo con amor a nuestra ciudad.'
-  },
-  {
-    id: 'pastora-2',
-    name: 'Pastora Silvia de Rodríguez',
-    role: 'Co-Pastora',
-    image_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&q=80',
-    message: 'Un hogar no está completo sin amor, y una iglesia no está completa sin ti. ¡Bienvenidos a la familia IMR4!'
-  },
-  {
-    id: 'lider-unanimes',
-    name: 'Bryan & Valeria',
-    role: 'Líderes de Jóvenes',
-    image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80',
-    message: 'Apasionados por ver a una generación levantarse en fe, verdad y con un propósito firme en Cristo.'
-  }
-];
+
 
 export default function Home() {
   const { livestream, homeSections, ministries, activities, blogPosts } = useContext(GalleryContext);
@@ -417,34 +395,22 @@ export default function Home() {
                 color: '#fff',
                 margin: 0
               }}>
-                Un Mensaje de Bienvenida
+                {livestream?.welcomeTitle}
               </h2>
 
               <p style={{
                 fontSize: '1.05rem',
                 color: 'var(--text-secondary)',
                 lineHeight: '1.7',
-                margin: 0
+                margin: 0,
+                whiteSpace: 'pre-wrap'
               }}>
-                Te saludamos en el amor de Cristo Jesús. Como la Iglesia Metodista Río Cuarto, buscamos ser una comunidad que refleje la gracia, la fe y la esperanza en cada paso. Nos alegra tenerte aquí y queremos que sepas que en esta casa hay un lugar para ti y tu familia. Estaremos encantados de conocerte en nuestras reuniones generales y ministerios.
+                {livestream?.welcomeText}
               </p>
 
               {/* Action Buttons */}
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
-                <a 
-                  href="https://iglesiametodista.cr" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="btn btn-primary"
-                  style={{ 
-                    display: 'inline-flex', 
-                    alignItems: 'center', 
-                    gap: '0.5rem',
-                    textDecoration: 'none'
-                  }}
-                >
-                  ¿Quiénes Somos? <ArrowRight size={16} />
-                </a>
+
                 <button 
                   onClick={() => setIsContactModalOpen(true)}
                   className="btn btn-secondary"
@@ -483,8 +449,8 @@ export default function Home() {
                 backdropFilter: 'blur(16px)'
               }}>
                 <img 
-                  src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" 
-                  alt="Nuestros Pastores" 
+                  src={livestream?.welcomeImageUrl} 
+                  alt={livestream?.welcomePastorsTitle} 
                   style={{ 
                     width: '100%', 
                     height: '260px', 
@@ -494,62 +460,14 @@ export default function Home() {
                   }}
                 />
                 <div>
-                  <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>Nuestros Pastores</h4>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--accent-color)', fontWeight: 700 }}>Liderazgo Pastoral de IMR4</span>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>{livestream?.welcomePastorsTitle}</h4>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--accent-color)', fontWeight: 700 }}>{livestream?.welcomePastorsSubtitle}</span>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Leaders Sub-section */}
-          <div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2.5rem' }}>
-              <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', margin: 0, fontFamily: 'var(--font-display)' }}>
-                Pastores y Líderes
-              </h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
-                Las personas que guían y sirven en cada área de nuestra congregación.
-              </p>
-            </div>
 
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
-              gap: '2rem'
-            }}>
-              {DEFAULT_LEADERS.map((leader) => (
-                <div key={leader.id} className="glass-card" style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  padding: '1.5rem',
-                  background: 'rgba(12, 13, 20, 0.5)',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '1rem',
-                  alignItems: 'center',
-                  textAlign: 'center',
-                  transition: 'all 0.3s ease'
-                }}>
-                  <div style={{
-                    width: '90px',
-                    height: '90px',
-                    borderRadius: '50%',
-                    overflow: 'hidden',
-                    border: '3px solid rgba(var(--accent-color-rgb), 0.2)',
-                    marginBottom: '1.25rem'
-                  }}>
-                    <img src={leader.image_url} alt={leader.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  </div>
-                  <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', margin: '0 0 0.25rem 0' }}>{leader.name}</h4>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--accent-color)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
-                    {leader.role}
-                  </span>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
-                    "{leader.message}"
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
       </section>
 
@@ -577,11 +495,12 @@ export default function Home() {
 
             {sec.schedules && sec.schedules.length > 0 && (
               <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                display: 'flex',
+                flexWrap: 'wrap',
+                justifyContent: 'center',
                 gap: '1.5rem',
                 margin: '0 auto 2.5rem auto',
-                maxWidth: '1000px',
+                maxWidth: '1100px',
                 textAlign: 'left'
               }}>
                 {sec.schedules.map((sched, idx) => {
@@ -603,7 +522,10 @@ export default function Home() {
                       backdropFilter: 'blur(12px)',
                       boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
                       transition: 'all 0.3s ease',
-                      minHeight: '170px'
+                      width: '100%',
+                      maxWidth: '320px',
+                      height: '190px',
+                      boxSizing: 'border-box'
                     }}>
                       {/* Upper Row: Icon/Logo & Time Badge */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', width: '100%' }}>

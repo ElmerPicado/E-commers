@@ -1,4 +1,4 @@
-﻿import React, { useContext, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
 import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Edit, Layers, Mail, Library, CheckCircle, Tv, Users, FileText, Lock, UserPlus, Calendar } from 'lucide-react';
 import ImageUploadDropzone from '../components/admin/ImageUploadDropzone';
@@ -72,6 +72,15 @@ export default function Admin() {
   const [isRadioLive, setIsRadioLive] = useState(radio.isLive);
 
   // 2. Home Sections state
+  const [welcomeTitle, setWelcomeTitle] = useState(livestream.welcomeTitle || 'Un Mensaje de Bienvenida');
+  const [welcomeText, setWelcomeText] = useState(livestream.welcomeText || '');
+  const [welcomeImageUrl, setWelcomeImageUrl] = useState(livestream.welcomeImageUrl || '');
+  const [welcomePastorsTitle, setWelcomePastorsTitle] = useState(livestream.welcomePastorsTitle || 'Nuestros Pastores');
+  const [welcomePastorsSubtitle, setWelcomePastorsSubtitle] = useState(livestream.welcomePastorsSubtitle || 'Liderazgo Pastoral de IMR4');
+  const [welcomeImageFile, setWelcomeImageFile] = useState(null);
+  const [isWelcomeUploading, setIsWelcomeUploading] = useState(false);
+
+
   const [secAction, setSecAction] = useState('edit');
   const [editingSectionId, setEditingSectionId] = useState(homeSections[0]?.id || '');
   const [sectionTitle, setSectionTitle] = useState('');
@@ -151,7 +160,59 @@ export default function Admin() {
   }, [activeTab]);
 
   // SUBMITS
-  const handleUpdateStreaming = async (e) => {
+  const handleSaveWelcome = async () => {
+    try {
+      setIsWelcomeUploading(true);
+      let finalImageUrl = welcomeImageUrl;
+
+      if (welcomeImageFile && isSupabaseConfigured) {
+        const fileExt = welcomeImageFile.name.split('.').pop();
+        const fileName = `welcome-${Date.now()}.${fileExt}`;
+        const { error: uploadError } = await supabase.storage.from('photos').upload(fileName, welcomeImageFile);
+        if (!uploadError) {
+          const { data } = supabase.storage.from('photos').getPublicUrl(fileName);
+          finalImageUrl = data.publicUrl;
+          setWelcomeImageUrl(finalImageUrl);
+        }
+      }
+
+      await updateLivestream({
+        ...livestream,
+        title: liveTitle,
+        videoUrl: liveUrl,
+        isLive,
+        churchName,
+        churchLogo,
+        facebookUrl,
+        instagramUrl,
+        churchAddress,
+        churchMapsUrl,
+        churchEmail,
+        churchDescription,
+        youtubeChannelUrl,
+        formBgUrl,
+        resourcesBgUrl,
+        historyBgUrl,
+        scheduleText,
+        connectionText,
+        welcomeTitle,
+        welcomeText,
+        welcomeImageUrl: finalImageUrl,
+        welcomePastorsTitle,
+        welcomePastorsSubtitle
+      });
+
+      triggerSuccess('Bienvenida Pastoral actualizada');
+    } catch (err) {
+      console.error(err);
+      alert('Error guardando Bienvenida Pastoral');
+    } finally {
+      setIsWelcomeUploading(false);
+      setWelcomeImageFile(null);
+    }
+  };
+
+  const handleSaveStreaming = async (e) => {
     e.preventDefault();
     
     let logoUrl = churchLogo;
@@ -403,6 +464,7 @@ export default function Admin() {
           {[
             { id: 'streaming', label: 'Streaming & Radio', icon: <Tv size={16} /> },
             { id: 'church_data', label: 'Datos de la Iglesia', icon: <Settings size={16} /> },
+            { id: 'welcome', label: 'Bienvenida Pastoral', icon: <MessageSquare size={16} /> },
             { id: 'home_sections', label: 'Banners de Inicio', icon: <Layers size={16} /> },
             { id: 'global_gallery', label: 'Galería General', icon: <ImageIcon size={16} />, onClick: () => { setActiveMinistryId('general'); setActiveMinTab('photos'); } },
             { id: 'global_events', label: 'Eventos Generales', icon: <Calendar size={16} />, onClick: () => { setActiveMinistryId('general'); setActiveMinTab('activities'); } },
@@ -429,6 +491,43 @@ export default function Admin() {
             </button>
           ))}
         </div>
+
+        {/* TAB WELCOME: BIENVENIDA PASTORAL */}
+        {activeTab === 'welcome' && (
+          <div className="animate-fade-in" style={{ display: 'grid', gap: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+            <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+                <MessageSquare size={20} style={{ color: 'var(--accent-color)' }} /> Bienvenida Pastoral
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Título de Bienvenida</label>
+                  <input type="text" value={welcomeTitle} onChange={(e) => setWelcomeTitle(e.target.value)} style={inputStyle} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Mensaje de Bienvenida</label>
+                  <textarea value={welcomeText} onChange={(e) => setWelcomeText(e.target.value)} style={{ ...inputStyle, minHeight: '120px', resize: 'vertical' }} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Título debajo de la foto (Ej: Nuestros Pastores)</label>
+                  <input type="text" value={welcomePastorsTitle} onChange={(e) => setWelcomePastorsTitle(e.target.value)} style={inputStyle} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Subtítulo de la foto</label>
+                  <input type="text" value={welcomePastorsSubtitle} onChange={(e) => setWelcomePastorsSubtitle(e.target.value)} style={inputStyle} />
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Fotografía Pastoral</label>
+                  <ImageUploadDropzone onFileSelect={setWelcomeImageFile} currentImageUrl={welcomeImageUrl} previewHeight="250px" />
+                </div>
+                <button onClick={handleSaveWelcome} disabled={isWelcomeUploading} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem', padding: '0.75rem' }}>
+                  {isWelcomeUploading ? <Loader2 size={18} className="spin" /> : <Save size={18} />}
+                  Guardar Bienvenida
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* TAB 1: STREAMING */}
         {activeTab === 'streaming' && (
