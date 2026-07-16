@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useContext } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 
 function ScrollToTop() {
@@ -74,6 +74,7 @@ import Donaciones from './pages/Donaciones';
 import Historia from './pages/Historia';
 import Devocionales from './pages/Devocionales';
 import ActivityDetail from './pages/ActivityDetail';
+import BlogDetail from './pages/BlogDetail';
 import DevocionalDetail from './pages/DevocionalDetail';
 import SubmitDevocional from './pages/SubmitDevocional';
 import Recursos from './pages/Recursos';
@@ -98,7 +99,9 @@ const LayoutWrapper = () => {
           <Route path="/" element={<Home />} />
           <Route path="/ministerio/:id" element={<Ministerio />} />
           <Route path="/galeria" element={<Galeria />} />
-          <Route path="/live" element={<Live />} />`r`n          <Route path="/actividad/:id" element={<ActivityDetail />} />
+          <Route path="/live" element={<Live />} />
+          <Route path="/actividad/:id" element={<ActivityDetail />} />
+          <Route path="/noticia/:id" element={<BlogDetail />} />
           <Route path="/donaciones" element={<Donaciones />} />
           <Route path="/historia" element={<Historia />} />
           <Route path="/devocionales" element={<Devocionales />} />

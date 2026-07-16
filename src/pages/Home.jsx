@@ -22,8 +22,6 @@ const formatTime12h = (timeStr) => {
 
 export default function Home() {
   const { livestream, homeSections, ministries, activities, blogPosts } = useContext(GalleryContext);
-  const [selectedActivity, setSelectedActivity] = useState(null);
-  const [selectedBlogPost, setSelectedBlogPost] = useState(null);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   // Helper to find matching ministry by title/description
@@ -770,19 +768,20 @@ export default function Home() {
                       </p>
                       
                       {act.description && act.description.length > 100 && (
-                        <button 
-                          onClick={() => setSelectedActivity(act)}
+                        <Link 
+                          to={`/actividad/${act.id}`}
                           style={{
                             background: 'none', border: 'none', 
                             color: accentColor, fontWeight: 700, 
                             fontSize: '0.85rem', textAlign: 'left', 
                             padding: '0.5rem 0', cursor: 'pointer',
                             marginTop: '0.25rem',
-                            display: 'inline-block'
+                            display: 'inline-block',
+                            textDecoration: 'none'
                           }}
                         >
                           Leer más...
-                        </button>
+                        </Link>
                       )}
                       
                       <div style={{ flex: 1 }}></div>
@@ -900,8 +899,8 @@ export default function Home() {
                         <Calendar size={13} /> 
                         {new Date(blog.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </div>
-                      <button 
-                        onClick={() => setSelectedBlogPost(blog)}
+                      <Link 
+                        to={`/noticia/${blog.id}`}
                         style={{
                           background: 'none',
                           border: 'none',
@@ -913,13 +912,14 @@ export default function Home() {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '0.25rem',
-                          transition: 'color 0.2s ease'
+                          transition: 'color 0.2s ease',
+                          textDecoration: 'none'
                         }}
                         onMouseOver={(e) => e.currentTarget.style.color = '#fff'}
                         onMouseOut={(e) => e.currentTarget.style.color = 'var(--accent-color)'}
                       >
                         Leer más <ArrowRight size={14} />
-                      </button>
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -927,171 +927,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-      )}
-
-      {/* Activity Modal */}
-      {selectedActivity && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.85)',
-          backdropFilter: 'blur(5px)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1.5rem'
-        }}>
-          <div className="glass-card" style={{
-            width: '100%',
-            maxWidth: '500px',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            padding: '2rem',
-            position: 'relative',
-            background: 'rgba(20, 20, 24, 0.95)'
-          }}>
-            <button 
-              onClick={() => setSelectedActivity(null)}
-              style={{
-                position: 'absolute',
-                top: '1rem',
-                right: '1rem',
-                background: 'rgba(255,255,255,0.1)',
-                border: 'none',
-                color: '#fff',
-                width: '32px', height: '32px',
-                borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'background 0.2s'
-              }}
-            >
-              <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>&times;</span>
-            </button>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.5rem', paddingRight: '2rem', color: '#fff' }}>
-              {selectedActivity.title}
-            </h3>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', color: 'var(--accent-color)', fontWeight: 600, fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <Calendar size={14} /> 
-                {new Date(selectedActivity.date).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <Clock size={14} />
-                {formatTime12h(selectedActivity.time)}
-              </div>
-            </div>
-
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>
-              {selectedActivity.description}
-            </p>
-            
-            <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn btn-secondary" onClick={() => setSelectedActivity(null)} style={{ padding: '0.6rem 1.5rem' }}>
-                Cerrar
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Blog Post Modal */}
-      {selectedBlogPost && (
-        <div style={{
-          position: 'fixed',
-          top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.85)',
-          backdropFilter: 'blur(5px)',
-          zIndex: 99999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1.5rem'
-        }}>
-          <div className="glass-card" style={{
-            width: '100%',
-            maxWidth: '650px',
-            maxHeight: '90vh',
-            overflowY: 'auto',
-            padding: '2.5rem',
-            position: 'relative',
-            background: 'rgba(20, 20, 24, 0.98)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '1.5rem'
-          }}>
-            <button 
-              onClick={() => setSelectedBlogPost(null)}
-              style={{
-                position: 'absolute',
-                top: '1.25rem',
-                right: '1.25rem',
-                background: 'rgba(255,255,255,0.06)',
-                border: 'none',
-                color: '#fff',
-                width: '36px', height: '36px',
-                borderRadius: '50%',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer',
-                transition: 'background 0.2s',
-                zIndex: 10
-              }}
-            >
-              <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>&times;</span>
-            </button>
-
-            {selectedBlogPost.image_url && (
-              <img 
-                src={selectedBlogPost.image_url} 
-                alt={selectedBlogPost.title} 
-                style={{ 
-                  width: '100%', 
-                  height: '280px', 
-                  objectFit: 'cover', 
-                  borderRadius: '1rem',
-                  marginBottom: '1.5rem'
-                }}
-              />
-            )}
-
-            {selectedBlogPost.category && (
-              <span style={{
-                background: 'rgba(59, 130, 246, 0.12)',
-                color: '#60a5fa',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                padding: '0.3rem 0.75rem',
-                borderRadius: '4px',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                display: 'inline-block',
-                marginBottom: '1rem'
-              }}>
-                {selectedBlogPost.category}
-              </span>
-            )}
-
-            <h3 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '1rem', color: '#fff', lineHeight: 1.3, fontFamily: 'var(--font-display)' }}>
-              {selectedBlogPost.title}
-            </h3>
-            
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
-              <Calendar size={14} /> 
-              {new Date(selectedBlogPost.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </div>
-
-            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>
-              {selectedBlogPost.content}
-            </p>
-            
-            <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'flex-end' }}>
-              <button className="btn btn-primary" onClick={() => setSelectedBlogPost(null)} style={{ padding: '0.6rem 2rem' }}>
-                Cerrar Lectura
-              </button>
-            </div>
-          </div>
-        </div>
       )}
 
       {/* Contact Form Modal */}
