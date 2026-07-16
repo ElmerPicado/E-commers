@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
-import { Trash2, Mail, MailOpen, Phone, Calendar, User, Image, Save } from 'lucide-react';
+import { Trash2, Mail, MailOpen, Phone, Calendar, User, Image, Save, Download } from 'lucide-react';
 import { GalleryContext } from '../../context/GalleryContext';
 import ImageUploadDropzone from './ImageUploadDropzone';
 
@@ -111,6 +111,38 @@ export default function ContactFormsAdmin() {
     return new Date(dateString).toLocaleDateString('es-ES', options);
   };
 
+  const handleExportToCSV = () => {
+    if (forms.length === 0) return;
+
+    const headers = ['Fecha', 'Nombre', 'Apellido', 'Edad', 'Sexo', 'Telefono', 'Tipo de Solicitud', 'Mensaje', 'Estado'];
+    const csvRows = [headers.join(',')];
+    
+    forms.forEach(form => {
+      const row = [
+        `"${formatDate(form.created_at)}"`,
+        `"${form.nombre || ''}"`,
+        `"${form.apellido || ''}"`,
+        `"${form.edad || ''}"`,
+        `"${form.sexo || ''}"`,
+        `"${form.telefono || ''}"`,
+        `"${form.tipo_solicitud || ''}"`,
+        `"${(form.mensaje || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+        `"${form.estado === 'no_leido' ? 'Nuevo' : 'Leído'}"`
+      ];
+      csvRows.push(row.join(','));
+    });
+
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `peticiones_oracion_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   if (loading) {
     return <div style={{ color: 'var(--text-secondary)' }}>Cargando formularios...</div>;
   }
@@ -121,14 +153,27 @@ export default function ContactFormsAdmin() {
 
   return (
     <div className="glass-card animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
-        <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-          <Mail size={20} style={{ color: 'var(--accent-color)' }} /> 
-          Formularios de Contacto
-        </h2>
-        <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-          Total: {forms.length} | Sin leer: {forms.filter(f => f.estado === 'no_leido').length}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+          <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+            <Mail size={20} style={{ color: 'var(--accent-color)' }} /> 
+            Formularios de Contacto
+          </h2>
+          <div style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
+            Total: {forms.length} | Sin leer: {forms.filter(f => f.estado === 'no_leido').length}
+          </div>
         </div>
+        
+        {forms.length > 0 && (
+          <button 
+            onClick={handleExportToCSV}
+            className="btn btn-primary"
+            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#10b981', color: '#fff', border: 'none', padding: '0.5rem 1rem' }}
+            title="Descargar peticiones a Excel"
+          >
+            <Download size={16} /> Exportar a Excel (CSV)
+          </button>
+        )}
       </div>
 
       <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', padding: '1.5rem', marginBottom: '1rem' }}>

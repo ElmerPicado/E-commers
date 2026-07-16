@@ -929,6 +929,82 @@ export default function Home() {
         </section>
       )}
 
+      {/* 6. MAPA DE UBICACIÓN */}
+      <section style={{
+        padding: '4rem 1.5rem',
+        background: 'var(--bg-base)',
+        borderTop: '1px solid var(--border-color)'
+      }}>
+        <div className="container" style={{ maxWidth: '1000px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+            <h2 style={{ fontSize: '2.2rem', marginBottom: '0.5rem' }}>¿Dónde nos reunimos?</h2>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+              <MapPin size={16} style={{ color: 'var(--accent-color)' }} />
+              {livestream?.churchAddress || 'Río Cuarto, Córdoba'}
+            </p>
+          </div>
+
+          <div className="glass-card" style={{ 
+            padding: 0, 
+            overflow: 'hidden', 
+            borderRadius: '1.5rem',
+            border: '1px solid var(--border-color)',
+            background: 'rgba(20, 20, 25, 0.4)',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            {/* Mapa Embed en Modo Oscuro (Invertido) */}
+            <div style={{ width: '100%', height: '400px', background: '#222' }}>
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115456.96344265431!2d-64.44445856424367!3d-33.1306634710174!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95d2001053151eb5%3A0x63cd9ebc7d65fc97!2sR%C3%ADo%20Cuarto%2C%20C%C3%B3rdoba!5e0!3m2!1ses-419!2sar!4v1716942000000!5m2!1ses-419!2sar" 
+                width="100%" 
+                height="100%" 
+                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(1.1) brightness(0.8)' }} 
+                allowFullScreen="" 
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Ubicación de la Iglesia"
+              ></iframe>
+            </div>
+            
+            <div style={{ 
+              padding: '2.5rem 2rem', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center', 
+              gap: '1.5rem',
+              background: 'rgba(10, 10, 12, 0.6)'
+            }}>
+              <h3 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0, textAlign: 'center', color: '#fff' }}>
+                ¡Te esperamos con los brazos abiertos!
+              </h3>
+              
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
+                <a 
+                  href={livestream?.churchMapsUrl || 'https://maps.google.com/?q=Río+Cuarto,+Córdoba'} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-primary map-btn-hover"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', flex: '1', minWidth: '220px', justifyContent: 'center' }}
+                >
+                  <MapPin size={18} /> Abrir en Google Maps
+                </a>
+                
+                <a 
+                  href="https://waze.com/ul?q=Río+Cuarto" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary map-btn-hover"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', flex: '1', minWidth: '220px', justifyContent: 'center', background: '#33ccff', color: '#000', border: 'none', fontWeight: 800 }}
+                >
+                  <MapPin size={18} /> Ir con Waze
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Contact Form Modal */}
       <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
 
