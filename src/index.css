@@ -728,3 +728,13 @@ a {
     min-height: 150px;
   }
 }
+
+/* Custom Blog Cards and Leaders */
+.blog-card-hover:hover {
+  transform: translateY(-5px);
+  border-color: rgba(var(--accent-color-rgb), 0.35) !important;
+  box-shadow: 0 12px 40px rgba(var(--accent-color-rgb), 0.1) !important;
+}
+.blog-card-hover:hover .blog-image-zoom {
+  transform: scale(1.05);
+}

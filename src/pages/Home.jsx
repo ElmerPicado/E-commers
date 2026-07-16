@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock, MessageCircle, ArrowRight, Share2 } from 'lucide-react';
 import MinistryIcon from '../components/MinistryIcon';
 import { GalleryContext } from '../context/GalleryContext';
+import ContactFormModal from '../components/ContactFormModal';
 
 // Función para formatear hora 24h a 12h AM/PM
 const formatTime12h = (timeStr) => {
@@ -17,9 +18,119 @@ const formatTime12h = (timeStr) => {
 
 
 
+const DEFAULT_LEADERS = [
+  {
+    id: 'pastor-1',
+    name: 'Rev. Nelson Rodríguez',
+    role: 'Pastor Principal',
+    image_url: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=500&q=80',
+    message: 'Nuestra visión es guiar a las personas a una relación personal con Jesús, sirviendo con amor a nuestra ciudad.'
+  },
+  {
+    id: 'pastora-2',
+    name: 'Pastora Silvia de Rodríguez',
+    role: 'Co-Pastora',
+    image_url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=500&q=80',
+    message: 'Un hogar no está completo sin amor, y una iglesia no está completa sin ti. ¡Bienvenidos a la familia IMR4!'
+  },
+  {
+    id: 'lider-unanimes',
+    name: 'Bryan & Valeria',
+    role: 'Líderes de Jóvenes',
+    image_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=500&q=80',
+    message: 'Apasionados por ver a una generación levantarse en fe, verdad y con un propósito firme en Cristo.'
+  }
+];
+
 export default function Home() {
   const { livestream, homeSections, ministries, activities, blogPosts } = useContext(GalleryContext);
   const [selectedActivity, setSelectedActivity] = useState(null);
+  const [selectedBlogPost, setSelectedBlogPost] = useState(null);
+  const [isContactModalOpen, setIsContactModalOpen] = useState(false);
+
+  // Helper to find matching ministry by title/description
+  const getMinistryForSchedule = (title) => {
+    if (!title || !ministries) return null;
+    const t = title.toLowerCase();
+    if (t.includes('varón') || t.includes('varones') || t.includes('hombre') || t.includes('hombres')) {
+      return ministries.find(m => m.id === 'hombres');
+    }
+    if (t.includes('mujer') || t.includes('mujeres')) {
+      return ministries.find(m => m.id === 'mujeres');
+    }
+    if (t.includes('joven') || t.includes('juvenil') || t.includes('unánimes') || t.includes('unanimes')) {
+      return ministries.find(m => m.id === 'unanimes');
+    }
+    if (t.includes('niño') || t.includes('niños') || t.includes('infantil')) {
+      return ministries.find(m => m.id === 'ninos');
+    }
+    return null;
+  };
+
+  // Helper to render the logo or icon
+  const getScheduleLogoOrIcon = (title) => {
+    const min = getMinistryForSchedule(title);
+    if (min && min.logo_url) {
+      return (
+        <img 
+          src={min.logo_url} 
+          alt={min.name} 
+          style={{ 
+            width: '100%', 
+            height: '100%', 
+            objectFit: 'cover',
+            borderRadius: '50%'
+          }} 
+        />
+      );
+    }
+
+    // Fallback icons
+    const t = title.toLowerCase();
+    if (t.includes('varón') || t.includes('varones') || t.includes('hombre') || t.includes('hombres')) {
+      return <Shield size={22} style={{ color: '#10b981' }} />;
+    }
+    if (t.includes('mujer') || t.includes('mujeres')) {
+      return <Heart size={22} style={{ color: '#db2777' }} />;
+    }
+    if (t.includes('joven') || t.includes('juvenil') || t.includes('unánimes') || t.includes('unanimes')) {
+      return <Flame size={22} style={{ color: '#06b6d4' }} />;
+    }
+    return <Sparkles size={22} style={{ color: 'var(--accent-color)' }} />;
+  };
+
+  // Helper to get color theme for schedule
+  const getScheduleColorTheme = (title) => {
+    const min = getMinistryForSchedule(title);
+    if (min) {
+      return min.accent_color || 'var(--accent-color)';
+    }
+    const t = title.toLowerCase();
+    if (t.includes('varón') || t.includes('varones') || t.includes('hombre') || t.includes('hombres')) {
+      return '#10b981';
+    }
+    if (t.includes('mujer') || t.includes('mujeres')) {
+      return '#db2777';
+    }
+    if (t.includes('joven') || t.includes('juvenil') || t.includes('unánimes') || t.includes('unanimes')) {
+      return '#06b6d4';
+    }
+    return 'var(--accent-color)';
+  };
+
+  // Helper to get translucent rgba colors for badges
+  const hexToRgba = (hex, alpha) => {
+    if (!hex) return `rgba(59, 130, 246, ${alpha})`;
+    if (hex.startsWith('var(')) {
+      return `color-mix(in srgb, ${hex} ${alpha * 100}%, transparent)`;
+    }
+    const cleanHex = hex.replace('#', '');
+    const num = parseInt(cleanHex, 16);
+    const r = (num >> 16) & 255;
+    const g = (num >> 8) & 255;
+    const b = num & 255;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  };
 
   // Separate Hero from other sections
   const heroSection = homeSections.find(sec => sec.id === 'hero') || {
@@ -265,6 +376,183 @@ export default function Home() {
         </div>
       </section>
 
+      {/* 2. BIENVENIDA PASTORAL & LÍDERES */}
+      <section style={{
+        padding: '5rem 1.5rem',
+        background: 'var(--bg-surface)',
+        borderBottom: '1px solid var(--border-color)',
+        position: 'relative'
+      }}>
+        <div className="container" style={{ maxWidth: '1100px' }}>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))',
+            gap: '3rem',
+            alignItems: 'center',
+            marginBottom: '4rem'
+          }}>
+            {/* Left: Text & Welcome */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              <div style={{ display: 'inline-flex' }}>
+                <span style={{
+                  background: 'rgba(var(--accent-color-rgb), 0.12)',
+                  border: '1px solid rgba(var(--accent-color-rgb), 0.3)',
+                  color: 'var(--accent-color)',
+                  padding: '0.4rem 1rem',
+                  borderRadius: '9999px',
+                  fontSize: '0.8rem',
+                  fontWeight: 700,
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em'
+                }}>
+                  Bienvenidos a IMR4
+                </span>
+              </div>
+              
+              <h2 style={{
+                fontSize: 'clamp(2rem, 4vw, 2.75rem)',
+                lineHeight: '1.2',
+                fontWeight: 800,
+                fontFamily: 'var(--font-display)',
+                color: '#fff',
+                margin: 0
+              }}>
+                Un Mensaje de Bienvenida
+              </h2>
+
+              <p style={{
+                fontSize: '1.05rem',
+                color: 'var(--text-secondary)',
+                lineHeight: '1.7',
+                margin: 0
+              }}>
+                Te saludamos en el amor de Cristo Jesús. Como la Iglesia Metodista Río Cuarto, buscamos ser una comunidad que refleje la gracia, la fe y la esperanza en cada paso. Nos alegra tenerte aquí y queremos que sepas que en esta casa hay un lugar para ti y tu familia. Estaremos encantados de conocerte en nuestras reuniones generales y ministerios.
+              </p>
+
+              {/* Action Buttons */}
+              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                <a 
+                  href="https://iglesiametodista.cr" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="btn btn-primary"
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem',
+                    textDecoration: 'none'
+                  }}
+                >
+                  ¿Quiénes Somos? <ArrowRight size={16} />
+                </a>
+                <button 
+                  onClick={() => setIsContactModalOpen(true)}
+                  className="btn btn-secondary"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <MessageCircle size={16} /> Escríbenos
+                </button>
+              </div>
+            </div>
+
+            {/* Right: Pastoral Image Box */}
+            <div style={{ position: 'relative', width: '100%', minHeight: '320px' }}>
+              <div style={{
+                position: 'absolute',
+                top: '10%',
+                left: '-5%',
+                width: '100%',
+                height: '100%',
+                background: 'rgba(var(--accent-color-rgb), 0.05)',
+                border: '1px solid rgba(var(--accent-color-rgb), 0.1)',
+                borderRadius: '1.5rem',
+                zIndex: 1
+              }}></div>
+              <div className="glass-card" style={{
+                position: 'relative',
+                padding: '1.5rem',
+                background: 'rgba(18, 18, 22, 0.45)',
+                borderRadius: '1.5rem',
+                border: '1px solid var(--border-color)',
+                zIndex: 2,
+                boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                backdropFilter: 'blur(16px)'
+              }}>
+                <img 
+                  src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=800&q=80" 
+                  alt="Nuestros Pastores" 
+                  style={{ 
+                    width: '100%', 
+                    height: '260px', 
+                    objectFit: 'cover', 
+                    borderRadius: '1rem',
+                    marginBottom: '1rem'
+                  }}
+                />
+                <div>
+                  <h4 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0 }}>Nuestros Pastores</h4>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--accent-color)', fontWeight: 700 }}>Liderazgo Pastoral de IMR4</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Leaders Sub-section */}
+          <div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '2.5rem' }}>
+              <h3 style={{ fontSize: '1.75rem', fontWeight: 800, color: '#fff', margin: 0, fontFamily: 'var(--font-display)' }}>
+                Pastores y Líderes
+              </h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
+                Las personas que guían y sirven en cada área de nuestra congregación.
+              </p>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+              gap: '2rem'
+            }}>
+              {DEFAULT_LEADERS.map((leader) => (
+                <div key={leader.id} className="glass-card" style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  padding: '1.5rem',
+                  background: 'rgba(12, 13, 20, 0.5)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '1rem',
+                  alignItems: 'center',
+                  textAlign: 'center',
+                  transition: 'all 0.3s ease'
+                }}>
+                  <div style={{
+                    width: '90px',
+                    height: '90px',
+                    borderRadius: '50%',
+                    overflow: 'hidden',
+                    border: '3px solid rgba(var(--accent-color-rgb), 0.2)',
+                    marginBottom: '1.25rem'
+                  }}>
+                    <img src={leader.image_url} alt={leader.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                  <h4 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#fff', margin: '0 0 0.25rem 0' }}>{leader.name}</h4>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--accent-color)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.75rem' }}>
+                    {leader.role}
+                  </span>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5', margin: 0 }}>
+                    "{leader.message}"
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 2. DYNAMIC HOMEPAGE SECTIONS (BANNERS IN BLOCKS DOWNWARD) */}
       {otherSections.map((sec) => (
         <section
@@ -289,32 +577,97 @@ export default function Home() {
 
             {sec.schedules && sec.schedules.length > 0 && (
               <div style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1rem',
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))',
+                gap: '1.5rem',
                 margin: '0 auto 2.5rem auto',
-                maxWidth: '800px',
+                maxWidth: '1000px',
                 textAlign: 'left'
               }}>
-                {sec.schedules.map((sched, idx) => (
-                  <div key={idx} className="glass-card" style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    padding: '1.5rem', 
-                    background: 'rgba(10, 10, 14, 0.85)', 
-                    border: '1px solid rgba(255,255,255,0.08)',
-                    borderRadius: '0.5rem'
-                  }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                      <span style={{ fontWeight: 800, fontSize: '1.2rem', color: '#fff' }}>{sched.desc || sched.day}</span>
-                      {sched.desc && <span style={{ fontSize: '0.95rem', color: 'var(--text-secondary)' }}>{sched.day}</span>}
+                {sec.schedules.map((sched, idx) => {
+                  const title = sched.desc || sched.day;
+                  const logoOrIcon = getScheduleLogoOrIcon(title);
+                  const colorTheme = getScheduleColorTheme(title);
+                  const badgeBg = hexToRgba(colorTheme, 0.12);
+                  const badgeBorder = hexToRgba(colorTheme, 0.25);
+                  
+                  return (
+                    <div key={idx} className="glass-card" style={{ 
+                      display: 'flex', 
+                      flexDirection: 'column', 
+                      justifyContent: 'space-between', 
+                      padding: '1.75rem', 
+                      background: 'linear-gradient(135deg, rgba(20, 20, 28, 0.7) 0%, rgba(10, 10, 14, 0.95) 100%)', 
+                      border: '1px solid rgba(255, 255, 255, 0.08)',
+                      borderRadius: '1rem',
+                      backdropFilter: 'blur(12px)',
+                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
+                      transition: 'all 0.3s ease',
+                      minHeight: '170px'
+                    }}>
+                      {/* Upper Row: Icon/Logo & Time Badge */}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', width: '100%' }}>
+                        <div style={{ 
+                          width: '42px', 
+                          height: '42px', 
+                          borderRadius: '50%', 
+                          background: 'rgba(255, 255, 255, 0.03)', 
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          overflow: 'hidden',
+                          flexShrink: 0
+                        }}>
+                          {logoOrIcon}
+                        </div>
+                        <span style={{
+                          background: badgeBg,
+                          border: `1px solid ${badgeBorder}`,
+                          color: colorTheme.startsWith('var(') ? '#60a5fa' : colorTheme,
+                          padding: '0.4rem 0.8rem',
+                          borderRadius: '9999px',
+                          fontSize: '0.85rem',
+                          fontWeight: 700,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.35rem',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          <Clock size={13} />
+                          {sched.time}
+                        </span>
+                      </div>
+
+                      {/* Content Row: Description & Day */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                        <h3 style={{ 
+                          fontWeight: 800, 
+                          fontSize: '1.25rem', 
+                          color: '#fff',
+                          margin: 0,
+                          lineHeight: '1.3',
+                          fontFamily: 'var(--font-display)'
+                        }}>
+                          {title}
+                        </h3>
+                        {sched.desc && (
+                          <p style={{ 
+                            fontSize: '0.85rem', 
+                            color: 'var(--text-secondary)',
+                            margin: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem'
+                          }}>
+                            <Calendar size={14} style={{ opacity: 0.6 }} />
+                            {sched.day}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div style={{ color: 'var(--accent-color)', fontWeight: 700, fontSize: '1.05rem', whiteSpace: 'nowrap', paddingLeft: '1.5rem' }}>
-                      {sched.time}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
@@ -554,20 +907,97 @@ export default function Home() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
               {blogPosts.map((blog) => (
-                <div key={blog.id} className="glass-card" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                <div key={blog.id} className="glass-card blog-card-hover" style={{ 
+                  padding: 0, 
+                  overflow: 'hidden', 
+                  display: 'flex', 
+                  flexDirection: 'column',
+                  background: 'rgba(12, 13, 20, 0.45)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '1rem',
+                  transition: 'all 0.3s ease'
+                }}>
                   {blog.image_url && (
                     <div style={{ height: '200px', width: '100%', overflow: 'hidden' }}>
-                      <img src={blog.image_url} alt={blog.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img 
+                        src={blog.image_url} 
+                        alt={blog.title} 
+                        className="blog-image-zoom"
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'cover',
+                          transition: 'transform 0.5s ease'
+                        }} 
+                      />
                     </div>
                   )}
                   <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                    <h3 style={{ fontSize: '1.3rem', marginBottom: '0.75rem', fontWeight: 800 }}>{blog.title}</h3>
-                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: '1.6', whiteSpace: 'pre-wrap', flex: 1 }}>
+                    {blog.category && (
+                      <span style={{
+                        alignSelf: 'flex-start',
+                        background: 'rgba(59, 130, 246, 0.12)',
+                        color: '#60a5fa',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        padding: '0.25rem 0.6rem',
+                        borderRadius: '4px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.05em',
+                        marginBottom: '0.75rem'
+                      }}>
+                        {blog.category}
+                      </span>
+                    )}
+                    <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 800, color: '#fff', lineHeight: 1.3 }}>
+                      {blog.title}
+                    </h3>
+                    <p style={{ 
+                      color: 'var(--text-secondary)', 
+                      fontSize: '0.9rem', 
+                      lineHeight: '1.6', 
+                      display: '-webkit-box',
+                      WebkitLineClamp: 3,
+                      WebkitBoxOrient: 'vertical',
+                      overflow: 'hidden',
+                      marginBottom: '1.5rem',
+                      flex: 1
+                    }}>
                       {blog.content}
                     </p>
-                    <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                      <Calendar size={14} /> 
-                      {new Date(blog.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'space-between', 
+                      marginTop: 'auto', 
+                      paddingTop: '1rem', 
+                      borderTop: '1px solid var(--border-color)' 
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                        <Calendar size={13} /> 
+                        {new Date(blog.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      </div>
+                      <button 
+                        onClick={() => setSelectedBlogPost(blog)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--accent-color)',
+                          fontSize: '0.85rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          padding: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          transition: 'color 0.2s ease'
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.color = '#fff'}
+                        onMouseOut={(e) => e.currentTarget.style.color = 'var(--accent-color)'}
+                      >
+                        Leer más <ArrowRight size={14} />
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -644,6 +1074,106 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Blog Post Modal */}
+      {selectedBlogPost && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.85)',
+          backdropFilter: 'blur(5px)',
+          zIndex: 99999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1.5rem'
+        }}>
+          <div className="glass-card" style={{
+            width: '100%',
+            maxWidth: '650px',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            padding: '2.5rem',
+            position: 'relative',
+            background: 'rgba(20, 20, 24, 0.98)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '1.5rem'
+          }}>
+            <button 
+              onClick={() => setSelectedBlogPost(null)}
+              style={{
+                position: 'absolute',
+                top: '1.25rem',
+                right: '1.25rem',
+                background: 'rgba(255,255,255,0.06)',
+                border: 'none',
+                color: '#fff',
+                width: '36px', height: '36px',
+                borderRadius: '50%',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'background 0.2s',
+                zIndex: 10
+              }}
+            >
+              <span style={{ fontSize: '1.5rem', lineHeight: 1 }}>&times;</span>
+            </button>
+
+            {selectedBlogPost.image_url && (
+              <img 
+                src={selectedBlogPost.image_url} 
+                alt={selectedBlogPost.title} 
+                style={{ 
+                  width: '100%', 
+                  height: '280px', 
+                  objectFit: 'cover', 
+                  borderRadius: '1rem',
+                  marginBottom: '1.5rem'
+                }}
+              />
+            )}
+
+            {selectedBlogPost.category && (
+              <span style={{
+                background: 'rgba(59, 130, 246, 0.12)',
+                color: '#60a5fa',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                padding: '0.3rem 0.75rem',
+                borderRadius: '4px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                display: 'inline-block',
+                marginBottom: '1rem'
+              }}>
+                {selectedBlogPost.category}
+              </span>
+            )}
+
+            <h3 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '1rem', color: '#fff', lineHeight: 1.3, fontFamily: 'var(--font-display)' }}>
+              {selectedBlogPost.title}
+            </h3>
+            
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'var(--text-muted)', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border-color)' }}>
+              <Calendar size={14} /> 
+              {new Date(selectedBlogPost.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </div>
+
+            <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, whiteSpace: 'pre-wrap', fontSize: '0.95rem' }}>
+              {selectedBlogPost.content}
+            </p>
+            
+            <div style={{ marginTop: '2.5rem', display: 'flex', justifyContent: 'flex-end' }}>
+              <button className="btn btn-primary" onClick={() => setSelectedBlogPost(null)} style={{ padding: '0.6rem 2rem' }}>
+                Cerrar Lectura
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Contact Form Modal */}
+      <ContactFormModal isOpen={isContactModalOpen} onClose={() => setIsContactModalOpen(false)} />
 
     </div>
   );
