@@ -943,7 +943,7 @@ export default function Home() {
                   src={churchMapsUrl}
                   width="100%" 
                   height="100%" 
-                  style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(1.1) brightness(0.8)' }} 
+                  style={{ border: 0, filter: 'grayscale(30%) brightness(0.85) contrast(1.05)' }} 
                   allowFullScreen="" 
                   loading="lazy" 
                   referrerPolicy="no-referrer-when-downgrade"
