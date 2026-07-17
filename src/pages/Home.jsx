@@ -4,6 +4,7 @@ import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin
 import MinistryIcon from '../components/MinistryIcon';
 import { GalleryContext } from '../context/GalleryContext';
 import ContactFormModal from '../components/ContactFormModal';
+import { resolveImageUrl } from '../utils/imageUtils';
 
 // Función para formatear hora 24h a 12h AM/PM
 const formatTime12h = (timeStr) => {
@@ -97,16 +98,16 @@ export default function Home() {
   };
 
   const getScheduleImage = (sched, sec) => {
-    if (sched.image_url) return sched.image_url;
+    if (sched.image_url) return resolveImageUrl(sched.image_url);
 
     const title = sched.desc || sched.day;
     const min = getMinistryForSchedule(title);
     if (min) {
-      if (min.hero_image) return min.hero_image;
-      if (min.logo_url) return min.logo_url;
+      if (min.hero_image) return resolveImageUrl(min.hero_image);
+      if (min.logo_url) return resolveImageUrl(min.logo_url);
     }
 
-    return sec.bg_image || livestream.welcomeImageUrl || '';
+    return resolveImageUrl(sec.bg_image || livestream.welcomeImageUrl || '');
   };
 
   // Helper to get translucent rgba colors for badges
@@ -144,7 +145,7 @@ export default function Home() {
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
-        backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.95)), url(${heroSection.bg_image})`,
+        backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.95)), url(${resolveImageUrl(heroSection.bg_image)})`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         borderBottom: '1px solid var(--border-color)'
@@ -166,7 +167,7 @@ export default function Home() {
               {livestream.churchLogo && (
                 <div className="logo-wrapper" style={{ display: 'flex', justifyContent: 'center', flex: '0 0 auto' }}>
                   <img 
-                    src={livestream.churchLogo} 
+                    src={resolveImageUrl(livestream.churchLogo)} 
                     alt="Logo Iglesia" 
                     className="hero-logo"
                     style={{ 
@@ -492,7 +493,7 @@ export default function Home() {
           style={{
             position: 'relative',
             padding: '8rem 1.5rem',
-            backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.75)), url(${sec.bg_image})`,
+            backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.65), rgba(10, 10, 12, 0.75)), url(${resolveImageUrl(sec.bg_image)})`,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             borderBottom: '1px solid var(--border-color)'
@@ -556,7 +557,7 @@ export default function Home() {
       {/* 3. DYNAMIC MINISTRIES GRID (NUESTROS MINISTERIOS) */}
       <section style={{ 
         padding: '4rem 1.5rem',
-        backgroundImage: livestream?.homeMinistriesBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.95)), url(${livestream.homeMinistriesBgUrl})` : 'none',
+        backgroundImage: livestream?.homeMinistriesBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.95)), url(${resolveImageUrl(livestream.homeMinistriesBgUrl)})` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}>
