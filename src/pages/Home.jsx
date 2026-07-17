@@ -345,8 +345,8 @@ export default function Home() {
               <ChevronRight size={16} style={{ color: 'var(--text-muted)' }} />
             </Link>
 
-            {livestream?.churchMapsUrl && (
-              <a href={livestream.churchMapsUrl} target="_blank" rel="noopener noreferrer" className="glass-card" style={{
+            {livestream?.churchAddress && (
+              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(livestream.churchAddress)}`} target="_blank" rel="noopener noreferrer" className="glass-card" style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -983,7 +983,7 @@ export default function Home() {
               
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
                 <a 
-                  href={livestream?.churchMapsUrl || 'https://maps.google.com/?q=Río+Cuarto,+Córdoba'} 
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(livestream?.churchAddress || 'Río Cuarto, Alajuela, Costa Rica')}`}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="btn btn-primary map-btn-hover"
@@ -993,7 +993,7 @@ export default function Home() {
                 </a>
                 
                 <a 
-                  href="https://waze.com/ul?q=Río+Cuarto" 
+                  href={`https://waze.com/ul?q=${encodeURIComponent(livestream?.churchAddress || 'Río Cuarto, Alajuela, Costa Rica')}`}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="btn btn-secondary map-btn-hover"
