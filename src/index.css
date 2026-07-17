@@ -738,3 +738,102 @@ a {
 .blog-card-hover:hover .blog-image-zoom {
   transform: scale(1.05);
 }
+
+/* Straight/Centered Schedule Cards layout (Estilo SIXAC con hora a la derecha) */
+.schedule-timeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  max-width: 900px;
+  margin: 2rem auto 2.5rem auto;
+}
+
+.schedule-timeline-card {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  max-width: 620px; /* Un poco más ancha para acomodar la hora a la derecha */
+  background: linear-gradient(135deg, rgba(20, 20, 28, 0.75) 0%, rgba(10, 10, 14, 0.95) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  padding: 1.25rem;
+  box-sizing: border-box;
+  gap: 1.5rem;
+  transition: all 0.3s ease;
+  align-self: center; /* Rectos y centrados */
+}
+
+.schedule-timeline-card:hover {
+  border-color: rgba(var(--accent-color-rgb), 0.4);
+  box-shadow: 0 10px 30px rgba(var(--accent-color-rgb), 0.08);
+  transform: translateY(-2px);
+}
+
+.schedule-card-image-box {
+  width: 120px;
+  height: 120px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.schedule-card-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.schedule-card-details {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-grow: 1;
+  width: 100%;
+}
+
+.schedule-card-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex-grow: 1;
+}
+
+.schedule-card-title {
+  font-weight: 800;
+  font-size: 1.55rem;
+  color: var(--accent-color); /* Título en azul de la iglesia */
+  margin: 0;
+  line-height: 1.2;
+  font-family: var(--font-display);
+}
+
+/* Mobile responsive */
+@media (max-width: 767px) {
+  .schedule-timeline-card {
+    flex-direction: column;
+    max-width: 100%;
+    gap: 1rem;
+    align-self: center;
+  }
+  .schedule-card-image-box {
+    width: 100%;
+    height: 160px;
+  }
+  .schedule-card-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  .schedule-card-title {
+    font-size: 1.35rem; /* Ajustar fuente un poco en móviles */
+  }
+}
+

@@ -517,8 +517,13 @@ export default function Admin() {
                   <input type="text" value={welcomePastorsSubtitle} onChange={(e) => setWelcomePastorsSubtitle(e.target.value)} style={inputStyle} />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                  <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Fotografía Pastoral</label>
-                  <ImageUploadDropzone onFileSelect={setWelcomeImageFile} currentImageUrl={welcomeImageUrl} previewHeight="250px" />
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Fotografía Pastoral (Cuerpo Entero / Vertical)</label>
+                  <ImageUploadDropzone 
+                    onFileSelect={setWelcomeImageFile} 
+                    previewUrl={welcomeImageFile ? URL.createObjectURL(welcomeImageFile) : (welcomeImageUrl || null)} 
+                    size="large"
+                    label="Selecciona o arrastra una foto vertical"
+                  />
                 </div>
                 <button onClick={handleSaveWelcome} disabled={isWelcomeUploading} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', marginTop: '1rem', padding: '0.75rem' }}>
                   {isWelcomeUploading ? <Loader2 size={18} className="spin" /> : <Save size={18} />}
@@ -573,7 +578,7 @@ export default function Admin() {
             </div>
             
             <div style={{ gridColumn: 'span 2' }}>
-              <button type="button" onClick={handleUpdateStreaming} className="btn btn-primary" disabled={isStreamingUploading}>
+              <button type="button" onClick={handleSaveStreaming} className="btn btn-primary" disabled={isStreamingUploading}>
                 {isStreamingUploading ? 'Subiendo...' : <><Save size={16} /> Guardar Configuración de Streaming</>}
               </button>
             </div>
@@ -634,7 +639,7 @@ export default function Admin() {
             </div>
             
             <div style={{ borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem' }}>
-              <button type="button" onClick={handleUpdateStreaming} className="btn btn-primary" disabled={isStreamingUploading}>
+              <button type="button" onClick={handleSaveStreaming} className="btn btn-primary" disabled={isStreamingUploading}>
                 {isStreamingUploading ? 'Subiendo...' : <><Save size={16} /> Guardar Datos de Iglesia</>}
               </button>
             </div>

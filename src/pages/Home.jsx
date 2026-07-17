@@ -94,6 +94,16 @@ export default function Home() {
     return 'var(--accent-color)';
   };
 
+  const getScheduleImage = (sched, sec) => {
+    const title = sched.desc || sched.day;
+    const min = getMinistryForSchedule(title);
+    if (min) {
+      if (min.hero_image) return min.hero_image;
+      if (min.logo_url) return min.logo_url;
+    }
+    return sec.bg_image || livestream.welcomeImageUrl || '';
+  };
+
   // Helper to get translucent rgba colors for badges
   const hexToRgba = (hex, alpha) => {
     if (!hex) return `rgba(59, 130, 246, ${alpha})`;
@@ -424,7 +434,7 @@ export default function Home() {
             </div>
 
             {/* Right: Pastoral Image Box */}
-            <div style={{ position: 'relative', width: '100%', minHeight: '320px' }}>
+            <div style={{ position: 'relative', width: '100%', minHeight: '520px' }}>
               <div style={{
                 position: 'absolute',
                 top: '10%',
@@ -451,7 +461,7 @@ export default function Home() {
                   alt={livestream?.welcomePastorsTitle} 
                   style={{ 
                     width: '100%', 
-                    height: '260px', 
+                    height: '450px', 
                     objectFit: 'cover', 
                     borderRadius: '1rem',
                     marginBottom: '1rem'
@@ -492,98 +502,64 @@ export default function Home() {
             </p>
 
             {sec.schedules && sec.schedules.length > 0 && (
-              <div style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                gap: '1.5rem',
-                margin: '0 auto 2.5rem auto',
-                maxWidth: '1100px',
-                textAlign: 'left'
-              }}>
+              <div className="schedule-timeline-container">
                 {sec.schedules.map((sched, idx) => {
                   const title = sched.desc || sched.day;
-                  const logoOrIcon = getScheduleLogoOrIcon(title);
                   const colorTheme = getScheduleColorTheme(title);
                   const badgeBg = hexToRgba(colorTheme, 0.12);
                   const badgeBorder = hexToRgba(colorTheme, 0.25);
+                  const cardImgUrl = getScheduleImage(sched, sec);
                   
                   return (
-                    <div key={idx} className="glass-card" style={{ 
-                      display: 'flex', 
-                      flexDirection: 'column', 
-                      justifyContent: 'space-between', 
-                      padding: '1.75rem', 
-                      background: 'linear-gradient(135deg, rgba(20, 20, 28, 0.7) 0%, rgba(10, 10, 14, 0.95) 100%)', 
-                      border: '1px solid rgba(255, 255, 255, 0.08)',
-                      borderRadius: '1rem',
-                      backdropFilter: 'blur(12px)',
-                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.3)',
-                      transition: 'all 0.3s ease',
-                      width: '100%',
-                      maxWidth: '320px',
-                      height: '190px',
-                      boxSizing: 'border-box'
-                    }}>
-                      {/* Upper Row: Icon/Logo & Time Badge */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', width: '100%' }}>
-                        <div style={{ 
-                          width: '42px', 
-                          height: '42px', 
-                          borderRadius: '50%', 
-                          background: 'rgba(255, 255, 255, 0.03)', 
-                          border: '1px solid rgba(255, 255, 255, 0.08)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          overflow: 'hidden',
-                          flexShrink: 0
-                        }}>
-                          {logoOrIcon}
+                    <div key={idx} className="schedule-timeline-card">
+                      {/* Left: Square Cover/Pastoral Photo */}
+                      {cardImgUrl && (
+                        <div className="schedule-card-image-box">
+                          <img src={cardImgUrl} alt={title} />
                         </div>
+                      )}
+                      
+                      {/* Right: Details Container */}
+                      <div className="schedule-card-details">
+                        {/* Text details */}
+                        <div className="schedule-card-text">
+                          <h3 className="schedule-card-title">
+                            {title}
+                          </h3>
+                          {sched.desc && (
+                            <p style={{ 
+                              fontSize: '0.9rem', 
+                              color: 'var(--text-secondary)',
+                              margin: 0,
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              fontWeight: 500
+                            }}>
+                              <Calendar size={14} style={{ opacity: 0.6 }} />
+                              {sched.day}
+                            </p>
+                          )}
+                        </div>
+
+                        {/* Time badge on the right */}
                         <span style={{
                           background: badgeBg,
                           border: `1px solid ${badgeBorder}`,
                           color: colorTheme.startsWith('var(') ? '#60a5fa' : colorTheme,
-                          padding: '0.4rem 0.8rem',
+                          padding: '0.35rem 0.8rem',
                           borderRadius: '9999px',
                           fontSize: '0.85rem',
                           fontWeight: 700,
-                          display: 'flex',
+                          display: 'inline-flex',
                           alignItems: 'center',
                           gap: '0.35rem',
-                          whiteSpace: 'nowrap'
+                          whiteSpace: 'nowrap',
+                          flexShrink: 0
                         }}>
-                          <Clock size={13} />
+                          <Clock size={12} />
                           {sched.time}
                         </span>
-                      </div>
-
-                      {/* Content Row: Description & Day */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                        <h3 style={{ 
-                          fontWeight: 800, 
-                          fontSize: '1.25rem', 
-                          color: '#fff',
-                          margin: 0,
-                          lineHeight: '1.3',
-                          fontFamily: 'var(--font-display)'
-                        }}>
-                          {title}
-                        </h3>
-                        {sched.desc && (
-                          <p style={{ 
-                            fontSize: '0.85rem', 
-                            color: 'var(--text-secondary)',
-                            margin: 0,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.35rem'
-                          }}>
-                            <Calendar size={14} style={{ opacity: 0.6 }} />
-                            {sched.day}
-                          </p>
-                        )}
                       </div>
                     </div>
                   );
