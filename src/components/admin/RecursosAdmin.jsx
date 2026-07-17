@@ -3,6 +3,7 @@ import { GalleryContext } from '../../context/GalleryContext';
 import { Plus, Trash2, Edit, FileText, Video, Link as LinkIcon, Upload, Image } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 import ImageUploadDropzone from './ImageUploadDropzone';
+import { resolveImageUrl } from '../../utils/imageUtils';
 
 export default function RecursosAdmin({ triggerSuccess }) {
   const {
@@ -43,9 +44,9 @@ export default function RecursosAdmin({ triggerSuccess }) {
         return;
       }
     }
-    await updateLivestream({ ...livestream, resourcesBgUrl: finalUrl });
+    await updateLivestream({ ...livestream, resourcesBgUrl: resolveImageUrl(finalUrl) });
     setBgFile(null);
-    setBgUrl(finalUrl);
+    setBgUrl(resolveImageUrl(finalUrl));
     setIsBgUploading(false);
     triggerSuccess('Fondo de Biblioteca actualizado exitosamente.');
   };

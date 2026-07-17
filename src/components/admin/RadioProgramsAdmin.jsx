@@ -4,6 +4,7 @@ import { GalleryContext } from '../../context/GalleryContext';
 import { UploadCloud, Trash2, Edit2, CheckCircle, Radio } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import ImageUploadDropzone from './ImageUploadDropzone';
+import { resolveImageUrl } from '../../utils/imageUtils';
 
 export default function RadioProgramsAdmin() {
   const { radioPrograms, addRadioProgram, updateRadioProgram, deleteRadioProgram } = useContext(GalleryContext);
@@ -85,7 +86,7 @@ export default function RadioProgramsAdmin() {
         schedule_time: schedule,
         description,
         is_active: isActive,
-        image_url: finalImageUrl
+        image_url: resolveImageUrl(finalImageUrl)
       };
 
       if (isEditing) {

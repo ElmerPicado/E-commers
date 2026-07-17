@@ -3,6 +3,7 @@ import { GalleryContext } from '../context/GalleryContext';
 import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Edit, Layers, Mail, Library, CheckCircle, Tv, Users, FileText, Lock, UserPlus, Calendar } from 'lucide-react';
 import ImageUploadDropzone from '../components/admin/ImageUploadDropzone';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
+import { resolveImageUrl } from '../utils/imageUtils';
 import MinistryDashboardAdmin from '../components/admin/MinistryDashboardAdmin';
 import RadioProgramsAdmin from '../components/admin/RadioProgramsAdmin';
 import DonationsAdmin from '../components/admin/DonationsAdmin';
@@ -179,7 +180,7 @@ export default function Admin() {
       await updateLivestream({
         welcomeTitle,
         welcomeText,
-        welcomeImageUrl: finalImageUrl,
+        welcomeImageUrl: resolveImageUrl(finalImageUrl),
         welcomePastorsTitle,
         welcomePastorsSubtitle
       });
@@ -225,7 +226,7 @@ export default function Admin() {
       videoUrl: liveUrl, 
       isLive: isLive,
       churchName: churchName,
-      churchLogo: logoUrl, 
+      churchLogo: resolveImageUrl(logoUrl), 
       facebookUrl: facebookUrl, 
       instagramUrl: instagramUrl,
       churchAddress: churchAddress,
@@ -235,9 +236,9 @@ export default function Admin() {
       youtubeChannelUrl: youtubeChannelUrl,
       scheduleText: scheduleText,
       connectionText: connectionText,
-      homeMinistriesBgUrl: homeMinistriesBgUrl,
-      homeActivitiesBgUrl: homeActivitiesBgUrl,
-      homeNewsBgUrl: homeNewsBgUrl
+      homeMinistriesBgUrl: resolveImageUrl(homeMinistriesBgUrl),
+      homeActivitiesBgUrl: resolveImageUrl(homeActivitiesBgUrl),
+      homeNewsBgUrl: resolveImageUrl(homeNewsBgUrl)
     });
     setChurchLogo(logoUrl);
     setChurchLogoFile(null);
@@ -275,9 +276,12 @@ export default function Admin() {
       subtitle: sectionSubtitle,
       button_text: sectionBtnText,
       button_url: sectionBtnUrl,
-      bg_image: bgUrl,
+      bg_image: resolveImageUrl(bgUrl),
       order_index: parseInt(sectionOrder, 10),
-      schedules: sectionSchedules
+      schedules: sectionSchedules.map(s => ({
+        ...s,
+        image_url: resolveImageUrl(s.image_url || '')
+      }))
     };
 
     if (secAction === 'create') {
@@ -345,7 +349,7 @@ export default function Admin() {
     const blogData = {
       title: blogTitle,
       content: blogContent,
-      image_url: finalImageUrl,
+      image_url: resolveImageUrl(finalImageUrl),
       order_index: parseInt(blogOrder, 10)
     };
 
