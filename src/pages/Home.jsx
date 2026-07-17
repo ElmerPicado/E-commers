@@ -534,18 +534,26 @@ export default function Home() {
                             {title}
                           </h3>
                           {sched.desc && (
-                            <p style={{ 
-                              fontSize: '0.9rem', 
-                              color: 'var(--text-secondary)',
-                              margin: 0,
-                              display: 'flex',
+                            <div style={{ 
+                              display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '0.35rem',
-                              fontWeight: 500
+                              gap: '0.4rem',
+                              marginTop: '0.3rem',
+                              background: `${badgeBg}`,
+                              border: `1px solid ${badgeBorder}`,
+                              padding: '0.3rem 0.75rem',
+                              borderRadius: '9999px',
                             }}>
-                              <Calendar size={14} style={{ opacity: 0.6 }} />
-                              {sched.day}
-                            </p>
+                              <Calendar size={15} style={{ color: colorTheme.startsWith('var(') ? '#60a5fa' : colorTheme, flexShrink: 0 }} />
+                              <span style={{
+                                fontSize: '1rem',
+                                fontWeight: 700,
+                                color: '#fff',
+                                letterSpacing: '0.01em'
+                              }}>
+                                {sched.day}
+                              </span>
+                            </div>
                           )}
                         </div>
 
