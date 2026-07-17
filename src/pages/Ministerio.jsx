@@ -213,20 +213,6 @@ export default function Ministerio() {
           </div>
         </div>
 
-        {/* Imagen en su tamaño original sin recortes (debajo del texto) */}
-        {ministry.hero_image && (
-          <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '2rem' }}>
-            <img 
-              src={ministry.hero_image} 
-              alt={ministry.name}
-              style={{
-                width: '100%',
-                maxHeight: '80vh',
-                objectFit: 'contain'
-              }}
-            />
-          </div>
-        )}
       </section>
 
       {/* Schedule / Location Block (Estilo PAS) */}
