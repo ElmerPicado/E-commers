@@ -2,6 +2,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
 import { Image as ImageIcon, Calendar, Filter, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { resolveImageUrl } from '../utils/imageUtils';
 
 const AlbumCard = ({ album, onClick, getCategoryLabel }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -48,7 +49,7 @@ const AlbumCard = ({ album, onClick, getCategoryLabel }) => {
       <div style={{ height: '240px', width: '100%', overflow: 'hidden', position: 'relative', background: '#000' }}>
         {displayPhotos.length > 0 ? (
           <img
-            src={displayPhotos[currentIdx]}
+            src={resolveImageUrl(displayPhotos[currentIdx])}
             alt={album.title}
             style={{ 
               width: '100%', 
@@ -309,7 +310,7 @@ export default function Galeria() {
                     }}
                   >
                     <img
-                      src={photo}
+                      src={resolveImageUrl(photo)}
                       alt={`Foto ${idx + 1}`}
                       style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.2s' }}
                       onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.03)'}
@@ -489,7 +490,7 @@ export default function Galeria() {
             {/* Main Image */}
             <img
               key={lightboxIndex}
-              src={activeAlbum.photos[lightboxIndex]}
+              src={resolveImageUrl(activeAlbum.photos[lightboxIndex])}
               alt={`Lightbox ${lightboxIndex + 1}`}
               onClick={(e) => e.stopPropagation()}
               style={{

@@ -1,6 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { Save, Plus, Trash2, Building, Smartphone, Heart, Image as ImageIcon } from 'lucide-react';
+import { resolveImageUrl } from '../../utils/imageUtils';
 
 export default function DonationsAdmin() {
   const { donationsConfig, updateDonationsConfig } = useContext(GalleryContext);
@@ -25,7 +26,11 @@ export default function DonationsAdmin() {
     e.preventDefault();
     setSaving(true);
     try {
-      await updateDonationsConfig(localConfig);
+      const configToSave = {
+        ...localConfig,
+        hero_image: resolveImageUrl(localConfig.hero_image)
+      };
+      await updateDonationsConfig(configToSave);
       alert('Configuración guardada exitosamente');
     } catch (error) {
       alert('Error al guardar: ' + error.message);

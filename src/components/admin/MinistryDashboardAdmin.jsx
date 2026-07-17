@@ -3,6 +3,7 @@ import { GalleryContext } from '../../context/GalleryContext';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette } from 'lucide-react';
 import ImageUploadDropzone from './ImageUploadDropzone';
+import { resolveImageUrl } from '../../utils/imageUtils';
 
 export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSuccess, initialTab }) {
   const {
@@ -194,8 +195,8 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       hero_title: minHeroTitle,
       hero_desc: minHeroDesc,
       accent_color: minColor,
-      logo_url: finalLogoUrl,
-      hero_image: finalHeroImageUrl,
+      logo_url: resolveImageUrl(finalLogoUrl),
+      hero_image: resolveImageUrl(finalHeroImageUrl),
       schedule: minSchedule,
       location: minLocation,
       location_url: minLocationUrl,
@@ -333,7 +334,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         setIsPhotoUploading(false);
       }
     } else if (newPhotoUrl.trim()) {
-      await addPhotoToAlbum(targetAlbumId, newPhotoUrl.trim());
+      await addPhotoToAlbum(targetAlbumId, resolveImageUrl(newPhotoUrl.trim()));
       setNewPhotoUrl('');
       triggerSuccess('Enlace de foto agregado con éxito al álbum.');
     }

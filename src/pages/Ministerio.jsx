@@ -3,6 +3,7 @@ import { useParams, Link, useLocation } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
 import { ArrowLeft, Calendar, ArrowRight, UserPlus, Image as ImageIcon, Sparkles, Flame, Heart, Shield, Sun, MapPin, Users, BookOpen, Coffee, Smile, Briefcase, Mail, MessageSquare, X, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { PlayfulLayout, SoftLayout } from '../components/ministry/MinistryLayouts';
+import { resolveImageUrl } from '../utils/imageUtils';
 
 const InstagramIcon = ({ size = 24, color = "currentColor" }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -530,7 +531,7 @@ export default function Ministerio() {
                   <div style={{ height: '240px', width: '100%', overflow: 'hidden', position: 'relative', background: '#000' }}>
                     {album.photos && album.photos.length > 0 ? (
                       <img
-                        src={album.photos[0]}
+                        src={resolveImageUrl(album.photos[0])}
                         alt={album.title}
                         style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.3s' }}
                         onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
