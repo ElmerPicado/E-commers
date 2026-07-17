@@ -22,6 +22,8 @@ const formatTime12h = (timeStr) => {
 
 export default function Home() {
   const { livestream, homeSections, ministries, activities, blogPosts } = useContext(GalleryContext);
+  const churchLogo = livestream?.churchLogo || '';
+  const churchMapsUrl = livestream?.churchMapsUrl || '';
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
   // Helper to find matching ministry by title/description
@@ -100,6 +102,11 @@ export default function Home() {
     if (min) {
       if (min.hero_image) return min.hero_image;
       if (min.logo_url) return min.logo_url;
+    }
+    // Para cultos generales (sin ministerio específico), usar el logo de la iglesia
+    const t = (title || '').toLowerCase();
+    if (!min && (t.includes('general') || t.includes('culto') || t.includes('domingo'))) {
+      if (churchLogo) return churchLogo;
     }
     return sec.bg_image || livestream.welcomeImageUrl || '';
   };
@@ -931,16 +938,23 @@ export default function Home() {
           }}>
             {/* Mapa Embed en Modo Oscuro (Invertido) */}
             <div style={{ width: '100%', height: '400px', background: '#222' }}>
-              <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d115456.96344265431!2d-64.44445856424367!3d-33.1306634710174!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95d2001053151eb5%3A0x63cd9ebc7d65fc97!2sR%C3%ADo%20Cuarto%2C%20C%C3%B3rdoba!5e0!3m2!1ses-419!2sar!4v1716942000000!5m2!1ses-419!2sar" 
-                width="100%" 
-                height="100%" 
-                style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(1.1) brightness(0.8)' }} 
-                allowFullScreen="" 
-                loading="lazy" 
-                referrerPolicy="no-referrer-when-downgrade"
-                title="Ubicación de la Iglesia"
-              ></iframe>
+              {churchMapsUrl ? (
+                <iframe 
+                  src={churchMapsUrl}
+                  width="100%" 
+                  height="100%" 
+                  style={{ border: 0, filter: 'invert(90%) hue-rotate(180deg) contrast(1.1) brightness(0.8)' }} 
+                  allowFullScreen="" 
+                  loading="lazy" 
+                  referrerPolicy="no-referrer-when-downgrade"
+                  title="Ubicación de la Iglesia"
+                ></iframe>
+              ) : (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', gap: '0.5rem' }}>
+                  <MapPin size={18} style={{ opacity: 0.5 }} />
+                  Configurá el mapa en Admin → Datos de Iglesia → Google Maps URL
+                </div>
+              )}
             </div>
             
             <div style={{ 
