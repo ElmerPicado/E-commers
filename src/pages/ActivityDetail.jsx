@@ -44,29 +44,10 @@ export default function ActivityDetail() {
         </Link>
 
         <div className="glass-card" style={{ padding: 0, overflow: 'hidden', background: 'var(--bg-surface)' }}>
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-            <div style={{ width: '48px', height: '48px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
-              {organizingMinistry?.logo_url ? (
-                <img src={organizingMinistry.logo_url} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-              ) : (
-                <MinistryIcon name={organizingMinistry?.icon_name || 'Sparkles'} color={accentColor} />
-              )}
-            </div>
-            <div>
-              <span style={{ display: 'block', fontSize: '1.1rem', fontWeight: 700, color: '#fff' }}>
-                {organizingMinistry ? organizingMinistry.name : 'Evento General IMR4'}
-              </span>
-              <span style={{ display: 'block', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                {organizingMinistry?.location || 'Iglesia IMR4'}
-              </span>
-            </div>
-          </div>
-
           {/* Imagen */}
           {act.image_url ? (
-            <div style={{ width: '100%', aspectRatio: '16/9', background: '#000', position: 'relative' }}>
-              <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <div style={{ width: '100%', background: 'var(--bg-surface)', position: 'relative', borderBottom: '1px solid var(--border-color)' }}>
+              <img src={act.image_url} alt={act.title} style={{ width: '100%', height: 'auto', maxHeight: '80vh', objectFit: 'contain', display: 'block', margin: '0 auto' }} />
             </div>
           ) : (
             <div style={{ width: '100%', aspectRatio: '21/9', background: 'rgba(255,255,255,0.02)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid var(--border-color)' }}>

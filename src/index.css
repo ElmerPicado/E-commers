@@ -799,41 +799,12 @@ a {
   width: 100%;
 }
 
-.schedule-card-text {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-  flex-grow: 1;
+.schedule-slider-card {
+  width: 45vw; /* FITS ~2 CARDS ON SCREEN ON MOBILE */
+  max-width: 280px;
 }
-
-.schedule-card-title {
-  font-weight: 800;
-  font-size: 1.55rem;
-  color: var(--accent-color); /* Título en azul de la iglesia */
-  margin: 0;
-  line-height: 1.2;
-  font-family: var(--font-display);
-}
-
-/* Mobile responsive */
-@media (max-width: 767px) {
-  .schedule-timeline-card {
-    flex-direction: column;
-    max-width: 100%;
-    gap: 1rem;
-    align-self: center;
-  }
-  .schedule-card-image-box {
-    width: 100%;
-    height: 160px;
-  }
-  .schedule-card-details {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-  .schedule-card-title {
-    font-size: 1.35rem; /* Ajustar fuente un poco en móviles */
+@media (min-width: 768px) {
+  .schedule-slider-card {
+    width: 250px;
   }
 }
-

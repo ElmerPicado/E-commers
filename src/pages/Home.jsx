@@ -509,76 +509,40 @@ export default function Home() {
             </p>
 
             {sec.schedules && sec.schedules.length > 0 && (
-              <div className="schedule-timeline-container">
-                {sec.schedules.map((sched, idx) => {
-                  const title = sched.desc || sched.day;
-                  const colorTheme = getScheduleColorTheme(title);
-                  const badgeBg = hexToRgba(colorTheme, 0.12);
-                  const badgeBorder = hexToRgba(colorTheme, 0.25);
-                  const cardImgUrl = getScheduleImage(sched, sec);
-                  
-                  return (
-                    <div key={idx} className="schedule-timeline-card">
-                      {/* Left: Square Cover/Pastoral Photo */}
-                      {cardImgUrl && (
-                        <div className="schedule-card-image-box">
-                          <img src={cardImgUrl} alt={title} />
-                        </div>
-                      )}
-                      
-                      {/* Right: Details Container */}
-                      <div className="schedule-card-details">
-                        {/* Text details */}
-                        <div className="schedule-card-text">
-                          <h3 className="schedule-card-title">
+              <div style={{ position: 'relative', marginTop: '2rem' }}>
+                <div className="swipe-indicator" style={{ marginBottom: '1.5rem', justifyContent: 'center' }}>
+                  Desliza para ver más <ArrowRight size={16} />
+                </div>
+                <div className="scroll-container schedule-slider-container">
+                  {sec.schedules.map((sched, idx) => {
+                    const title = sched.desc || sched.day;
+                    const cardImgUrl = getScheduleImage(sched, sec);
+                    const isGeneral = !getMinistryForSchedule(title);
+                    
+                    return (
+                      <div key={idx} className="scroll-item schedule-slider-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'transparent', padding: '0', border: 'none', boxShadow: 'none' }}>
+                        {cardImgUrl && (
+                          <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '1rem', background: 'rgba(0,0,0,0.3)' }}>
+                            <img src={cardImgUrl} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: isGeneral ? '50%' : '0' }} />
+                          </div>
+                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', padding: '0 0.25rem', textAlign: 'left' }}>
+                          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#e2e8f0', textTransform: 'uppercase', marginBottom: '0.35rem', display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                            <span>{sched.day}</span>
+                            <span style={{ color: '#fff', fontWeight: 400 }}>{sched.time}</span>
+                          </div>
+                          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginBottom: '0.4rem', lineHeight: 1.1 }}>
                             {title}
                           </h3>
-                          {sched.desc && (
-                            <div style={{ 
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '0.4rem',
-                              marginTop: '0.3rem',
-                              background: `${badgeBg}`,
-                              border: `1px solid ${badgeBorder}`,
-                              padding: '0.3rem 0.75rem',
-                              borderRadius: '9999px',
-                            }}>
-                              <Calendar size={15} style={{ color: colorTheme.startsWith('var(') ? '#60a5fa' : colorTheme, flexShrink: 0 }} />
-                              <span style={{
-                                fontSize: '1rem',
-                                fontWeight: 700,
-                                color: '#fff',
-                                letterSpacing: '0.01em'
-                              }}>
-                                {sched.day}
-                              </span>
-                            </div>
-                          )}
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#fff', fontSize: '0.8rem' }}>
+                            <MapPin size={14} />
+                            <span>{livestream?.churchAddress || 'Campus Principal'}</span>
+                          </div>
                         </div>
-
-                        {/* Time badge on the right */}
-                        <span style={{
-                          background: badgeBg,
-                          border: `1px solid ${badgeBorder}`,
-                          color: colorTheme.startsWith('var(') ? '#60a5fa' : colorTheme,
-                          padding: '0.35rem 0.8rem',
-                          borderRadius: '9999px',
-                          fontSize: '0.85rem',
-                          fontWeight: 700,
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '0.35rem',
-                          whiteSpace: 'nowrap',
-                          flexShrink: 0
-                        }}>
-                          <Clock size={12} />
-                          {sched.time}
-                        </span>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })}
+                </div>
               </div>
             )}
 
