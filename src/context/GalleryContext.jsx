@@ -476,7 +476,10 @@ export const GalleryProvider = ({ children }) => {
           welcomePastorsTitle: streamConfig.welcome_pastors_title || DEFAULT_LIVESTREAM.welcomePastorsTitle,
           welcomePastorsSubtitle: streamConfig.welcome_pastors_subtitle || DEFAULT_LIVESTREAM.welcomePastorsSubtitle,
           scheduleText: streamConfig.schedule_text || DEFAULT_LIVESTREAM.scheduleText,
-          connectionText: streamConfig.connection_text || DEFAULT_LIVESTREAM.connectionText
+          connectionText: streamConfig.connection_text || DEFAULT_LIVESTREAM.connectionText,
+          homeMinistriesBgUrl: streamConfig.home_ministries_bg_url || '',
+          homeActivitiesBgUrl: streamConfig.home_activities_bg_url || '',
+          homeNewsBgUrl: streamConfig.home_news_bg_url || ''
         }));
         setRadio(prev => ({
           ...prev,
@@ -723,31 +726,37 @@ export const GalleryProvider = ({ children }) => {
   // Livestream/Radio control methods
   const updateLivestream = async (updates) => {
     if (isSupabaseConfigured) {
-      await supabase.from('streaming_config').update({
-        live_title: updates.title,
-        live_url: updates.videoUrl,
-        is_live: updates.isLive,
-        church_name: updates.churchName,
-        church_logo_url: updates.churchLogo,
-        facebook_url: updates.facebookUrl,
-        instagram_url: updates.instagramUrl,
-        church_address: updates.churchAddress,
-        church_maps_url: updates.churchMapsUrl,
-        church_email: updates.churchEmail,
-        church_description: updates.churchDescription,
-        youtube_channel_url: updates.youtubeChannelUrl,
-        form_bg_url: updates.formBgUrl,
-        resources_bg_url: updates.resourcesBgUrl,
-        history_bg_url: updates.historyBgUrl,
-        welcome_title: updates.welcomeTitle,
-        welcome_text: updates.welcomeText,
-        welcome_image_url: updates.welcomeImageUrl,
-        welcome_pastors_title: updates.welcomePastorsTitle,
-        welcome_pastors_subtitle: updates.welcomePastorsSubtitle
-      }).eq('id', 'main');
-    } else {
-      setLivestream((prev) => ({ ...prev, ...updates }));
+      const dbPayload = {};
+      if (updates.title !== undefined) dbPayload.live_title = updates.title;
+      if (updates.videoUrl !== undefined) dbPayload.live_url = updates.videoUrl;
+      if (updates.isLive !== undefined) dbPayload.is_live = updates.isLive;
+      if (updates.churchName !== undefined) dbPayload.church_name = updates.churchName;
+      if (updates.churchLogo !== undefined) dbPayload.church_logo_url = updates.churchLogo;
+      if (updates.facebookUrl !== undefined) dbPayload.facebook_url = updates.facebookUrl;
+      if (updates.instagramUrl !== undefined) dbPayload.instagram_url = updates.instagramUrl;
+      if (updates.churchAddress !== undefined) dbPayload.church_address = updates.churchAddress;
+      if (updates.churchMapsUrl !== undefined) dbPayload.church_maps_url = updates.churchMapsUrl;
+      if (updates.churchEmail !== undefined) dbPayload.church_email = updates.churchEmail;
+      if (updates.churchDescription !== undefined) dbPayload.church_description = updates.churchDescription;
+      if (updates.youtubeChannelUrl !== undefined) dbPayload.youtube_channel_url = updates.youtubeChannelUrl;
+      if (updates.formBgUrl !== undefined) dbPayload.form_bg_url = updates.formBgUrl;
+      if (updates.resourcesBgUrl !== undefined) dbPayload.resources_bg_url = updates.resourcesBgUrl;
+      if (updates.historyBgUrl !== undefined) dbPayload.history_bg_url = updates.historyBgUrl;
+      if (updates.scheduleText !== undefined) dbPayload.schedule_text = updates.scheduleText;
+      if (updates.connectionText !== undefined) dbPayload.connection_text = updates.connectionText;
+      if (updates.welcomeTitle !== undefined) dbPayload.welcome_title = updates.welcomeTitle;
+      if (updates.welcomeText !== undefined) dbPayload.welcome_text = updates.welcomeText;
+      if (updates.welcomeImageUrl !== undefined) dbPayload.welcome_image_url = updates.welcomeImageUrl;
+      if (updates.welcomePastorsTitle !== undefined) dbPayload.welcome_pastors_title = updates.welcomePastorsTitle;
+      if (updates.welcomePastorsSubtitle !== undefined) dbPayload.welcome_pastors_subtitle = updates.welcomePastorsSubtitle;
+      if (updates.homeMinistriesBgUrl !== undefined) dbPayload.home_ministries_bg_url = updates.homeMinistriesBgUrl;
+      if (updates.homeActivitiesBgUrl !== undefined) dbPayload.home_activities_bg_url = updates.homeActivitiesBgUrl;
+      if (updates.homeNewsBgUrl !== undefined) dbPayload.home_news_bg_url = updates.homeNewsBgUrl;
+
+      const { error } = await supabase.from('streaming_config').update(dbPayload).eq('id', 'main');
+      if (error) throw error;
     }
+    setLivestream((prev) => ({ ...prev, ...updates }));
   };
 
   const updateRadio = async (updates) => {
