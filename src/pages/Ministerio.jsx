@@ -55,6 +55,20 @@ export default function Ministerio() {
     setTouchEndX(0);
   };
 
+  const prevPhoto = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (selectedAlbum && lightboxIndex !== null) {
+      setLightboxIndex((prev) => (prev === 0 ? selectedAlbum.photos.length - 1 : prev - 1));
+    }
+  };
+
+  const nextPhoto = (e) => {
+    if (e && e.stopPropagation) e.stopPropagation();
+    if (selectedAlbum && lightboxIndex !== null) {
+      setLightboxIndex((prev) => (prev === selectedAlbum.photos.length - 1 ? 0 : prev + 1));
+    }
+  };
+
   const ministry = ministries.find((m) => m.id === id);
 
   if (!ministry) {
@@ -819,7 +833,7 @@ export default function Ministerio() {
               {/* Main Image */}
               <img
                 key={lightboxIndex}
-                src={selectedAlbum.photos[lightboxIndex]}
+                src={resolveImageUrl(selectedAlbum.photos[lightboxIndex])}
                 alt={`Lightbox ${lightboxIndex + 1}`}
                 onClick={(e) => e.stopPropagation()}
                 style={{
