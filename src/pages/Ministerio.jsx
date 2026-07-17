@@ -154,8 +154,8 @@ export default function Ministerio() {
       
       {/* Hero */}
       <section className="hero-section-min" style={{
-        display: 'grid',
-        gridTemplateAreas: '"stack"',
+        display: 'flex',
+        flexDirection: 'column',
         backgroundColor: 'var(--bg-base)',
         borderBottom: '1px solid var(--border-color)',
         textAlign: 'center',
@@ -177,24 +177,14 @@ export default function Ministerio() {
           </div>
         )}
 
-        {/* Capa de Gradiente */}
-        <div style={{
-          gridArea: 'stack',
-          background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, transparent 40%, var(--bg-base) 100%)',
-          pointerEvents: 'none',
-          zIndex: 2
-        }}></div>
-
         <div className="container" style={{ 
-          gridArea: 'stack',
-          placeSelf: 'end center',
           width: '90%',
           maxWidth: '800px', 
           paddingTop: '4rem',
           paddingBottom: '2rem',
           zIndex: 3 
         }}>
-          <div className="hero-badge" style={{ color: 'var(--accent-color)', borderColor: 'var(--accent-color)', background: 'rgba(255,255,255,0.03)' }}>
+          <div className="hero-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.4rem 0.8rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 800, letterSpacing: '0.05em', marginBottom: '1.5rem', border: '1px solid', color: 'var(--accent-color)', borderColor: 'var(--accent-color)', background: 'rgba(255,255,255,0.03)' }}>
             {ministry.logo_url ? (
               <img src={ministry.logo_url} alt={ministry.name} style={{ width: '16px', height: '16px', objectFit: 'contain', borderRadius: '50%' }} />
             ) : (
@@ -222,6 +212,21 @@ export default function Ministerio() {
             )}
           </div>
         </div>
+
+        {/* Imagen en su tamaño original sin recortes (debajo del texto) */}
+        {ministry.hero_image && (
+          <div style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingBottom: '2rem' }}>
+            <img 
+              src={ministry.hero_image} 
+              alt={ministry.name}
+              style={{
+                width: '100%',
+                maxHeight: '80vh',
+                objectFit: 'contain'
+              }}
+            />
+          </div>
+        )}
       </section>
 
       {/* Schedule / Location Block (Estilo PAS) */}

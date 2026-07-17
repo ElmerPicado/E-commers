@@ -97,17 +97,15 @@ export default function Home() {
   };
 
   const getScheduleImage = (sched, sec) => {
+    if (sched.image_url) return sched.image_url;
+
     const title = sched.desc || sched.day;
     const min = getMinistryForSchedule(title);
     if (min) {
       if (min.hero_image) return min.hero_image;
       if (min.logo_url) return min.logo_url;
     }
-    // Para cultos generales (sin ministerio específico), usar el logo de la iglesia
-    const t = (title || '').toLowerCase();
-    if (!min && (t.includes('general') || t.includes('culto') || t.includes('domingo'))) {
-      if (churchLogo) return churchLogo;
-    }
+
     return sec.bg_image || livestream.welcomeImageUrl || '';
   };
 

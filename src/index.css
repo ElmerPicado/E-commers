@@ -696,8 +696,9 @@ a {
     border-radius: 0 !important;
     border-left: none !important;
     border-right: none !important;
-    width: 100vw !important;
-    margin-left: 0 !important;
+    width: calc(100% + 3rem) !important;
+    margin-left: -1.5rem !important;
+    margin-right: -1.5rem !important;
   }
   
   .live-player-container {
