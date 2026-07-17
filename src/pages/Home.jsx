@@ -520,10 +520,10 @@ export default function Home() {
                     const isGeneral = !getMinistryForSchedule(title);
                     
                     return (
-                      <div key={idx} className="scroll-item schedule-slider-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'transparent', padding: '0', border: 'none', boxShadow: 'none' }}>
+                      <div key={idx} className="scroll-item schedule-slider-card glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(10, 15, 30, 0.7)', padding: '1rem', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)', borderRadius: '1.25rem', backdropFilter: 'blur(12px)' }}>
                         {cardImgUrl && (
-                          <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '1rem', background: 'rgba(0,0,0,0.3)' }}>
-                            <img src={cardImgUrl} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: isGeneral ? '50%' : '0' }} />
+                          <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '0.75rem', background: 'rgba(0,0,0,0.3)' }}>
+                            <img src={cardImgUrl} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           </div>
                         )}
                         <div style={{ display: 'flex', flexDirection: 'column', padding: '0 0.25rem', textAlign: 'left' }}>

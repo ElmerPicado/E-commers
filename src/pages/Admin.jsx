@@ -708,14 +708,17 @@ export default function Admin() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px solid var(--border-color)', padding: '1rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.02)' }}>
                     <h4 style={{ fontSize: '0.9rem', fontWeight: 700, marginBottom: '0.5rem' }}>Horarios (Opcional)</h4>
                     {sectionSchedules.map((sched, idx) => (
-                      <div key={idx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <input type="text" placeholder="Día" value={sched.day} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].day = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, flex: 1 }} />
-                        <input type="text" placeholder="Hora" value={sched.time} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].time = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, flex: 1 }} />
-                        <input type="text" placeholder="Descripción" value={sched.desc} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].desc = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, flex: 2 }} />
-                        <button type="button" onClick={() => setSectionSchedules(sectionSchedules.filter((_, i) => i !== idx))} className="btn btn-danger" style={{ padding: '0.5rem' }}><Trash2 size={14} /></button>
+                      <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem', border: '1px solid rgba(255,255,255,0.05)', padding: '0.75rem', borderRadius: '0.5rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <input type="text" placeholder="Día" value={sched.day || ''} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].day = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, flex: 1 }} />
+                          <input type="text" placeholder="Hora" value={sched.time || ''} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].time = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, flex: 1 }} />
+                          <input type="text" placeholder="Descripción" value={sched.desc || ''} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].desc = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, flex: 2 }} />
+                          <button type="button" onClick={() => setSectionSchedules(sectionSchedules.filter((_, i) => i !== idx))} className="btn btn-danger" style={{ padding: '0.5rem' }}><Trash2 size={14} /></button>
+                        </div>
+                        <input type="text" placeholder="URL de Imagen Específica (Opcional)" value={sched.image_url || ''} onChange={(e) => { const newS = [...sectionSchedules]; newS[idx].image_url = e.target.value; setSectionSchedules(newS); }} style={{ ...inputStyle, width: '100%', fontSize: '0.85rem' }} title="Si pones una URL aquí, esta tarjeta usará esta imagen en lugar del logo de la iglesia." />
                       </div>
                     ))}
-                    <button type="button" onClick={() => setSectionSchedules([...sectionSchedules, { day: '', time: '', desc: '' }])} className="btn btn-secondary" style={{ alignSelf: 'flex-start', fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}><Plus size={14} /> Añadir Horario</button>
+                    <button type="button" onClick={() => setSectionSchedules([...sectionSchedules, { day: '', time: '', desc: '', image_url: '' }])} className="btn btn-secondary" style={{ alignSelf: 'flex-start', fontSize: '0.8rem', padding: '0.4rem 0.75rem' }}><Plus size={14} /> Añadir Horario</button>
                   </div>
                 </div>
               </div>
