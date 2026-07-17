@@ -938,7 +938,7 @@ export default function Home() {
           }}>
             {/* Mapa Embed en Modo Oscuro (Invertido) */}
             <div style={{ width: '100%', height: '400px', background: '#222' }}>
-              {churchMapsUrl ? (
+              {churchMapsUrl && churchMapsUrl.includes('maps/embed') ? (
                 <iframe 
                   src={churchMapsUrl}
                   width="100%" 
@@ -949,6 +949,18 @@ export default function Home() {
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Ubicación de la Iglesia"
                 ></iframe>
+              ) : churchMapsUrl ? (
+                /* URL inválida (no es embed) — mostrar mensaje y botón para abrir */
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '2rem', textAlign: 'center' }}>
+                  <MapPin size={32} style={{ color: 'var(--accent-color)', opacity: 0.8 }} />
+                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '340px', lineHeight: '1.6' }}>
+                    Para mostrar el mapa incrustado, necesitás usar la URL de <strong style={{ color: 'var(--text-primary)' }}>Compartir → Insertar mapa</strong> de Google Maps (empieza con <code style={{ background: 'rgba(255,255,255,0.07)', padding: '0.1rem 0.4rem', borderRadius: '4px', fontSize: '0.8rem' }}>maps/embed</code>).
+                  </p>
+                  <a href={churchMapsUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.5rem 1.5rem', borderRadius: '999px' }}>
+                    <MapPin size={14} style={{ display: 'inline', marginRight: '0.4rem' }} />
+                    Abrir en Google Maps
+                  </a>
+                </div>
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', gap: '0.5rem' }}>
                   <MapPin size={18} style={{ opacity: 0.5 }} />

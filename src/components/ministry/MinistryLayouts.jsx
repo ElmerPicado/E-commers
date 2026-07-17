@@ -97,24 +97,65 @@ export const SoftLayout = ({ ministry, ministryActivities, customThemeVars, getT
     <div className={getThemeClass(ministry)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', fontFamily: '"Georgia", serif', background: 'var(--bg-base)' }}>
       
       {/* Hero Section */}
-      <div style={{ position: 'relative', width: '100%', minHeight: ministry.hero_image ? 'auto' : '400px' }}>
+      <div style={{ position: 'relative', width: '100%', height: '500px', overflow: 'hidden' }}>
         {ministry.hero_image ? (
           <>
-            <img src={ministry.hero_image} alt="Hero" style={{ width: '100%', height: 'auto', display: 'block', opacity: 0.9 }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(255,255,255,0.1) 0%, transparent 40%, var(--bg-base) 100%)' }}></div>
+            {/* Foto de fondo sin overlay pesado */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `url("${ministry.hero_image}")`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center top',
+              zIndex: 0
+            }} />
+            {/* Degradado sutil solo en la parte inferior para legibilidad del texto */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.55) 100%)',
+              zIndex: 1
+            }} />
           </>
         ) : (
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, var(--border-color), transparent)', opacity: 0.5 }}></div>
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, var(--border-color), transparent)', opacity: 0.5, zIndex: 0 }} />
         )}
         
+        {/* Logo del ministerio flotando en la esquina inferior izquierda */}
+        {ministry.logo_url && (
+          <div style={{
+            position: 'absolute',
+            bottom: '1.5rem',
+            left: '1.5rem',
+            zIndex: 3,
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            background: 'rgba(0,0,0,0.45)',
+            backdropFilter: 'blur(8px)',
+            borderRadius: '999px',
+            padding: '0.5rem 1.2rem 0.5rem 0.5rem',
+            border: '1px solid rgba(255,255,255,0.2)'
+          }}>
+            <img
+              src={ministry.logo_url}
+              alt={ministry.name}
+              style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.4)' }}
+            />
+            <span style={{ color: '#fff', fontSize: '0.85rem', fontWeight: 600, letterSpacing: '0.03em', fontFamily: 'var(--font-body)' }}>
+              {ministry.name}
+            </span>
+          </div>
+        )}
+
         {/* Header Text Overlay */}
-        <div style={{ position: 'absolute', bottom: '5%', left: 0, right: 0, display: 'flex', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', bottom: '5%', left: 0, right: 0, display: 'flex', justifyContent: 'center', zIndex: 2 }}>
           <div style={{ textAlign: 'center', maxWidth: '700px', width: '100%', padding: '0 1.5rem' }}>
-            <h1 style={{ fontSize: '3.5rem', fontWeight: 400, color: 'var(--text-primary)', marginBottom: '1rem', fontStyle: 'italic' }}>
+            <h1 style={{ fontSize: '3.5rem', fontWeight: 400, color: '#fff', marginBottom: '1rem', fontStyle: 'italic', textShadow: '0 2px 12px rgba(0,0,0,0.4)' }}>
               {ministry.hero_title || ministry.name}
             </h1>
             <div style={{ width: '50px', height: '2px', background: 'var(--accent-color)', margin: '0 auto 1.5rem auto' }}></div>
-            <p style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', lineHeight: '1.8' }}>
+            <p style={{ fontSize: '1.2rem', color: 'rgba(255,255,255,0.88)', lineHeight: '1.8', textShadow: '0 1px 6px rgba(0,0,0,0.5)' }}>
               {ministry.hero_desc}
             </p>
           </div>
