@@ -162,50 +162,27 @@ export default function Ministerio() {
         overflow: 'hidden'
       }}>
         
-        {/* Imagen en su tamaño original con efecto ambiente para tapar espacios vacíos */}
+        {/* Imagen con bordes desvanecidos (efecto neblina) */}
         {ministry.hero_image && (
           <div style={{ 
-            position: 'relative',
+            gridArea: 'stack', 
             width: '100%', 
-            height: '60vh', 
-            minHeight: '400px',
-            maxHeight: '80vh',
+            height: '100%', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            overflow: 'hidden'
+            position: 'relative'
           }}>
-            {/* Fondo desenfocado */}
-            <div style={{
-              position: 'absolute',
-              top: '-10%', left: '-10%', right: '-10%', bottom: '-10%',
-              backgroundImage: `url(${ministry.hero_image})`,
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              filter: 'blur(30px) brightness(0.6)',
-              opacity: 0.85,
-              zIndex: 0
-            }}></div>
-
-            {/* Overlay oscuro para darle más profundidad y contraste */}
-            <div style={{
-              position: 'absolute',
-              top: 0, left: 0, right: 0, bottom: 0,
-              background: 'linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.5))',
-              zIndex: 1
-            }}></div>
-
-            {/* Imagen Principal con sombra */}
             <img 
               src={ministry.hero_image} 
               alt={ministry.name}
               style={{
-                position: 'relative',
-                zIndex: 2,
                 width: '100%',
-                height: '100%',
+                maxHeight: '80vh',
                 objectFit: 'contain',
-                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.6))'
+                /* Efecto de desvanecido tipo neblina en los bordes */
+                WebkitMaskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)',
+                maskImage: 'radial-gradient(ellipse at center, rgba(0,0,0,1) 50%, rgba(0,0,0,0) 100%)'
               }}
             />
           </div>
