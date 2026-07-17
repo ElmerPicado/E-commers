@@ -1,4 +1,4 @@
-﻿import React, { useState, useContext, useEffect } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
 import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette } from 'lucide-react';
@@ -506,8 +506,27 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                         label="Fondo" 
                       />
                     </div>
-                   <button type="button" onClick={() => removePillar(pillar._localId)} className="btn" style={{ padding: '0.5rem', color: 'var(--danger-color)' }}>
-                     <Trash2 size={16} />
+                    <button 
+                      type="button" 
+                      onClick={() => removePillar(pillar._localId)} 
+                      title="Eliminar tarjeta"
+                      style={{ 
+                        background: 'rgba(239,68,68,0.12)',
+                        border: '1px solid rgba(239,68,68,0.35)',
+                        borderRadius: '0.5rem',
+                        padding: '0.5rem 0.65rem',
+                        cursor: 'pointer',
+                        color: '#ef4444',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        alignSelf: 'center',
+                        transition: 'background 0.2s ease'
+                      }}
+                      onMouseOver={e => e.currentTarget.style.background = 'rgba(239,68,68,0.25)'}
+                      onMouseOut={e => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
+                    >
+                      <Trash2 size={16} />
                    </button>
                  </div>
                ))}
