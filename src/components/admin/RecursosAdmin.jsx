@@ -250,7 +250,7 @@ export default function RecursosAdmin({ triggerSuccess }) {
               </button>
             </form>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
               {resourceCategories.map(cat => (
                 <div key={cat.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
                   <div>
@@ -348,7 +348,7 @@ export default function RecursosAdmin({ triggerSuccess }) {
           {/* LIST OF EXISTING RESOURCES */}
           <div style={{ marginTop: '2rem' }}>
             <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>Recursos Existentes</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
               {resources.length === 0 ? (
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>No has subido ningún recurso.</p>
               ) : (

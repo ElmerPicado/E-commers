@@ -515,7 +515,7 @@ export default function BlogAdmin({ triggerSuccess }) {
         {historyPosts.length === 0 ? (
           <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0' }}>No hay bloques creados aún en tu historia.</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '600px', overflowY: 'auto', paddingRight: '0.5rem' }}>
             {historyPosts.map((post) => (
               <div key={post.id} style={{ 
                 display: 'flex', 

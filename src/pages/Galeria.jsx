@@ -141,6 +141,20 @@ export default function Galeria() {
   
   const [selectedCategory, setSelectedCategory] = useState(minQuery || 'todos');
   const [activeAlbum, setActiveAlbum] = useState(null);
+
+  // Swipe logic states for lightbox
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+
+  const handleTouchStart = (e) => setTouchStartX(e.targetTouches[0].clientX);
+  const handleTouchMove = (e) => setTouchEndX(e.targetTouches[0].clientX);
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    if (touchStartX - touchEndX > 50) nextPhoto(new Event('swipe'));
+    if (touchStartX - touchEndX < -50) prevPhoto(new Event('swipe'));
+    setTouchStartX(0);
+    setTouchEndX(0);
+  };
   const [lightboxIndex, setLightboxIndex] = useState(null);
   
   useEffect(() => {
@@ -199,14 +213,14 @@ export default function Galeria() {
   };
 
   const prevPhoto = (e) => {
-    e.stopPropagation();
+    if (e && e.stopPropagation) e.stopPropagation();
     if (activeAlbum && lightboxIndex !== null) {
       setLightboxIndex((prev) => (prev === 0 ? activeAlbum.photos.length - 1 : prev - 1));
     }
   };
 
   const nextPhoto = (e) => {
-    e.stopPropagation();
+    if (e && e.stopPropagation) e.stopPropagation();
     if (activeAlbum && lightboxIndex !== null) {
       setLightboxIndex((prev) => (prev === activeAlbum.photos.length - 1 ? 0 : prev + 1));
     }
@@ -360,18 +374,15 @@ export default function Galeria() {
 
             {/* Albums grid */}
             {filteredAlbums.length > 0 ? (
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '1.5rem'
-              }}>
+              <div className="scroll-container">
                 {filteredAlbums.map((album) => (
-                  <AlbumCard 
-                    key={album.id} 
-                    album={album} 
-                    onClick={() => setActiveAlbum(album)} 
-                    getCategoryLabel={getCategoryLabel} 
-                  />
+                  <div key={album.id} className="scroll-item" style={{ minWidth: '280px', flex: '0 0 auto' }}>
+                    <AlbumCard 
+                      album={album} 
+                      onClick={() => setActiveAlbum(album)} 
+                      getCategoryLabel={getCategoryLabel} 
+                    />
+                  </div>
                 ))}
               </div>
             ) : (
@@ -408,6 +419,9 @@ export default function Galeria() {
               justifyContent: 'center',
               padding: '2rem'
             }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
           >
             {/* Close Button */}
             <button
@@ -474,6 +488,7 @@ export default function Galeria() {
 
             {/* Main Image */}
             <img
+              key={lightboxIndex}
               src={activeAlbum.photos[lightboxIndex]}
               alt={`Lightbox ${lightboxIndex + 1}`}
               onClick={(e) => e.stopPropagation()}

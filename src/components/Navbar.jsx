@@ -77,11 +77,10 @@ export default function Navbar() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        flexWrap: 'wrap',
         gap: '1rem'
       }}>
         {/* Brand logo & title */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               {livestream.churchLogo && (
                 <img src={livestream.churchLogo} alt="Church Logo" style={{ width: '44px', height: '44px', objectFit: 'cover', borderRadius: '50%', filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.3))' }} />
@@ -102,8 +101,8 @@ export default function Navbar() {
           </Link>
 
           {activeMin && (
-            <>
-              <div style={{ width: '1px', height: '24px', background: 'var(--border-color)' }}></div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+              <div className="desktop-only" style={{ width: '1px', height: '24px', background: 'var(--border-color)', marginLeft: '0.25rem', marginRight: '0.25rem' }}></div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                 {activeMin.logo_url ? (
                   <img src={activeMin.logo_url} alt={activeMin.name} style={{ width: '24px', height: '24px', objectFit: 'contain', borderRadius: '50%' }} />
@@ -119,7 +118,7 @@ export default function Navbar() {
                   </span>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
 

@@ -127,7 +127,7 @@ export default function DonationsAdmin() {
               </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '400px', overflowY: 'auto', paddingRight: '0.5rem' }}>
               {localConfig.bank_accounts.map((acc, index) => (
                 <div key={index} style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', position: 'relative' }}>
                   <button 

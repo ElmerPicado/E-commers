@@ -40,6 +40,20 @@ export default function Ministerio() {
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
+  // Swipe logic states for lightbox
+  const [touchStartX, setTouchStartX] = useState(0);
+  const [touchEndX, setTouchEndX] = useState(0);
+
+  const handleTouchStart = (e) => setTouchStartX(e.targetTouches[0].clientX);
+  const handleTouchMove = (e) => setTouchEndX(e.targetTouches[0].clientX);
+  const handleTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    if (touchStartX - touchEndX > 50) nextPhoto(new Event('swipe'));
+    if (touchStartX - touchEndX < -50) prevPhoto(new Event('swipe'));
+    setTouchStartX(0);
+    setTouchEndX(0);
+  };
+
   const ministry = ministries.find((m) => m.id === id);
 
   if (!ministry) {
@@ -140,7 +154,8 @@ export default function Ministerio() {
       
       {/* Hero */}
       <section className="hero-section-min" style={{
-        position: 'relative',
+        display: 'grid',
+        gridTemplateAreas: '"stack"',
         backgroundColor: 'var(--bg-base)',
         borderBottom: '1px solid var(--border-color)',
         textAlign: 'center',
@@ -149,34 +164,34 @@ export default function Ministerio() {
         
         {/* Imagen en su tamaño original sin recortes */}
         {ministry.hero_image && (
-          <img 
-            src={ministry.hero_image} 
-            alt={ministry.name}
-            style={{
-              width: '100%',
-              height: 'auto',
-              display: 'block',
-              objectFit: 'contain'
-            }}
-          />
+          <div style={{ gridArea: 'stack', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <img 
+              src={ministry.hero_image} 
+              alt={ministry.name}
+              style={{
+                width: '100%',
+                maxHeight: '80vh',
+                objectFit: 'contain'
+              }}
+            />
+          </div>
         )}
 
         {/* Capa de Gradiente */}
         <div style={{
-          position: 'absolute',
-          top: 0, left: 0, right: 0, bottom: 0,
+          gridArea: 'stack',
           background: 'linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, transparent 40%, var(--bg-base) 100%)',
-          zIndex: 2,
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          zIndex: 2
         }}></div>
 
         <div className="container" style={{ 
-          position: 'absolute', 
-          bottom: '5%', 
-          left: '50%',
-          transform: 'translateX(-50%)',
+          gridArea: 'stack',
+          placeSelf: 'end center',
           width: '90%',
           maxWidth: '800px', 
+          paddingTop: '4rem',
+          paddingBottom: '2rem',
           zIndex: 3 
         }}>
           <div className="hero-badge" style={{ color: 'var(--accent-color)', borderColor: 'var(--accent-color)', background: 'rgba(255,255,255,0.03)' }}>
@@ -433,8 +448,17 @@ export default function Ministerio() {
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(`${window.location.origin}/actividad/${act.id}`);
-                            alert('¡Enlace copiado al portapapeles!');
+                            const shareUrl = `${window.location.origin}/actividad/${act.id}`;
+                            if (navigator.share) {
+                              navigator.share({
+                                title: act.title,
+                                text: '¡Mira esta actividad!',
+                                url: shareUrl
+                              }).catch(err => console.log('Error compartiendo:', err));
+                            } else {
+                              navigator.clipboard.writeText(shareUrl);
+                              alert('¡Enlace copiado al portapapeles!');
+                            }
                           }}
                           style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', marginLeft: '0.25rem' }}
                           title="Compartir"
@@ -479,20 +503,27 @@ export default function Ministerio() {
           </div>
 
           {ministryAlbums.length > 0 ? (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-              gap: '1.5rem'
-            }}>
+            <div className="scroll-container">
               {ministryAlbums.slice(0, 3).map((album) => (
                 <div 
                   key={album.id} 
+                  className="scroll-item"
                   onClick={() => {
                     setSelectedAlbum(album);
                     setLightboxIndex(0);
                   }}
-                  className="glass-card" 
-                  style={{ padding: '0', overflow: 'hidden', cursor: 'pointer', color: 'inherit', display: 'block' }}
+                  style={{ 
+                    cursor: 'pointer', 
+                    borderRadius: '1rem', 
+                    overflow: 'hidden', 
+                    border: '1px solid var(--border-color)',
+                    background: 'var(--bg-surface)',
+                    transition: 'transform 0.2s',
+                    minWidth: '280px',
+                    flex: '0 0 auto'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-4px)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                 >
                   <div style={{ height: '240px', width: '100%', overflow: 'hidden', position: 'relative', background: '#000' }}>
                     {album.photos && album.photos.length > 0 ? (
@@ -707,10 +738,7 @@ export default function Ministerio() {
           onClick={() => setSelectedAlbum(null)}
           style={{
             position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
+            top: 0, left: 0, right: 0, bottom: 0,
             background: 'rgba(0,0,0,0.95)',
             zIndex: 100000,
             display: 'flex',
@@ -719,6 +747,9 @@ export default function Ministerio() {
             justifyContent: 'center',
             padding: '2rem'
           }}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Close Button */}
           <button
@@ -746,10 +777,7 @@ export default function Ministerio() {
             <>
               {/* Navigation Buttons */}
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setLightboxIndex((prev) => (prev === 0 ? selectedAlbum.photos.length - 1 : prev - 1));
-                }}
+                onClick={prevPhoto}
                 style={{
                   position: 'absolute',
                   left: '1.5rem',
@@ -769,23 +797,17 @@ export default function Ministerio() {
               </button>
 
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setLightboxIndex((prev) => (prev === selectedAlbum.photos.length - 1 ? 0 : prev + 1));
-                }}
+                onClick={nextPhoto}
                 style={{
                   position: 'absolute',
                   right: '1.5rem',
-                  background: 'rgba(255,255,255,0.05)',
+                  background: 'rgba(255,255,255,0.1)',
                   border: 'none',
                   color: '#fff',
-                  width: '48px',
-                  height: '48px',
+                  width: '48px', height: '48px',
                   borderRadius: '50%',
                   cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
+                  display: 'flex', alignItems: 'center', justifyContent: 'center'
                 }}
               >
                 <ChevronRight size={24} />
@@ -793,6 +815,7 @@ export default function Ministerio() {
 
               {/* Main Image */}
               <img
+                key={lightboxIndex}
                 src={selectedAlbum.photos[lightboxIndex]}
                 alt={`Lightbox ${lightboxIndex + 1}`}
                 onClick={(e) => e.stopPropagation()}

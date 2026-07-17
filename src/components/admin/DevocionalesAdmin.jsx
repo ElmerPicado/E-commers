@@ -346,7 +346,7 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
         {(!devotionals || devotionals.length === 0) ? (
           <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0' }}>No hay devocionales enviados aún.</p>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '600px', overflowY: 'auto', paddingRight: '0.5rem' }}>
             {(devotionals || []).map(dev => {
               const isEditing = editingDevId === dev.id;
               
@@ -567,7 +567,7 @@ export default function DevocionalesAdmin({ triggerSuccess }) {
         ) : authors.length === 0 ? (
           <p style={{ color: 'var(--text-muted)' }}>No hay autores registrados aún.</p>
         ) : (
-          <div style={{ overflowX: 'auto' }}>
+          <div style={{ overflowX: 'auto', maxHeight: '600px', overflowY: 'auto' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
               <thead>
                 <tr style={{ borderBottom: '2px solid var(--border-color)', textAlign: 'left' }}>

@@ -643,12 +643,12 @@ export default function Home() {
                       <MinistryIcon name={min.icon_name} color={min.accent_color} />
                     )}
                   </div>
-                  <h3 style={{ fontSize: '1.4rem', marginBottom: '0.75rem' }}>{min.name}</h3>
+                  <h3 style={{ fontSize: 'clamp(1.6rem, 6vw, 2rem)', fontWeight: 800, marginBottom: '0.75rem', lineHeight: 1.1 }}>{min.name}</h3>
                   <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginBottom: '1.5rem', lineHeight: '1.6' }}>
                     {min.description}
                   </p>
                 </div>
-                <Link to={`/ministerio/${min.id}`} className="btn btn-secondary" style={{ alignSelf: 'flex-start', padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+                <Link to={`/ministerio/${min.id}`} className="btn btn-primary" style={{ alignSelf: 'flex-start', padding: '0.6rem 1.25rem', fontSize: '0.9rem', background: '#3b82f6', color: '#ffffff', border: 'none' }}>
                   Ingresar al Sitio <ChevronRight size={14} />
                 </Link>
               </div>
@@ -724,8 +724,17 @@ export default function Home() {
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            navigator.clipboard.writeText(`${window.location.origin}/actividad/${act.id}`);
-                            alert('¡Enlace copiado al portapapeles!');
+                            const shareUrl = `${window.location.origin}/actividad/${act.id}`;
+                            if (navigator.share) {
+                              navigator.share({
+                                title: act.title,
+                                text: '¡Mira esta actividad!',
+                                url: shareUrl
+                              }).catch(err => console.log('Error compartiendo:', err));
+                            } else {
+                              navigator.clipboard.writeText(shareUrl);
+                              alert('¡Enlace copiado al portapapeles!');
+                            }
                           }}
                           style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', display: 'flex', alignItems: 'center' }}
                           title="Compartir"
@@ -778,7 +787,7 @@ export default function Home() {
                       <div style={{ flex: 1 }}></div>
                       {organizingMinistry && (
                         <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-color)' }}>
-                          <Link to={`/ministerio/${organizingMinistry.id}`} className="btn btn-secondary" style={{ width: '100%', padding: '0.6rem', fontSize: '0.85rem', borderRadius: '0.5rem', color: accentColor }}>
+                          <Link to={`/ministerio/${organizingMinistry.id}`} className="btn btn-primary" style={{ width: '100%', padding: '0.6rem', fontSize: '0.9rem', borderRadius: '0.5rem', background: '#3b82f6', color: '#ffffff', border: 'none' }}>
                             Ir al Perfil del Ministerio
                           </Link>
                         </div>

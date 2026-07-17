@@ -82,8 +82,17 @@ export default function ActivityDetail() {
               <div style={{ flex: 1 }}></div>
               <button 
                 onClick={() => {
-                  navigator.clipboard.writeText(window.location.href);
-                  alert('¡Enlace copiado al portapapeles!');
+                  const shareUrl = window.location.href;
+                  if (navigator.share) {
+                    navigator.share({
+                      title: act.title,
+                      text: '¡Mira esta actividad!',
+                      url: shareUrl
+                    }).catch(err => console.log('Error compartiendo:', err));
+                  } else {
+                    navigator.clipboard.writeText(shareUrl);
+                    alert('¡Enlace copiado al portapapeles!');
+                  }
                 }}
                 className="btn btn-secondary"
                 style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}

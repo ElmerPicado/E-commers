@@ -1,48 +1,21 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
-import { Trash2, Mail, MailOpen, Phone, Calendar, User, Image, Save, Download } from 'lucide-react';
-import { GalleryContext } from '../../context/GalleryContext';
-import ImageUploadDropzone from './ImageUploadDropzone';
+import { Trash2, Mail, MailOpen, Phone, Calendar, User, Download } from 'lucide-react';
 
 export default function ContactFormsAdmin() {
-  const { livestream, updateLivestream } = useContext(GalleryContext);
-  const [bgUrl, setBgUrl] = useState(livestream.formBgUrl || '');
-  const [bgFile, setBgFile] = useState(null);
-  const [isUploading, setIsUploading] = useState(false);
-
-  useEffect(() => {
-    if (livestream.formBgUrl) setBgUrl(livestream.formBgUrl);
-  }, [livestream.formBgUrl]);
-
-  const handleSaveBg = async () => {
-    let finalUrl = bgUrl;
-    if (bgFile && !!supabase) {
-      setIsUploading(true);
-      try {
-        const fileExt = bgFile.name.split('.').pop();
-        const fileName = `form_bg_${Date.now()}.${fileExt}`;
-        const filePath = `banners/${fileName}`;
-        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, bgFile);
-        if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
-        finalUrl = publicUrl;
-      } catch (e) {
-        alert('Error al subir imagen');
-        setIsUploading(false);
-        return;
-      }
-    }
-    await updateLivestream({ ...livestream, formBgUrl: finalUrl });
-    setBgFile(null);
-    setBgUrl(finalUrl);
-    setIsUploading(false);
-    alert('Fondo actualizado exitosamente.');
-  };
-
   const [forms, setForms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('no_leido');
+  const [filterDate, setFilterDate] = useState('');
+  const [selectedFormMessage, setSelectedFormMessage] = useState(null);
   const isSupabaseConfigured = !!supabase;
+
+  const filteredForms = forms.filter(form => {
+    const matchStatus = filterStatus === 'todos' || form.estado === filterStatus;
+    const matchDate = filterDate === '' || form.created_at.startsWith(filterDate);
+    return matchStatus && matchDate;
+  });
 
   useEffect(() => {
     fetchForms();
@@ -126,7 +99,7 @@ export default function ContactFormsAdmin() {
         `"${form.sexo || ''}"`,
         `"${form.telefono || ''}"`,
         `"${form.tipo_solicitud || ''}"`,
-        `"${(form.mensaje || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
+        `"${((form.prayer_request || form.mensaje) || '').replace(/"/g, '""').replace(/\n/g, ' ')}"`,
         `"${form.estado === 'no_leido' ? 'Nuevo' : 'Leído'}"`
       ];
       csvRows.push(row.join(','));
@@ -165,53 +138,41 @@ export default function ContactFormsAdmin() {
         </div>
         
         {forms.length > 0 && (
-          <button 
-            onClick={handleExportToCSV}
-            className="btn btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#10b981', color: '#fff', border: 'none', padding: '0.5rem 1rem' }}
-            title="Descargar peticiones a Excel"
-          >
-            <Download size={16} /> Exportar a Excel (CSV)
-          </button>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <input 
+              type="date" 
+              value={filterDate} 
+              onChange={(e) => setFilterDate(e.target.value)}
+              style={{ padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'var(--text-primary)', outline: 'none' }}
+            />
+            <select 
+              value={filterStatus} 
+              onChange={(e) => setFilterStatus(e.target.value)}
+              style={{ padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'rgba(0,0,0,0.2)', color: 'var(--text-primary)', outline: 'none' }}
+            >
+              <option value="todos">Todos</option>
+              <option value="no_leido">No Leídos (Nuevos)</option>
+              <option value="leido">Leídos</option>
+            </select>
+            <button 
+              onClick={handleExportToCSV}
+              className="btn btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#10b981', color: '#fff', border: 'none', padding: '0.5rem 1rem' }}
+              title="Descargar peticiones a Excel"
+            >
+              <Download size={16} /> Exportar
+            </button>
+          </div>
         )}
       </div>
 
-      <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', padding: '1.5rem', marginBottom: '1rem' }}>
-        <h3 style={{ fontSize: '1.1rem', margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Image size={18} style={{ color: 'var(--accent-color)' }} /> Fondo para Formularios (Ej. Devocionales)
-        </h3>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: '250px' }}>
-            <label style={{ fontSize: '0.8rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Fondo (Subir o URL)</label>
-            {isSupabaseConfigured ? (
-              <ImageUploadDropzone 
-                onFileSelect={(file) => setBgFile(file)} 
-                previewUrl={bgFile ? URL.createObjectURL(bgFile) : bgUrl} 
-                label="Subir Fondo" 
-                size="large"
-              />
-            ) : (
-              <>
-                <input type="text" value={bgUrl} onChange={(e) => setBgUrl(e.target.value)} placeholder="https://..." style={{ width: '100%', padding: '0.5rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'var(--input-bg, rgba(255,255,255,0.05))', color: 'var(--text-primary)' }} />
-                {bgUrl && (
-                  <div style={{ marginTop: '1rem', height: '100px', width: '200px', borderRadius: '0.5rem', backgroundImage: `url(${bgUrl})`, backgroundSize: 'cover', backgroundPosition: 'center', border: '1px solid var(--border-color)' }}></div>
-                )}
-              </>
-            )}
-          </div>
-          <button onClick={handleSaveBg} disabled={isUploading} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Save size={16} /> {isUploading ? 'Guardando...' : 'Guardar Fondo'}
-          </button>
-        </div>
-      </div>
-
-      {forms.length === 0 ? (
+      {filteredForms.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem 0', color: 'var(--text-secondary)' }}>
           <MailOpen size={48} style={{ opacity: 0.2, marginBottom: '1rem' }} />
-          <p>No hay formularios de contacto registrados.</p>
+          <p>No hay formularios que coincidan con los filtros.</p>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
+        <div style={{ overflowX: 'auto', maxHeight: '500px', overflowY: 'auto', border: '1px solid var(--border-color)', borderRadius: '0.5rem' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border-color)', color: 'var(--text-secondary)' }}>
@@ -224,7 +185,7 @@ export default function ContactFormsAdmin() {
               </tr>
             </thead>
             <tbody>
-              {forms.map((form) => {
+              {filteredForms.map((form) => {
                 const isUnread = form.estado === 'no_leido';
                 return (
                   <tr key={form.id} style={{ 
@@ -275,20 +236,64 @@ export default function ContactFormsAdmin() {
                       </a>
                     </td>
                     <td style={{ padding: '0.75rem 0.5rem', textAlign: 'right' }}>
-                      <button 
-                        onClick={() => deleteForm(form.id)}
-                        className="btn btn-danger"
-                        style={{ padding: '0.3rem 0.5rem' }}
-                        title="Eliminar registro"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                        <button 
+                          onClick={() => setSelectedFormMessage(form.prayer_request || form.mensaje || 'Sin mensaje')}
+                          className="btn btn-secondary"
+                          style={{ padding: '0.3rem 0.5rem', fontSize: '0.8rem' }}
+                          title="Ver Mensaje"
+                        >
+                          Ver
+                        </button>
+                        <button 
+                          onClick={() => deleteForm(form.id)}
+                          className="btn btn-danger"
+                          style={{ padding: '0.3rem 0.5rem' }}
+                          title="Eliminar registro"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {selectedFormMessage && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(5px)',
+          zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: 'var(--bg-surface)', border: '1px solid var(--border-color)',
+            borderRadius: '1rem', padding: '2rem', width: '100%', maxWidth: '500px',
+            position: 'relative'
+          }}>
+            <button 
+              onClick={() => setSelectedFormMessage(null)}
+              style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer' }}
+            >
+              <Trash2 size={0} /> {/* Using an icon just for space or we can use another icon, wait I don't have X imported here except what is available. I will just render an "Cerrar" button */}
+              <span style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>&times;</span>
+            </button>
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '1rem', marginTop: 0 }}>Mensaje / Petición</h3>
+            <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.5rem', color: 'var(--text-primary)', whiteSpace: 'pre-wrap', maxHeight: '300px', overflowY: 'auto' }}>
+              {selectedFormMessage}
+            </div>
+            <button 
+              onClick={() => setSelectedFormMessage(null)}
+              className="btn btn-primary"
+              style={{ marginTop: '1rem', width: '100%' }}
+            >
+              Cerrar
+            </button>
+          </div>
         </div>
       )}
     </div>
