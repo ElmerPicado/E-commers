@@ -949,14 +949,109 @@ a {
   width: 100%;
 }
 
-.schedule-slider-card {
-  width: 45vw;
-  /* FITS ~2 CARDS ON SCREEN ON MOBILE */
-  max-width: 280px;
+/* Horarios de Culto — Slider horizontal en todas las pantallas */
+.schedule-slider-container {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  scroll-snap-type: x mandatory;
+  gap: 1.25rem;
+  padding-bottom: 0.5rem;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  scrollbar-width: none;
+  cursor: grab;
+  user-select: none;
 }
 
+.schedule-slider-container::-webkit-scrollbar {
+  display: none;
+}
+
+.schedule-slider-container.drag-scrolling {
+  cursor: grabbing;
+  scroll-snap-type: none;
+}
+
+/* ====================================
+   SCHEDULE SLIDER — RESPONSIVE CARDS
+   móvil: 2 | tablet: 3 | desktop: 4
+   ==================================== */
+
+.schedule-slider-card {
+  flex: 0 0 auto !important;
+  /* Mobile: 2 tarjetas visibles. calc = (100% - 1 gap) / 2 */
+  width: calc(50% - 0.625rem) !important;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: rgba(10, 15, 30, 0.7);
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  border-radius: 1.25rem !important;
+  overflow: hidden;
+  backdrop-filter: blur(12px);
+  scroll-snap-align: start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.schedule-slider-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+.schedule-slider-img-wrapper {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.schedule-slider-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+
+.schedule-slider-card:hover .schedule-slider-img {
+  transform: scale(1.04);
+}
+
+.schedule-slider-info {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  text-align: left;
+  flex: 1;
+}
+
+/* Tablet (768px–1199px): 3 tarjetas visibles */
 @media (min-width: 768px) {
+  .schedule-slider-container {
+    margin: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
   .schedule-slider-card {
-    width: 250px;
+    /* calc = (100% - 2 gaps) / 3 */
+    width: calc(33.333% - 0.834rem) !important;
   }
 }
+
+/* Desktop (1200px+): 5 tarjetas visibles */
+@media (min-width: 1200px) {
+  .schedule-slider-card {
+    /* calc = (100% - 4 gaps) / 5 */
+    width: calc(20% - 1rem) !important;
+  }
+}
+

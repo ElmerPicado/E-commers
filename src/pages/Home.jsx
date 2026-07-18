@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock, MessageCircle, ArrowRight, Share2 } from 'lucide-react';
 import MinistryIcon from '../components/MinistryIcon';
@@ -18,8 +18,88 @@ const formatTime12h = (timeStr) => {
 };
 
 
+// Hook para arrastrar contenedor con el mouse (drag-to-scroll)
+function useDragScroll() {
+  const ref = useRef(null);
+  const isDown = useRef(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
 
+  const onMouseDown = useCallback((e) => {
+    isDown.current = true;
+    ref.current.classList.add('drag-scrolling');
+    startX.current = e.pageX - ref.current.offsetLeft;
+    scrollLeft.current = ref.current.scrollLeft;
+  }, []);
 
+  const onMouseLeave = useCallback(() => {
+    isDown.current = false;
+    ref.current?.classList.remove('drag-scrolling');
+  }, []);
+
+  const onMouseUp = useCallback(() => {
+    isDown.current = false;
+    ref.current?.classList.remove('drag-scrolling');
+  }, []);
+
+  const onMouseMove = useCallback((e) => {
+    if (!isDown.current) return;
+    e.preventDefault();
+    const x = e.pageX - ref.current.offsetLeft;
+    const walk = (x - startX.current) * 1.2;
+    ref.current.scrollLeft = scrollLeft.current - walk;
+  }, []);
+
+  return { ref, onMouseDown, onMouseLeave, onMouseUp, onMouseMove };
+}
+
+// Componente del slider de horarios con drag-to-scroll
+function ScheduleSlider({ sec, livestream, getScheduleImage, getMinistryForSchedule }) {
+  const drag = useDragScroll();
+
+  return (
+    <div style={{ position: 'relative', marginTop: '2rem' }}>
+      <div className="swipe-indicator" style={{ marginBottom: '1.5rem', justifyContent: 'center' }}>
+        Arrastra para ver más <ArrowRight size={16} />
+      </div>
+      <div
+        ref={drag.ref}
+        className="scroll-container schedule-slider-container"
+        onMouseDown={drag.onMouseDown}
+        onMouseLeave={drag.onMouseLeave}
+        onMouseUp={drag.onMouseUp}
+        onMouseMove={drag.onMouseMove}
+      >
+        {sec.schedules.map((sched, idx) => {
+          const title = sched.desc || sched.day;
+          const cardImgUrl = getScheduleImage(sched, sec);
+          return (
+            <div key={idx} className="scroll-item schedule-slider-card glass-card">
+              {cardImgUrl && (
+                <div className="schedule-slider-img-wrapper">
+                  <img src={cardImgUrl} alt={title} className="schedule-slider-img" draggable="false" />
+                </div>
+              )}
+              <div className="schedule-slider-info">
+                <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#e2e8f0', textTransform: 'uppercase', marginBottom: '0.35rem', display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
+                  <span>{sched.day}</span>
+                  <span style={{ color: '#fff', fontWeight: 400 }}>{sched.time}</span>
+                </div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginBottom: '0.4rem', lineHeight: 1.1 }}>
+                  {title}
+                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#fff', fontSize: '0.8rem' }}>
+                  <MapPin size={14} />
+                  <span>{livestream?.churchAddress || 'Campus Principal'}</span>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function Home() {
   const { livestream, homeSections, ministries, activities, blogPosts } = useContext(GalleryContext);
@@ -42,7 +122,7 @@ export default function Home() {
       if (churchMapsUrl.includes('maps/embed')) {
         // If it's an embed URL, use it for the iframe
         iframeSrc = churchMapsUrl;
-
+        
         // Try parsing coordinates from the embed URL
         const latMatch = churchMapsUrl.match(/!3d(-?\d+\.\d+)/);
         const lngMatch = churchMapsUrl.match(/!2d(-?\d+\.\d+)/);
@@ -53,7 +133,7 @@ export default function Home() {
       } else {
         // If it's a sharing link, use it directly for Google Maps buttons
         googleMapsUrl = churchMapsUrl;
-
+        
         // Check if there are coordinates in the URL
         const latLngMatch = churchMapsUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) || churchMapsUrl.match(/query=(-?\d+\.\d+),(-?\d+\.\d+)/);
         if (latLngMatch) {
@@ -61,7 +141,7 @@ export default function Home() {
         }
       }
     }
-
+    
     return { iframeSrc, googleMapsUrl, wazeUrl };
   };
 
@@ -548,41 +628,12 @@ export default function Home() {
             </p>
 
             {sec.schedules && sec.schedules.length > 0 && (
-              <div style={{ position: 'relative', marginTop: '2rem' }}>
-                <div className="swipe-indicator" style={{ marginBottom: '1.5rem', justifyContent: 'center' }}>
-                  Desliza para ver más <ArrowRight size={16} />
-                </div>
-                <div className="scroll-container schedule-slider-container">
-                  {sec.schedules.map((sched, idx) => {
-                    const title = sched.desc || sched.day;
-                    const cardImgUrl = getScheduleImage(sched, sec);
-                    const isGeneral = !getMinistryForSchedule(title);
-
-                    return (
-                      <div key={idx} className="scroll-item schedule-slider-card glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(10, 15, 30, 0.7)', padding: '1rem', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)', borderRadius: '1.25rem', backdropFilter: 'blur(12px)' }}>
-                        {cardImgUrl && (
-                          <div style={{ width: '100%', aspectRatio: '16/9', overflow: 'hidden', borderRadius: '0.75rem', background: 'rgba(0,0,0,0.3)' }}>
-                            <img src={cardImgUrl} alt={title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          </div>
-                        )}
-                        <div style={{ display: 'flex', flexDirection: 'column', padding: '0 0.25rem', textAlign: 'left' }}>
-                          <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#e2e8f0', textTransform: 'uppercase', marginBottom: '0.35rem', display: 'flex', gap: '0.25rem', alignItems: 'center' }}>
-                            <span>{sched.day}</span>
-                            <span style={{ color: '#fff', fontWeight: 400 }}>{sched.time}</span>
-                          </div>
-                          <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', marginBottom: '0.4rem', lineHeight: 1.1 }}>
-                            {title}
-                          </h3>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#fff', fontSize: '0.8rem' }}>
-                            <MapPin size={14} />
-                            <span>{livestream?.churchAddress || 'Campus Principal'}</span>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <ScheduleSlider
+                sec={sec}
+                livestream={livestream}
+                getScheduleImage={getScheduleImage}
+                getMinistryForSchedule={getMinistryForSchedule}
+              />
             )}
 
             {sec.button_text && (
