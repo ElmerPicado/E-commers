@@ -614,7 +614,13 @@ export default function Admin() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Facebook (URL)</label><input type="text" placeholder="https://facebook.com/..." value={facebookUrl} onChange={(e) => setFacebookUrl(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Instagram (URL)</label><input type="text" placeholder="https://instagram.com/..." value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} style={inputStyle} /></div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dirección Física (Texto)</label><input type="text" placeholder="Ej: Río Cuarto..." value={churchAddress} onChange={(e) => setChurchAddress(e.target.value)} style={inputStyle} /></div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Google Maps (URL)</label><input type="text" placeholder="https://maps.app.goo.gl/..." value={churchMapsUrl} onChange={(e) => setChurchMapsUrl(e.target.value)} style={inputStyle} /></div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Google Maps (URL)</label>
+                  <input type="text" placeholder="https://maps.app.goo.gl/..." value={churchMapsUrl} onChange={(e) => setChurchMapsUrl(e.target.value)} style={inputStyle} />
+                  <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)', marginTop: '0.1rem', lineHeight: '1.4' }}>
+                    Puedes pegar el enlace de compartir (ej: <code>https://maps.app.goo.gl/...</code>) para que los botones de Waze, Google Maps y la tarjeta "Visítanos" funcionen al hacerles clic.
+                  </span>
+                </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email de Contacto</label><input type="email" placeholder="contacto@imr4.org" value={churchEmail} onChange={(e) => setChurchEmail(e.target.value)} style={inputStyle} /></div>
                 <div style={{ borderTop: '1px solid var(--border-color)', margin: '1rem 0' }}></div>
                 <h3 style={{ fontSize: '1rem', color: 'var(--accent-color)', marginBottom: '0.5rem' }}>Fondos Fijos (Página Principal)</h3>

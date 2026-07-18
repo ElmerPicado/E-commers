@@ -27,6 +27,46 @@ export default function Home() {
   const churchMapsUrl = livestream?.churchMapsUrl || '';
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 
+  // Default coordinates and embed URL for Iglesia Metodista de Río Cuarto
+  const CHURCH_DEFAULT_EMBED = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d1000.0!2d-84.22007632548774!3d10.341829867060616!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8fa0891d32b255dd%3A0xaf8571efd0d157bd!2sIglesia%20Metodista%20de%20R%C3%ADo%20Cuarto!5e0!3m2!1ses!2scr!4v1784394770420!5m2!1ses!2scr";
+  const CHURCH_DEFAULT_LAT = "10.341829867060616";
+  const CHURCH_DEFAULT_LNG = "-84.22007632548774";
+  const CHURCH_DEFAULT_SEARCH = "https://www.google.com/maps/search/?api=1&query=Iglesia%20Metodista%20de%20R%C3%ADo%20Cuarto";
+
+  const getMapLinks = () => {
+    let iframeSrc = CHURCH_DEFAULT_EMBED;
+    let googleMapsUrl = CHURCH_DEFAULT_SEARCH;
+    let wazeUrl = `https://waze.com/ul?ll=${CHURCH_DEFAULT_LAT},${CHURCH_DEFAULT_LNG}&navigate=yes`;
+
+    if (churchMapsUrl) {
+      if (churchMapsUrl.includes('maps/embed')) {
+        // If it's an embed URL, use it for the iframe
+        iframeSrc = churchMapsUrl;
+
+        // Try parsing coordinates from the embed URL
+        const latMatch = churchMapsUrl.match(/!3d(-?\d+\.\d+)/);
+        const lngMatch = churchMapsUrl.match(/!2d(-?\d+\.\d+)/);
+        if (latMatch && lngMatch) {
+          googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${latMatch[1]},${lngMatch[1]}`;
+          wazeUrl = `https://waze.com/ul?ll=${latMatch[1]},${lngMatch[1]}&navigate=yes`;
+        }
+      } else {
+        // If it's a sharing link, use it directly for Google Maps buttons
+        googleMapsUrl = churchMapsUrl;
+
+        // Check if there are coordinates in the URL
+        const latLngMatch = churchMapsUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) || churchMapsUrl.match(/query=(-?\d+\.\d+),(-?\d+\.\d+)/);
+        if (latLngMatch) {
+          wazeUrl = `https://waze.com/ul?ll=${latLngMatch[1]},${latLngMatch[2]}&navigate=yes`;
+        }
+      }
+    }
+
+    return { iframeSrc, googleMapsUrl, wazeUrl };
+  };
+
+  const { iframeSrc, googleMapsUrl, wazeUrl } = getMapLinks();
+
   // Helper to find matching ministry by title/description
   const getMinistryForSchedule = (title) => {
     if (!title || !ministries) return null;
@@ -51,15 +91,15 @@ export default function Home() {
     const min = getMinistryForSchedule(title);
     if (min && min.logo_url) {
       return (
-        <img 
-          src={min.logo_url} 
-          alt={min.name} 
-          style={{ 
-            width: '100%', 
-            height: '100%', 
+        <img
+          src={min.logo_url}
+          alt={min.name}
+          style={{
+            width: '100%',
+            height: '100%',
             objectFit: 'cover',
             borderRadius: '50%'
-          }} 
+          }}
         />
       );
     }
@@ -137,19 +177,19 @@ export default function Home() {
 
   return (
     <div className="theme-imr4" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      
+
       {/* 1. HERO SECTION ESTILO PAS.cr */}
-      <section 
+      <section
         className="hero-section bg-fixed-mobile-scroll"
         style={{
-        position: 'relative',
-        display: 'flex',
-        alignItems: 'center',
-        backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.95)), url(${resolveImageUrl(heroSection.bg_image)})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        borderBottom: '1px solid var(--border-color)'
-      }}>
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.95)), url(${resolveImageUrl(heroSection.bg_image)})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          borderBottom: '1px solid var(--border-color)'
+        }}>
         <div className="container hero-grid" style={{
           zIndex: 2,
           display: 'grid',
@@ -158,25 +198,25 @@ export default function Home() {
           alignItems: 'center',
           width: '100%'
         }}>
-          
+
           {/* Left: Heading & Main Card */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <div className="hero-content-wrapper">
-              
+
               {/* Logo Grande (Izquierda en PC, Abajo en celular) */}
               {livestream.churchLogo && (
                 <div className="logo-wrapper" style={{ display: 'flex', justifyContent: 'center', flex: '0 0 auto' }}>
-                  <img 
-                    src={resolveImageUrl(livestream.churchLogo)} 
-                    alt="Logo Iglesia" 
+                  <img
+                    src={resolveImageUrl(livestream.churchLogo)}
+                    alt="Logo Iglesia"
                     className="hero-logo"
-                    style={{ 
-                      borderRadius: '50%', 
-                      objectFit: 'cover', 
+                    style={{
+                      borderRadius: '50%',
+                      objectFit: 'cover',
                       background: '#fff',
                       border: '4px solid rgba(255,255,255,0.15)',
                       boxShadow: '0 8px 32px rgba(0,0,0,0.4)'
-                    }} 
+                    }}
                   />
                 </div>
               )}
@@ -209,7 +249,7 @@ export default function Home() {
                     </span>
                   </div>
                 )}
-                
+
                 <h1 style={{
                   fontSize: 'clamp(2.5rem, 5vw, 4.2rem)',
                   lineHeight: '1.1',
@@ -224,15 +264,15 @@ export default function Home() {
                   gap: '0.25rem'
                 }}>
                   <span>
-                    {heroSection.title.includes('Río Cuarto') 
-                      ? heroSection.title.replace('Río Cuarto', '').trim() 
+                    {heroSection.title.includes('Río Cuarto')
+                      ? heroSection.title.replace('Río Cuarto', '').trim()
                       : heroSection.title}
                   </span>
                   <span>
                     {heroSection.title.includes('Río Cuarto') && 'Río Cuarto'}
                   </span>
                 </h1>
-                
+
                 <p style={{
                   fontSize: 'clamp(1rem, 2vw, 1.2rem)',
                   color: 'var(--text-secondary)',
@@ -345,7 +385,7 @@ export default function Home() {
             </Link>
 
             {livestream?.churchAddress && (
-              <a href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(livestream.churchAddress)}`} target="_blank" rel="noopener noreferrer" className="glass-card" style={{
+              <a href={googleMapsUrl} target="_blank" rel="noopener noreferrer" className="glass-card" style={{
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -400,7 +440,7 @@ export default function Home() {
                   Bienvenidos a IMR4
                 </span>
               </div>
-              
+
               <h2 style={{
                 fontSize: 'clamp(2rem, 4vw, 2.75rem)',
                 lineHeight: '1.2',
@@ -425,7 +465,7 @@ export default function Home() {
               {/* Action Buttons */}
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
 
-                <button 
+                <button
                   onClick={() => setIsContactModalOpen(true)}
                   className="btn btn-secondary"
                   style={{
@@ -462,13 +502,13 @@ export default function Home() {
                 boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
                 backdropFilter: 'blur(16px)'
               }}>
-                <img 
-                  src={livestream?.welcomeImageUrl} 
-                  alt={livestream?.welcomePastorsTitle} 
-                  style={{ 
-                    width: '100%', 
-                    height: '450px', 
-                    objectFit: 'cover', 
+                <img
+                  src={livestream?.welcomeImageUrl}
+                  alt={livestream?.welcomePastorsTitle}
+                  style={{
+                    width: '100%',
+                    height: '450px',
+                    objectFit: 'cover',
                     borderRadius: '1rem',
                     marginBottom: '1rem'
                   }}
@@ -517,7 +557,7 @@ export default function Home() {
                     const title = sched.desc || sched.day;
                     const cardImgUrl = getScheduleImage(sched, sec);
                     const isGeneral = !getMinistryForSchedule(title);
-                    
+
                     return (
                       <div key={idx} className="scroll-item schedule-slider-card glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', background: 'rgba(10, 15, 30, 0.7)', padding: '1rem', border: '1px solid rgba(255,255,255,0.08)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)', borderRadius: '1.25rem', backdropFilter: 'blur(12px)' }}>
                         {cardImgUrl && (
@@ -555,7 +595,7 @@ export default function Home() {
       ))}
 
       {/* 3. DYNAMIC MINISTRIES GRID (NUESTROS MINISTERIOS) */}
-      <section style={{ 
+      <section style={{
         padding: '4rem 1.5rem',
         backgroundImage: livestream?.homeMinistriesBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.95)), url(${resolveImageUrl(livestream.homeMinistriesBgUrl)})` : 'none',
         backgroundSize: 'cover',
@@ -581,7 +621,7 @@ export default function Home() {
                 justifyContent: 'space-between',
                 padding: '2rem',
                 borderLeft: `4px solid ${min.accent_color}`,
-                background: min.hero_image 
+                background: min.hero_image
                   ? `linear-gradient(rgba(18, 18, 22, 0.75), rgba(18, 18, 22, 0.95)), url(${min.hero_image})`
                   : 'rgba(18, 18, 22, 0.65)',
                 backgroundSize: 'cover',
@@ -644,10 +684,10 @@ export default function Home() {
                 const organizingMinistry = ministries.find(m => m.id === act.ministry_id);
                 const accentColor = organizingMinistry ? organizingMinistry.accent_color : 'var(--accent-color)';
                 const dateObj = new Date(act.date);
-                
+
                 return (
                   <div key={act.id} className="glass-card scroll-item" style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', background: 'rgba(10, 10, 12, 0.6)' }}>
-                    
+
                     {/* Encabezado del Post (Instagram Header) */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem' }}>
                       <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
@@ -684,7 +724,7 @@ export default function Home() {
                         <Heart size={20} style={{ color: 'var(--accent-color)' }} />
                         <MessageCircle size={20} style={{ color: 'var(--text-muted)' }} />
                         <div style={{ flex: 1 }}></div>
-                        <button 
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
                             const shareUrl = `${window.location.origin}/actividad/${act.id}`;
@@ -710,7 +750,7 @@ export default function Home() {
                       <div style={{ marginBottom: '1rem' }}>
                         <h4 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#fff', lineHeight: 1.2, marginBottom: '0.5rem' }}>{act.title}</h4>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: accentColor, fontWeight: 700, fontSize: '0.95rem' }}>
-                          <Calendar size={14} /> 
+                          <Calendar size={14} />
                           {dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
                           <span>|</span>
                           <Clock size={14} />
@@ -718,9 +758,9 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <p style={{ 
-                        fontSize: '0.85rem', 
-                        color: 'var(--text-secondary)', 
+                      <p style={{
+                        fontSize: '0.85rem',
+                        color: 'var(--text-secondary)',
                         lineHeight: '1.5',
                         display: '-webkit-box',
                         WebkitLineClamp: 3,
@@ -729,14 +769,14 @@ export default function Home() {
                       }}>
                         {act.description}
                       </p>
-                      
+
                       {act.description && act.description.length > 100 && (
-                        <Link 
+                        <Link
                           to={`/actividad/${act.id}`}
                           style={{
-                            background: 'none', border: 'none', 
-                            color: accentColor, fontWeight: 700, 
-                            fontSize: '0.85rem', textAlign: 'left', 
+                            background: 'none', border: 'none',
+                            color: accentColor, fontWeight: 700,
+                            fontSize: '0.85rem', textAlign: 'left',
                             padding: '0.5rem 0', cursor: 'pointer',
                             marginTop: '0.25rem',
                             display: 'inline-block',
@@ -746,7 +786,7 @@ export default function Home() {
                           Leer más...
                         </Link>
                       )}
-                      
+
                       <div style={{ flex: 1 }}></div>
                       {organizingMinistry && (
                         <div style={{ marginTop: '1.25rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border-color)' }}>
@@ -791,10 +831,10 @@ export default function Home() {
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
               {blogPosts.map((blog) => (
-                <div key={blog.id} className="glass-card blog-card-hover" style={{ 
-                  padding: 0, 
-                  overflow: 'hidden', 
-                  display: 'flex', 
+                <div key={blog.id} className="glass-card blog-card-hover" style={{
+                  padding: 0,
+                  overflow: 'hidden',
+                  display: 'flex',
                   flexDirection: 'column',
                   background: 'rgba(12, 13, 20, 0.45)',
                   border: '1px solid var(--border-color)',
@@ -803,16 +843,16 @@ export default function Home() {
                 }}>
                   {blog.image_url && (
                     <div style={{ height: '200px', width: '100%', overflow: 'hidden' }}>
-                      <img 
-                        src={blog.image_url} 
-                        alt={blog.title} 
+                      <img
+                        src={blog.image_url}
+                        alt={blog.title}
                         className="blog-image-zoom"
-                        style={{ 
-                          width: '100%', 
-                          height: '100%', 
+                        style={{
+                          width: '100%',
+                          height: '100%',
                           objectFit: 'cover',
                           transition: 'transform 0.5s ease'
-                        }} 
+                        }}
                       />
                     </div>
                   )}
@@ -836,10 +876,10 @@ export default function Home() {
                     <h3 style={{ fontSize: '1.25rem', marginBottom: '0.75rem', fontWeight: 800, color: '#fff', lineHeight: 1.3 }}>
                       {blog.title}
                     </h3>
-                    <p style={{ 
-                      color: 'var(--text-secondary)', 
-                      fontSize: '0.9rem', 
-                      lineHeight: '1.6', 
+                    <p style={{
+                      color: 'var(--text-secondary)',
+                      fontSize: '0.9rem',
+                      lineHeight: '1.6',
                       display: '-webkit-box',
                       WebkitLineClamp: 3,
                       WebkitBoxOrient: 'vertical',
@@ -849,20 +889,20 @@ export default function Home() {
                     }}>
                       {blog.content}
                     </p>
-                    
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'space-between', 
-                      marginTop: 'auto', 
-                      paddingTop: '1rem', 
-                      borderTop: '1px solid var(--border-color)' 
+
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      marginTop: 'auto',
+                      paddingTop: '1rem',
+                      borderTop: '1px solid var(--border-color)'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                        <Calendar size={13} /> 
+                        <Calendar size={13} />
                         {new Date(blog.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </div>
-                      <Link 
+                      <Link
                         to={`/noticia/${blog.id}`}
                         style={{
                           background: 'none',
@@ -907,9 +947,9 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="glass-card" style={{ 
-            padding: 0, 
-            overflow: 'hidden', 
+          <div className="glass-card" style={{
+            padding: 0,
+            overflow: 'hidden',
             borderRadius: '1.5rem',
             border: '1px solid var(--border-color)',
             background: 'rgba(20, 20, 25, 0.4)',
@@ -918,29 +958,17 @@ export default function Home() {
           }}>
             {/* Mapa Embed en Modo Oscuro (Invertido) */}
             <div style={{ width: '100%', height: '400px', background: '#222' }}>
-              {churchMapsUrl && churchMapsUrl.includes('maps/embed') ? (
-                <iframe 
-                  src={churchMapsUrl}
-                  width="100%" 
-                  height="100%" 
-                  style={{ border: 0, filter: 'grayscale(30%) brightness(0.85) contrast(1.05)' }} 
-                  allowFullScreen="" 
-                  loading="lazy" 
+              {iframeSrc ? (
+                <iframe
+                  src={iframeSrc}
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0 }}
+                  allowFullScreen=""
+                  loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                   title="Ubicación de la Iglesia"
                 ></iframe>
-              ) : churchMapsUrl ? (
-                /* URL inválida (no es embed) — mostrar mensaje y botón para abrir */
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem', padding: '2rem', textAlign: 'center' }}>
-                  <MapPin size={32} style={{ color: 'var(--accent-color)', opacity: 0.8 }} />
-                  <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', maxWidth: '340px', lineHeight: '1.6' }}>
-                    Para mostrar el mapa incrustado, necesitás usar la URL de <strong style={{ color: 'var(--text-primary)' }}>Compartir → Insertar mapa</strong> de Google Maps (empieza con <code style={{ background: 'rgba(255,255,255,0.07)', padding: '0.1rem 0.4rem', borderRadius: '4px', fontSize: '0.8rem' }}>maps/embed</code>).
-                  </p>
-                  <a href={churchMapsUrl} target="_blank" rel="noopener noreferrer" className="btn btn-primary" style={{ fontSize: '0.85rem', padding: '0.5rem 1.5rem', borderRadius: '999px' }}>
-                    <MapPin size={14} style={{ display: 'inline', marginRight: '0.4rem' }} />
-                    Abrir en Google Maps
-                  </a>
-                </div>
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-secondary)', fontSize: '0.9rem', gap: '0.5rem' }}>
                   <MapPin size={18} style={{ opacity: 0.5 }} />
@@ -948,33 +976,33 @@ export default function Home() {
                 </div>
               )}
             </div>
-            
-            <div style={{ 
-              padding: '2.5rem 2rem', 
-              display: 'flex', 
-              flexDirection: 'column', 
-              alignItems: 'center', 
+
+            <div style={{
+              padding: '2.5rem 2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
               gap: '1.5rem',
               background: 'rgba(10, 10, 12, 0.6)'
             }}>
               <h3 style={{ fontSize: '1.3rem', fontWeight: 700, margin: 0, textAlign: 'center', color: '#fff' }}>
                 ¡Te esperamos con los brazos abiertos!
               </h3>
-              
+
               <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center', width: '100%' }}>
-                <a 
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(livestream?.churchAddress || 'Río Cuarto, Alajuela, Costa Rica')}`}
-                  target="_blank" 
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-primary map-btn-hover"
                   style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', flex: '1', minWidth: '220px', justifyContent: 'center' }}
                 >
                   <MapPin size={18} /> Abrir en Google Maps
                 </a>
-                
-                <a 
-                  href={`https://waze.com/ul?q=${encodeURIComponent(livestream?.churchAddress || 'Río Cuarto, Alajuela, Costa Rica')}`}
-                  target="_blank" 
+
+                <a
+                  href={wazeUrl}
+                  target="_blank"
                   rel="noopener noreferrer"
                   className="btn btn-secondary map-btn-hover"
                   style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.8rem 1.5rem', flex: '1', minWidth: '220px', justifyContent: 'center', background: '#33ccff', color: '#000', border: 'none', fontWeight: 800 }}
