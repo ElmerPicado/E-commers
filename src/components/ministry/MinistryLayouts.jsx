@@ -275,24 +275,7 @@ export const PlayfulLayout = ({
           </>
         )}
 
-        {/* Puzzle Modal */}
-        {showPuzzle && (
-          <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
-               onClick={(e) => { if (e.target === e.currentTarget) setShowPuzzle(false); }}
-          >
-            <div style={{ background: 'linear-gradient(135deg, #E8F5E9, #C8E6C9)', borderRadius: '2rem', padding: '1.5rem', maxWidth: '500px', width: '95%', maxHeight: '95vh', overflowY: 'auto', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '4px solid #4CAF50' }}>
-              <button
-                onClick={() => setShowPuzzle(false)}
-                style={{ position: 'absolute', top: '1rem', right: '1rem', background: '#ef4444', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', zIndex: 2, boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}
-              >
-                <X size={18} />
-              </button>
-              <PuzzleGame 
-                puzzleData={puzzleData}
-              />
-            </div>
-          </div>
-        )}
+
 
       </div>
     </div>
