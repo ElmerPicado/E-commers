@@ -175,9 +175,7 @@ export const PlayfulLayout = ({
                 <X size={18} />
               </button>
               <PuzzleGame 
-                imageUrl={puzzleData.image_url} 
-                difficulty={puzzleData.difficulty || '3x3'} 
-                title={puzzleData.title || 'Rompecabezas Bíblico'}
+                puzzleData={puzzleData}
               />
             </div>
           </div>

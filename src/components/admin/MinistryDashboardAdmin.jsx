@@ -86,9 +86,38 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   // Fun Zone State
   const [minFunZonePuzzleEnabled, setMinFunZonePuzzleEnabled] = useState(min?.fun_zone?.puzzle?.enabled ?? true);
   const [minFunZonePuzzleTitle, setMinFunZonePuzzleTitle] = useState(min?.fun_zone?.puzzle?.title || 'Rompecabezas Bíblico');
-  const [minFunZonePuzzleDifficulty, setMinFunZonePuzzleDifficulty] = useState(min?.fun_zone?.puzzle?.difficulty || '3x3');
-  const [minFunZonePuzzleImageUrl, setMinFunZonePuzzleImageUrl] = useState(min?.fun_zone?.puzzle?.image_url || '');
-  const [minFunZonePuzzleImageFile, setMinFunZonePuzzleImageFile] = useState(null);
+  const [minFunZonePuzzleLevels, setMinFunZonePuzzleLevels] = useState(() => {
+    const levels = min?.fun_zone?.puzzle?.levels;
+    if (Array.isArray(levels) && levels.length > 0) {
+      return levels.map(lvl => ({
+        _localId: lvl.id || `lvl-${Math.random()}`,
+        id: lvl.id,
+        image_url: lvl.image_url || '',
+        answer: lvl.answer || '',
+        difficulty: lvl.difficulty || '3x3',
+        file: null
+      }));
+    }
+    const legacyImg = min?.fun_zone?.puzzle?.image_url;
+    if (legacyImg) {
+      return [{
+        _localId: 'lvl-legacy',
+        id: 'lvl-legacy',
+        image_url: legacyImg,
+        answer: min?.fun_zone?.puzzle?.answer || '',
+        difficulty: min?.fun_zone?.puzzle?.difficulty || '3x3',
+        file: null
+      }];
+    }
+    return [{
+      _localId: `lvl-${Date.now()}`,
+      id: `lvl-${Date.now()}`,
+      image_url: '',
+      answer: '',
+      difficulty: '3x3',
+      file: null
+    }];
+  });
   
   const [minFunZoneVideosEnabled, setMinFunZoneVideosEnabled] = useState(min?.fun_zone?.videos?.enabled ?? true);
   const [minFunZoneVideosTitle, setMinFunZoneVideosTitle] = useState(min?.fun_zone?.videos?.title || 'Videos y Canciones');
@@ -202,26 +231,32 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       finalPillars.push({ icon: p.icon, title: p.title, desc: p.desc, image_url: finalPillarImgUrl });
     }
     setIsMinHeroUploading(false);
-
-    let finalPuzzleImageUrl = minFunZonePuzzleImageUrl;
-    if (minFunZonePuzzleImageFile && isSupabaseConfigured) {
-      setIsMinFunZoneUploading(true);
-      try {
-        const fileExt = minFunZonePuzzleImageFile.name.split('.').pop();
-        const fileName = `puzzle_${Date.now()}.${fileExt}`;
-        const filePath = `funzone/${fileName}`;
-        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, minFunZonePuzzleImageFile);
-        if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
-        finalPuzzleImageUrl = publicUrl;
-      } catch (err) {
-        console.error('Error uploading puzzle image:', err);
-        alert('Error al subir la imagen del rompecabezas.');
-        setIsMinFunZoneUploading(false);
-        return;
+    setIsMinFunZoneUploading(true);
+    const finalPuzzleLevels = [];
+    for (const lvl of minFunZonePuzzleLevels) {
+      let finalLvlImgUrl = lvl.image_url || '';
+      if (lvl.file && isSupabaseConfigured) {
+        try {
+          const fileExt = lvl.file.name.split('.').pop();
+          const fileName = `puzzle_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+          const filePath = `funzone/${fileName}`;
+          const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, lvl.file);
+          if (!uploadError) {
+            const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+            finalLvlImgUrl = publicUrl;
+          }
+        } catch (err) {
+          console.error('Error uploading puzzle level image:', err);
+        }
       }
-      setIsMinFunZoneUploading(false);
+      finalPuzzleLevels.push({
+        id: lvl.id || `lvl-${Math.random()}`,
+        image_url: resolveImageUrl(finalLvlImgUrl),
+        answer: (lvl.answer || '').toUpperCase().trim(),
+        difficulty: lvl.difficulty || '3x3'
+      });
     }
+    setIsMinFunZoneUploading(false);
 
     const updates = {
       name: minName,
@@ -252,8 +287,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         puzzle: {
           enabled: minFunZonePuzzleEnabled,
           title: minFunZonePuzzleTitle,
-          difficulty: minFunZonePuzzleDifficulty,
-          image_url: resolveImageUrl(finalPuzzleImageUrl)
+          levels: finalPuzzleLevels
         },
         videos: {
           enabled: minFunZoneVideosEnabled,
@@ -263,7 +297,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         }
       }
     };
-    await updateMinistry(ministryId, updates);
+    await updateMinistry(ministryId, updates);;
     setMinLogoUrl(finalLogoUrl);
     setMinLogoFile(null);
     setMinHeroImageUrl(finalHeroImageUrl);
@@ -715,38 +749,117 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
               </label>
             </div>
             
-            <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título del Rompecabezas</label>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título General del Juego</label>
                 <input type="text" value={minFunZonePuzzleTitle} onChange={(e) => setMinFunZonePuzzleTitle(e.target.value)} style={inputStyle} disabled={!minFunZonePuzzleEnabled} />
               </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dificultad (Grid)</label>
-                <select value={minFunZonePuzzleDifficulty} onChange={(e) => setMinFunZonePuzzleDifficulty(e.target.value)} style={selectStyle} disabled={!minFunZonePuzzleEnabled}>
-                  <option value="3x3">Fácil (3x3 - 9 piezas)</option>
-                  <option value="4x4">Normal (4x4 - 16 piezas)</option>
-                </select>
-              </div>
-            </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen a Armar (Sube una imagen cuadrada idealmente)</label>
-              {isSupabaseConfigured ? (
-                <ImageUploadDropzone 
-                  onFileSelect={(file) => setMinFunZonePuzzleImageFile(file)} 
-                  previewUrl={minFunZonePuzzleImageFile ? URL.createObjectURL(minFunZonePuzzleImageFile) : minFunZonePuzzleImageUrl} 
-                  label="Subir Imagen del Rompecabezas" 
-                />
-              ) : (
-                <>
-                  <input type="text" placeholder="URL de imagen..." value={minFunZonePuzzleImageUrl} onChange={(e) => setMinFunZonePuzzleImageUrl(e.target.value)} style={inputStyle} disabled={!minFunZonePuzzleEnabled} />
-                  {(minFunZonePuzzleImageUrl) && (
-                    <div style={{ marginTop: '0.5rem', width: '150px', height: '150px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
-                      <img src={minFunZonePuzzleImageUrl} alt="Puzzle Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
+                <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}>🧩 Niveles del Rompecabezas</h4>
+                {minFunZonePuzzleLevels.map((lvl, index) => (
+                  <div key={lvl._localId} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.25rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', position: 'relative' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--accent-color)' }}>Nivel {index + 1}</span>
+                      {minFunZonePuzzleLevels.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.filter(l => l._localId !== lvl._localId));
+                          }}
+                          className="btn btn-danger"
+                          style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                        >
+                          <Trash2 size={12} /> Eliminar Nivel
+                        </button>
+                      )}
                     </div>
-                  )}
-                </>
-              )}
+                    
+                    <div className="grid-cols-2" style={{ display: 'grid', gap: '1rem' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Palabra a Adivinar (Ej: JONAS)</label>
+                        <input
+                          type="text"
+                          value={lvl.answer}
+                          onChange={(e) => {
+                            setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, answer: e.target.value } : l));
+                          }}
+                          style={inputStyle}
+                          placeholder="Palabra secreta"
+                          disabled={!minFunZonePuzzleEnabled}
+                        />
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                        <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dificultad (Grid)</label>
+                        <select
+                          value={lvl.difficulty}
+                          onChange={(e) => {
+                            setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, difficulty: e.target.value } : l));
+                          }}
+                          style={selectStyle}
+                          disabled={!minFunZonePuzzleEnabled}
+                        >
+                          <option value="3x3">Fácil (3x3 - 9 piezas)</option>
+                          <option value="4x4">Normal (4x4 - 16 piezas)</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen a Armar</label>
+                      {isSupabaseConfigured ? (
+                        <ImageUploadDropzone
+                          onFileSelect={(file) => {
+                            setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, file: file, image_url: URL.createObjectURL(file) } : l));
+                          }}
+                          previewUrl={lvl.image_url}
+                          label="Subir Imagen del Rompecabezas"
+                        />
+                      ) : (
+                        <>
+                          <input
+                            type="text"
+                            placeholder="URL de imagen..."
+                            value={lvl.image_url}
+                            onChange={(e) => {
+                              setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, image_url: e.target.value } : l));
+                            }}
+                            style={inputStyle}
+                            disabled={!minFunZonePuzzleEnabled}
+                          />
+                          {lvl.image_url && (
+                            <div style={{ marginTop: '0.5rem', width: '120px', height: '120px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
+                              <img src={lvl.image_url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMinFunZonePuzzleLevels([
+                      ...minFunZonePuzzleLevels,
+                      {
+                        _localId: `lvl-${Date.now()}-${Math.random()}`,
+                        id: `lvl-${Date.now()}-${Math.random()}`,
+                        image_url: '',
+                        answer: '',
+                        difficulty: '3x3',
+                        file: null
+                      }
+                    ]);
+                  }}
+                  className="btn btn-secondary"
+                  style={{ alignSelf: 'flex-start', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                  disabled={!minFunZonePuzzleEnabled}
+                >
+                  <Plus size={14} /> Agregar Siguiente Nivel
+                </button>
+              </div>
             </div>
           </div>
 
