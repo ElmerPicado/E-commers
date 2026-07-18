@@ -185,7 +185,21 @@ const DEFAULT_MINISTRIES = [
     location_url: '',
     contact_email: 'ninos@imr4.org',
     contact_link: 'https://wa.me/4',
-    visual_settings: { theme_mode: "light", layout_style: "playful", primary_action_text: "Escuela Dominical", primary_action_url: "#contacto", custom_labels: { pillars: "Clases" } }
+    visual_settings: { theme_mode: "light", layout_style: "playful", primary_action_text: "Escuela Dominical", primary_action_url: "#contacto", custom_labels: { pillars: "Clases" } },
+    fun_zone: {
+      puzzle: {
+        title: 'Rompecabezas Bíblico',
+        image_url: '',
+        difficulty: '3x3',
+        enabled: true
+      },
+      videos: {
+        title: 'Videos y Canciones',
+        youtube_url: '',
+        button_text: 'Ver ahora',
+        enabled: true
+      }
+    }
   }
 ];
 

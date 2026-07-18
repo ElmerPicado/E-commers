@@ -1,7 +1,14 @@
-import React from 'react';
-import { Calendar, MapPin, Heart, MessageSquare, Play, Gamepad2, Puzzle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, MapPin, Heart, MessageSquare, Play, Gamepad2, Puzzle, X } from 'lucide-react';
+import PuzzleGame from './PuzzleGame';
 
 export const PlayfulLayout = ({ ministry, ministryActivities, customThemeVars, getThemeClass }) => {
+  const [showPuzzle, setShowPuzzle] = useState(false);
+  const funZone = ministry.fun_zone || {};
+  const puzzleData = funZone.puzzle || {};
+  const videosData = funZone.videos || {};
+  const hasFunZone = (puzzleData.enabled && puzzleData.image_url) || (videosData.enabled && videosData.youtube_url);
+
   return (
     <div className={getThemeClass(ministry)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif' }}>
       
@@ -60,32 +67,68 @@ export const PlayfulLayout = ({ ministry, ministryActivities, customThemeVars, g
            </div>
         )}
 
-        {/* Juegos Section (External Links) */}
-        <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem' }}>
-          <h2 style={{ fontSize: '3rem', textAlign: 'center', color: '#fff', textShadow: '2px 2px 0px #000', marginBottom: '2rem' }}>¡Zona de Diversión!</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
-            {/* Game Card 1 */}
-            <div style={{ background: '#fff', borderRadius: '2rem', overflow: 'hidden', border: '4px solid #8A2BE2', boxShadow: '0 10px 20px rgba(0,0,0,0.2)' }}>
-               <div style={{ height: '150px', background: '#9370DB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                 <Puzzle size={80} color="#fff" />
-               </div>
-               <div style={{ padding: '1.5rem', textAlign: 'center' }}>
-                 <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#4B0082', marginBottom: '1rem' }}>Rompecabezas Bíblico</h3>
-                 <button className="btn" style={{ background: '#8A2BE2', color: '#fff', borderRadius: '999px', padding: '0.5rem 1.5rem', fontWeight: 700 }}>Jugar ahora</button>
-               </div>
+        {/* Zona de Diversión - Dynamic */}
+        {hasFunZone && (
+          <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem' }}>
+            <h2 style={{ fontSize: '3rem', textAlign: 'center', color: '#fff', textShadow: '2px 2px 0px #000', marginBottom: '2rem' }}>¡Zona de Diversión!</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+              {/* Puzzle Card */}
+              {puzzleData.enabled && (
+                <div style={{ background: '#fff', borderRadius: '2rem', overflow: 'hidden', border: '4px solid #8A2BE2', boxShadow: '0 10px 20px rgba(0,0,0,0.2)', cursor: 'pointer', transition: 'transform 0.2s' }}
+                     onClick={() => setShowPuzzle(true)}
+                     onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                     onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                >
+                   <div style={{ height: '150px', background: puzzleData.image_url ? `url(${puzzleData.image_url}) center/cover` : '#9370DB', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                     {!puzzleData.image_url && <Puzzle size={80} color="#fff" />}
+                   </div>
+                   <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+                     <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#4B0082', marginBottom: '1rem' }}>{puzzleData.title || 'Rompecabezas Bíblico'}</h3>
+                     <button className="btn" style={{ background: '#8A2BE2', color: '#fff', borderRadius: '999px', padding: '0.5rem 1.5rem', fontWeight: 700 }}>Jugar ahora</button>
+                   </div>
+                </div>
+              )}
+              {/* Videos Card */}
+              {videosData.enabled && videosData.youtube_url && (
+                <a href={videosData.youtube_url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                  <div style={{ background: '#fff', borderRadius: '2rem', overflow: 'hidden', border: '4px solid #FF4500', boxShadow: '0 10px 20px rgba(0,0,0,0.2)', cursor: 'pointer', transition: 'transform 0.2s' }}
+                       onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.03)'}
+                       onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                     <div style={{ height: '150px', background: '#FF6347', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                       <Play size={80} color="#fff" />
+                     </div>
+                     <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+                       <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#8B0000', marginBottom: '1rem' }}>{videosData.title || 'Videos y Canciones'}</h3>
+                       <span className="btn" style={{ background: '#FF4500', color: '#fff', borderRadius: '999px', padding: '0.5rem 1.5rem', fontWeight: 700, display: 'inline-block' }}>{videosData.button_text || 'Ver ahora'}</span>
+                     </div>
+                  </div>
+                </a>
+              )}
             </div>
-            {/* Game Card 2 */}
-            <div style={{ background: '#fff', borderRadius: '2rem', overflow: 'hidden', border: '4px solid #FF4500', boxShadow: '0 10px 20px rgba(0,0,0,0.2)' }}>
-               <div style={{ height: '150px', background: '#FF6347', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                 <Play size={80} color="#fff" />
-               </div>
-               <div style={{ padding: '1.5rem', textAlign: 'center' }}>
-                 <h3 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#8B0000', marginBottom: '1rem' }}>Videos y Canciones</h3>
-                 <button className="btn" style={{ background: '#FF4500', color: '#fff', borderRadius: '999px', padding: '0.5rem 1.5rem', fontWeight: 700 }}>Ver ahora</button>
-               </div>
+          </section>
+        )}
+
+        {/* Puzzle Modal */}
+        {showPuzzle && (
+          <div style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+               onClick={(e) => { if (e.target === e.currentTarget) setShowPuzzle(false); }}
+          >
+            <div style={{ background: 'linear-gradient(135deg, #E8F5E9, #C8E6C9)', borderRadius: '2rem', padding: '1.5rem', maxWidth: '500px', width: '95%', maxHeight: '95vh', overflowY: 'auto', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.3)', border: '4px solid #4CAF50' }}>
+              <button
+                onClick={() => setShowPuzzle(false)}
+                style={{ position: 'absolute', top: '1rem', right: '1rem', background: '#ef4444', border: 'none', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#fff', zIndex: 2, boxShadow: '0 4px 8px rgba(0,0,0,0.2)' }}
+              >
+                <X size={18} />
+              </button>
+              <PuzzleGame 
+                imageUrl={puzzleData.image_url} 
+                difficulty={puzzleData.difficulty || '3x3'} 
+                title={puzzleData.title || 'Rompecabezas Bíblico'}
+              />
             </div>
           </div>
-        </section>
+        )}
 
       </div>
     </div>
