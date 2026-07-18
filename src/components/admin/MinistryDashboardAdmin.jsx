@@ -55,7 +55,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   
   // Visual Settings State
   const [minThemeMode, setMinThemeMode] = useState(min?.visual_settings?.theme_mode || 'dark');
-  const [minLayoutStyle, setMinLayoutStyle] = useState(min?.visual_settings?.layout_style || 'modern');
+  const [minLayoutStyle, setMinLayoutStyle] = useState(ministryId === 'ninos' ? 'playful' : (min?.visual_settings?.layout_style || 'modern'));
   const [minPrimaryActionText, setMinPrimaryActionText] = useState(min?.visual_settings?.primary_action_text || 'Participar');
   const [minPrimaryActionUrl, setMinPrimaryActionUrl] = useState(min?.visual_settings?.primary_action_url || '#contacto');
   const [minPillarsLabel, setMinPillarsLabel] = useState(min?.visual_settings?.custom_labels?.pillars || 'Pilares');
@@ -243,7 +243,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       pillars: finalPillars,
       visual_settings: {
         theme_mode: minThemeMode,
-        layout_style: minLayoutStyle,
+        layout_style: ministryId === 'ninos' ? 'playful' : minLayoutStyle,
         primary_action_text: minPrimaryActionText,
         primary_action_url: minPrimaryActionUrl,
         custom_labels: { pillars: minPillarsLabel }
@@ -656,11 +656,17 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
              
              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Estilo de Diseño (Layout)</label>
-               <select value={minLayoutStyle} onChange={(e) => setMinLayoutStyle(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
-                 <option value="modern">Moderno (Industrial, Neón)</option>
-                 <option value="warm">Cálido (Acogedor, Delicado)</option>
-                 <option value="playful">Divertido (Bordes redondeados, Juguetón)</option>
-               </select>
+               {ministryId === 'ninos' ? (
+                 <div style={{ padding: '0.6rem 0.8rem', background: 'rgba(255,255,255,0.05)', borderRadius: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem', border: '1px solid var(--border-color)' }}>
+                   Divertido (Bordes redondeados, Juguetón) - Fijo
+                 </div>
+               ) : (
+                 <select value={minLayoutStyle} onChange={(e) => setMinLayoutStyle(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
+                   <option value="modern">Moderno (Industrial, Neón)</option>
+                   <option value="warm">Cálido (Acogedor, Delicado)</option>
+                   <option value="playful">Divertido (Bordes redondeados, Juguetón)</option>
+                 </select>
+               )}
              </div>
            </div>
 
