@@ -2,7 +2,16 @@ import React, { useState } from 'react';
 import { Calendar, MapPin, Heart, MessageSquare, Play, Gamepad2, Puzzle, X } from 'lucide-react';
 import PuzzleGame from './PuzzleGame';
 
-export const PlayfulLayout = ({ ministry, ministryActivities, customThemeVars, getThemeClass }) => {
+export const PlayfulLayout = ({ 
+  ministry, 
+  ministryActivities, 
+  ministryAlbums,
+  customThemeVars, 
+  getThemeClass,
+  setSelectedActivity,
+  setSelectedAlbum,
+  setLightboxIndex
+}) => {
   const [showPuzzle, setShowPuzzle] = useState(false);
   const funZone = ministry.fun_zone || {};
   const puzzleData = funZone.puzzle || {};
@@ -93,6 +102,65 @@ export const PlayfulLayout = ({ ministry, ministryActivities, customThemeVars, g
             </div>
           </div>
         </section>
+
+        {/* Activities Section - Playful Style */}
+        {ministryActivities && ministryActivities.length > 0 && (
+          <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#FF1493', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
+              🌟 ¡Nuestras Actividades! 🌟
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
+              {ministryActivities.map((act) => (
+                <div key={act.id} onClick={() => setSelectedActivity(act)} style={{ background: '#FFF', borderRadius: '2rem', overflow: 'hidden', border: '4px solid #32CD32', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', cursor: 'pointer', transition: 'transform 0.2s', transform: 'scale(1)', ':hover': { transform: 'scale(1.05)' } }}>
+                  {act.image_url ? (
+                    <div style={{ height: '200px', width: '100%', background: '#f0f0f0' }}>
+                      <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  ) : (
+                    <div style={{ height: '150px', background: '#32CD32', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Calendar size={60} color="#fff" />
+                    </div>
+                  )}
+                  <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+                    <div style={{ background: '#FFD700', color: '#8B4500', display: 'inline-block', padding: '0.25rem 1rem', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '1rem', border: '2px solid #DAA520' }}>
+                      {new Date(act.date + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                    </div>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#228B22', marginBottom: '0.5rem', lineHeight: 1.2 }}>{act.title}</h3>
+                    <p style={{ color: '#666', fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{act.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Gallery Section - Playful Style */}
+        {ministryAlbums && ministryAlbums.length > 0 && (
+          <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto', background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.5))', borderRadius: '3rem' }}>
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1E90FF', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
+              📸 ¡Nuestros Recuerdos! 📸
+            </h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '2rem' }}>
+              {ministryAlbums.map((album) => (
+                <div key={album.id} style={{ background: '#FFF', borderRadius: '2rem', padding: '1rem', border: '4px solid #1E90FF', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', transform: `rotate(${Math.random() * 6 - 3}deg)` }}>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0000CD', textAlign: 'center', marginBottom: '1rem' }}>{album.title}</h3>
+                  {album.photos && album.photos.length > 0 ? (
+                    <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: '1rem', overflow: 'hidden', cursor: 'pointer', border: '2px solid #87CEEB' }} onClick={() => { setSelectedAlbum(album); setLightboxIndex(0); }}>
+                      <img src={album.photos[0]} alt={album.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(30, 144, 255, 0.8)', color: '#fff', textAlign: 'center', padding: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
+                        Ver {album.photos.length} fotos
+                      </div>
+                    </div>
+                  ) : (
+                     <div style={{ width: '100%', aspectRatio: '1', background: '#F0F8FF', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1E90FF', fontWeight: 700 }}>
+                       Sin fotos aún
+                     </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Puzzle Modal */}
         {showPuzzle && (

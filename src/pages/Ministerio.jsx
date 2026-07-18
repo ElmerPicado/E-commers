@@ -131,7 +131,16 @@ export default function Ministerio() {
   };
 
   if (layoutStyle === 'playful') {
-    return <PlayfulLayout ministry={ministry} ministryActivities={ministryActivities} customThemeVars={customThemeVars} getThemeClass={getThemeClass} />;
+    return <PlayfulLayout 
+      ministry={ministry} 
+      ministryActivities={ministryActivities} 
+      ministryAlbums={ministryAlbums}
+      customThemeVars={customThemeVars} 
+      getThemeClass={getThemeClass} 
+      setSelectedActivity={setSelectedActivity}
+      setSelectedAlbum={setSelectedAlbum}
+      setLightboxIndex={setLightboxIndex}
+    />;
   }
 
   if (layoutStyle === 'soft') {
