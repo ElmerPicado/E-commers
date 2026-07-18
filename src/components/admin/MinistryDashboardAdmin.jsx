@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
-import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette, Gamepad2 } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette } from 'lucide-react';
 import ImageUploadDropzone from './ImageUploadDropzone';
 import { resolveImageUrl } from '../../utils/imageUtils';
 
@@ -82,20 +82,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const updatePillar = (id, field, value) => {
     setMinPillars(minPillars.map(p => p._localId === id ? { ...p, [field]: value } : p));
   };
-
-  // Fun Zone State
-  const [minFunZonePuzzleEnabled, setMinFunZonePuzzleEnabled] = useState(min?.fun_zone?.puzzle?.enabled ?? true);
-  const [minFunZonePuzzleTitle, setMinFunZonePuzzleTitle] = useState(min?.fun_zone?.puzzle?.title || 'Rompecabezas Bíblico');
-  const [minFunZonePuzzleDifficulty, setMinFunZonePuzzleDifficulty] = useState(min?.fun_zone?.puzzle?.difficulty || '3x3');
-  const [minFunZonePuzzleImageUrl, setMinFunZonePuzzleImageUrl] = useState(min?.fun_zone?.puzzle?.image_url || '');
-  const [minFunZonePuzzleImageFile, setMinFunZonePuzzleImageFile] = useState(null);
-  
-  const [minFunZoneVideosEnabled, setMinFunZoneVideosEnabled] = useState(min?.fun_zone?.videos?.enabled ?? true);
-  const [minFunZoneVideosTitle, setMinFunZoneVideosTitle] = useState(min?.fun_zone?.videos?.title || 'Videos y Canciones');
-  const [minFunZoneVideosUrl, setMinFunZoneVideosUrl] = useState(min?.fun_zone?.videos?.youtube_url || '');
-  const [minFunZoneVideosButtonText, setMinFunZoneVideosButtonText] = useState(min?.fun_zone?.videos?.button_text || 'Ver ahora');
-  
-  const [isMinFunZoneUploading, setIsMinFunZoneUploading] = useState(false);
 
   // Activity Form State
   const [actTitle, setActTitle] = useState('');
@@ -203,26 +189,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     }
     setIsMinHeroUploading(false);
 
-    let finalPuzzleImageUrl = minFunZonePuzzleImageUrl;
-    if (minFunZonePuzzleImageFile && isSupabaseConfigured) {
-      setIsMinFunZoneUploading(true);
-      try {
-        const fileExt = minFunZonePuzzleImageFile.name.split('.').pop();
-        const fileName = `puzzle_${Date.now()}.${fileExt}`;
-        const filePath = `funzone/${fileName}`;
-        const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, minFunZonePuzzleImageFile);
-        if (uploadError) throw uploadError;
-        const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
-        finalPuzzleImageUrl = publicUrl;
-      } catch (err) {
-        console.error('Error uploading puzzle image:', err);
-        alert('Error al subir la imagen del rompecabezas.');
-        setIsMinFunZoneUploading(false);
-        return;
-      }
-      setIsMinFunZoneUploading(false);
-    }
-
     const updates = {
       name: minName,
       description: minDesc,
@@ -247,20 +213,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         primary_action_text: minPrimaryActionText,
         primary_action_url: minPrimaryActionUrl,
         custom_labels: { pillars: minPillarsLabel }
-      },
-      fun_zone: {
-        puzzle: {
-          enabled: minFunZonePuzzleEnabled,
-          title: minFunZonePuzzleTitle,
-          difficulty: minFunZonePuzzleDifficulty,
-          image_url: resolveImageUrl(finalPuzzleImageUrl)
-        },
-        videos: {
-          enabled: minFunZoneVideosEnabled,
-          title: minFunZoneVideosTitle,
-          youtube_url: minFunZoneVideosUrl,
-          button_text: minFunZoneVideosButtonText
-        }
       }
     };
     await updateMinistry(ministryId, updates);
@@ -268,8 +220,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     setMinLogoFile(null);
     setMinHeroImageUrl(finalHeroImageUrl);
     setMinHeroImageFile(null);
-    setMinFunZonePuzzleImageUrl(finalPuzzleImageUrl);
-    setMinFunZonePuzzleImageFile(null);
     triggerSuccess('Perfil del ministerio actualizado.');
   };
 
@@ -451,11 +401,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         {ministryId !== 'general' && (
           <button onClick={() => setActiveTab('activities')} className={`btn ${activeTab === 'activities' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'activities' ? 'transparent' : '', color: activeTab !== 'activities' ? 'var(--text-secondary)' : '' }}>
             <Calendar size={16} /> Actividades ({minActivities.length})
-          </button>
-        )}
-        {ministryId !== 'general' && minLayoutStyle === 'playful' && (
-          <button onClick={() => setActiveTab('fun_zone')} className={`btn ${activeTab === 'fun_zone' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'fun_zone' ? 'transparent' : '', color: activeTab !== 'fun_zone' ? 'var(--text-secondary)' : '' }}>
-            <Gamepad2 size={16} /> Zona de Diversión
           </button>
         )}
         <button onClick={() => setActiveTab('photos')} className={`btn ${activeTab === 'photos' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'photos' ? 'transparent' : '', color: activeTab !== 'photos' ? 'var(--text-secondary)' : '' }}>
@@ -687,91 +632,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '1rem' }} disabled={isMinLogoUploading || isMinHeroUploading}>
              <Save size={16} /> Guardar Identidad Visual
            </button>
-        </form>
-      )}
-
-      {/* TAB FUN ZONE */}
-      {activeTab === 'fun_zone' && minLayoutStyle === 'playful' && (
-        <form onSubmit={handleSaveProfile} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          <div>
-            <h3 style={{ fontSize: '1.2rem', margin: '0 0 0.5rem 0' }}>🎮 Zona de Diversión</h3>
-            <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
-              Configura los juegos y videos para la sección infantil interactiva.
-            </p>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>🧩 Rompecabezas Bíblico</h4>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={minFunZonePuzzleEnabled} onChange={(e) => setMinFunZonePuzzleEnabled(e.target.checked)} />
-                <span style={{ fontSize: '0.9rem' }}>Habilitar sección</span>
-              </label>
-            </div>
-            
-            <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título del Rompecabezas</label>
-                <input type="text" value={minFunZonePuzzleTitle} onChange={(e) => setMinFunZonePuzzleTitle(e.target.value)} style={inputStyle} disabled={!minFunZonePuzzleEnabled} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dificultad (Grid)</label>
-                <select value={minFunZonePuzzleDifficulty} onChange={(e) => setMinFunZonePuzzleDifficulty(e.target.value)} style={selectStyle} disabled={!minFunZonePuzzleEnabled}>
-                  <option value="3x3">Fácil (3x3 - 9 piezas)</option>
-                  <option value="4x4">Normal (4x4 - 16 piezas)</option>
-                </select>
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen a Armar (Sube una imagen cuadrada idealmente)</label>
-              {isSupabaseConfigured ? (
-                <ImageUploadDropzone 
-                  onFileSelect={(file) => setMinFunZonePuzzleImageFile(file)} 
-                  previewUrl={minFunZonePuzzleImageFile ? URL.createObjectURL(minFunZonePuzzleImageFile) : minFunZonePuzzleImageUrl} 
-                  label="Subir Imagen del Rompecabezas" 
-                />
-              ) : (
-                <>
-                  <input type="text" placeholder="URL de imagen..." value={minFunZonePuzzleImageUrl} onChange={(e) => setMinFunZonePuzzleImageUrl(e.target.value)} style={inputStyle} disabled={!minFunZonePuzzleEnabled} />
-                  {(minFunZonePuzzleImageUrl) && (
-                    <div style={{ marginTop: '0.5rem', width: '150px', height: '150px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
-                      <img src={minFunZonePuzzleImageUrl} alt="Puzzle Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>🎬 Videos y Canciones (YouTube)</h4>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={minFunZoneVideosEnabled} onChange={(e) => setMinFunZoneVideosEnabled(e.target.checked)} />
-                <span style={{ fontSize: '0.9rem' }}>Habilitar sección</span>
-              </label>
-            </div>
-            
-            <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de la Tarjeta</label>
-                <input type="text" value={minFunZoneVideosTitle} onChange={(e) => setMinFunZoneVideosTitle(e.target.value)} style={inputStyle} disabled={!minFunZoneVideosEnabled} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Texto del Botón</label>
-                <input type="text" value={minFunZoneVideosButtonText} onChange={(e) => setMinFunZoneVideosButtonText(e.target.value)} style={inputStyle} disabled={!minFunZoneVideosEnabled} />
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>URL del Canal o Lista de YouTube Kids</label>
-              <input type="text" placeholder="https://youtube.com/..." value={minFunZoneVideosUrl} onChange={(e) => setMinFunZoneVideosUrl(e.target.value)} style={inputStyle} disabled={!minFunZoneVideosEnabled} />
-            </div>
-          </div>
-
-          <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isMinFunZoneUploading}>
-            {isMinFunZoneUploading ? 'Subiendo imagen...' : <><Save size={16} /> Guardar Zona de Diversión</>}
-          </button>
         </form>
       )}
 
