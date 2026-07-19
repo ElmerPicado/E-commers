@@ -189,8 +189,7 @@ const DEFAULT_MINISTRIES = [
     fun_zone: {
       puzzle: {
         title: 'Rompecabezas Bíblico',
-        image_url: '',
-        difficulty: '3x3',
+        levels: [],
         enabled: true
       },
       videos: {

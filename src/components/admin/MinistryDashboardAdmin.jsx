@@ -302,8 +302,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     setMinLogoFile(null);
     setMinHeroImageUrl(finalHeroImageUrl);
     setMinHeroImageFile(null);
-    setMinFunZonePuzzleImageUrl(finalPuzzleImageUrl);
-    setMinFunZonePuzzleImageFile(null);
     triggerSuccess('Perfil del ministerio actualizado.');
   };
 
