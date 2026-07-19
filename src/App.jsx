@@ -78,6 +78,10 @@ import BlogDetail from './pages/BlogDetail';
 import DevocionalDetail from './pages/DevocionalDetail';
 import SubmitDevocional from './pages/SubmitDevocional';
 import Recursos from './pages/Recursos';
+import GamesGrid from './pages/GamesGrid';
+import GamePlay from './pages/GamePlay';
+import VideosGrid from './pages/VideosGrid';
+import VideoPlayer from './pages/VideoPlayer';
 
 const ProtectedAdminRoute = () => {
   const { adminUser } = useContext(GalleryContext);
@@ -109,6 +113,10 @@ const LayoutWrapper = () => {
           <Route path="/devocional" element={<SubmitDevocional />} />
           <Route path="/devocionales/nuevo" element={<SubmitDevocional />} />
           <Route path="/recursos" element={<Recursos />} />
+          <Route path="/ninos/juegos" element={<GamesGrid />} />
+          <Route path="/ninos/juegos/:gameId" element={<GamePlay />} />
+          <Route path="/ninos/videos" element={<VideosGrid />} />
+          <Route path="/ninos/videos/:videoId" element={<VideoPlayer />} />
           <Route path="/admin" element={<ProtectedAdminRoute />} />
         </Routes>
       </main>

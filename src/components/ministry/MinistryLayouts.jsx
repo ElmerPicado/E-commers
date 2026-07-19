@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Calendar, MapPin, Heart, MessageSquare, Play, Gamepad2, Puzzle, X } from 'lucide-react';
-import PuzzleGame from './PuzzleGame';
+import { Calendar, MapPin, Heart, MessageSquare, Play, Gamepad2, Puzzle, X, Video as YoutubeIcon, Music } from 'lucide-react';
+import VideosSection from './VideosSection';
 
 export const PlayfulLayout = ({ 
   ministry, 
@@ -12,8 +12,6 @@ export const PlayfulLayout = ({
   setSelectedAlbum,
   setLightboxIndex
 }) => {
-  const [activeScreen, setActiveScreen] = useState('home'); // 'home' or 'games'
-  const [activeGame, setActiveGame] = useState('puzzle'); // 'puzzle' or 'videos'
   const funZone = ministry.fun_zone || {};
   const puzzleData = funZone.puzzle || {};
   const videosData = funZone.videos || {};
@@ -41,256 +39,159 @@ export const PlayfulLayout = ({
       {/* Content wrapper */}
       <div style={{ position: 'relative', zIndex: 1, padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3rem', minHeight: '75vh', justifyContent: 'flex-end', paddingBottom: '10vh' }}>
         
-        {activeScreen === 'games' ? (
-          /* GAME ZONE PAGE OVERLAY (In-place full screen replacement) */
-          <div style={{ width: '100%', maxWidth: '800px', background: 'rgba(255,255,255,0.92)', padding: '2rem 1.5rem', borderRadius: '3rem', border: '5px solid #FF69B4', boxShadow: '0 15px 35px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2rem', animation: 'fadeIn 0.3s ease-out' }}>
-            
-            {/* Header: Back Button + Title */}
-            <div style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', borderBottom: '3px dashed #FF69B4', paddingBottom: '1.25rem' }}>
-              <button 
-                onClick={() => setActiveScreen('home')} 
-                style={{ background: '#FF6347', border: 'none', color: '#fff', padding: '0.6rem 1.5rem', borderRadius: '999px', fontSize: '1.1rem', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 5px 0px #b83214', transform: 'translateY(-2px)' }}
-                onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0px)'; e.currentTarget.style.boxShadow = '0 1px 0px #b83214'; }}
-                onMouseUp={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 5px 0px #b83214'; }}
-              >
-                ⬅️ Volver
-              </button>
-              <h2 style={{ fontSize: '2.2rem', fontWeight: 900, color: '#C71585', margin: 0, textShadow: '1px 1px 0 #fff' }}>
-                🎮 Zona de Juegos 🎮
-              </h2>
-              <div style={{ width: '100px' }} className="desktop-only" /> {/* spacer for layout balance */}
-            </div>
-
-            {/* Game Selector Bar */}
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap', width: '100%' }}>
-              <button 
-                onClick={() => setActiveGame('puzzle')} 
-                style={{ 
-                  background: activeGame === 'puzzle' ? '#8A2BE2' : '#F0F8FF', 
-                  color: activeGame === 'puzzle' ? '#fff' : '#8A2BE2', 
-                  border: '3px solid #8A2BE2', 
-                  borderRadius: '999px', 
-                  padding: '0.6rem 1.8rem', 
-                  fontWeight: 900, 
-                  fontSize: '1.1rem', 
-                  cursor: 'pointer',
-                  boxShadow: activeGame === 'puzzle' ? '0 5px 0px #4B0082' : 'none',
-                  transform: activeGame === 'puzzle' ? 'translateY(-2px)' : 'none'
-                }}
-              >
-                🧩 Rompecabezas Bíblico
-              </button>
-              <button 
-                onClick={() => setActiveGame('videos')} 
-                style={{ 
-                  background: activeGame === 'videos' ? '#FF4500' : '#FFF0F5', 
-                  color: activeGame === 'videos' ? '#fff' : '#FF4500', 
-                  border: '3px solid #FF4500', 
-                  borderRadius: '999px', 
-                  padding: '0.6rem 1.8rem', 
-                  fontWeight: 900, 
-                  fontSize: '1.1rem', 
-                  cursor: 'pointer',
-                  boxShadow: activeGame === 'videos' ? '0 5px 0px #8B0000' : 'none',
-                  transform: activeGame === 'videos' ? 'translateY(-2px)' : 'none'
-                }}
-              >
-                🎬 Videos & Canciones
-              </button>
-            </div>
-
-            {/* Main Interactive Game Stage */}
-            <div style={{ width: '100%', minHeight: '400px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              {activeGame === 'puzzle' && (
-                <PuzzleGame puzzleData={puzzleData} />
-              )}
-
-              {activeGame === 'videos' && (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem', textAlign: 'center', padding: '2rem 1rem', background: '#FFF0F5', borderRadius: '2rem', border: '4px dashed #FF4500', maxWidth: '500px', width: '100%' }}>
-                  <Play size={80} color="#FF4500" style={{ animation: 'pulse 2s infinite' }} />
-                  <h3 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#8B0000', margin: 0 }}>
-                    {videosData.title || 'Videos y Canciones'}
-                  </h3>
-                  <p style={{ color: '#555', fontSize: '1.05rem', lineHeight: 1.5, margin: 0 }}>
-                    ¡Ven a cantar y aprender sobre la palabra de Dios con divertidos videos y canciones infantiles en nuestro canal de YouTube Kids!
-                  </p>
-                  <button 
-                    className="btn" 
-                    onClick={() => { if(videosData.youtube_url) window.open(videosData.youtube_url, '_blank') }} 
-                    style={{ background: '#FF4500', color: '#fff', borderRadius: '999px', padding: '0.75rem 2rem', fontSize: '1.1rem', fontWeight: 900, border: 'none', boxShadow: '0 6px 0 #8B0000', transform: 'translateY(-3px)', cursor: 'pointer' }}
-                    onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0px)'; e.currentTarget.style.boxShadow = '0 2px 0 #8B0000'; }}
-                    onMouseUp={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 6px 0 #8B0000'; }}
-                  >
-                    {videosData.button_text || 'Ver ahora'} 🚀
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Bottom Back Button */}
-            <button 
-              onClick={() => setActiveScreen('home')} 
-              style={{ background: '#FF6347', border: 'none', color: '#fff', padding: '0.6rem 2rem', borderRadius: '999px', fontSize: '1.1rem', fontWeight: 900, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 5px 0px #b83214', transform: 'translateY(-2px)', marginTop: '1rem' }}
-              onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0px)'; e.currentTarget.style.boxShadow = '0 1px 0px #b83214'; }}
-              onMouseUp={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 5px 0px #b83214'; }}
-            >
-              ⬅️ Volver al Ministerio
-            </button>
-            <style>{`
-              @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-            `}</style>
-          </div>
-        ) : (
-          /* REGULAR DOMINICAL HOME SCREEN */
-          <>
-            {/* Hero */}
-            <div style={{ textAlign: 'center', background: 'rgba(255,255,255,0.85)', padding: '2rem', borderRadius: '3rem', border: '4px dashed var(--accent-color)', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', maxWidth: '800px', width: '100%', marginTop: '2rem' }}>
-              {ministry.logo_url && (
-                <img src={ministry.logo_url} alt="Logo" style={{ width: '150px', height: '150px', objectFit: 'contain', marginBottom: '1rem', filter: 'drop-shadow(0 5px 15px rgba(0,0,0,0.2))' }} />
-              )}
-              <h1 style={{ fontSize: '3.5rem', fontWeight: 900, color: 'var(--accent-color)', textShadow: '2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.1)', lineHeight: 1.1, marginBottom: '1rem' }}>
-                {ministry.hero_title || `¡Bienvenidos a ${ministry.name}!`}
-              </h1>
-              <p style={{ fontSize: '1.2rem', color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2rem' }}>
-                {ministry.hero_desc}
-              </p>
-              
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-                <a href={ministry.visual_settings?.primary_action_url || "#"} className="btn" style={{ background: 'var(--accent-color)', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900 }}>
-                  {ministry.visual_settings?.primary_action_text || "¡Quiero Participar!"}
-                </a>
-                <button onClick={() => { setActiveScreen('games'); setActiveGame('puzzle'); }} className="btn" style={{ background: '#3b82f6', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900, cursor: 'pointer' }}>
-                  ¡A Jugar! <Gamepad2 size={24} style={{ display: 'inline', marginLeft: '10px' }} />
-                </button>
-              </div>
-            </div>
-
-            {/* Schedule & Location Box */}
-            {(ministry.schedule || ministry.location) && (
-               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'center', width: '100%', maxWidth: '900px' }}>
-                  <div style={{ flex: '1 1 300px', background: '#FFD700', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #FFA500', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)', transform: 'rotate(-2deg)' }}>
-                    <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#B8860B', marginBottom: '0.5rem' }}>¿Cuándo nos vemos?</h3>
-                    <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#000' }}>{ministry.schedule}</p>
-                  </div>
-                  <div style={{ flex: '1 1 300px', background: '#FF69B4', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #C71585', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)', transform: 'rotate(2deg)' }}>
-                    <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#8B008B', marginBottom: '0.5rem' }}>¿Dónde estamos?</h3>
-                    <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>{ministry.location}</p>
-                  </div>
-               </div>
+        {/* REGULAR DOMINICAL HOME SCREEN */}
+        <>
+          {/* Hero */}
+          <div style={{ textAlign: 'center', background: 'rgba(255,255,255,0.85)', padding: '2rem', borderRadius: '3rem', border: '4px dashed var(--accent-color)', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', maxWidth: '800px', width: '100%', marginTop: '2rem' }}>
+            {ministry.logo_url && (
+              <img src={ministry.logo_url} alt="Logo" style={{ width: '150px', height: '150px', objectFit: 'contain', marginBottom: '1rem', filter: 'drop-shadow(0 5px 15px rgba(0,0,0,0.2))' }} />
             )}
+            <h1 style={{ fontSize: '3.5rem', fontWeight: 900, color: 'var(--accent-color)', textShadow: '2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.1)', lineHeight: 1.1, marginBottom: '1rem' }}>
+              {ministry.hero_title || `¡Bienvenidos a ${ministry.name}!`}
+            </h1>
+            <p style={{ fontSize: '1.2rem', color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2rem' }}>
+              {ministry.hero_desc}
+            </p>
+            
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <a href={ministry.visual_settings?.primary_action_url || "#"} className="btn" style={{ background: 'var(--accent-color)', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900 }}>
+                {ministry.visual_settings?.primary_action_text || "¡Quiero Participar!"}
+              </a>
+              <a href="/ninos/juegos" className="btn" style={{ background: '#3b82f6', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900, cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                ¡A Jugar! <Gamepad2 size={24} style={{ display: 'inline', marginLeft: '10px' }} />
+              </a>
+            </div>
+          </div>
 
-            {/* Fun Zone Banner - Always visible */}
-            <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem' }}>
-              <div 
-                onClick={() => { setActiveScreen('games'); setActiveGame('puzzle'); }}
-                style={{ 
-                  background: 'linear-gradient(135deg, #8A2BE2, #FF1493, #FF4500)', 
-                  borderRadius: '2.5rem', 
-                  padding: '2.5rem 2rem', 
-                  cursor: 'pointer', 
-                  border: '5px solid #FFD700', 
-                  boxShadow: '0 15px 30px rgba(138, 43, 226, 0.3)', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center', 
-                  gap: '1rem',
-                  transition: 'transform 0.2s, box-shadow 0.2s',
-                  position: 'relative',
-                  overflow: 'hidden'
-                }}
-                onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(138, 43, 226, 0.4)'; }}
-                onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(138, 43, 226, 0.3)'; }}
-              >
-                {/* Decorative floating emojis */}
-                <div style={{ position: 'absolute', top: '10px', left: '20px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite' }}>🧩</div>
-                <div style={{ position: 'absolute', top: '15px', right: '25px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite 0.5s' }}>🎬</div>
-                <div style={{ position: 'absolute', bottom: '10px', left: '30%', fontSize: '2rem', opacity: 0.3, animation: 'float 3s ease-in-out infinite 1s' }}>⭐</div>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                  <Gamepad2 size={50} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
-                  <h2 style={{ fontSize: '2.8rem', fontWeight: 900, color: '#FFD700', margin: 0, textShadow: '2px 2px 0 rgba(0,0,0,0.3)' }}>
-                    ¡Zona de Juegos!
-                  </h2>
-                  <Gamepad2 size={50} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
-                </div>
-                <p style={{ color: '#fff', fontSize: '1.15rem', fontWeight: 700, margin: 0, textAlign: 'center', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
-                  Rompecabezas Bíblicos, Videos, Canciones y ¡Mucho Más!
-                </p>
-                <div style={{ background: '#FFD700', color: '#8B4500', padding: '0.6rem 2.5rem', borderRadius: '999px', fontSize: '1.2rem', fontWeight: 900, boxShadow: '0 5px 0 #b89b00', transform: 'translateY(-2px)' }}>
-                  ENTRAR A JUGAR 🚀
-                </div>
-                <style>{`
-                  @keyframes float {
-                    0%, 100% { transform: translateY(0px); }
-                    50% { transform: translateY(-10px); }
-                  }
-                `}</style>
+          {/* Schedule & Location Box */}
+          {(ministry.schedule || ministry.location) && (
+             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'center', width: '100%', maxWidth: '900px' }}>
+               <div style={{ flex: '1 1 300px', background: '#FFD700', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #FFA500', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)', transform: 'rotate(-2deg)' }}>
+                     <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#B8860B', marginBottom: '0.5rem' }}>¿Cuándo nos vemos?</h3>
+                     <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#000' }}>{ministry.schedule}</p>
+               </div>
+               <div style={{ flex: '1 1 300px', background: '#FF69B4', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #C71585', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)', transform: 'rotate(2deg)' }}>
+                     <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#8B008B', marginBottom: '0.5rem' }}>¿Dónde estamos?</h3>
+                     <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>{ministry.location}</p>
+               </div>
+            </div>
+          )}
+
+          {/* Fun Zone Banner - Always visible */}
+          <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem' }}>
+            <a
+              href="/ninos/juegos"
+              style={{ 
+                background: 'linear-gradient(135deg, #8A2BE2, #FF1493, #FF4500)', 
+                borderRadius: '2.5rem', 
+                padding: '2.5rem 2rem', 
+                cursor: 'pointer', 
+                border: '5px solid #FFD700', 
+                boxShadow: '0 15px 30px rgba(138, 43, 226, 0.3)', 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center', 
+                gap: '1rem',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                position: 'relative',
+                overflow: 'hidden',
+                textDecoration: 'none',
+                color: 'inherit'
+              }}
+              onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(138, 43, 226, 0.4)'; }}
+              onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(138, 43, 226, 0.3)'; }}
+            >
+              {/* Decorative floating emojis */}
+              <div style={{ position: 'absolute', top: '10px', left: '20px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite' }}>🧩</div>
+              <div style={{ position: 'absolute', top: '15px', right: '25px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite 0.5s' }}>🎬</div>
+              <div style={{ position: 'absolute', bottom: '10px', left: '30%', fontSize: '2rem', opacity: 0.3, animation: 'float 3s ease-in-out infinite 1s' }}>⭐</div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <Gamepad2 size={50} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+                <h2 style={{ fontSize: '2.8rem', fontWeight: 900, color: '#FFD700', margin: 0, textShadow: '2px 2px 0 rgba(0,0,0,0.3)' }}>
+                  ¡Zona de Juegos!
+                </h2>
+                <Gamepad2 size={50} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+              </div>
+              <p style={{ color: '#fff', fontSize: '1.15rem', fontWeight: 700, margin: 0, textAlign: 'center', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                Rompecabezas Bíblicos, Videos, Canciones y ¡Mucho Más!
+              </p>
+              <div style={{ background: '#FFD700', color: '#8B4500', padding: '0.6rem 2.5rem', borderRadius: '999px', fontSize: '1.2rem', fontWeight: 900, boxShadow: '0 5px 0 #b89b00', transform: 'translateY(-2px)' }}>
+                ENTRAR A JUGAR 🚀
+              </div>
+              <style>{`
+                @keyframes float {
+                  0%, 100% { transform: translateY(0px); }
+                  50% { transform: translateY(-10px); }
+                }
+              `}</style>
+            </a>
+          </section>
+
+          {/* Videos Section */}
+          <section id="videos" style={{ width: '100%', maxWidth: '1000px', marginTop: '1rem' }}>
+            <VideosSection ministry={ministry} />
+          </section>
+
+          {/* Activities Section - Playful Style */}
+          {ministryActivities && ministryActivities.length > 0 && (
+            <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
+              <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#FF1493', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
+                🌟 ¡Nuestras Actividades! 🌟
+              </h2>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
+                {ministryActivities.map((act) => (
+                  <div key={act.id} onClick={() => setSelectedActivity(act)} style={{ width: '100%', maxWidth: '320px', background: '#FFF', borderRadius: '2rem', overflow: 'hidden', border: '4px solid #32CD32', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', cursor: 'pointer', transition: 'transform 0.2s', transform: 'scale(1)', ':hover': { transform: 'scale(1.05)' } }}>
+                    {act.image_url ? (
+                      <div style={{ height: '200px', width: '100%', background: '#f0f0f0' }}>
+                        <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    ) : (
+                      <div style={{ height: '150px', background: '#32CD32', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Calendar size={60} color="#fff" />
+                      </div>
+                    )}
+                    <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+                      <div style={{ background: '#FFD700', color: '#8B4500', display: 'inline-block', padding: '0.25rem 1rem', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '1rem', border: '2px solid #DAA520' }}>
+                        {new Date(act.date + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                      </div>
+                      <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#228B22', marginBottom: '0.5rem', lineHeight: 1.2 }}>{act.title}</h3>
+                      <p style={{ color: '#666', fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{act.description}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </section>
+          )}
 
-            {/* Activities Section - Playful Style */}
-            {ministryActivities && ministryActivities.length > 0 && (
-              <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
-                <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#FF1493', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
-                  🌟 ¡Nuestras Actividades! 🌟
-                </h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
-                  {ministryActivities.map((act) => (
-                    <div key={act.id} onClick={() => setSelectedActivity(act)} style={{ width: '100%', maxWidth: '320px', background: '#FFF', borderRadius: '2rem', overflow: 'hidden', border: '4px solid #32CD32', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', cursor: 'pointer', transition: 'transform 0.2s', transform: 'scale(1)', ':hover': { transform: 'scale(1.05)' } }}>
-                      {act.image_url ? (
-                        <div style={{ height: '200px', width: '100%', background: '#f0f0f0' }}>
-                          <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          {/* Gallery Section - Playful Style */}
+          {ministryAlbums && ministryAlbums.length > 0 && (
+            <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto', background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.5))', borderRadius: '3rem' }}>
+              <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1E90FF', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
+                📸 ¡Nuestros Recuerdos! 📸
+              </h2>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
+                {ministryAlbums.map((album) => (
+                  <div key={album.id} style={{ width: '100%', maxWidth: '300px', background: '#FFF', borderRadius: '2rem', padding: '1rem', border: '4px solid #1E90FF', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', transform: `rotate(${Math.random() * 6 - 3}deg)` }}>
+                    <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0000CD', textAlign: 'center', marginBottom: '1rem' }}>{album.title}</h3>
+                    {album.photos && album.photos.length > 0 ? (
+                      <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: '1rem', overflow: 'hidden', cursor: 'pointer', border: '2px solid #87CEEB' }} onClick={() => { setSelectedAlbum(album); setLightboxIndex(0); }}>
+                        <img src={album.photos[0]} alt={album.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(30, 144, 255, 0.8)', color: '#fff', textAlign: 'center', padding: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
+                          Ver {album.photos.length} fotos
                         </div>
-                      ) : (
-                        <div style={{ height: '150px', background: '#32CD32', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <Calendar size={60} color="#fff" />
-                        </div>
-                      )}
-                      <div style={{ padding: '1.5rem', textAlign: 'center' }}>
-                        <div style={{ background: '#FFD700', color: '#8B4500', display: 'inline-block', padding: '0.25rem 1rem', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '1rem', border: '2px solid #DAA520' }}>
-                          {new Date(act.date + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-                        </div>
-                        <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#228B22', marginBottom: '0.5rem', lineHeight: 1.2 }}>{act.title}</h3>
-                        <p style={{ color: '#666', fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{act.description}</p>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-
-            {/* Gallery Section - Playful Style */}
-            {ministryAlbums && ministryAlbums.length > 0 && (
-              <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto', background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.5))', borderRadius: '3rem' }}>
-                <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1E90FF', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
-                  📸 ¡Nuestros Recuerdos! 📸
-                </h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
-                  {ministryAlbums.map((album) => (
-                    <div key={album.id} style={{ width: '100%', maxWidth: '300px', background: '#FFF', borderRadius: '2rem', padding: '1rem', border: '4px solid #1E90FF', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', transform: `rotate(${Math.random() * 6 - 3}deg)` }}>
-                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0000CD', textAlign: 'center', marginBottom: '1rem' }}>{album.title}</h3>
-                      {album.photos && album.photos.length > 0 ? (
-                        <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: '1rem', overflow: 'hidden', cursor: 'pointer', border: '2px solid #87CEEB' }} onClick={() => { setSelectedAlbum(album); setLightboxIndex(0); }}>
-                          <img src={album.photos[0]} alt={album.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(30, 144, 255, 0.8)', color: '#fff', textAlign: 'center', padding: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
-                            Ver {album.photos.length} fotos
-                          </div>
-                        </div>
-                      ) : (
+                    ) : (
                          <div style={{ width: '100%', aspectRatio: '1', background: '#F0F8FF', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1E90FF', fontWeight: 700 }}>
                            Sin fotos aún
                          </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </section>
-            )}
-          </>
-        )}
-
-
-
+                    )}
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+        </>
       </div>
     </div>
   );
