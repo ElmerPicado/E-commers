@@ -1,0 +1,474 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { supabase } from '../../lib/supabaseClient';
+import {
+  BookOpen, Video, FileText, CheckCircle, Clock, AlertCircle,
+  ArrowLeft, Upload, Download, Eye, Edit, Trash2, MoreVertical,
+  ChevronDown, ChevronRight, Search, Filter, Home, LogOut,
+  GraduationCap, Award, Star, Target, MessageSquare
+} from 'lucide-react';
+
+const AulaVirtual = () => {
+  const navigate = useNavigate();
+  const [step, setStep] = useState('login');
+  const [estudiante, setEstudiante] = useState(null);
+  const [tareas, setTareas] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState(null);
+  const [codigo, setCodigo] = useState('');
+  const [activeFilter, setActiveFilter] = useState('all');
+  const [showEntregaModal, setShowEntregaModal] = useState(null);
+  const [entregaLoading, setEntregaLoading] = useState(false);
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoginError(null);
+    setLoginLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('validar_codigo_estudiante', {
+        p_codigo: codigo.toUpperCase().trim(),
+      });
+      if (error) throw error;
+      if (!data || data.length === 0) {
+        setLoginError('Código inválido. Verifica y vuelve a intentar.');
+        return;
+      }
+      setEstudiante(data[0]);
+      setStep('dashboard');
+      await loadTareas(data[0].id);
+    } catch (err) {
+      setLoginError('Error al validar código');
+    } finally {
+      setLoginLoading(false);
+    }
+  };
+
+  const loadTareas = async (estudianteId) => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('obtener_tareas_estudiante', {
+        p_estudiante_id: estudianteId,
+      });
+      if (error) throw error;
+      setTareas(data || []);
+    } catch (err) {
+      console.error('Error loading tareas:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEntregar = async (formData) => {
+    setEntregaLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/upload-entrega`, {
+        method: 'POST',
+        body: formData,
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error);
+      setShowEntregaModal(null);
+      if (estudiante) await loadTareas(estudiante.id);
+      alert('¡Entrega realizada correctamente!');
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'Error al entregar');
+    } finally {
+      setEntregaLoading(false);
+    }
+  };
+
+  const handleFileSubmit = (tarea) => (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    formData.append('codigo_estudiante', codigo);
+    formData.append('tarea_id', tarea.tarea_id);
+    handleEntregar(formData);
+  };
+
+  const handleUrlSubmit = (tarea, url) => {
+    const formData = new FormData();
+    formData.append('codigo_estudiante', codigo);
+    formData.append('tarea_id', tarea.tarea_id);
+    formData.append('url_entrega', url);
+    handleEntregar(formData);
+  };
+
+  const formatDate = (dateStr) =>
+    dateStr ? new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', weekday: 'short' }) : 'Sin fecha';
+
+  const getEstadoBadge = (estado) => {
+    switch (estado) {
+      case 'pendiente': return { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: Clock, label: 'Pendiente' };
+      case 'entregado': return { bg: 'bg-blue-100', text: 'text-blue-700', icon: Upload, label: 'Entregado' };
+      case 'revisado': return { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle, label: 'Revisado' };
+      default: return { bg: 'bg-gray-100', text: 'text-gray-700', icon: AlertCircle, label: estado };
+    }
+  };
+
+  const getTipoIcon = (tipo) => {
+    switch (tipo) {
+      case 'video': return Video;
+      case 'archivo': return FileText;
+      case 'cuestionario': return MessageSquare;
+      default: return FileText;
+    }
+  };
+
+  const filteredTareas = tareas.filter(t =>
+    activeFilter === 'all' || t.estado === activeFilter
+  );
+
+  if (step === 'login') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-green-500 rounded-2xl flex items-center justify-center">
+              <GraduationCap className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-800">Aula Virtual IMR4 Niños</h1>
+            <p className="text-gray-500 mt-1">Ingresa tu código de acceso para continuar</p>
+          </div>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            {loginError && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
+                <AlertCircle className="w-5 h-5" />
+                {loginError}
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Código de Acceso</label>
+              <input
+                type="text"
+                value={codigo}
+                onChange={e => setCodigo(e.target.value.toUpperCase())}
+                placeholder="Ej: GENESIS-2026-001"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg tracking-wider font-mono"
+                required
+                maxLength={30}
+                disabled={loginLoading}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loginLoading || !codigo.trim()}
+              className="w-full py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+              {loginLoading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                  Entrando...
+                </>
+              ) : (
+                <>
+                  <BookOpen className="w-5 h-5" />
+                  Entrar al Aula
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
+            <p className="font-medium text-gray-800 mb-2">¿No tienes código?</p>
+            <p>Pide a tu maestra o líder de división que te lo proporcione. El código tiene formato: <code className="font-mono bg-white px-1 rounded">DIVISION-AÑO-NÚMERO</code></p>
+          </div>
+
+          <div className="mt-4 text-center">
+            <button onClick={() => navigate('/ministerio/ninos')} className="text-blue-600 hover:underline text-sm flex items-center justify-center gap-1">
+              <ArrowLeft className="w-4 h-4" />
+              Volver a la página de Niños
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <button onClick={() => navigate('/ministerio/ninos')} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
+                <ArrowLeft className="w-5 h-5" />
+              </button>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-green-500 rounded-xl flex items-center justify-center">
+                <GraduationCap className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-800">Aula Virtual</h1>
+                <p className="text-sm text-gray-500">{estudiante?.division_nombre} · {estudiante?.nombre} {estudiante?.apellido}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
+                {estudiante?.division_codigo}
+              </span>
+              <button onClick={() => { setStep('login'); setCodigo(''); setEstudiante(null); }} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
+                <LogOut className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Stats */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {[
+            { label: 'Total Tareas', value: tareas.length, icon: FileText, color: 'bg-blue-500' },
+            { label: 'Pendientes', value: tareas.filter(t => t.estado === 'pendiente').length, icon: Clock, color: 'bg-yellow-500' },
+            { label: 'Entregadas', value: tareas.filter(t => t.estado === 'entregado').length, icon: Upload, color: 'bg-blue-500' },
+            { label: 'Revisadas', value: tareas.filter(t => t.estado === 'revisado').length, icon: CheckCircle, color: 'bg-green-500' },
+          ].map(item => (
+            <div key={item.label} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">{item.label}</p>
+                  <p className="text-2xl font-bold text-gray-800">{item.value}</p>
+                </div>
+                <div className={`p-3 rounded-full ${item.color}`}>
+                  <item.icon className="w-6 h-6 text-white" />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Filters */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
+          <div className="flex flex-wrap gap-2">
+            {['all', 'pendiente', 'entregado', 'revisado'].map(f => {
+              const badge = getEstadoBadge(f);
+              const Icon = badge.icon;
+              return (
+                <button
+                  key={f}
+                  onClick={() => setActiveFilter(f)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                    activeFilter === f
+                      ? `${badge.bg} ${badge.text}`
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <Icon className="w-4 h-4 inline mr-1" />
+                  {f === 'all' ? 'Todas' : badge.label}
+                  <span className="ml-1 px-2 py-0.5 bg-white/50 rounded-full text-xs">
+                    {f === 'all' ? tareas.length : tareas.filter(t => t.estado === f).length}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Tareas List */}
+        {loading ? (
+          <div className="text-center py-12">
+            <svg className="animate-spin h-10 w-10 mx-auto text-blue-500" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+            <p className="mt-2 text-gray-500">Cargando tareas...</p>
+          </div>
+        ) : filteredTareas.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
+            <FileText className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+            <h3 className="text-lg font-medium text-gray-500 mb-1">
+              {activeFilter === 'all' ? 'No hay tareas asignadas' : `No hay tareas ${getEstadoBadge(activeFilter).label.toLowerCase()}`}
+            </h3>
+            <p className="text-gray-400">Cuando tu maestra asigne una tarea, aparecerá aquí.</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredTareas.map(tarea => {
+              const badge = getEstadoBadge(tarea.estado);
+              const Icon = getTipoIcon(tarea.tarea_tipo);
+              const isVencida = tarea.tarea_fecha_entrega && new Date(tarea.tarea_fecha_entrega) < new Date() && tarea.estado === 'pendiente';
+              
+              return (
+                <div key={tarea.tarea_id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+                  <div className="p-5">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className={`p-2 rounded-lg ${tarea.tarea_tipo === 'video' ? 'bg-red-100 text-red-600' : tarea.tarea_tipo === 'archivo' ? 'bg-blue-100 text-blue-600' : 'bg-purple-100 text-purple-600'}`}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-gray-800">{tarea.tarea_titulo}</h3>
+                            <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500 mt-1">
+                              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${badge.bg} ${badge.text}`}>
+                                <badge.icon className="w-3 h-3 inline mr-1" /> {badge.label}
+                              </span>
+                              {isVencida && <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">⚠ Vencida</span>}
+                              <span>{tarea.seccion_nombre}</span>
+                              <span>{tarea.division_nombre}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {tarea.tarea_descripcion && (
+                          <p className="text-gray-600 mb-3">{tarea.tarea_descripcion}</p>
+                        )}
+
+                        <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-4 h-4" />
+                            Clase: {formatDate(tarea.clase_fecha)}
+                          </span>
+                          {tarea.tarea_fecha_entrega && (
+                            <span className={`flex items-center gap-1 ${isVencida ? 'text-red-500 font-medium' : ''}`}>
+                              <Target className="w-4 h-4" />
+                              Entrega: {formatDate(tarea.tarea_fecha_entrega)}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Recurso / Video */}
+                        {tarea.url_recurso && (
+                          <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                            <a href={tarea.url_recurso} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline">
+                              <Eye className="w-4 h-4" />
+                              Ver material de la tarea
+                            </a>
+                          </div>
+                        )}
+
+                        {/* Cuestionario */}
+                        {tarea.tarea_tipo === 'cuestionario' && tarea.contenido_json && (
+                          <div className="mt-3">
+                            <button className="btn-primary text-sm">
+                              <MessageSquare className="w-4 h-4 mr-1" />
+                              Responder cuestionario
+                            </button>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        {tarea.estado === 'pendiente' && (
+                          <button
+                            onClick={() => setShowEntregaModal(tarea)}
+                            className="btn-primary text-sm px-4"
+                          >
+                            <Upload className="w-4 h-4 mr-1" /> Entregar
+                          </button>
+                        )}
+                        {tarea.estado === 'entregado' && (
+                          <div className="text-xs text-blue-600">
+                            Entregado: {tarea.entregado_en ? formatDate(tarea.entregado_en) : ''}
+                          </div>
+                        )}
+                        {tarea.estado === 'revisado' && (
+                          <div className="text-right">
+                            <div className="text-xs text-green-600">Revisado</div>
+                            {tarea.nota !== null && (
+                              <div className="flex items-center gap-1 text-sm font-medium text-green-700">
+                                <Star className="w-4 h-4 fill-current" />
+                                Nota: {tarea.nota}/10
+                              </div>
+                            )}
+                            {tarea.feedback && (
+                              <button className="mt-1 text-xs text-gray-500 hover:text-gray-700 underline">
+                                Ver retroalimentación
+                              </button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  {tarea.estado === 'revisado' && tarea.feedback && (
+                    <div className="bg-green-50 border-t p-4 px-5">
+                      <p className="font-medium text-green-800 mb-1">Retroalimentación de tu maestra:</p>
+                      <p className="text-gray-700">{tarea.feedback}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Entrega Modal */}
+        {showEntregaModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowEntregaModal(null)}>
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white">
+                <h3 className="font-semibold">Entregar Tarea</h3>
+                <button onClick={() => setShowEntregaModal(null)} className="p-2 hover:bg-gray-100 rounded-lg">✕</button>
+              </div>
+              <div className="p-4">
+                <h4 className="font-medium mb-1">{showEntregaModal.tarea_titulo}</h4>
+                <p className="text-sm text-gray-500 mb-4">{showEntregaModal.tarea_descripcion}</p>
+
+                <form onSubmit={handleFileSubmit(showEntregaModal)} className="space-y-4">
+                  {showEntregaModal.tarea_tipo === 'archivo' && (
+                    <div>
+                      <label className="label">Subir archivo</label>
+                      <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mp3,.wav,.doc,.docx" className="input" required />
+                    </div>
+                  )}
+                  {showEntregaModal.tarea_tipo === 'enlace' && (
+                    <div>
+                      <label className="label">URL de entrega</label>
+                      <input type="url" name="url_entrega" className="input" placeholder="https://..." required />
+                    </div>
+                  )}
+                  {showEntregaModal.tarea_tipo === 'cuestionario' && (
+                    <div>
+                      <label className="label">Tus respuestas (JSON)</label>
+                      <textarea name="respuesta_json" className="input font-mono text-sm" rows={6} placeholder='{"pregunta1": "respuesta", "pregunta2": "respuesta"}'></textarea>
+                    </div>
+                  )}
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <button type="button" onClick={() => setShowEntregaModal(null)} className="btn-secondary">Cancelar</button>
+                    <button type="submit" disabled={entregaLoading} className="btn-primary">
+                      {entregaLoading ? 'Enviando...' : 'Entregar Tarea'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+    </div>
+  );
+};
+
+const getEstadoBadge = (estado) => {
+  switch (estado) {
+    case 'pendiente': return { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: Clock, label: 'Pendiente' };
+    case 'entregado': return { bg: 'bg-blue-100', text: 'text-blue-700', icon: Upload, label: 'Entregado' };
+    case 'revisado': return { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle, label: 'Revisado' };
+    default: return { bg: 'bg-gray-100', text: 'text-gray-700', icon: AlertCircle, label: estado };
+  }
+};
+
+const getTipoIcon = (tipo) => {
+  switch (tipo) {
+    case 'video': return Video;
+    case 'archivo': return FileText;
+    case 'cuestionario': return MessageSquare;
+    default: return FileText;
+  }
+};
+
+const style = document.createElement('style');
+style.textContent = `
+  .btn-primary { @apply bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed; }
+  .btn-secondary { @apply bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition; }
+  .input { @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent; }
+  .label { @apply block text-sm font-medium text-gray-700 mb-1; }
+`;
+document.head.appendChild(style);
+
+export default AulaVirtual;

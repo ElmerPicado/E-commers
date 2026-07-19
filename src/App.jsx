@@ -82,6 +82,9 @@ import GamesGrid from './pages/GamesGrid';
 import GamePlay from './pages/GamePlay';
 import VideosGrid from './pages/VideosGrid';
 import VideoPlayer from './pages/VideoPlayer';
+import MaestrosDashboard from './pages/maestros/Dashboard';
+import MaestrosLogin from './pages/maestros/MaestrosLogin';
+import AulaVirtual from './pages/aula/AulaVirtual';
 
 const ProtectedAdminRoute = () => {
   const { adminUser } = useContext(GalleryContext);
@@ -117,6 +120,14 @@ const LayoutWrapper = () => {
           <Route path="/ninos/juegos/:gameId" element={<GamePlay />} />
           <Route path="/ninos/videos" element={<VideosGrid />} />
           <Route path="/ninos/videos/:videoId" element={<VideoPlayer />} />
+          
+          {/* Maestros Platform */}
+          <Route path="/maestros/login" element={<MaestrosLogin />} />
+          <Route path="/maestros/*" element={<MaestrosDashboard />} />
+          
+          {/* Aula Virtual Estudiantes */}
+          <Route path="/aula/*" element={<AulaVirtual />} />
+          
           <Route path="/admin" element={<ProtectedAdminRoute />} />
         </Routes>
       </main>
