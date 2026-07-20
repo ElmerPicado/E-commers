@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
   BookOpen, Video, FileText, CheckCircle, Clock, AlertCircle,
-  ArrowLeft, Upload, Eye, Star, Target, MessageSquare, LogOut, GraduationCap
+  ArrowLeft, Upload, Eye, Star, Target, MessageSquare, LogOut, GraduationCap, Sparkles
 } from 'lucide-react';
 
 // === Clases de estilos reutilizables ===
@@ -120,91 +120,99 @@ const AulaVirtual = () => {
     activeFilter === 'all' || t.estado === activeFilter
   );
 
-  // ================= VISTA DE LOGIN =================
+  // ================= NUEVA VISTA DE LOGIN REMODELADA =================
   if (step === 'login') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-gray-100 text-center">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-sky-400 via-indigo-500 to-purple-600 p-4 relative overflow-hidden">
+        {/* Adornos infantiles flotantes de fondo */}
+        <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
+        <div className="absolute bottom-10 right-10 w-32 h-32 bg-yellow-300/20 rounded-full blur-2xl"></div>
 
-          {/* Header del Modal */}
+        <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-8 border-4 border-white/50 text-center relative z-10">
+
+          {/* Header con ícono grande e infantil */}
           <div className="mb-6">
-            <div className="w-20 h-20 mx-auto mb-3 bg-purple-100 rounded-full flex items-center justify-center shadow-inner">
-              <GraduationCap className="w-10 h-10 text-purple-600" />
+            <div className="w-24 h-24 mx-auto mb-3 bg-gradient-to-tr from-yellow-300 to-amber-400 rounded-2xl rotate-3 flex items-center justify-center shadow-lg border-2 border-white">
+              <GraduationCap className="w-12 h-12 text-amber-900 -rotate-3" />
             </div>
-            <h1 className="text-2xl font-black text-purple-900 flex items-center justify-center gap-2">
-              🏫 Aula Virtual IMR4
+            <span className="inline-flex items-center gap-1 px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs font-black uppercase tracking-widest mb-2">
+              <Sparkles className="w-3.5 h-3.5" /> Aula Virtual IMR4
+            </span>
+            <h1 className="text-3xl font-black text-gray-800 tracking-tight">
+              ¡Hola, Niño/a!
             </h1>
-            <p className="text-xl font-bold text-purple-700 mt-0.5">Niños</p>
+            <p className="text-sm font-semibold text-gray-500 mt-1">
+              Ingresa tu código mágico para ver tus tareas
+            </p>
           </div>
 
           {/* Formulario Estudiante */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-5">
             {loginError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 text-left">
+              <div className="bg-red-50 border-2 border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 text-left animate-shake">
                 <AlertCircle className="w-5 h-5 shrink-0" />
                 {loginError}
               </div>
             )}
 
             <div className="text-left">
-              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">
-                Ingresa tu código de acceso:
+              <label className="block text-xs font-black text-purple-900 uppercase tracking-wider mb-2 text-center">
+                Tu Código de Acceso:
               </label>
               <input
                 type="text"
                 value={codigo}
                 onChange={e => setCodigo(e.target.value.toUpperCase())}
-                placeholder="Ej: GENESIS-2026-001"
-                className="w-full px-4 py-3 border-2 border-purple-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-lg tracking-wider font-mono uppercase transition"
+                placeholder="EJ: GENESIS-2026-001"
+                className="w-full px-4 py-4 border-3 border-purple-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-purple-300 focus:border-purple-500 text-center text-xl font-black tracking-widest font-mono uppercase bg-purple-50/50 text-purple-900 placeholder-purple-300 transition-all shadow-inner"
                 required
                 maxLength={30}
                 disabled={loginLoading}
               />
             </div>
 
-            {/* BOTÓN PRINCIPAL PARA ESTUDIANTES */}
+            {/* BOTÓN DIVERTIDO Y VISIBLE PARA NIÑOS */}
             <button
               type="submit"
               disabled={loginLoading || !codigo.trim()}
-              className="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-extrabold text-lg rounded-full shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.01] active:scale-[0.99] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-white font-black text-xl rounded-2xl shadow-xl shadow-teal-500/30 hover:shadow-teal-500/50 hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 border-b-4 border-teal-700"
             >
               {loginLoading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-                  Entrando...
+                  <svg className="animate-spin h-6 w-6 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                  <span>Entrando...</span>
                 </>
               ) : (
                 <>
-                  <BookOpen className="w-5 h-5" />
-                  Soy Estudiante
+                  <BookOpen className="w-6 h-6 stroke-[2.5]" />
+                  <span>¡ENTRAR A MI CLASE!</span>
                 </>
               )}
             </button>
           </form>
 
-          {/* SECCIÓN INFERIOR: ENLACE DISCRETO MAESTRAS */}
-          <div className="mt-8 pt-5 border-t border-gray-100 text-xs text-gray-500">
-            <p className="mb-2">
-              ¿No tienes código? Pide a tu líder que te proporcione tu código de acceso.
+          {/* SECCIÓN INFERIOR DISCRETA PARA MAESTRAS / LÍDERES */}
+          <div className="mt-8 pt-5 border-t border-gray-100">
+            <p className="text-xs text-gray-400 mb-2">
+              ¿Eres la maestra o líder del grupo?
             </p>
-
             <button
               type="button"
-              onClick={() => navigate('/login')} // Cambia esta ruta si tu login de maestras está en otra URL
-              className="mt-1 text-purple-700 font-bold underline hover:text-purple-900 transition cursor-pointer"
+              onClick={() => navigate('/login')}
+              className="text-xs text-indigo-600 hover:text-indigo-800 font-bold underline decoration-2 underline-offset-4 transition"
             >
-              ¿Eres maestra / líder? Ingresa aquí
+              Acceso a Panel de Maestras →
             </button>
           </div>
 
           {/* Botón Volver */}
-          <div className="mt-4">
+          <div className="mt-6">
             <button
               onClick={() => navigate('/ministerio/ninos')}
-              className="text-gray-400 hover:text-gray-600 text-xs inline-flex items-center justify-center gap-1"
+              className="text-gray-400 hover:text-gray-600 text-xs font-semibold inline-flex items-center justify-center gap-1.5 transition"
             >
-              <ArrowLeft className="w-3.5 h-3.5" />
-              Volver a la página de Niños
+              <ArrowLeft className="w-4 h-4" />
+              Volver al Inicio
             </button>
           </div>
 
