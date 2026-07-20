@@ -242,7 +242,6 @@ export const PlayfulLayout = ({
   const funZone = ministry.fun_zone || {};
   const puzzleData = funZone.puzzle || {};
   const videosData = funZone.videos || {};
-  const hasFunZone = (puzzleData.enabled && (puzzleData.image_url || (puzzleData.levels && puzzleData.levels.length > 0))) || (videosData.enabled && videosData.youtube_url);
 
   return (
     <div className={getThemeClass(ministry)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif' }}>
@@ -375,8 +374,25 @@ export const PlayfulLayout = ({
                  🌟 ¡Nuestras Actividades! 🌟
                </h2>
                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
-                 {ministryActivities.map((act) => (
-                   <div key={act.id} onClick={() => setSelectedActivity(act)} style={{ width: '100%', maxWidth: '320px', background: '#FFF', borderRadius: '2rem', overflow: 'hidden', border: '4px solid #32CD32', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', cursor: 'pointer', transition: 'transform 0.2s', transform: 'scale(1)', ':hover': { transform: 'scale(1.05)' } }}>
+{ministryActivities.map((act) => (
+                    <div
+                      key={act.id}
+                      onClick={() => setSelectedActivity(act)}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                      style={{
+                        width: '100%',
+                        maxWidth: '320px',
+                        background: '#FFF',
+                        borderRadius: '2rem',
+                        overflow: 'hidden',
+                        border: '4px solid #32CD32',
+                        boxShadow: '0 10px 20px rgba(0,0,0,0.15)',
+                        cursor: 'pointer',
+                        transition: 'transform 0.2s',
+                        transform: 'scale(1)'
+                      }}
+                    >
                      {act.image_url ? (
                        <div style={{ height: '200px', width: '100%', background: '#f0f0f0' }}>
                          <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -393,9 +409,9 @@ export const PlayfulLayout = ({
                        <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#228B22', marginBottom: '0.5rem', lineHeight: 1.2 }}>{act.title}</h3>
                        <p style={{ color: '#666', fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{act.description}</p>
                      </div>
-                   </div>
-                 ))}
-               </div>
+</div>
+                     ))}
+                </div>
              </section>
            )}
 
@@ -406,32 +422,38 @@ export const PlayfulLayout = ({
                  📸 ¡Nuestros Recuerdos! 📸
                </h2>
                <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
-                 {ministryAlbums.map((album) => (
-                   <div key={album.id} style={{ width: '100%', maxWidth: '300px', background: '#FFF', borderRadius: '2rem', padding: '1rem', border: '4px solid #1E90FF', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', transform: `rotate(${Math.random() * 6 - 3}deg)` }}>
-                     <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0000CD', textAlign: 'center', marginBottom: '1rem' }}>{album.title}</h3>
-                     {album.photos && album.photos.length > 0 ? (
-                       <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: '1rem', overflow: 'hidden', cursor: 'pointer', border: '2px solid #87CEEB' }} onClick={() => { setSelectedAlbum(album); setLightboxIndex(0); }}>
-                         <img src={album.photos[0]} alt={album.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(30, 144, 255, 0.8)', color: '#fff', textAlign: 'center', padding: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
-                           Ver {album.photos.length} fotos
-                         </div>
-                       </div>
-                     ) : (
+{ministryAlbums.map((album) => {
+                    const rotation = parseInt(album.id.toString().slice(-2), 10) % 6 - 3;
+                    return (
+                      <div key={album.id} style={{ width: '100%', maxWidth: '300px', background: '#FFF', borderRadius: '2rem', padding: '1rem', border: '4px solid #1E90FF', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', transform: `rotate(${rotation}deg)` }}>
+                        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0000CD', textAlign: 'center', marginBottom: '1rem' }}>{album.title}</h3>
+                        {album.photos && album.photos.length > 0 ? (
+                          <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: '1rem', overflow: 'hidden', cursor: 'pointer', border: '2px solid #87CEEB' }} onClick={() => { setSelectedAlbum(album); setLightboxIndex(0); }}>
+                            <img src={album.photos[0]} alt={album.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(30, 144, 255, 0.8)', color: '#fff', textAlign: 'center', padding: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
+                              Ver {album.photos.length} fotos
+                            </div>
+                          </div>
+                        ) : (
                           <div style={{ width: '100%', aspectRatio: '1', background: '#F0F8FF', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1E90FF', fontWeight: 700 }}>
                             Sin fotos aún
                           </div>
-                     )}
-                   </div>
-                 ))}
-               </div>
-             </section>
-           )}
-         </div>
-       </div>
-     </div>
-     {showAulaVirtual && (
-       <AulaVirtualModal isOpen={showAulaVirtual} onClose={() => setShowAulaVirtual(false)} />
-     )}
-   </div>
+                        )}
+                      </div>
+                    )
+                    }})}
+
+                </div>
+              </section>
+            )}
+
+
+          </div>
+        </div>
+      </div>
+      {showAulaVirtual && (
+        <AulaVirtualModal isOpen={showAulaVirtual} onClose={() => setShowAulaVirtual(false)} />
+      )}
+    </div>
   );
 };
