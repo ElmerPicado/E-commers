@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Clock, BookOpen, Video, Image as ImageIcon, Sun, Moon, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Clock, BookOpen, Video, Image as ImageIcon, Sun, Moon, ChevronLeft, ChevronRight, User } from 'lucide-react';
 import './Historia.css';
 
 const MediaCarousel = ({ mediaUrls }) => {

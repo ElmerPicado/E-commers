@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { supabase, isSupabaseConfigured } from '../../supabaseClient';
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../../supabaseClient';
 import { Trash2, Mail, MailOpen, Phone, Calendar, User, Download } from 'lucide-react';
 
 export default function ContactFormsAdmin() {

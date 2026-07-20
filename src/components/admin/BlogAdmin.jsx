@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, BookOpen, Upload, X } from 'lucide-react';
+import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, BookOpen, Upload, X, User } from 'lucide-react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { v4 as uuidv4 } from 'uuid';
 import { supabase } from '../../supabaseClient';
