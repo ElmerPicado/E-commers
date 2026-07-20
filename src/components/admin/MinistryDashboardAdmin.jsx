@@ -784,7 +784,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         )}
         {ministryId === 'ninos' && (
           <button onClick={() => setActiveTab('videos')} className={`btn ${activeTab === 'videos' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'videos' ? 'transparent' : '', color: activeTab !== 'videos' ? 'var(--text-secondary)' : '' }}>
-            <Youtube size={16} /> Videos
+            <YoutubeIcon size={16} /> Videos
           </button>
         )}
         <button onClick={() => setActiveTab('photos')} className={`btn ${activeTab === 'photos' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'photos' ? 'transparent' : '', color: activeTab !== 'photos' ? 'var(--text-secondary)' : '' }}>
