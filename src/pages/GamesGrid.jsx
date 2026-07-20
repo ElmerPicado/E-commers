@@ -7,7 +7,7 @@ const GamesGrid = () => {
   const { ministries } = useContext(GalleryContext);
   const ninosMinistry = ministries.find(m => m.id === 'ninos');
   const funZone = ninosMinistry?.fun_zone || {};
-  const puzzleData = fun_zone.puzzle || {};
+  const puzzleData = funZone.puzzle || {};
   const levels = puzzleData.levels || [];
   const hasImageOnly = !Array.isArray(levels) || levels.length === 0 ? Boolean(puzzleData.image_url) : false;
   const effectiveLevels = levels.length > 0 ? levels : (hasImageOnly ? [{ id: 'legacy', image_url: puzzleData.image_url }] : []);
