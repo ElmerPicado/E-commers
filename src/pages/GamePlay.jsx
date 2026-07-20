@@ -27,7 +27,7 @@ const GamePlay = () => {
     }
   }, [levelParam, levels.length]);
 
-  if (gameId !== 'puzzle-biblico' || levels.length === 0) {
+  if ((gameId !== 'puzzle-biblico' && gameId !== 'biblical-puzzle') || levels.length === 0) {
     return (
       <div style={{
         minHeight: '100vh',
