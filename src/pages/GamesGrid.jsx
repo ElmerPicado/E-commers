@@ -5,9 +5,9 @@ import { GalleryContext } from '../context/GalleryContext';
 
 const GamesGrid = () => {
   const { ministries } = useContext(GalleryContext);
-  const ninosMinistry = ministries.find(m => m.id === 'ninos');
+  const ninosMinistry = ministries?.find(m => m.id === 'ninos');
   const funZone = ninosMinistry?.fun_zone || {};
-  
+
   // Read config per game
   const puzzleData = funZone.puzzle || {};
   const videosData = funZone.videos || {};
@@ -22,7 +22,11 @@ const GamesGrid = () => {
   const games = useMemo(() => {
     const gameList = [];
 
-    // Puzzle - enabled based on puzzle.enabled AND has levels
+    const mCards = memoryData.cards || [];
+    const tQuestions = triviaData.questions || [];
+    const cPages = coloringData.pages || [];
+
+    // Puzzle
     const puzzleEnabled = puzzleData.enabled && effectivePuzzleLevels.length > 0;
     gameList.push({
       id: 'biblical-puzzle',
@@ -33,14 +37,15 @@ const GamesGrid = () => {
       icon: Puzzle,
       color: '#8A2BE2',
       gradient: 'linear-gradient(135deg, #8A2BE2, #4B0082)',
-      levels: effectivePuzzleLevels.length,
+      counter: effectivePuzzleLevels.length,
+      counterLabel: effectivePuzzleLevels.length > 1 ? 'niveles' : 'nivel',
       path: '/ninos/juegos/biblical-puzzle',
       badge: effectivePuzzleLevels.length > 1 ? 'Múltiples niveles' : effectivePuzzleLevels.length === 1 ? '1 nivel' : 'Próximamente',
       disabled: !puzzleEnabled,
       features: ['Rompecabezas interactivo', 'Adivina la palabra', 'Progresión de niveles']
     });
 
-    // Videos - enabled based on videos.enabled
+    // Videos
     const videosEnabled = videosData.enabled;
     gameList.push({
       id: 'bible-videos',
@@ -51,77 +56,79 @@ const GamesGrid = () => {
       icon: Video,
       color: '#FF6B35',
       gradient: 'linear-gradient(135deg, #FF6B35, #F7931E)',
-      levels: 0,
+      counter: 0,
+      counterLabel: '',
       path: '/ninos/juegos/bible-videos',
       badge: videosEnabled ? 'Disponible' : 'Deshabilitado',
       disabled: !videosEnabled,
       features: ['Videos de YouTube Kids', 'Canciones bíblicas', 'Contenido seguro']
     });
 
-    // Memory - enabled based on memory.enabled AND has cards
-    const memoryCards = memoryData.cards || [];
-    const memoryEnabled = memoryData.enabled && memoryCards.length > 0;
+    // Memory
+    const memoryEnabled = memoryData.enabled && mCards.length > 0;
     gameList.push({
       id: 'memory-verse',
       title: memoryData.title || 'Memoria de Versículos',
       description: memoryEnabled
-        ? `Encuentra las parejas y memoriza la Palabra. ${memoryCards.length} tarjeta${memoryCards.length > 1 ? 's' : ''} disponible${memoryCards.length > 1 ? 's' : ''}.`
+        ? `Encuentra las parejas y memoriza la Palabra. ${mCards.length} tarjeta${mCards.length > 1 ? 's' : ''} disponible${mCards.length > 1 ? 's' : ''}.`
         : 'Las maestras están preparando las tarjetas. ¡Vuelve pronto!',
       icon: Brain,
       color: '#32CD32',
       gradient: 'linear-gradient(135deg, #32CD32, #228B22)',
-      levels: memoryCards.length,
+      counter: mCards.length,
+      counterLabel: mCards.length > 1 ? 'tarjetas' : 'tarjeta',
       path: '/ninos/juegos/memory-verse',
-      badge: memoryEnabled ? `${memoryCards.length} tarjetas` : 'Próximamente',
+      badge: memoryEnabled ? `${mCards.length} tarjetas` : 'Próximamente',
       disabled: !memoryEnabled,
       features: ['Cartas memorables', 'Versículos bíblicos', 'Temporizador']
     });
 
-    // Trivia - enabled based on trivia.enabled AND has questions
-    const triviaQuestions = triviaData.questions || [];
-    const triviaEnabled = triviaData.enabled && triviaQuestions.length > 0;
+    // Trivia
+    const triviaEnabled = triviaData.enabled && tQuestions.length > 0;
     gameList.push({
       id: 'bible-trivia',
       title: triviaData.title || 'Trivia Bíblica Kids',
       description: triviaEnabled
-        ? `Responde preguntas y gana coronas de sabiduría. ${triviaQuestions.length} pregunta${triviaQuestions.length > 1 ? 's' : ''} disponible${triviaQuestions.length > 1 ? 's' : ''}.`
+        ? `Responde preguntas y gana coronas de sabiduría. ${tQuestions.length} pregunta${tQuestions.length > 1 ? 's' : ''} disponible${tQuestions.length > 1 ? 's' : ''}.`
         : 'Las maestras están preparando las preguntas. ¡Vuelve pronto!',
       icon: Trophy,
       color: '#FFD700',
       gradient: 'linear-gradient(135deg, #FFD700, #FFA500)',
-      levels: triviaQuestions.length,
+      counter: tQuestions.length,
+      counterLabel: tQuestions.length > 1 ? 'preguntas' : 'pregunta',
       path: '/ninos/juegos/bible-trivia',
-      badge: triviaEnabled ? `${triviaQuestions.length} preguntas` : 'Próximamente',
+      badge: triviaEnabled ? `${tQuestions.length} preguntas` : 'Próximamente',
       disabled: !triviaEnabled,
       features: ['Preguntas por edad', 'Modo carrera', 'Logros']
     });
 
-    // Coloring - enabled based on coloring.enabled AND has pages
-    const coloringPages = coloringData.pages || [];
-    const coloringEnabled = coloringData.enabled && coloringPages.length > 0;
+    // Coloring
+    const coloringEnabled = coloringData.enabled && cPages.length > 0;
     gameList.push({
       id: 'coloring-book',
       title: coloringData.title || 'Coloreando la Biblia',
       description: coloringEnabled
-        ? `Da vida a las historias bíblicas con colores. ${coloringPages.length} dibujo${coloringPages.length > 1 ? 's' : ''} disponible${coloringPages.length > 1 ? 's' : ''}.`
+        ? `Da vida a las historias bíblicas con colores. ${cPages.length} dibujo${cPages.length > 1 ? 's' : ''} disponible${cPages.length > 1 ? 's' : ''}.`
         : 'Las maestras están preparando los dibujos. ¡Vuelve pronto!',
       icon: Sparkles,
       color: '#FF69B4',
       gradient: 'linear-gradient(135deg, #FF69B4, #FF1493)',
-      levels: coloringPages.length,
+      counter: cPages.length,
+      counterLabel: cPages.length > 1 ? 'dibujos' : 'dibujo',
       path: '/ninos/juegos/coloring-book',
-      badge: coloringEnabled ? `${coloringPages.length} dibujos` : 'Próximamente',
+      badge: coloringEnabled ? `${cPages.length} dibujos` : 'Próximamente',
       disabled: !coloringEnabled,
       features: ['Dibujos para colorear', 'Galería de obras', 'Guardar y compartir']
     });
 
     return gameList;
+    // CORRECCIÓN: Dependencias simplificadas usando JSON.stringify para objetos/arreglos internos profundamente anidados
   }, [
-    effectivePuzzleLevels, puzzleData.title, puzzleData.enabled,
+    effectivePuzzleLevels.length, puzzleData.title, puzzleData.enabled,
     videosData.enabled, videosData.title,
-    memoryCards, memoryData.enabled, memoryData.title,
-    triviaQuestions, triviaData.enabled, triviaData.title,
-    coloringPages, coloringData.enabled, coloringData.title
+    JSON.stringify(memoryData),
+    JSON.stringify(triviaData),
+    JSON.stringify(coloringData)
   ]);
 
   return (
@@ -132,7 +139,6 @@ const GamesGrid = () => {
       fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif'
     }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-
 
         <header style={{ textAlign: 'center', marginBottom: '2.5rem', position: 'relative' }}>
           <div style={{
@@ -164,216 +170,223 @@ const GamesGrid = () => {
           gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
           gap: '1.5rem'
         }}>
-          {games.map((game) => (
-            <article
-              key={game.id}
-              style={{
-                background: game.disabled ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.95)',
-                borderRadius: '2.5rem',
-                border: `5px solid ${game.disabled ? '#DDD' : game.color}`,
-                boxShadow: game.disabled
-                  ? '0 8px 20px rgba(0,0,0,0.08)'
-                  : `0 12px 30px ${game.color}33, 0 0 0 4px rgba(255,255,255,0.5) inset`,
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                opacity: game.disabled ? 0.7 : 1,
-                cursor: game.disabled ? 'not-allowed' : 'pointer',
-                position: 'relative',
-                transform: `rotate(${Math.random() * 4 - 2}deg)`
-              }}
-              onMouseEnter={e => {
-                if (!game.disabled) {
-                  e.currentTarget.style.transform = `rotate(${Math.random() * 4 - 2}deg) scale(1.02)`;
-                  e.currentTarget.style.boxShadow = `0 20px 40px ${game.color}44, 0 0 0 4px rgba(255,255,255,0.5) inset`;
-                }
-              }}
-              onMouseLeave={e => {
-                if (!game.disabled) {
-                  e.currentTarget.style.transform = `rotate(${Math.random() * 4 - 2}deg)`;
-                  e.currentTarget.style.boxShadow = `0 12px 30px ${game.color}33, 0 0 0 4px rgba(255,255,255,0.5) inset`;
-                }
-              }}
-            >
-              <div style={{
-                background: game.gradient,
-                padding: '1.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                position: 'relative',
-                overflow: 'hidden'
-              }}>
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                  <game.icon size={48} color="#fff" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
-                </div>
-                <div style={{
-                  position: 'absolute',
-                  right: '-20px',
-                  top: '-20px',
-                  width: '100px',
-                  height: '100px',
-                  background: 'rgba(255,255,255,0.1)',
-                  borderRadius: '50%',
-                  filter: 'blur(10px)'
-                }} />
-                <span style={{
-                  position: 'relative',
-                  zIndex: 1,
-                  background: 'rgba(255,255,255,0.2)',
-                  backdropFilter: 'blur(4px)',
-                  padding: '0.35rem 1rem',
-                  borderRadius: '999px',
-                  fontSize: '0.75rem',
-                  fontWeight: 900,
-                  color: '#fff',
-                  border: '2px solid rgba(255,255,255,0.3)'
-                }}>
-                  {game.badge}
-                </span>
-              </div>
+          {games.map((game, idx) => {
+            // CORRECCIÓN: Ángulo aleatorio fijo basado en el índice del juego
+            const rotationAngle = (idx % 2 === 0 ? 1.5 : -1.5) * (idx + 1 * 0.5);
 
-              <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h2 style={{
-                  fontSize: '1.4rem',
-                  fontWeight: 900,
-                  color: game.disabled ? '#999' : '#333',
-                  margin: '0 0 0.5rem 0',
-                  lineHeight: 1.3
-                }}>
-                  {game.title}
-                </h2>
-                <p style={{
-                  fontSize: '0.9rem',
-                  color: game.disabled ? '#999' : '#666',
-                  lineHeight: 1.5,
-                  margin: '0 0 1rem 0',
-                  flex: 1
-                }}>
-                  {game.description}
-                </p>
-
-                <ul style={{
-                  listStyle: 'none',
-                  padding: 0,
-                  margin: 0,
+            return (
+              <article
+                key={game.id}
+                style={{
+                  background: game.disabled ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.95)',
+                  borderRadius: '2.5rem',
+                  border: `5px solid ${game.disabled ? '#DDD' : game.color}`,
+                  boxShadow: game.disabled
+                    ? '0 8px 20px rgba(0,0,0,0.08)'
+                    : `0 12px 30px ${game.color}33, 0 0 0 4px rgba(255,255,255,0.5) inset`,
+                  overflow: 'hidden',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '0.35rem'
-                }}>
-                  {game.features.map((feature, idx) => (
-                    <li key={idx} style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.5rem',
-                      fontSize: '0.8rem',
-                      color: game.disabled ? '#BBB' : '#555',
-                      fontWeight: 600
-                    }}>
-                      <span style={{
-                        width: '6px',
-                        height: '6px',
-                        borderRadius: '50%',
-                        background: game.disabled ? '#DDD' : game.color,
-                        flexShrink: 0
-                      }} />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div style={{
-                padding: '1rem 1.5rem 1.5rem',
-                borderTop: `3px dashed ${game.disabled ? '#EEE' : game.color}33`,
-                background: game.disabled ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.5)'
-              }}>
-                {game.disabled ? (
-                  <button
-                    disabled
-                    style={{
-                      width: '100%',
-                      padding: '0.85rem',
-                      background: 'linear-gradient(135deg, #DDD, #BBB)',
-                      color: '#888',
-                      border: 'none',
-                      borderRadius: '999px',
-                      fontSize: '1rem',
-                      fontWeight: 900,
-                      cursor: 'not-allowed',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem'
-                    }}
-                  >
-                    <Sparkles size={18} /> {game.badge}
-                  </button>
-                ) : (
-                  <Link
-                    to={game.path}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.5rem',
-                      width: '100%',
-                      padding: '0.85rem',
-                      background: game.gradient,
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '999px',
-                      fontSize: '1rem',
-                      fontWeight: 900,
-                      textDecoration: 'none',
-                      boxShadow: `0 6px 0 ${game.color}CC`,
-                      transform: 'translateY(-3px)',
-                      transition: 'all 0.1s ease'
-                    }}
-                    onMouseDown={e => {
-                      e.currentTarget.style.transform = 'translateY(0px)';
-                      e.currentTarget.style.boxShadow = `0 2px 0 ${game.color}CC`;
-                    }}
-                    onMouseUp={e => {
-                      e.currentTarget.style.transform = 'translateY(-3px)';
-                      e.currentTarget.style.boxShadow = `0 6px 0 ${game.color}CC`;
-                    }}
-                    onMouseLeave={e => {
-                      e.currentTarget.style.transform = 'translateY(-3px)';
-                      e.currentTarget.style.boxShadow = `0 6px 0 ${game.color}CC`;
-                    }}
-                  >
-                    ¡JUGAR AHORA! <ChevronRight size={20} />
-                  </Link>
-                )}
-              </div>
-
-              {game.levels > 0 && !game.disabled && (
+                  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                  opacity: game.disabled ? 0.7 : 1,
+                  cursor: game.disabled ? 'not-allowed' : 'pointer',
+                  position: 'relative',
+                  transform: `rotate(${rotationAngle}deg)`
+                }}
+                onMouseEnter={e => {
+                  if (!game.disabled) {
+                    e.currentTarget.style.transform = `rotate(${rotationAngle}deg) scale(1.02)`;
+                    e.currentTarget.style.boxShadow = `0 20px 40px ${game.color}44, 0 0 0 4px rgba(255,255,255,0.5) inset`;
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (!game.disabled) {
+                    e.currentTarget.style.transform = `rotate(${rotationAngle}deg)`;
+                    e.currentTarget.style.boxShadow = `0 12px 30px ${game.color}33, 0 0 0 4px rgba(255,255,255,0.5) inset`;
+                  }
+                }}
+              >
                 <div style={{
-                  position: 'absolute',
-                  bottom: '1.5rem',
-                  right: '1.5rem',
-                  background: '#fff',
-                  border: `3px solid ${game.color}`,
-                  borderRadius: '1rem',
-                  padding: '0.35rem 0.75rem',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  background: game.gradient,
+                  padding: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}>
+                  <div style={{ position: 'relative', zIndex: 1 }}>
+                    <game.icon size={48} color="#fff" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
+                  </div>
+                  <div style={{
+                    position: 'absolute',
+                    right: '-20px',
+                    top: '-20px',
+                    width: '100px',
+                    height: '100px',
+                    background: 'rgba(255,255,255,0.1)',
+                    borderRadius: '50%',
+                    filter: 'blur(10px)'
+                  }} />
                   <span style={{
+                    position: 'relative',
+                    zIndex: 1,
+                    background: 'rgba(255,255,255,0.2)',
+                    backdropFilter: 'blur(4px)',
+                    padding: '0.35rem 1rem',
+                    borderRadius: '999px',
                     fontSize: '0.75rem',
                     fontWeight: 900,
-                    color: game.color,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.25rem'
+                    color: '#fff',
+                    border: '2px solid rgba(255,255,255,0.3)'
                   }}>
-                    <Trophy size={12} /> {game.levels} nivel{game.levels > 1 ? 'es' : ''}
+                    {game.badge}
                   </span>
                 </div>
-              )}
-            </article>
-          ))}
+
+                <div style={{ padding: '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                  <h2 style={{
+                    fontSize: '1.4rem',
+                    fontWeight: 900,
+                    color: game.disabled ? '#999' : '#333',
+                    margin: '0 0 0.5rem 0',
+                    lineHeight: 1.3
+                  }}>
+                    {game.title}
+                  </h2>
+                  <p style={{
+                    fontSize: '0.9rem',
+                    color: game.disabled ? '#999' : '#666',
+                    lineHeight: 1.5,
+                    margin: '0 0 1rem 0',
+                    flex: 1
+                  }}>
+                    {game.description}
+                  </p>
+
+                  <ul style={{
+                    listStyle: 'none',
+                    padding: 0,
+                    margin: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.35rem'
+                  }}>
+                    {game.features.map((feature, idx) => (
+                      <li key={idx} style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontSize: '0.8rem',
+                        color: game.disabled ? '#BBB' : '#555',
+                        fontWeight: 600
+                      }}>
+                        <span style={{
+                          width: '6px',
+                          height: '6px',
+                          borderRadius: '50%',
+                          background: game.disabled ? '#DDD' : game.color,
+                          flexShrink: 0
+                        }} />
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div style={{
+                  padding: '1rem 1.5rem 1.5rem',
+                  borderTop: `3px dashed ${game.disabled ? '#EEE' : game.color}33`,
+                  background: game.disabled ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.5)'
+                }}>
+                  {game.disabled ? (
+                    <button
+                      disabled
+                      style={{
+                        width: '100%',
+                        padding: '0.85rem',
+                        background: 'linear-gradient(135deg, #DDD, #BBB)',
+                        color: '#888',
+                        border: 'none',
+                        borderRadius: '999px',
+                        fontSize: '1rem',
+                        fontWeight: 900,
+                        cursor: 'not-allowed',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem'
+                      }}
+                    >
+                      <Sparkles size={18} /> {game.badge}
+                    </button>
+                  ) : (
+                    <Link
+                      to={game.path}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        width: '100%',
+                        padding: '0.85rem',
+                        background: game.gradient,
+                        color: '#fff',
+                        border: 'none',
+                        borderRadius: '999px',
+                        fontSize: '1rem',
+                        fontWeight: 900,
+                        textDecoration: 'none',
+                        boxShadow: `0 6px 0 ${game.color}CC`,
+                        transform: 'translateY(-3px)',
+                        transition: 'all 0.1s ease'
+                      }}
+                      onMouseDown={e => {
+                        e.currentTarget.style.transform = 'translateY(0px)';
+                        e.currentTarget.style.boxShadow = `0 2px 0 ${game.color}CC`;
+                      }}
+                      onMouseUp={e => {
+                        e.currentTarget.style.transform = 'translateY(-3px)';
+                        e.currentTarget.style.boxShadow = `0 6px 0 ${game.color}CC`;
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.transform = 'translateY(-3px)';
+                        e.currentTarget.style.boxShadow = `0 6px 0 ${game.color}CC`;
+                      }}
+                    >
+                      ¡JUGAR AHORA! <ChevronRight size={20} />
+                    </Link>
+                  )}
+                </div>
+
+                {/* CORRECCIÓN: Etiqueta dinámica para niveles vs preguntas vs dibujos */}
+                {game.counter > 0 && !game.disabled && (
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '1.5rem',
+                    right: '1.5rem',
+                    background: '#fff',
+                    border: `3px solid ${game.color}`,
+                    borderRadius: '1rem',
+                    padding: '0.35rem 0.75rem',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                    pointerEvents: 'none' // Para que no interfiera con los clicks del enlace inferior
+                  }}>
+                    <span style={{
+                      fontSize: '0.75rem',
+                      fontWeight: 900,
+                      color: game.color,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.25rem'
+                    }}>
+                      <Trophy size={12} /> {game.counter} {game.counterLabel}
+                    </span>
+                  </div>
+                )}
+              </article>
+            );
+          })}
         </div>
 
         <div style={{ textAlign: 'center', marginTop: '3rem', padding: '0 1rem' }}>
