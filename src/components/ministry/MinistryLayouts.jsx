@@ -440,19 +440,108 @@ export const PlayfulLayout = ({
                           </div>
                         )}
                       </div>
-                    )
-                    }})}
-
+                    )})}
                 </div>
               </section>
             )}
-
-
           </div>
         </div>
-      </div>
       {showAulaVirtual && (
         <AulaVirtualModal isOpen={showAulaVirtual} onClose={() => setShowAulaVirtual(false)} />
+      )}
+    </div>
+   );
+};
+
+export const SoftLayout = ({
+  ministry,
+  ministryActivities,
+  customThemeVars,
+  getThemeClass
+}) => {
+  return (
+    <div className={getThemeClass(ministry)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', fontFamily: '"Poppins", "Segoe UI", sans-serif' }}>
+
+      {/* Soft decorative background blobs */}
+      <div style={{ position: 'absolute', top: '-10%', right: '-10%', width: '50%', height: '50%', background: 'var(--accent-color)', filter: 'blur(120px)', opacity: 0.2, zIndex: 0, pointerEvents: 'none', borderRadius: '50%' }}></div>
+      <div style={{ position: 'absolute', bottom: '-10%', left: '-10%', width: '45%', height: '45%', background: 'var(--accent-color)', filter: 'blur(120px)', opacity: 0.15, zIndex: 0, pointerEvents: 'none', borderRadius: '50%' }}></div>
+
+      {/* Hero */}
+      <section style={{ position: 'relative', zIndex: 1, padding: '5rem 1.5rem 4rem', textAlign: 'center' }}>
+        <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
+          {ministry.logo_url && (
+            <img src={ministry.logo_url} alt={ministry.name} style={{ width: '90px', height: '90px', objectFit: 'contain', marginBottom: '1.5rem', borderRadius: '50%', filter: 'drop-shadow(0 4px 12px rgba(0,0,0,0.1))' }} />
+          )}
+          <h1 style={{ fontSize: 'clamp(2.2rem, 6vw, 3.2rem)', fontWeight: 700, color: 'var(--accent-color)', marginBottom: '1rem', lineHeight: 1.2 }}>
+            {ministry.hero_title || `Bienvenida a ${ministry.name}`}
+          </h1>
+          <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', marginBottom: '2rem', lineHeight: 1.7, maxWidth: '600px', margin: '0 auto 2rem' }}>
+            {ministry.hero_desc}
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <a href={ministry.visual_settings?.primary_action_url || "#contacto"} className="btn btn-primary" style={{ background: 'var(--accent-color)', color: '#fff', padding: '0.9rem 2rem', borderRadius: '999px', border: 'none', fontSize: '1rem', fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}>
+              {ministry.visual_settings?.primary_action_text || 'Participar'}
+            </a>
+            {ministry.instagram_url && (
+              <a href={ministry.instagram_url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary" style={{ padding: '0.9rem 2rem', borderRadius: '999px', textDecoration: 'none', display: 'inline-block' }}>
+                Instagram
+              </a>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Schedule & Location */}
+      {(ministry.schedule || ministry.location) && (
+        <section style={{ position: 'relative', zIndex: 1, padding: '2rem 1.5rem', textAlign: 'center', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--border-color)' }}>
+          <div className="container" style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2.5rem' }}>
+            {ministry.schedule && (
+              <div>
+                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent-color)', marginBottom: '0.5rem' }}>Horario</h3>
+                <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)' }}>{ministry.schedule}</p>
+              </div>
+            )}
+            {ministry.location && (
+              <div>
+                <h3 style={{ fontSize: '0.85rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent-color)', marginBottom: '0.5rem' }}>Ubicación</h3>
+                <p style={{ fontSize: '1.05rem', color: 'var(--text-secondary)' }}>{ministry.location}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
+
+      {/* Activities */}
+      {ministryActivities && ministryActivities.length > 0 && (
+        <section style={{ position: 'relative', zIndex: 1, padding: '4rem 1.5rem' }}>
+          <div className="container" style={{ maxWidth: '1000px', margin: '0 auto' }}>
+            <h2 style={{ fontSize: '2rem', fontWeight: 700, color: 'var(--accent-color)', textAlign: 'center', marginBottom: '2.5rem' }}>
+              Nuestras Actividades
+            </h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1.5rem' }}>
+              {ministryActivities.map((act) => (
+                <div key={act.id} style={{ width: '100%', maxWidth: '320px', background: 'var(--bg-card, rgba(255,255,255,0.05))', borderRadius: '1.25rem', overflow: 'hidden', border: '1px solid var(--border-color)', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+                  {act.image_url ? (
+                    <div style={{ height: '180px', width: '100%', overflow: 'hidden' }}>
+                      <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    </div>
+                  ) : (
+                    <div style={{ height: '120px', background: 'var(--accent-color)', opacity: 0.3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Calendar size={48} color="#fff" />
+                    </div>
+                  )}
+                  <div style={{ padding: '1.25rem' }}>
+                    <span style={{ display: 'inline-block', background: 'var(--accent-color)', color: '#fff', padding: '0.2rem 0.75rem', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600, marginBottom: '0.75rem' }}>
+                      {new Date(act.date + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                    </span>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '0.5rem' }}>{act.title}</h3>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{act.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
     </div>
   );
