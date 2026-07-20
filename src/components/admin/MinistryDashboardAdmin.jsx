@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
-import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette, Gamepad2 } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette, Gamepad2, Brain, Trophy } from 'lucide-react';
 import ImageUploadDropzone from './ImageUploadDropzone';
 import { resolveImageUrl } from '../../utils/imageUtils';
 
@@ -124,7 +124,84 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [minFunZoneVideosUrl, setMinFunZoneVideosUrl] = useState(min?.fun_zone?.videos?.youtube_url || '');
   const [minFunZoneVideosButtonText, setMinFunZoneVideosButtonText] = useState(min?.fun_zone?.videos?.button_text || 'Ver ahora');
 
+  // Memory Game State
+  const [minFunZoneMemoryEnabled, setMinFunZoneMemoryEnabled] = useState(min?.fun_zone?.memory?.enabled ?? true);
+  const [minFunZoneMemoryTitle, setMinFunZoneMemoryTitle] = useState(min?.fun_zone?.memory?.title || 'Memoria de Versículos');
+  const [minFunZoneMemoryCards, setMinFunZoneMemoryCards] = useState(() => {
+    const cards = min?.fun_zone?.memory?.cards;
+    if (Array.isArray(cards) && cards.length > 0) {
+      return cards.map((c, i) => ({
+        _localId: c.id || `card-${i}`,
+        id: c.id || `card-${i}`,
+        verse: c.verse || '',
+        reference: c.reference || '',
+        image_url: c.image_url || '',
+        file: null
+      }));
+    }
+    return [{
+      _localId: `card-${Date.now()}`,
+      id: `card-${Date.now()}`,
+      verse: '',
+      reference: '',
+      image_url: '',
+      file: null
+    }];
+  });
+
+  // Trivia Game State
+  const [minFunZoneTriviaEnabled, setMinFunZoneTriviaEnabled] = useState(min?.fun_zone?.trivia?.enabled ?? true);
+  const [minFunZoneTriviaTitle, setMinFunZoneTriviaTitle] = useState(min?.fun_zone?.trivia?.title || 'Trivia Bíblica Kids');
+  const [minFunZoneTriviaQuestions, setMinFunZoneTriviaQuestions] = useState(() => {
+    const q = min?.fun_zone?.trivia?.questions;
+    if (Array.isArray(q) && q.length > 0) {
+      return q.map((item, i) => ({
+        _localId: item.id || `q-${i}`,
+        id: item.id || `q-${i}`,
+        question: item.question || '',
+        options: Array.isArray(item.options) ? item.options : ['', '', '', ''],
+        correct: typeof item.correct === 'number' ? item.correct : 0
+      }));
+    }
+    return [{
+      _localId: `q-${Date.now()}`,
+      id: `q-${Date.now()}`,
+      question: '',
+      options: ['', '', '', ''],
+      correct: 0
+    }];
+  });
+
+  // Coloring Game State
+  const [minFunZoneColoringEnabled, setMinFunZoneColoringEnabled] = useState(min?.fun_zone?.coloring?.enabled ?? true);
+  const [minFunZoneColoringTitle, setMinFunZoneColoringTitle] = useState(min?.fun_zone?.coloring?.title || 'Coloreando la Biblia');
+  const [minFunZoneColoringPages, setMinFunZoneColoringPages] = useState(() => {
+    const pgs = min?.fun_zone?.coloring?.pages;
+    if (Array.isArray(pgs) && pgs.length > 0) {
+      return pgs.map((p, i) => ({
+        _localId: p.id || `pg-${i}`,
+        id: p.id || `pg-${i}`,
+        title: p.title || '',
+        image_url: p.image_url || '',
+        file: null
+      }));
+    }
+    return [{
+      _localId: `pg-${Date.now()}`,
+      id: `pg-${Date.now()}`,
+      title: '',
+      image_url: '',
+      file: null
+    }];
+  });
+
+  // Upload states per game
   const [isMinFunZoneUploading, setIsMinFunZoneUploading] = useState(false);
+  const [isSavingVideos, setIsSavingVideos] = useState(false);
+  const [isSavingPuzzle, setIsSavingPuzzle] = useState(false);
+  const [isSavingMemory, setIsSavingMemory] = useState(false);
+  const [isSavingTrivia, setIsSavingTrivia] = useState(false);
+  const [isSavingColoring, setIsSavingColoring] = useState(false);
 
   // Activity Form State
   const [actTitle, setActTitle] = useState('');
@@ -232,32 +309,16 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     }
     setIsMinHeroUploading(false);
 
-    setIsMinFunZoneUploading(true);
-    const finalPuzzleLevels = [];
-    for (const lvl of minFunZonePuzzleLevels) {
-      let finalLvlImgUrl = lvl.image_url || '';
-      if (lvl.file && isSupabaseConfigured) {
-        try {
-          const fileExt = lvl.file.name.split('.').pop();
-          const fileName = `puzzle_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-          const filePath = `funzone/${fileName}`;
-          const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, lvl.file);
-          if (!uploadError) {
-            const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
-            finalLvlImgUrl = publicUrl;
-          }
-        } catch (err) {
-          console.error('Error uploading puzzle level image:', err);
-        }
-      }
-      finalPuzzleLevels.push({
+    // Preserve current fun_zone config (managed by per-game handlers)
+    const currentFunZone = (ministries.find(m => m.id === ministryId)?.fun_zone) || {};
+    const finalPuzzleLevels = minFunZonePuzzleLevels
+      .filter(lvl => lvl.image_url || lvl.answer)
+      .map(lvl => ({
         id: lvl.id || `lvl-${Math.random()}`,
-        image_url: resolveImageUrl(finalLvlImgUrl),
+        image_url: resolveImageUrl(lvl.image_url),
         answer: (lvl.answer || '').toUpperCase().trim(),
         difficulty: lvl.difficulty || '3x3'
-      });
-    }
-    setIsMinFunZoneUploading(false);
+      }));
 
     const updates = {
       name: minName,
@@ -285,12 +346,15 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         custom_labels: { pillars: minPillarsLabel }
       },
       fun_zone: {
+        ...currentFunZone,
         puzzle: {
+          ...currentFunZone.puzzle,
           enabled: minFunZonePuzzleEnabled,
           title: minFunZonePuzzleTitle,
-          levels: finalPuzzleLevels
+          levels: finalPuzzleLevels.length > 0 ? finalPuzzleLevels : (currentFunZone.puzzle?.levels || [])
         },
         videos: {
+          ...currentFunZone.videos,
           enabled: minFunZoneVideosEnabled,
           title: minFunZoneVideosTitle,
           youtube_url: minFunZoneVideosUrl,
@@ -304,6 +368,205 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     setMinHeroImageUrl(finalHeroImageUrl);
     setMinHeroImageFile(null);
     triggerSuccess('Perfil del ministerio actualizado.');
+  };
+
+  // Helper: merge a single game section into fun_zone without touching others
+  const saveFunZoneSection = async (sectionKey, sectionData) => {
+    const currentFunZone = (ministries.find(m => m.id === ministryId)?.fun_zone) || {};
+    const merged = {
+      ...currentFunZone,
+      [sectionKey]: sectionData
+    };
+    await updateMinistry(ministryId, { fun_zone: merged });
+  };
+
+  // Handler: Save Videos only
+  const handleSaveVideos = async (e) => {
+    e.preventDefault();
+    setIsSavingVideos(true);
+    try {
+      await saveFunZoneSection('videos', {
+        enabled: minFunZoneVideosEnabled,
+        title: minFunZoneVideosTitle,
+        youtube_url: minFunZoneVideosUrl,
+        button_text: minFunZoneVideosButtonText
+      });
+      triggerSuccess('Sección de Videos guardada.');
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar la sección de videos.');
+    } finally {
+      setIsSavingVideos(false);
+    }
+  };
+
+  // Handler: Save Puzzle only (uploads pending files first)
+  const handleSavePuzzle = async (e) => {
+    e.preventDefault();
+    setIsSavingPuzzle(true);
+    setIsMinFunZoneUploading(true);
+    try {
+      const finalPuzzleLevels = [];
+      for (const lvl of minFunZonePuzzleLevels) {
+        let finalLvlImgUrl = lvl.image_url || '';
+        if (lvl.file && isSupabaseConfigured) {
+          try {
+            const fileExt = lvl.file.name.split('.').pop();
+            const fileName = `puzzle_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `funzone/${fileName}`;
+            const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, lvl.file);
+            if (!uploadError) {
+              const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+              finalLvlImgUrl = publicUrl;
+            }
+          } catch (err) {
+            console.error('Error uploading puzzle level image:', err);
+          }
+        }
+        finalPuzzleLevels.push({
+          id: lvl.id || `lvl-${Math.random()}`,
+          image_url: resolveImageUrl(finalLvlImgUrl),
+          answer: (lvl.answer || '').toUpperCase().trim(),
+          difficulty: lvl.difficulty || '3x3'
+        });
+      }
+      // Clear local files once uploaded
+      setMinFunZonePuzzleLevels(prev => prev.map(l => ({ ...l, file: null })));
+
+      await saveFunZoneSection('puzzle', {
+        enabled: minFunZonePuzzleEnabled,
+        title: minFunZonePuzzleTitle,
+        levels: finalPuzzleLevels
+      });
+      triggerSuccess('Rompecabezas guardado.');
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar el rompecabezas.');
+    } finally {
+      setIsSavingPuzzle(false);
+      setIsMinFunZoneUploading(false);
+    }
+  };
+
+  // Handler: Save Memory only
+  const handleSaveMemory = async (e) => {
+    e.preventDefault();
+    setIsSavingMemory(true);
+    setIsMinFunZoneUploading(true);
+    try {
+      const finalCards = [];
+      for (const c of minFunZoneMemoryCards) {
+        let finalImgUrl = c.image_url || '';
+        if (c.file && isSupabaseConfigured) {
+          try {
+            const fileExt = c.file.name.split('.').pop();
+            const fileName = `memory_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `funzone/${fileName}`;
+            const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, c.file);
+            if (!uploadError) {
+              const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+              finalImgUrl = publicUrl;
+            }
+          } catch (err) {
+            console.error('Error uploading memory card image:', err);
+          }
+        }
+        finalCards.push({
+          id: c.id || `card-${Math.random()}`,
+          verse: c.verse,
+          reference: c.reference,
+          image_url: resolveImageUrl(finalImgUrl)
+        });
+      }
+      setMinFunZoneMemoryCards(prev => prev.map(c => ({ ...c, file: null })));
+
+      await saveFunZoneSection('memory', {
+        enabled: minFunZoneMemoryEnabled,
+        title: minFunZoneMemoryTitle,
+        cards: finalCards
+      });
+      triggerSuccess('Juego de Memoria guardado.');
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar el juego de memoria.');
+    } finally {
+      setIsSavingMemory(false);
+      setIsMinFunZoneUploading(false);
+    }
+  };
+
+  // Handler: Save Trivia only
+  const handleSaveTrivia = async (e) => {
+    e.preventDefault();
+    setIsSavingTrivia(true);
+    try {
+      const finalQuestions = minFunZoneTriviaQuestions
+        .filter(q => q.question.trim() !== '')
+        .map(q => ({
+          id: q.id || `q-${Math.random()}`,
+          question: q.question,
+          options: q.options,
+          correct: q.correct
+        }));
+
+      await saveFunZoneSection('trivia', {
+        enabled: minFunZoneTriviaEnabled,
+        title: minFunZoneTriviaTitle,
+        questions: finalQuestions
+      });
+      triggerSuccess('Trivia Bíblica guardada.');
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar la trivia.');
+    } finally {
+      setIsSavingTrivia(false);
+    }
+  };
+
+  // Handler: Save Coloring only
+  const handleSaveColoring = async (e) => {
+    e.preventDefault();
+    setIsSavingColoring(true);
+    setIsMinFunZoneUploading(true);
+    try {
+      const finalPages = [];
+      for (const p of minFunZoneColoringPages) {
+        let finalImgUrl = p.image_url || '';
+        if (p.file && isSupabaseConfigured) {
+          try {
+            const fileExt = p.file.name.split('.').pop();
+            const fileName = `coloring_${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `funzone/${fileName}`;
+            const { error: uploadError } = await supabase.storage.from('photos').upload(filePath, p.file);
+            if (!uploadError) {
+              const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
+              finalImgUrl = publicUrl;
+            }
+          } catch (err) {
+            console.error('Error uploading coloring page:', err);
+          }
+        }
+        finalPages.push({
+          id: p.id || `pg-${Math.random()}`,
+          title: p.title,
+          image_url: resolveImageUrl(finalImgUrl)
+        });
+      }
+      setMinFunZoneColoringPages(prev => prev.map(p => ({ ...p, file: null })));
+
+      await saveFunZoneSection('coloring', {
+        enabled: minFunZoneColoringEnabled,
+        title: minFunZoneColoringTitle,
+        pages: finalPages
+      });
+      triggerSuccess('Juego de Colorear guardado.');
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar el juego de colorear.');
+    } finally {
+      setIsSavingColoring(false);
+      setIsMinFunZoneUploading(false);
+    }
   };
 
   const handleCreateActivity = async (e) => {
@@ -731,15 +994,16 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
 
       {/* TAB FUN ZONE */}
       {activeTab === 'fun_zone' && minLayoutStyle === 'playful' && (
-        <form onSubmit={handleSaveProfile} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
           <div>
             <h3 style={{ fontSize: '1.2rem', margin: '0 0 0.5rem 0' }}>🎮 Zona de Diversión</h3>
             <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', margin: 0 }}>
-              Configura los juegos y videos para la sección infantil interactiva.
+              Configura cada juego de forma independiente. Cada formulario tiene su propio botón de guardar.
             </p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
+          {/* ====== FORM 1: ROMPECABEZAS ====== */}
+          <form onSubmit={handleSavePuzzle} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>🧩 Rompecabezas Bíblico</h4>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -748,121 +1012,124 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
               </label>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título General del Juego</label>
-                <input type="text" value={minFunZonePuzzleTitle} onChange={(e) => setMinFunZonePuzzleTitle(e.target.value)} style={inputStyle} disabled={!minFunZonePuzzleEnabled} />
-              </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título General del Juego</label>
+              <input type="text" value={minFunZonePuzzleTitle} onChange={(e) => setMinFunZonePuzzleTitle(e.target.value)} style={inputStyle} disabled={!minFunZonePuzzleEnabled} />
+            </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1rem' }}>
-                <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}>🧩 Niveles del Rompecabezas</h4>
-                {minFunZonePuzzleLevels.map((lvl, index) => (
-                  <div key={lvl._localId} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.25rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', position: 'relative' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--accent-color)' }}>Nivel {index + 1}</span>
-                      {minFunZonePuzzleLevels.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.filter(l => l._localId !== lvl._localId));
-                          }}
-                          className="btn btn-danger"
-                          style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
-                        >
-                          <Trash2 size={12} /> Eliminar Nivel
-                        </button>
-                      )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+              <h5 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}>🧩 Niveles del Rompecabezas</h5>
+              {minFunZonePuzzleLevels.map((lvl, index) => (
+                <div key={lvl._localId} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.25rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', position: 'relative' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--accent-color)' }}>Nivel {index + 1}</span>
+                    {minFunZonePuzzleLevels.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.filter(l => l._localId !== lvl._localId));
+                        }}
+                        className="btn btn-danger"
+                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      >
+                        <Trash2 size={12} /> Eliminar Nivel
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid-cols-2" style={{ display: 'grid', gap: '1rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Palabra a Adivinar (Ej: JONAS)</label>
+                      <input
+                        type="text"
+                        value={lvl.answer}
+                        onChange={(e) => {
+                          setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, answer: e.target.value } : l));
+                        }}
+                        style={inputStyle}
+                        placeholder="Palabra secreta"
+                        disabled={!minFunZonePuzzleEnabled}
+                      />
                     </div>
-
-                    <div className="grid-cols-2" style={{ display: 'grid', gap: '1rem' }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Palabra a Adivinar (Ej: JONAS)</label>
-                        <input
-                          type="text"
-                          value={lvl.answer}
-                          onChange={(e) => {
-                            setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, answer: e.target.value } : l));
-                          }}
-                          style={inputStyle}
-                          placeholder="Palabra secreta"
-                          disabled={!minFunZonePuzzleEnabled}
-                        />
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                        <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dificultad (Grid)</label>
-                        <select
-                          value={lvl.difficulty}
-                          onChange={(e) => {
-                            setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, difficulty: e.target.value } : l));
-                          }}
-                          style={{ ...inputStyle, appearance: 'auto' }}
-                          disabled={!minFunZonePuzzleEnabled}
-                        >
-                          <option value="3x3">Fácil (3x3 - 9 piezas)</option>
-                          <option value="4x4">Normal (4x4 - 16 piezas)</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen a Armar</label>
-                      {isSupabaseConfigured ? (
-                        <ImageUploadDropzone
-                          onFileSelect={(file) => {
-                            setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, file: file, image_url: URL.createObjectURL(file) } : l));
-                          }}
-                          previewUrl={lvl.image_url}
-                          label="Subir Imagen del Rompecabezas"
-                        />
-                      ) : (
-                        <>
-                          <input
-                            type="text"
-                            placeholder="URL de imagen..."
-                            value={lvl.image_url}
-                            onChange={(e) => {
-                              setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, image_url: e.target.value } : l));
-                            }}
-                            style={inputStyle}
-                            disabled={!minFunZonePuzzleEnabled}
-                          />
-                          {lvl.image_url && (
-                            <div style={{ marginTop: '0.5rem', width: '120px', height: '120px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
-                              <img src={lvl.image_url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            </div>
-                          )}
-                        </>
-                      )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Dificultad (Grid)</label>
+                      <select
+                        value={lvl.difficulty}
+                        onChange={(e) => {
+                          setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, difficulty: e.target.value } : l));
+                        }}
+                        style={{ ...inputStyle, appearance: 'auto' }}
+                        disabled={!minFunZonePuzzleEnabled}
+                      >
+                        <option value="3x3">Fácil (3x3 - 9 piezas)</option>
+                        <option value="4x4">Normal (4x4 - 16 piezas)</option>
+                      </select>
                     </div>
                   </div>
-                ))}
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMinFunZonePuzzleLevels([
-                      ...minFunZonePuzzleLevels,
-                      {
-                        _localId: `lvl-${Date.now()}-${Math.random()}`,
-                        id: `lvl-${Date.now()}-${Math.random()}`,
-                        image_url: '',
-                        answer: '',
-                        difficulty: '3x3',
-                        file: null
-                      }
-                    ]);
-                  }}
-                  className="btn btn-secondary"
-                  style={{ alignSelf: 'flex-start', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
-                  disabled={!minFunZonePuzzleEnabled}
-                >
-                  <Plus size={14} /> Agregar Siguiente Nivel
-                </button>
-              </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen a Armar</label>
+                    {isSupabaseConfigured ? (
+                      <ImageUploadDropzone
+                        onFileSelect={(file) => {
+                          setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, file: file, image_url: URL.createObjectURL(file) } : l));
+                        }}
+                        previewUrl={lvl.image_url}
+                        label="Subir Imagen del Rompecabezas"
+                      />
+                    ) : (
+                      <>
+                        <input
+                          type="text"
+                          placeholder="URL de imagen..."
+                          value={lvl.image_url}
+                          onChange={(e) => {
+                            setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, image_url: e.target.value } : l));
+                          }}
+                          style={inputStyle}
+                          disabled={!minFunZonePuzzleEnabled}
+                        />
+                        {lvl.image_url && (
+                          <div style={{ marginTop: '0.5rem', width: '120px', height: '120px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
+                            <img src={lvl.image_url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMinFunZonePuzzleLevels([
+                    ...minFunZonePuzzleLevels,
+                    {
+                      _localId: `lvl-${Date.now()}-${Math.random()}`,
+                      id: `lvl-${Date.now()}-${Math.random()}`,
+                      image_url: '',
+                      answer: '',
+                      difficulty: '3x3',
+                      file: null
+                    }
+                  ]);
+                }}
+                className="btn btn-secondary"
+                style={{ alignSelf: 'flex-start', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                disabled={!minFunZonePuzzleEnabled}
+              >
+                <Plus size={14} /> Agregar Siguiente Nivel
+              </button>
             </div>
-          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
+            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isSavingPuzzle || isMinFunZoneUploading}>
+              {isSavingPuzzle ? 'Guardando...' : <><Save size={16} /> Guardar Rompecabezas</>}
+            </button>
+          </form>
+
+          {/* ====== FORM 2: VIDEOS ====== */}
+          <form onSubmit={handleSaveVideos} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>🎬 Videos y Canciones (YouTube)</h4>
               <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
@@ -885,12 +1152,294 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>URL del Canal o Lista de YouTube Kids</label>
               <input type="text" placeholder="https://youtube.com/..." value={minFunZoneVideosUrl} onChange={(e) => setMinFunZoneVideosUrl(e.target.value)} style={inputStyle} disabled={!minFunZoneVideosEnabled} />
             </div>
-          </div>
 
-          <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isMinFunZoneUploading}>
-            {isMinFunZoneUploading ? 'Subiendo imagen...' : <><Save size={16} /> Guardar Zona de Diversión</>}
-          </button>
-        </form>
+            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isSavingVideos}>
+              {isSavingVideos ? 'Guardando...' : <><Save size={16} /> Guardar Videos</>}
+            </button>
+          </form>
+
+          {/* ====== FORM 3: MEMORIA ====== */}
+          <form onSubmit={handleSaveMemory} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>🧠 Memoria de Versículos</h4>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={minFunZoneMemoryEnabled} onChange={(e) => setMinFunZoneMemoryEnabled(e.target.checked)} />
+                <span style={{ fontSize: '0.9rem' }}>Habilitar sección</span>
+              </label>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título del Juego</label>
+              <input type="text" value={minFunZoneMemoryTitle} onChange={(e) => setMinFunZoneMemoryTitle(e.target.value)} style={inputStyle} disabled={!minFunZoneMemoryEnabled} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+              <h5 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}><Brain size={16} /> Tarjetas (Versículos)</h5>
+              {minFunZoneMemoryCards.map((c, index) => (
+                <div key={c._localId} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.25rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '0.75rem', position: 'relative' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--accent-color)' }}>Tarjeta {index + 1}</span>
+                    {minFunZoneMemoryCards.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setMinFunZoneMemoryCards(minFunZoneMemoryCards.filter(x => x._localId !== c._localId));
+                        }}
+                        className="btn btn-danger"
+                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      >
+                        <Trash2 size={12} /> Eliminar
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid-cols-2" style={{ display: 'grid', gap: '1rem' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Versículo</label>
+                      <input
+                        type="text"
+                        value={c.verse}
+                        onChange={(e) => setMinFunZoneMemoryCards(minFunZoneMemoryCards.map(x => x._localId === c._localId ? { ...x, verse: e.target.value } : x))}
+                        style={inputStyle}
+                        placeholder="Ej: Porque de tal manera amó Dios..."
+                        disabled={!minFunZoneMemoryEnabled}
+                      />
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                      <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Referencia</label>
+                      <input
+                        type="text"
+                        value={c.reference}
+                        onChange={(e) => setMinFunZoneMemoryCards(minFunZoneMemoryCards.map(x => x._localId === c._localId ? { ...x, reference: e.target.value } : x))}
+                        style={inputStyle}
+                        placeholder="Ej: Juan 3:16"
+                        disabled={!minFunZoneMemoryEnabled}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen (Opcional)</label>
+                    {isSupabaseConfigured ? (
+                      <ImageUploadDropzone
+                        onFileSelect={(file) => setMinFunZoneMemoryCards(minFunZoneMemoryCards.map(x => x._localId === c._localId ? { ...x, file, image_url: URL.createObjectURL(file) } : x))}
+                        previewUrl={c.image_url}
+                        label="Subir Imagen"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        placeholder="URL de imagen..."
+                        value={c.image_url}
+                        onChange={(e) => setMinFunZoneMemoryCards(minFunZoneMemoryCards.map(x => x._localId === c._localId ? { ...x, image_url: e.target.value } : x))}
+                        style={inputStyle}
+                        disabled={!minFunZoneMemoryEnabled}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMinFunZoneMemoryCards([
+                    ...minFunZoneMemoryCards,
+                    { _localId: `card-${Date.now()}-${Math.random()}`, id: `card-${Date.now()}-${Math.random()}`, verse: '', reference: '', image_url: '', file: null }
+                  ]);
+                }}
+                className="btn btn-secondary"
+                style={{ alignSelf: 'flex-start', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                disabled={!minFunZoneMemoryEnabled}
+              >
+                <Plus size={14} /> Agregar Tarjeta
+              </button>
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isSavingMemory || isMinFunZoneUploading}>
+              {isSavingMemory ? 'Guardando...' : <><Save size={16} /> Guardar Memoria</>}
+            </button>
+          </form>
+
+          {/* ====== FORM 4: TRIVIA ====== */}
+          <form onSubmit={handleSaveTrivia} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>🏆 Trivia Bíblica Kids</h4>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={minFunZoneTriviaEnabled} onChange={(e) => setMinFunZoneTriviaEnabled(e.target.checked)} />
+                <span style={{ fontSize: '0.9rem' }}>Habilitar sección</span>
+              </label>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título del Juego</label>
+              <input type="text" value={minFunZoneTriviaTitle} onChange={(e) => setMinFunZoneTriviaTitle(e.target.value)} style={inputStyle} disabled={!minFunZoneTriviaEnabled} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+              <h5 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}><Trophy size={16} /> Preguntas</h5>
+              {minFunZoneTriviaQuestions.map((q, index) => (
+                <div key={q._localId} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1.25rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '0.75rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--accent-color)' }}>Pregunta {index + 1}</span>
+                    {minFunZoneTriviaQuestions.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setMinFunZoneTriviaQuestions(minFunZoneTriviaQuestions.filter(x => x._localId !== q._localId))}
+                        className="btn btn-danger"
+                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      >
+                        <Trash2 size={12} /> Eliminar
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Pregunta</label>
+                    <input
+                      type="text"
+                      value={q.question}
+                      onChange={(e) => setMinFunZoneTriviaQuestions(minFunZoneTriviaQuestions.map(x => x._localId === q._localId ? { ...x, question: e.target.value } : x))}
+                      style={inputStyle}
+                      placeholder="Ej: ¿Cuántos días duró el diluvio?"
+                      disabled={!minFunZoneTriviaEnabled}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Opciones (marca la correcta)</label>
+                    {q.options.map((opt, optIdx) => (
+                      <div key={optIdx} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <input
+                          type="radio"
+                          name={`correct-${q._localId}`}
+                          checked={q.correct === optIdx}
+                          onChange={() => setMinFunZoneTriviaQuestions(minFunZoneTriviaQuestions.map(x => x._localId === q._localId ? { ...x, correct: optIdx } : x))}
+                          disabled={!minFunZoneTriviaEnabled}
+                        />
+                        <input
+                          type="text"
+                          value={opt}
+                          onChange={(e) => setMinFunZoneTriviaQuestions(minFunZoneTriviaQuestions.map(x => x._localId === q._localId ? { ...x, options: x.options.map((o, i) => i === optIdx ? e.target.value : o) } : x))}
+                          style={inputStyle}
+                          placeholder={`Opción ${optIdx + 1}`}
+                          disabled={!minFunZoneTriviaEnabled}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMinFunZoneTriviaQuestions([
+                    ...minFunZoneTriviaQuestions,
+                    { _localId: `q-${Date.now()}-${Math.random()}`, id: `q-${Date.now()}-${Math.random()}`, question: '', options: ['', '', '', ''], correct: 0 }
+                  ]);
+                }}
+                className="btn btn-secondary"
+                style={{ alignSelf: 'flex-start', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                disabled={!minFunZoneTriviaEnabled}
+              >
+                <Plus size={14} /> Agregar Pregunta
+              </button>
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isSavingTrivia}>
+              {isSavingTrivia ? 'Guardando...' : <><Save size={16} /> Guardar Trivia</>}
+            </button>
+          </form>
+
+          {/* ====== FORM 5: COLOREAR ====== */}
+          <form onSubmit={handleSaveColoring} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>🎨 Coloreando la Biblia</h4>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+                <input type="checkbox" checked={minFunZoneColoringEnabled} onChange={(e) => setMinFunZoneColoringEnabled(e.target.checked)} />
+                <span style={{ fontSize: '0.9rem' }}>Habilitar sección</span>
+              </label>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título del Juego</label>
+              <input type="text" value={minFunZoneColoringTitle} onChange={(e) => setMinFunZoneColoringTitle(e.target.value)} style={inputStyle} disabled={!minFunZoneColoringEnabled} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '0.5rem' }}>
+              <h5 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-primary)' }}><Palette size={16} /> Páginas para Colorear</h5>
+              {minFunZoneColoringPages.map((p, index) => (
+                <div key={p._localId} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '1.25rem', background: 'rgba(255,255,255,0.01)', border: '1px solid var(--border-color)', borderRadius: '0.75rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--accent-color)' }}>Página {index + 1}</span>
+                    {minFunZoneColoringPages.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setMinFunZoneColoringPages(minFunZoneColoringPages.filter(x => x._localId !== p._localId))}
+                        className="btn btn-danger"
+                        style={{ padding: '0.2rem 0.5rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                      >
+                        <Trash2 size={12} /> Eliminar
+                      </button>
+                    )}
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de la Página</label>
+                    <input
+                      type="text"
+                      value={p.title}
+                      onChange={(e) => setMinFunZoneColoringPages(minFunZoneColoringPages.map(x => x._localId === p._localId ? { ...x, title: e.target.value } : x))}
+                      style={inputStyle}
+                      placeholder="Ej: Noé y el Arca"
+                      disabled={!minFunZoneColoringEnabled}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Imagen para Colorear</label>
+                    {isSupabaseConfigured ? (
+                      <ImageUploadDropzone
+                        onFileSelect={(file) => setMinFunZoneColoringPages(minFunZoneColoringPages.map(x => x._localId === p._localId ? { ...x, file, image_url: URL.createObjectURL(file) } : x))}
+                        previewUrl={p.image_url}
+                        label="Subir Imagen"
+                      />
+                    ) : (
+                      <input
+                        type="text"
+                        placeholder="URL de imagen..."
+                        value={p.image_url}
+                        onChange={(e) => setMinFunZoneColoringPages(minFunZoneColoringPages.map(x => x._localId === p._localId ? { ...x, image_url: e.target.value } : x))}
+                        style={inputStyle}
+                        disabled={!minFunZoneColoringEnabled}
+                      />
+                    )}
+                  </div>
+                </div>
+              ))}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setMinFunZoneColoringPages([
+                    ...minFunZoneColoringPages,
+                    { _localId: `pg-${Date.now()}-${Math.random()}`, id: `pg-${Date.now()}-${Math.random()}`, title: '', image_url: '', file: null }
+                  ]);
+                }}
+                className="btn btn-secondary"
+                style={{ alignSelf: 'flex-start', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}
+                disabled={!minFunZoneColoringEnabled}
+              >
+                <Plus size={14} /> Agregar Página
+              </button>
+            </div>
+
+            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isSavingColoring || isMinFunZoneUploading}>
+              {isSavingColoring ? 'Guardando...' : <><Save size={16} /> Guardar Colorear</>}
+            </button>
+          </form>
+        </div>
       )}
       {/* TAB 2: ACTIVITIES */}
       {activeTab === 'activities' && (

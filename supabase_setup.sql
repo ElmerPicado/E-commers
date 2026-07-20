@@ -1,4 +1,4 @@
--- ==========================================================
+﻿-- ==========================================================
 -- SCRIPT DE CONFIGURACIÓN COMPLETO PARA SUPABASE (IMR4)
 -- Copia y pega este script en el editor SQL de tu panel de Supabase
 -- ==========================================================
@@ -693,3 +693,107 @@ ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS welcome_text TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS welcome_image_url TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS welcome_pastors_title TEXT;
 ALTER TABLE streaming_config ADD COLUMN IF NOT EXISTS welcome_pastors_subtitle TEXT;
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V18: Zona Divertida Niños - Videos y Juegos separados)
+-- ==========================================================
+-- Se agrega la columna fun_zone al ministerio 'ninos' (y disponible para cualquier ministerio).
+-- La estructura JSON contiene: videos, puzzle, memory, trivia, coloring.
+-- Cada juego tiene su propio "enabled", "title" y array de niveles/tarjetas/preguntas/páginas.
+ALTER TABLE ministries ADD COLUMN IF NOT EXISTS fun_zone JSONB NOT NULL DEFAULT '{}'::jsonb;
+ALTER TABLE ministries ALTER COLUMN fun_zone SET DEFAULT '{}'::jsonb;
+
+COMMENT ON COLUMN ministries.fun_zone IS 'Configuracion de la zona divertida (ministerio ninos). Estructura: { videos:{enabled,title,youtube_url,button_text}, puzzle:{enabled,title,levels:[{id,image_url,answer,difficulty}]}, memory:{enabled,title,cards:[{id,image_url,verse_ref,bible_word}]}, trivia:{enabled,title,questions:[{id,question,options:[...],answer_index,difficulty,category}]}, coloring:{enabled,title,pages:[{id,title,image_url,category}]} }';
+
+-- ==========================================================
+-- ACTUALIZACIÓN DE ESQUEMA (V19: Tablas independientes por juego)
+-- ==========================================================
+-- Tablas independientes por juego, por si se quieren usar en lugar del jsonb fun_zone.
+-- Cada una esta enlazada al ministerio (generalmente 'ninos') y soporta orden y activacion por item.
+
+-- 19.1 Tabla de imagenes/niveles del Rompecabezas
+CREATE TABLE IF NOT EXISTS puzzle_levels (
+  id TEXT PRIMARY KEY,
+  ministry_id TEXT NOT NULL DEFAULT 'ninos' REFERENCES ministries(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  difficulty TEXT NOT NULL DEFAULT '3x3',
+  order_index INTEGER NOT NULL DEFAULT 0,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE puzzle_levels ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura publica puzzle_levels" ON puzzle_levels;
+DROP POLICY IF EXISTS "Escritura publica puzzle_levels" ON puzzle_levels;
+CREATE POLICY "Lectura publica puzzle_levels" ON puzzle_levels FOR SELECT USING (true);
+CREATE POLICY "Escritura publica puzzle_levels" ON puzzle_levels FOR ALL USING (true) WITH CHECK (true);
+
+-- 19.2 Tabla de tarjetas del Memoria de Versiculos
+CREATE TABLE IF NOT EXISTS memory_cards (
+  id TEXT PRIMARY KEY,
+  ministry_id TEXT NOT NULL DEFAULT 'ninos' REFERENCES ministries(id) ON DELETE CASCADE,
+  image_url TEXT NOT NULL,
+  verse_ref TEXT NOT NULL,
+  bible_word TEXT NOT NULL,
+  order_index INTEGER NOT NULL DEFAULT 0,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE memory_cards ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura publica memory_cards" ON memory_cards;
+DROP POLICY IF EXISTS "Escritura publica memory_cards" ON memory_cards;
+CREATE POLICY "Lectura publica memory_cards" ON memory_cards FOR SELECT USING (true);
+CREATE POLICY "Escritura publica memory_cards" ON memory_cards FOR ALL USING (true) WITH CHECK (true);
+
+-- 19.3 Tabla de preguntas de Trivia Biblica
+CREATE TABLE IF NOT EXISTS trivia_questions (
+  id TEXT PRIMARY KEY,
+  ministry_id TEXT NOT NULL DEFAULT 'ninos' REFERENCES ministries(id) ON DELETE CASCADE,
+  question TEXT NOT NULL,
+  options JSONB NOT NULL DEFAULT '[]'::jsonb,
+  answer_index INTEGER NOT NULL DEFAULT 0,
+  difficulty TEXT NOT NULL DEFAULT 'easy',
+  category TEXT NOT NULL DEFAULT 'general',
+  order_index INTEGER NOT NULL DEFAULT 0,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE trivia_questions ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura publica trivia_questions" ON trivia_questions;
+DROP POLICY IF EXISTS "Escritura publica trivia_questions" ON trivia_questions;
+CREATE POLICY "Lectura publica trivia_questions" ON trivia_questions FOR SELECT USING (true);
+CREATE POLICY "Escritura publica trivia_questions" ON trivia_questions FOR ALL USING (true) WITH CHECK (true);
+
+-- 19.4 Tabla de paginas para Colorear la Biblia
+CREATE TABLE IF NOT EXISTS coloring_pages (
+  id TEXT PRIMARY KEY,
+  ministry_id TEXT NOT NULL DEFAULT 'ninos' REFERENCES ministries(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  image_url TEXT NOT NULL,
+  category TEXT NOT NULL DEFAULT 'general',
+  order_index INTEGER NOT NULL DEFAULT 0,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE coloring_pages ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura publica coloring_pages" ON coloring_pages;
+DROP POLICY IF EXISTS "Escritura publica coloring_pages" ON coloring_pages;
+CREATE POLICY "Lectura publica coloring_pages" ON coloring_pages FOR SELECT USING (true);
+CREATE POLICY "Escritura publica coloring_pages" ON coloring_pages FOR ALL USING (true) WITH CHECK (true);
+
+-- 19.5 Tabla de Videos YouTube de Niños (separada de fun_zone en el admin)
+CREATE TABLE IF NOT EXISTS kids_videos (
+  id TEXT PRIMARY KEY,
+  ministry_id TEXT NOT NULL DEFAULT 'ninos' REFERENCES ministries(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  youtube_url TEXT NOT NULL,
+  button_text TEXT NOT NULL DEFAULT 'Ver ahora',
+  order_index INTEGER NOT NULL DEFAULT 0,
+  enabled BOOLEAN NOT NULL DEFAULT TRUE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+ALTER TABLE kids_videos ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Lectura publica kids_videos" ON kids_videos;
+DROP POLICY IF EXISTS "Escritura publica kids_videos" ON kids_videos;
+CREATE POLICY "Lectura publica kids_videos" ON kids_videos FOR SELECT USING (true);
+CREATE POLICY "Escritura publica kids_videos" ON kids_videos FOR ALL USING (true) WITH CHECK (true);

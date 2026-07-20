@@ -1,93 +1,128 @@
 import React, { useContext, useMemo } from 'react';
 import { Link } from 'react-router-dom';
-import { Gamepad2, Puzzle, Brain, Trophy, Sparkles, ChevronRight } from 'lucide-react';
+import { Gamepad2, Puzzle, Brain, Trophy, Sparkles, ChevronRight, Video } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
 
 const GamesGrid = () => {
   const { ministries } = useContext(GalleryContext);
   const ninosMinistry = ministries.find(m => m.id === 'ninos');
   const funZone = ninosMinistry?.fun_zone || {};
+  
+  // Read config per game
   const puzzleData = funZone.puzzle || {};
-  const levels = puzzleData.levels || [];
-  const hasImageOnly = !Array.isArray(levels) || levels.length === 0 ? Boolean(puzzleData.image_url) : false;
-  const effectiveLevels = levels.length > 0 ? levels : (hasImageOnly ? [{ id: 'legacy', image_url: puzzleData.image_url }] : []);
+  const videosData = funZone.videos || {};
+  const memoryData = funZone.memory || {};
+  const triviaData = funZone.trivia || {};
+  const coloringData = funZone.coloring || {};
+
+  const puzzleLevels = puzzleData.levels || [];
+  const hasImageOnly = !Array.isArray(puzzleLevels) || puzzleLevels.length === 0 ? Boolean(puzzleData.image_url) : false;
+  const effectivePuzzleLevels = puzzleLevels.length > 0 ? puzzleLevels : (hasImageOnly ? [{ id: 'legacy', image_url: puzzleData.image_url }] : []);
 
   const games = useMemo(() => {
     const gameList = [];
 
-    if (effectiveLevels.length > 0) {
-      gameList.push({
-        id: 'biblical-puzzle',
-        title: puzzleData.title || 'Rompecabezas Bíblico',
-        description: `Arma la imagen y adivina la historia bíblica. ${effectiveLevels.length} nivel${effectiveLevels.length > 1 ? 'es' : ''} disponible${effectiveLevels.length > 1 ? 's' : ''}.`,
-        icon: Puzzle,
-        color: '#8A2BE2',
-        gradient: 'linear-gradient(135deg, #8A2BE2, #4B0082)',
-        levels: effectiveLevels.length,
-        path: '/ninos/juegos/biblical-puzzle',
-        badge: effectiveLevels.length > 1 ? 'Múltiples niveles' : '1 nivel',
-        features: ['Rompecabezas interactivo', 'Adivina la palabra', 'Progresión de niveles']
-      });
-    } else {
-      gameList.push({
-        id: 'biblical-puzzle',
-        title: puzzleData.title || 'Rompecabezas Bíblico',
-        description: 'Las maestras están preparando los niveles. ¡Vuelve pronto!',
-        icon: Puzzle,
-        color: '#CCC',
-        gradient: 'linear-gradient(135deg, #DDD, #BBB)',
-        levels: 0,
-        path: '/ninos/juegos/biblical-puzzle',
-        badge: 'Próximamente',
-        disabled: true,
-        features: ['En preparación...']
-      });
-    }
+    // Puzzle - enabled based on puzzle.enabled AND has levels
+    const puzzleEnabled = puzzleData.enabled && effectivePuzzleLevels.length > 0;
+    gameList.push({
+      id: 'biblical-puzzle',
+      title: puzzleData.title || 'Rompecabezas Bíblico',
+      description: puzzleEnabled
+        ? `Arma la imagen y adivina la historia bíblica. ${effectivePuzzleLevels.length} nivel${effectivePuzzleLevels.length > 1 ? 'es' : ''} disponible${effectivePuzzleLevels.length > 1 ? 's' : ''}.`
+        : 'Las maestras están preparando los niveles. ¡Vuelve pronto!',
+      icon: Puzzle,
+      color: '#8A2BE2',
+      gradient: 'linear-gradient(135deg, #8A2BE2, #4B0082)',
+      levels: effectivePuzzleLevels.length,
+      path: '/ninos/juegos/biblical-puzzle',
+      badge: effectivePuzzleLevels.length > 1 ? 'Múltiples niveles' : effectivePuzzleLevels.length === 1 ? '1 nivel' : 'Próximamente',
+      disabled: !puzzleEnabled,
+      features: ['Rompecabezas interactivo', 'Adivina la palabra', 'Progresión de niveles']
+    });
 
-    gameList.push(
-      {
-        id: 'memory-verse',
-        title: 'Memoria de Versículos',
-        description: 'Encuentra las parejas y memoriza la Palabra de Dios.',
-        icon: Brain,
-        color: '#32CD32',
-        gradient: 'linear-gradient(135deg, #32CD32, #228B22)',
-        levels: 0,
-        path: '/ninos/juegos/memory-verse',
-        badge: 'Próximamente',
-        disabled: true,
-        features: ['Cartas memorables', 'Versículos bíblicos', 'Temporizador']
-      },
-      {
-        id: 'bible-trivia',
-        title: 'Trivia Bíblica Kids',
-        description: 'Responde preguntas y gana coronas de sabiduría.',
-        icon: Trophy,
-        color: '#FFD700',
-        gradient: 'linear-gradient(135deg, #FFD700, #FFA500)',
-        levels: 0,
-        path: '/ninos/juegos/bible-trivia',
-        badge: 'Próximamente',
-        disabled: true,
-        features: ['Preguntas por edad', 'Modo carrera', 'Logros']
-      },
-      {
-        id: 'coloring-book',
-        title: 'Coloreando la Biblia',
-        description: 'Da vida a las historias bíblicas con colores.',
-        icon: Sparkles,
-        color: '#FF69B4',
-        gradient: 'linear-gradient(135deg, #FF69B4, #FF1493)',
-        levels: 0,
-        path: '/ninos/juegos/coloring-book',
-        badge: 'Próximamente',
-        disabled: true,
-        features: ['Dibujos para colorear', 'Galería de obras', 'Guardar y compartir']
-      }
-    );
+    // Videos - enabled based on videos.enabled
+    const videosEnabled = videosData.enabled;
+    gameList.push({
+      id: 'bible-videos',
+      title: videosData.title || 'Videos y Canciones',
+      description: videosEnabled
+        ? 'Disfruta videos y canciones bíblicas para niños.'
+        : 'Esta sección está deshabilitada por las maestras.',
+      icon: Video,
+      color: '#FF6B35',
+      gradient: 'linear-gradient(135deg, #FF6B35, #F7931E)',
+      levels: 0,
+      path: '/ninos/juegos/bible-videos',
+      badge: videosEnabled ? 'Disponible' : 'Deshabilitado',
+      disabled: !videosEnabled,
+      features: ['Videos de YouTube Kids', 'Canciones bíblicas', 'Contenido seguro']
+    });
+
+    // Memory - enabled based on memory.enabled AND has cards
+    const memoryCards = memoryData.cards || [];
+    const memoryEnabled = memoryData.enabled && memoryCards.length > 0;
+    gameList.push({
+      id: 'memory-verse',
+      title: memoryData.title || 'Memoria de Versículos',
+      description: memoryEnabled
+        ? `Encuentra las parejas y memoriza la Palabra. ${memoryCards.length} tarjeta${memoryCards.length > 1 ? 's' : ''} disponible${memoryCards.length > 1 ? 's' : ''}.`
+        : 'Las maestras están preparando las tarjetas. ¡Vuelve pronto!',
+      icon: Brain,
+      color: '#32CD32',
+      gradient: 'linear-gradient(135deg, #32CD32, #228B22)',
+      levels: memoryCards.length,
+      path: '/ninos/juegos/memory-verse',
+      badge: memoryEnabled ? `${memoryCards.length} tarjetas` : 'Próximamente',
+      disabled: !memoryEnabled,
+      features: ['Cartas memorables', 'Versículos bíblicos', 'Temporizador']
+    });
+
+    // Trivia - enabled based on trivia.enabled AND has questions
+    const triviaQuestions = triviaData.questions || [];
+    const triviaEnabled = triviaData.enabled && triviaQuestions.length > 0;
+    gameList.push({
+      id: 'bible-trivia',
+      title: triviaData.title || 'Trivia Bíblica Kids',
+      description: triviaEnabled
+        ? `Responde preguntas y gana coronas de sabiduría. ${triviaQuestions.length} pregunta${triviaQuestions.length > 1 ? 's' : ''} disponible${triviaQuestions.length > 1 ? 's' : ''}.`
+        : 'Las maestras están preparando las preguntas. ¡Vuelve pronto!',
+      icon: Trophy,
+      color: '#FFD700',
+      gradient: 'linear-gradient(135deg, #FFD700, #FFA500)',
+      levels: triviaQuestions.length,
+      path: '/ninos/juegos/bible-trivia',
+      badge: triviaEnabled ? `${triviaQuestions.length} preguntas` : 'Próximamente',
+      disabled: !triviaEnabled,
+      features: ['Preguntas por edad', 'Modo carrera', 'Logros']
+    });
+
+    // Coloring - enabled based on coloring.enabled AND has pages
+    const coloringPages = coloringData.pages || [];
+    const coloringEnabled = coloringData.enabled && coloringPages.length > 0;
+    gameList.push({
+      id: 'coloring-book',
+      title: coloringData.title || 'Coloreando la Biblia',
+      description: coloringEnabled
+        ? `Da vida a las historias bíblicas con colores. ${coloringPages.length} dibujo${coloringPages.length > 1 ? 's' : ''} disponible${coloringPages.length > 1 ? 's' : ''}.`
+        : 'Las maestras están preparando los dibujos. ¡Vuelve pronto!',
+      icon: Sparkles,
+      color: '#FF69B4',
+      gradient: 'linear-gradient(135deg, #FF69B4, #FF1493)',
+      levels: coloringPages.length,
+      path: '/ninos/juegos/coloring-book',
+      badge: coloringEnabled ? `${coloringPages.length} dibujos` : 'Próximamente',
+      disabled: !coloringEnabled,
+      features: ['Dibujos para colorear', 'Galería de obras', 'Guardar y compartir']
+    });
 
     return gameList;
-  }, [effectiveLevels, puzzleData.title]);
+  }, [
+    effectivePuzzleLevels, puzzleData.title, puzzleData.enabled,
+    videosData.enabled, videosData.title,
+    memoryCards, memoryData.enabled, memoryData.title,
+    triviaQuestions, triviaData.enabled, triviaData.title,
+    coloringPages, coloringData.enabled, coloringData.title
+  ]);
 
   return (
     <div style={{
@@ -98,10 +133,11 @@ const GamesGrid = () => {
     }}>
       <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
 
+
         <header style={{ textAlign: 'center', marginBottom: '2.5rem', position: 'relative' }}>
           <div style={{
             position: 'absolute', top: '-2rem', left: '50%', transform: 'translateX(-50%)',
-            fontSize: '4rem', animation: 'float 3s ease-in-out infinite'
+            fontSize: '4rem'
           }}>🎮</div>
           <h1 style={{
             fontSize: 'clamp(2.5rem, 6vw, 3.5rem)',
@@ -121,12 +157,6 @@ const GamesGrid = () => {
           }}>
             Elige tu aventura y diviértete aprendiendo la Palabra
           </p>
-          <style>{`
-            @keyframes float {
-              0%, 100% { transform: translateX(-50%) translateY(0); }
-              50% { transform: translateX(-50%) translateY(-15px); }
-            }
-          `}</style>
         </header>
 
         <div style={{
@@ -278,7 +308,7 @@ const GamesGrid = () => {
                       gap: '0.5rem'
                     }}
                   >
-                    <Sparkles size={18} /> Próximamente
+                    <Sparkles size={18} /> {game.badge}
                   </button>
                 ) : (
                   <Link

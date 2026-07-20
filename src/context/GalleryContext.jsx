@@ -187,15 +187,30 @@ const DEFAULT_MINISTRIES = [
     contact_link: 'https://wa.me/4',
     visual_settings: { theme_mode: "light", layout_style: "playful", primary_action_text: "Escuela Dominical", primary_action_url: "#contacto", custom_labels: { pillars: "Clases" } },
     fun_zone: {
+      videos: {
+        title: 'Videos y Canciones',
+        youtube_url: '',
+        button_text: 'Ver ahora',
+        enabled: true
+      },
       puzzle: {
         title: 'Rompecabezas Bíblico',
         levels: [],
         enabled: true
       },
-      videos: {
-        title: 'Videos y Canciones',
-        youtube_url: '',
-        button_text: 'Ver ahora',
+      memory: {
+        title: 'Memoria de Versículos',
+        cards: [],
+        enabled: true
+      },
+      trivia: {
+        title: 'Trivia Bíblica Kids',
+        questions: [],
+        enabled: true
+      },
+      coloring: {
+        title: 'Coloreando la Biblia',
+        pages: [],
         enabled: true
       }
     }

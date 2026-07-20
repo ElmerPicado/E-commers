@@ -4,13 +4,13 @@ import VideosSection from './VideosSection';
 
 // Modal Aula Virtual
 const AulaVirtualModal = ({ isOpen, onClose }) => {
-  if (!isOpen) return null;
-
   const [step, setStep] = useState('selection');
   const [codigo, setCodigo] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  if (!isOpen) return null;
 
   const handleMaestraClick = () => {
     setStep('maestra');
