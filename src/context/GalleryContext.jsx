@@ -189,28 +189,49 @@ const DEFAULT_MINISTRIES = [
     fun_zone: {
       videos: {
         title: 'Videos y Canciones',
-        youtube_url: '',
+        youtube_url: 'https://www.youtube.com/@IMR4Oficial',
         button_text: 'Ver ahora',
         enabled: true
       },
       puzzle: {
         title: 'Rompecabezas Bíblico',
-        levels: [],
+        levels: [
+          { id: 'nivel-1', image_url: 'https://images.unsplash.com/photo-1588603950515-9e18d0c6f7b0?w=800', answer: 'NOE', difficulty: '3x3' },
+          { id: 'nivel-2', image_url: 'https://images.unsplash.com/photo-1565372195458-9de0b320ef04?w=800', answer: 'DAVID', difficulty: '3x3' },
+          { id: 'nivel-3', image_url: 'https://images.unsplash.com/photo-1518773553398-650c184e0bb3?w=800', answer: 'JONAS', difficulty: '4x4' }
+        ],
         enabled: true
       },
       memory: {
         title: 'Memoria de Versículos',
-        cards: [],
+        cards: [
+          { id: 'card-1', text: 'Juan 3:16', verse: 'Porque de tal manera amó Dios al mundo...' },
+          { id: 'card-2', text: 'Salmo 23:1', verse: 'Jehová es mi pastor; nada me faltará.' },
+          { id: 'card-3', text: 'Filipenses 4:13', verse: 'Todo lo puedo en Cristo que me fortalece.' },
+          { id: 'card-4', text: 'Romanos 8:28', verse: 'Y sabemos que a los que aman a Dios...' },
+          { id: 'card-5', text: 'Jeremías 29:11', verse: 'Porque yo sé los pensamientos que tengo...' },
+          { id: 'card-6', text: 'Proverbios 3:5', verse: 'Fíate de Jehová de todo tu corazón...' }
+        ],
         enabled: true
       },
       trivia: {
         title: 'Trivia Bíblica Kids',
-        questions: [],
+        questions: [
+          { id: 'q1', question: '¿Quién construyó el arca?', options: ['Noé', 'Abraham', 'Moisés', 'David'], answer: 0 },
+          { id: 'q2', question: '¿Qué lanzó David a Goliat?', options: ['Una espada', 'Una piedra', 'Una lanza', 'Un arco'], answer: 1 },
+          { id: 'q3', question: '¿Cuántos días llovió en el diluvio?', options: ['7', '30', '40', '100'], answer: 2 },
+          { id: 'q4', question: '¿Quién fue tragado por un gran pez?', options: ['Jonás', 'Pedro', 'Pablo', 'Juan'], answer: 0 },
+          { id: 'q5', question: '¿Cuántos mandamientos dio Dios a Moisés?', options: ['5', '10', '12', '7'], answer: 1 }
+        ],
         enabled: true
       },
       coloring: {
         title: 'Coloreando la Biblia',
-        pages: [],
+        pages: [
+          { id: 'page-1', title: 'El Arca de Noé', image_url: 'https://images.unsplash.com/photo-1588603950515-9e18d0c6f7b0?w=800' },
+          { id: 'page-2', title: 'David y Goliat', image_url: 'https://images.unsplash.com/photo-1565372195458-9de0b320ef04?w=800' },
+          { id: 'page-3', title: 'Jonás y el Pez', image_url: 'https://images.unsplash.com/photo-1518773553398-650c184e0bb3?w=800' }
+        ],
         enabled: true
       }
     }
