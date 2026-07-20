@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Heart, MessageSquare, Play, Gamepad2, Puzzle, X, Video as YoutubeIcon, Music, GraduationCap, User, UserCheck, Mail, Shield, AlertCircle } from 'lucide-react';
 import VideosSection from './VideosSection';
 
@@ -283,9 +284,9 @@ export const PlayfulLayout = ({
               <a href={ministry.visual_settings?.primary_action_url || "#"} className="btn" style={{ background: 'var(--accent-color)', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900 }}>
                 {ministry.visual_settings?.primary_action_text || "¡Quiero Participar!"}
               </a>
-              <a href="/ninos/juegos" className="btn" style={{ background: '#3b82f6', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900, cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Link to="/ninos/juegos" className="btn" style={{ background: '#3b82f6', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900, cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
                 ¡A Jugar! <Gamepad2 size={24} style={{ display: 'inline', marginLeft: '10px' }} />
-              </a>
+              </Link>
               {/* Botón Aula Virtual */}
               <button 
                 onClick={() => setShowAulaVirtual(true)} 
@@ -313,9 +314,9 @@ export const PlayfulLayout = ({
 
            {/* Fun Zone Banner - Always visible */}
            <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem' }}>
-             <a
-               href="/ninos/juegos"
-               style={{ 
+<Link
+                to="/ninos/juegos"
+                style={{
                  background: 'linear-gradient(135deg, #8A2BE2, #FF1493, #FF4500)', 
                  borderRadius: '2.5rem', 
                  padding: '2.5rem 2rem', 
@@ -359,10 +360,10 @@ export const PlayfulLayout = ({
                    50% { transform: translateY(-10px); }
                  }
                `}</style>
-             </a>
-           </section>
+</Link>
+            </section>
 
-           {/* Videos Section */}
+            {/* Videos Section */}
            <section id="videos" style={{ width: '100%', maxWidth: '1000px', marginTop: '1rem' }}>
              <VideosSection ministry={ministry} />
            </section>
