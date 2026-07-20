@@ -125,7 +125,7 @@ const GamesGrid = () => {
   ]);
 
   return (
-    <div style={{
+    <div className="theme-ninos" style={{
       minHeight: '100vh',
       background: 'linear-gradient(to bottom, #87CEEB 0%, #E0F6FF 40%, #90EE90 100%)',
       padding: '2rem 1rem',

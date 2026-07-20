@@ -127,7 +127,7 @@ function goBack() {
 }
 
 const GameShell = ({ gameTitle, onBack, rightHeader, children }) => (
-  <div style={{
+  <div className="theme-ninos" style={{
     minHeight: '100vh',
     background: 'linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #90EE90 100%)',
     padding: '1rem',
@@ -257,7 +257,7 @@ function renderVideos(videosData) {
   }
 
   return (
-    <div style={{
+    <div className="theme-ninos" style={{
       minHeight: '100vh',
       background: 'linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #90EE90 100%)',
       padding: '1rem',
@@ -324,7 +324,7 @@ function renderVideos(videosData) {
 
 function renderUnavailable() {
   return (
-    <div style={{
+    <div className="theme-ninos" style={{
       minHeight: '100vh',
       background: 'linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #90EE90 100%)',
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem',
