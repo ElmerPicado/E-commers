@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Palette, Download, RotateCcw, Check } from 'lucide-react';
+import { Palette, Download, RotateCcw, Check, Eraser } from 'lucide-react';
 
 const ColoringGame = ({ gameData }) => {
   const pages = useMemo(() => {
@@ -13,6 +13,7 @@ const ColoringGame = ({ gameData }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [finished, setFinished] = useState(false);
   const canvasRef = useRef(null);
+  const [forceReload, setForceReload] = useState(0);
 
   // Reset when page changes
   useEffect(() => {
@@ -48,7 +49,7 @@ const ColoringGame = ({ gameData }) => {
       ctx.fillText('Imagen no disponible', canvas.width / 2, canvas.height / 2);
     };
     img.src = page.image_url;
-  }, [activePageIdx, pages]);
+  }, [activePageIdx, pages, forceReload]);
 
   const getPos = (e) => {
     const canvas = canvasRef.current;
@@ -81,13 +82,21 @@ const ColoringGame = ({ gameData }) => {
       return;
     }
 
+    // Eraser tool uses white color with larger size
+    if (tool === 'eraser') {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.lineWidth = brushSize * 2;
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = color;
+      ctx.lineWidth = brushSize;
+    }
+
     setIsDrawing(true);
     ctx.beginPath();
     ctx.moveTo(x, y);
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
-    ctx.strokeStyle = color;
-    ctx.lineWidth = brushSize;
   };
 
   const draw = (e) => {
@@ -104,14 +113,23 @@ const ColoringGame = ({ gameData }) => {
   const endDraw = () => {
     if (!isDrawing) return;
     setIsDrawing(false);
+    // Reset composite operation after eraser
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      ctx.globalCompositeOperation = 'source-over';
+    }
     setFinished(true);
   };
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    // Restore original drawing by re-loading page image
-    setActivePageIdx((i) => i);
+    const ctx = canvas.getContext('2d');
+    // Clear canvas and reload original image
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Force reload by briefly changing the key
+    setForceReload((r) => r + 1);
   };
 
   const downloadCanvas = () => {
@@ -228,6 +246,21 @@ const ColoringGame = ({ gameData }) => {
             🖌️ Pincel
           </button>
           <button
+            onClick={() => setTool('eraser')}
+            style={{
+              padding: '0.35rem 0.8rem',
+              background: tool === 'eraser' ? '#FF69B4' : 'transparent',
+              color: tool === 'eraser' ? '#fff' : '#FF69B4',
+              border: 'none',
+              borderRadius: '0.5rem',
+              cursor: 'pointer',
+              fontWeight: 700,
+              fontSize: '0.85rem'
+            }}
+          >
+            🧽 Borrador
+          </button>
+          <button
             onClick={() => setTool('fill')}
             style={{
               padding: '0.35rem 0.8rem',
@@ -245,7 +278,7 @@ const ColoringGame = ({ gameData }) => {
         </div>
       </div>
 
-      {tool === 'brush' && (
+      {(tool === 'brush' || tool === 'eraser') && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FF69B4' }}>Tamaño:</label>
           <input
@@ -280,7 +313,7 @@ const ColoringGame = ({ gameData }) => {
             display: 'block',
             maxWidth: '100%',
             height: 'auto',
-            cursor: tool === 'brush' ? 'crosshair' : 'pointer',
+            cursor: tool === 'brush' ? 'crosshair' : tool === 'eraser' ? 'cell' : 'pointer',
             borderRadius: '1rem',
             touchAction: 'none'
           }}

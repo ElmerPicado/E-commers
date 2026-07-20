@@ -186,13 +186,13 @@ const DEFAULT_MINISTRIES = [
     contact_email: 'ninos@imr4.org',
     contact_link: 'https://wa.me/4',
     visual_settings: { theme_mode: "light", layout_style: "playful", primary_action_text: "Escuela Dominical", primary_action_url: "#contacto", custom_labels: { pillars: "Clases" } },
+    videos: {
+      title: 'Videos y Canciones',
+      youtube_url: 'https://www.youtube.com/@IMR4Oficial',
+      button_text: 'Ver ahora',
+      enabled: true
+    },
     fun_zone: {
-      videos: {
-        title: 'Videos y Canciones',
-        youtube_url: 'https://www.youtube.com/@IMR4Oficial',
-        button_text: 'Ver ahora',
-        enabled: true
-      },
       puzzle: {
         title: 'Rompecabezas Bíblico',
         levels: [

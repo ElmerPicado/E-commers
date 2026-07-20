@@ -1,7 +1,7 @@
 import React, { useState, useContext, useEffect } from 'react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { supabase, isSupabaseConfigured } from '../../supabaseClient';
-import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette, Gamepad2, Brain, Trophy } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Image as ImageIcon, Save, Plus, Trash2, Upload, Edit2, Palette, Gamepad2, Brain, Trophy, Video as YoutubeIcon } from 'lucide-react';
 import ImageUploadDropzone from './ImageUploadDropzone';
 import { resolveImageUrl } from '../../utils/imageUtils';
 
@@ -123,6 +123,12 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [minFunZoneVideosTitle, setMinFunZoneVideosTitle] = useState(min?.fun_zone?.videos?.title || 'Videos y Canciones');
   const [minFunZoneVideosUrl, setMinFunZoneVideosUrl] = useState(min?.fun_zone?.videos?.youtube_url || '');
   const [minFunZoneVideosButtonText, setMinFunZoneVideosButtonText] = useState(min?.fun_zone?.videos?.button_text || 'Ver ahora');
+
+  // Videos Section (separate from fun_zone) - for /ninos/videos page
+  const [minVideosEnabled, setMinVideosEnabled] = useState(min?.videos?.enabled ?? true);
+  const [minVideosTitle, setMinVideosTitle] = useState(min?.videos?.title || 'Videos y Canciones');
+  const [minVideosUrl, setMinVideosUrl] = useState(min?.videos?.youtube_url || '');
+  const [minVideosButtonText, setMinVideosButtonText] = useState(min?.videos?.button_text || 'Ver ahora');
 
   // Memory Game State
   const [minFunZoneMemoryEnabled, setMinFunZoneMemoryEnabled] = useState(min?.fun_zone?.memory?.enabled ?? true);
@@ -390,6 +396,28 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         title: minFunZoneVideosTitle,
         youtube_url: minFunZoneVideosUrl,
         button_text: minFunZoneVideosButtonText
+      });
+      triggerSuccess('Sección de Videos guardada.');
+    } catch (err) {
+      console.error(err);
+      alert('Error al guardar la sección de videos.');
+    } finally {
+      setIsSavingVideos(false);
+    }
+  };
+
+  // Handler: Save Videos Section (separate from fun_zone)
+  const handleSaveVideosSection = async (e) => {
+    e.preventDefault();
+    setIsSavingVideos(true);
+    try {
+      await updateMinistry(ministryId, {
+        videos: {
+          enabled: minVideosEnabled,
+          title: minVideosTitle,
+          youtube_url: minVideosUrl,
+          button_text: minVideosButtonText
+        }
       });
       triggerSuccess('Sección de Videos guardada.');
     } catch (err) {
@@ -752,6 +780,11 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
         {ministryId !== 'general' && minLayoutStyle === 'playful' && (
           <button onClick={() => setActiveTab('fun_zone')} className={`btn ${activeTab === 'fun_zone' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'fun_zone' ? 'transparent' : '', color: activeTab !== 'fun_zone' ? 'var(--text-secondary)' : '' }}>
             <Gamepad2 size={16} /> Zona de Diversión
+          </button>
+        )}
+        {ministryId === 'ninos' && (
+          <button onClick={() => setActiveTab('videos')} className={`btn ${activeTab === 'videos' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'videos' ? 'transparent' : '', color: activeTab !== 'videos' ? 'var(--text-secondary)' : '' }}>
+            <Youtube size={16} /> Videos
           </button>
         )}
         <button onClick={() => setActiveTab('photos')} className={`btn ${activeTab === 'photos' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'photos' ? 'transparent' : '', color: activeTab !== 'photos' ? 'var(--text-secondary)' : '' }}>
@@ -1128,36 +1161,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
             </button>
           </form>
 
-          {/* ====== FORM 2: VIDEOS ====== */}
-          <form onSubmit={handleSaveVideos} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.5rem', background: 'rgba(255,255,255,0.02)', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--text-primary)' }}>🎬 Videos y Canciones (YouTube)</h4>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-                <input type="checkbox" checked={minFunZoneVideosEnabled} onChange={(e) => setMinFunZoneVideosEnabled(e.target.checked)} />
-                <span style={{ fontSize: '0.9rem' }}>Habilitar sección</span>
-              </label>
-            </div>
-
-            <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de la Tarjeta</label>
-                <input type="text" value={minFunZoneVideosTitle} onChange={(e) => setMinFunZoneVideosTitle(e.target.value)} style={inputStyle} disabled={!minFunZoneVideosEnabled} />
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Texto del Botón</label>
-                <input type="text" value={minFunZoneVideosButtonText} onChange={(e) => setMinFunZoneVideosButtonText(e.target.value)} style={inputStyle} disabled={!minFunZoneVideosEnabled} />
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>URL del Canal o Lista de YouTube Kids</label>
-              <input type="text" placeholder="https://youtube.com/..." value={minFunZoneVideosUrl} onChange={(e) => setMinFunZoneVideosUrl(e.target.value)} style={inputStyle} disabled={!minFunZoneVideosEnabled} />
-            </div>
-
-            <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isSavingVideos}>
-              {isSavingVideos ? 'Guardando...' : <><Save size={16} /> Guardar Videos</>}
-            </button>
-          </form>
-
           {/* ====== FORM 3: MEMORIA ====== */}
           <form onSubmit={handleSaveMemory} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -1441,6 +1444,41 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
           </form>
         </div>
       )}
+      {/* TAB: VIDEOS (separate from fun_zone, for ninos ministry) */}
+      {ministryId === 'ninos' && activeTab === 'videos' && (
+        <form onSubmit={handleSaveVideosSection} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ fontSize: '1.1rem', margin: 0 }}>🎬 Videos y Canciones</h3>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+              <input type="checkbox" checked={minVideosEnabled} onChange={(e) => setMinVideosEnabled(e.target.checked)} />
+              <span style={{ fontSize: '0.9rem' }}>Habilitar sección</span>
+            </label>
+          </div>
+
+          <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de la Sección</label>
+              <input type="text" value={minVideosTitle} onChange={(e) => setMinVideosTitle(e.target.value)} style={inputStyle} disabled={!minVideosEnabled} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Texto del Botón</label>
+              <input type="text" value={minVideosButtonText} onChange={(e) => setMinVideosButtonText(e.target.value)} style={inputStyle} disabled={!minVideosEnabled} />
+            </div>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>URL del Canal o Lista de YouTube Kids</label>
+            <input type="text" placeholder="https://youtube.com/@canal o https://youtube.com/playlist?list=..." value={minVideosUrl} onChange={(e) => setMinVideosUrl(e.target.value)} style={inputStyle} disabled={!minVideosEnabled} />
+            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: 0 }}>
+              Soporta: Canal (@canal), Lista de reproducción (playlist?list=...), Video individual (watch?v=...)
+            </p>
+          </div>
+
+          <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isSavingVideos}>
+            {isSavingVideos ? 'Guardando...' : <><Save size={16} /> Guardar Videos</>}
+          </button>
+        </form>
+      )}
+
       {/* TAB 2: ACTIVITIES */}
       {activeTab === 'activities' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1.5rem' }}>

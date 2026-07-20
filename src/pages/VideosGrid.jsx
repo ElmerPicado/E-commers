@@ -6,8 +6,7 @@ import { Video as YoutubeIcon, Play, Music, Heart, Sparkles, ChevronRight } from
 const VideosGrid = () => {
   const { ministries } = useContext(GalleryContext);
   const ninosMinistry = ministries.find(m => m.id === 'ninos');
-  const funZone = ninosMinistry?.fun_zone || {};
-  const videosData = funZone.videos || {};
+  const videosData = ninosMinistry?.videos || {};
   const youtubeUrl = videosData.youtube_url || '';
 
   const videoList = useMemo(() => {
