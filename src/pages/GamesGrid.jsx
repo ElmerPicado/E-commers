@@ -7,23 +7,25 @@ const GamesGrid = () => {
   const { ministries } = useContext(GalleryContext);
   const ninosMinistry = ministries.find(m => m.id === 'ninos');
   const funZone = ninosMinistry?.fun_zone || {};
-  const puzzleData = funZone.puzzle || {};
+  const puzzleData = fun_zone.puzzle || {};
   const levels = puzzleData.levels || [];
+  const hasImageOnly = !Array.isArray(levels) || levels.length === 0 ? Boolean(puzzleData.image_url) : false;
+  const effectiveLevels = levels.length > 0 ? levels : (hasImageOnly ? [{ id: 'legacy', image_url: puzzleData.image_url }] : []);
 
   const games = useMemo(() => {
     const gameList = [];
 
-    if (levels.length > 0) {
+    if (effectiveLevels.length > 0) {
       gameList.push({
         id: 'biblical-puzzle',
         title: puzzleData.title || 'Rompecabezas Bíblico',
-        description: `Arma la imagen y adivina la historia bíblica. ${levels.length} nivel${levels.length > 1 ? 'es' : ''} disponible${levels.length > 1 ? 's' : ''}.`,
+        description: `Arma la imagen y adivina la historia bíblica. ${effectiveLevels.length} nivel${effectiveLevels.length > 1 ? 'es' : ''} disponible${effectiveLevels.length > 1 ? 's' : ''}.`,
         icon: Puzzle,
         color: '#8A2BE2',
         gradient: 'linear-gradient(135deg, #8A2BE2, #4B0082)',
-        levels: levels.length,
+        levels: effectiveLevels.length,
         path: '/ninos/juegos/biblical-puzzle',
-        badge: levels.length > 1 ? 'Múltiples niveles' : '1 nivel',
+        badge: effectiveLevels.length > 1 ? 'Múltiples niveles' : '1 nivel',
         features: ['Rompecabezas interactivo', 'Adivina la palabra', 'Progresión de niveles']
       });
     } else {
@@ -85,7 +87,7 @@ const GamesGrid = () => {
     );
 
     return gameList;
-  }, [levels, puzzleData.title]);
+  }, [effectiveLevels, puzzleData.title]);
 
   return (
     <div style={{
