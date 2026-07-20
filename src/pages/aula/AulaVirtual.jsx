@@ -6,7 +6,7 @@ import {
   ArrowLeft, Upload, Eye, Star, Target, MessageSquare, LogOut, GraduationCap
 } from 'lucide-react';
 
-// === Clases de estilos reutilizables (Reemplazo seguro de @apply) ===
+// === Clases de estilos reutilizables ===
 const styles = {
   btnPrimary: "inline-flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed",
   btnSecondary: "inline-flex items-center justify-center bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition",
@@ -120,44 +120,53 @@ const AulaVirtual = () => {
     activeFilter === 'all' || t.estado === activeFilter
   );
 
+  // ================= VISTA DE LOGIN =================
   if (step === 'login') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 p-4">
-        <div className="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-green-500 rounded-2xl flex items-center justify-center">
-              <GraduationCap className="w-10 h-10 text-white" />
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-purple-50 p-4">
+        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-8 border border-gray-100 text-center">
+
+          {/* Header del Modal */}
+          <div className="mb-6">
+            <div className="w-20 h-20 mx-auto mb-3 bg-purple-100 rounded-full flex items-center justify-center shadow-inner">
+              <GraduationCap className="w-10 h-10 text-purple-600" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-800">Aula Virtual IMR4 Niños</h1>
-            <p className="text-gray-500 mt-1">Ingresa tu código de acceso para continuar</p>
+            <h1 className="text-2xl font-black text-purple-900 flex items-center justify-center gap-2">
+              🏫 Aula Virtual IMR4
+            </h1>
+            <p className="text-xl font-bold text-purple-700 mt-0.5">Niños</p>
           </div>
 
+          {/* Formulario Estudiante */}
           <form onSubmit={handleLogin} className="space-y-4">
             {loginError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm flex items-center gap-2">
-                <AlertCircle className="w-5 h-5" />
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl text-sm flex items-center gap-2 text-left">
+                <AlertCircle className="w-5 h-5 shrink-0" />
                 {loginError}
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Código de Acceso</label>
+            <div className="text-left">
+              <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5 ml-1">
+                Ingresa tu código de acceso:
+              </label>
               <input
                 type="text"
                 value={codigo}
                 onChange={e => setCodigo(e.target.value.toUpperCase())}
                 placeholder="Ej: GENESIS-2026-001"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-center text-lg tracking-wider font-mono"
+                className="w-full px-4 py-3 border-2 border-purple-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent text-center text-lg tracking-wider font-mono uppercase transition"
                 required
                 maxLength={30}
                 disabled={loginLoading}
               />
             </div>
 
+            {/* BOTÓN PRINCIPAL PARA ESTUDIANTES */}
             <button
               type="submit"
               disabled={loginLoading || !codigo.trim()}
-              className="w-full py-3 bg-gradient-to-r from-blue-500 to-green-500 text-white font-semibold rounded-lg hover:from-blue-600 hover:to-green-600 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-3.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-extrabold text-lg rounded-full shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:scale-[1.01] active:scale-[0.99] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loginLoading ? (
                 <>
@@ -167,28 +176,44 @@ const AulaVirtual = () => {
               ) : (
                 <>
                   <BookOpen className="w-5 h-5" />
-                  Entrar al Aula
+                  Soy Estudiante
                 </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg text-sm text-gray-600">
-            <p className="font-medium text-gray-800 mb-2">¿No tienes código?</p>
-            <p>Pide a tu maestra o líder de división que te lo proporcione. El código tiene formato: <code className="font-mono bg-white px-1 rounded">DIVISION-AÑO-NÚMERO</code></p>
+          {/* SECCIÓN INFERIOR: ENLACE DISCRETO MAESTRAS */}
+          <div className="mt-8 pt-5 border-t border-gray-100 text-xs text-gray-500">
+            <p className="mb-2">
+              ¿No tienes código? Pide a tu líder que te proporcione tu código de acceso.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate('/login')} // Cambia esta ruta si tu login de maestras está en otra URL
+              className="mt-1 text-purple-700 font-bold underline hover:text-purple-900 transition cursor-pointer"
+            >
+              ¿Eres maestra / líder? Ingresa aquí
+            </button>
           </div>
 
-          <div className="mt-4 text-center">
-            <button onClick={() => navigate('/ministerio/ninos')} className="text-blue-600 hover:underline text-sm flex items-center justify-center gap-1">
-              <ArrowLeft className="w-4 h-4" />
+          {/* Botón Volver */}
+          <div className="mt-4">
+            <button
+              onClick={() => navigate('/ministerio/ninos')}
+              className="text-gray-400 hover:text-gray-600 text-xs inline-flex items-center justify-center gap-1"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
               Volver a la página de Niños
             </button>
           </div>
+
         </div>
       </div>
     );
   }
 
+  // ================= VISTA DASHBOARD =================
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -254,8 +279,8 @@ const AulaVirtual = () => {
                   key={f}
                   onClick={() => setActiveFilter(f)}
                   className={`px-4 py-2 rounded-full text-sm font-medium transition ${activeFilter === f
-                      ? `${badge.bg} ${badge.text}`
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? `${badge.bg} ${badge.text}`
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                     }`}
                 >
                   <Icon className="w-4 h-4 inline mr-1" />
@@ -411,7 +436,6 @@ const AulaVirtual = () => {
                     </div>
                   )}
 
-                  {/* Botones del Modal con estilos seguros */}
                   <div className="flex justify-end gap-3 pt-4 border-t">
                     <button type="button" onClick={() => setShowEntregaModal(null)} className={styles.btnSecondary}>
                       Cancelar
