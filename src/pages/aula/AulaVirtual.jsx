@@ -1,12 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
   BookOpen, Video, FileText, CheckCircle, Clock, AlertCircle,
-  ArrowLeft, Upload, Download, Eye, Edit, Trash2, MoreVertical,
-  ChevronDown, ChevronRight, Search, Filter, Home, LogOut,
-  GraduationCap, Award, Star, Target, MessageSquare
+  ArrowLeft, Upload, Eye, Star, Target, MessageSquare, LogOut, GraduationCap
 } from 'lucide-react';
+
+// === Clases de estilos reutilizables (Reemplazo seguro de @apply) ===
+const styles = {
+  btnPrimary: "inline-flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed",
+  btnSecondary: "inline-flex items-center justify-center bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition",
+  input: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
+  label: "block text-sm font-medium text-gray-700 mb-1"
+};
+
+// === Helper Functions ===
+const formatDate = (dateStr) =>
+  dateStr ? new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', weekday: 'short' }) : 'Sin fecha';
+
+const getEstadoBadge = (estado) => {
+  switch (estado) {
+    case 'pendiente': return { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: Clock, label: 'Pendiente' };
+    case 'entregado': return { bg: 'bg-blue-100', text: 'text-blue-700', icon: Upload, label: 'Entregado' };
+    case 'revisado': return { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle, label: 'Revisado' };
+    default: return { bg: 'bg-gray-100', text: 'text-gray-700', icon: AlertCircle, label: estado };
+  }
+};
+
+const getTipoIcon = (tipo) => {
+  switch (tipo) {
+    case 'video': return Video;
+    case 'archivo': return FileText;
+    case 'enlace': return Eye;
+    case 'cuestionario': return MessageSquare;
+    default: return FileText;
+  }
+};
 
 const AulaVirtual = () => {
   const navigate = useNavigate();
@@ -78,42 +107,13 @@ const AulaVirtual = () => {
     }
   };
 
-  const handleFileSubmit = (tarea) => (e) => {
+  const handleSubmitEntregaForm = (e) => {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
     formData.append('codigo_estudiante', codigo);
-    formData.append('tarea_id', tarea.tarea_id);
+    formData.append('tarea_id', showEntregaModal.tarea_id);
     handleEntregar(formData);
-  };
-
-  const handleUrlSubmit = (tarea, url) => {
-    const formData = new FormData();
-    formData.append('codigo_estudiante', codigo);
-    formData.append('tarea_id', tarea.tarea_id);
-    formData.append('url_entrega', url);
-    handleEntregar(formData);
-  };
-
-  const formatDate = (dateStr) =>
-    dateStr ? new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', weekday: 'short' }) : 'Sin fecha';
-
-  const getEstadoBadge = (estado) => {
-    switch (estado) {
-      case 'pendiente': return { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: Clock, label: 'Pendiente' };
-      case 'entregado': return { bg: 'bg-blue-100', text: 'text-blue-700', icon: Upload, label: 'Entregado' };
-      case 'revisado': return { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle, label: 'Revisado' };
-      default: return { bg: 'bg-gray-100', text: 'text-gray-700', icon: AlertCircle, label: estado };
-    }
-  };
-
-  const getTipoIcon = (tipo) => {
-    switch (tipo) {
-      case 'video': return Video;
-      case 'archivo': return FileText;
-      case 'cuestionario': return MessageSquare;
-      default: return FileText;
-    }
   };
 
   const filteredTareas = tareas.filter(t =>
@@ -253,11 +253,10 @@ const AulaVirtual = () => {
                 <button
                   key={f}
                   onClick={() => setActiveFilter(f)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition ${
-                    activeFilter === f
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition ${activeFilter === f
                       ? `${badge.bg} ${badge.text}`
                       : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                  }`}
+                    }`}
                 >
                   <Icon className="w-4 h-4 inline mr-1" />
                   {f === 'all' ? 'Todas' : badge.label}
@@ -290,7 +289,7 @@ const AulaVirtual = () => {
               const badge = getEstadoBadge(tarea.estado);
               const Icon = getTipoIcon(tarea.tarea_tipo);
               const isVencida = tarea.tarea_fecha_entrega && new Date(tarea.tarea_fecha_entrega) < new Date() && tarea.estado === 'pendiente';
-              
+
               return (
                 <div key={tarea.tarea_id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
                   <div className="p-5">
@@ -312,7 +311,7 @@ const AulaVirtual = () => {
                             </div>
                           </div>
                         </div>
-                        
+
                         {tarea.tarea_descripcion && (
                           <p className="text-gray-600 mb-3">{tarea.tarea_descripcion}</p>
                         )}
@@ -330,7 +329,6 @@ const AulaVirtual = () => {
                           )}
                         </div>
 
-                        {/* Recurso / Video */}
                         {tarea.url_recurso && (
                           <div className="mt-3 p-3 bg-gray-50 rounded-lg">
                             <a href={tarea.url_recurso} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-blue-600 hover:underline">
@@ -339,24 +337,13 @@ const AulaVirtual = () => {
                             </a>
                           </div>
                         )}
-
-                        {/* Cuestionario */}
-                        {tarea.tarea_tipo === 'cuestionario' && tarea.contenido_json && (
-                          <div className="mt-3">
-                            <button className="btn-primary text-sm">
-                              <MessageSquare className="w-4 h-4 mr-1" />
-                              Responder cuestionario
-                            </button>
-                          </div>
-                        )}
                       </div>
 
-                      {/* Actions */}
                       <div className="flex flex-col items-end gap-2 shrink-0">
                         {tarea.estado === 'pendiente' && (
                           <button
                             onClick={() => setShowEntregaModal(tarea)}
-                            className="btn-primary text-sm px-4"
+                            className={`${styles.btnPrimary} text-sm px-4`}
                           >
                             <Upload className="w-4 h-4 mr-1" /> Entregar
                           </button>
@@ -374,11 +361,6 @@ const AulaVirtual = () => {
                                 <Star className="w-4 h-4 fill-current" />
                                 Nota: {tarea.nota}/10
                               </div>
-                            )}
-                            {tarea.feedback && (
-                              <button className="mt-1 text-xs text-gray-500 hover:text-gray-700 underline">
-                                Ver retroalimentación
-                              </button>
                             )}
                           </div>
                         )}
@@ -409,28 +391,32 @@ const AulaVirtual = () => {
                 <h4 className="font-medium mb-1">{showEntregaModal.tarea_titulo}</h4>
                 <p className="text-sm text-gray-500 mb-4">{showEntregaModal.tarea_descripcion}</p>
 
-                <form onSubmit={handleFileSubmit(showEntregaModal)} className="space-y-4">
+                <form onSubmit={handleSubmitEntregaForm} className="space-y-4">
                   {showEntregaModal.tarea_tipo === 'archivo' && (
                     <div>
-                      <label className="label">Subir archivo</label>
-                      <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mp3,.wav,.doc,.docx" className="input" required />
+                      <label className={styles.label}>Subir archivo</label>
+                      <input type="file" name="file" accept=".pdf,.jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,.mp3,.wav,.doc,.docx" className={styles.input} required />
                     </div>
                   )}
                   {showEntregaModal.tarea_tipo === 'enlace' && (
                     <div>
-                      <label className="label">URL de entrega</label>
-                      <input type="url" name="url_entrega" className="input" placeholder="https://..." required />
+                      <label className={styles.label}>URL de entrega</label>
+                      <input type="url" name="url_entrega" className={styles.input} placeholder="https://..." required />
                     </div>
                   )}
                   {showEntregaModal.tarea_tipo === 'cuestionario' && (
                     <div>
-                      <label className="label">Tus respuestas (JSON)</label>
-                      <textarea name="respuesta_json" className="input font-mono text-sm" rows={6} placeholder='{"pregunta1": "respuesta", "pregunta2": "respuesta"}'></textarea>
+                      <label className={styles.label}>Tus respuestas (JSON)</label>
+                      <textarea name="respuesta_json" className={`${styles.input} font-mono text-sm`} rows={6} placeholder='{"pregunta1": "respuesta", "pregunta2": "respuesta"}' required></textarea>
                     </div>
                   )}
+
+                  {/* Botones del Modal con estilos seguros */}
                   <div className="flex justify-end gap-3 pt-4 border-t">
-                    <button type="button" onClick={() => setShowEntregaModal(null)} className="btn-secondary">Cancelar</button>
-                    <button type="submit" disabled={entregaLoading} className="btn-primary">
+                    <button type="button" onClick={() => setShowEntregaModal(null)} className={styles.btnSecondary}>
+                      Cancelar
+                    </button>
+                    <button type="submit" disabled={entregaLoading} className={styles.btnPrimary}>
                       {entregaLoading ? 'Enviando...' : 'Entregar Tarea'}
                     </button>
                   </div>
@@ -443,32 +429,5 @@ const AulaVirtual = () => {
     </div>
   );
 };
-
-const getEstadoBadge = (estado) => {
-  switch (estado) {
-    case 'pendiente': return { bg: 'bg-yellow-100', text: 'text-yellow-700', icon: Clock, label: 'Pendiente' };
-    case 'entregado': return { bg: 'bg-blue-100', text: 'text-blue-700', icon: Upload, label: 'Entregado' };
-    case 'revisado': return { bg: 'bg-green-100', text: 'text-green-700', icon: CheckCircle, label: 'Revisado' };
-    default: return { bg: 'bg-gray-100', text: 'text-gray-700', icon: AlertCircle, label: estado };
-  }
-};
-
-const getTipoIcon = (tipo) => {
-  switch (tipo) {
-    case 'video': return Video;
-    case 'archivo': return FileText;
-    case 'cuestionario': return MessageSquare;
-    default: return FileText;
-  }
-};
-
-const style = document.createElement('style');
-style.textContent = `
-  .btn-primary { @apply bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed; }
-  .btn-secondary { @apply bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition; }
-  .input { @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent; }
-  .label { @apply block text-sm font-medium text-gray-700 mb-1; }
-`;
-document.head.appendChild(style);
 
 export default AulaVirtual;

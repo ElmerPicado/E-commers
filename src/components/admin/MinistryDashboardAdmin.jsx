@@ -22,10 +22,10 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   } = useContext(GalleryContext);
 
   const [activeTab, setActiveTab] = useState(initialTab || (ministryId === 'general' ? 'photos' : 'profile'));
-  
+
   // Ministry data
-  const min = ministryId === 'general' 
-    ? { id: 'general', name: 'Iglesia General', accent_color: '#10b981' } 
+  const min = ministryId === 'general'
+    ? { id: 'general', name: 'Iglesia General', accent_color: '#10b981' }
     : ministries.find(m => m.id === ministryId);
   const minActivities = activities.filter(a => a.ministry_id === ministryId);
   // We check if album has ministry_id, if not fallback to category to match older records
@@ -52,14 +52,14 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
   const [minContactTitle, setMinContactTitle] = useState(min?.contact_title || '');
   const [minContactDesc, setMinContactDesc] = useState(min?.contact_desc || '');
   const [minContactButtonText, setMinContactButtonText] = useState(min?.contact_button_text || '');
-  
+
   // Visual Settings State
   const [minThemeMode, setMinThemeMode] = useState(min?.visual_settings?.theme_mode || 'dark');
   const [minLayoutStyle, setMinLayoutStyle] = useState(ministryId === 'ninos' ? 'playful' : (min?.visual_settings?.layout_style || 'modern'));
   const [minPrimaryActionText, setMinPrimaryActionText] = useState(min?.visual_settings?.primary_action_text || 'Participar');
   const [minPrimaryActionUrl, setMinPrimaryActionUrl] = useState(min?.visual_settings?.primary_action_url || '#contacto');
   const [minPillarsLabel, setMinPillarsLabel] = useState(min?.visual_settings?.custom_labels?.pillars || 'Pilares');
-  
+
   const [minPillars, setMinPillars] = useState(() => {
     if (min?.pillars && min.pillars.length > 0) {
       return min.pillars.map((p, i) => ({ ...p, _localId: i, file: null }));
@@ -118,12 +118,12 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       file: null
     }];
   });
-  
+
   const [minFunZoneVideosEnabled, setMinFunZoneVideosEnabled] = useState(min?.fun_zone?.videos?.enabled ?? true);
   const [minFunZoneVideosTitle, setMinFunZoneVideosTitle] = useState(min?.fun_zone?.videos?.title || 'Videos y Canciones');
   const [minFunZoneVideosUrl, setMinFunZoneVideosUrl] = useState(min?.fun_zone?.videos?.youtube_url || '');
   const [minFunZoneVideosButtonText, setMinFunZoneVideosButtonText] = useState(min?.fun_zone?.videos?.button_text || 'Ver ahora');
-  
+
   const [isMinFunZoneUploading, setIsMinFunZoneUploading] = useState(false);
 
   // Activity Form State
@@ -231,7 +231,8 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       finalPillars.push({ icon: p.icon, title: p.title, desc: p.desc, image_url: finalPillarImgUrl });
     }
     setIsMinHeroUploading(false);
-    setIsMinFunZoneUploading(true);
+
+    setIsMinFunZoneUploading(true);
     const finalPuzzleLevels = [];
     for (const lvl of minFunZonePuzzleLevels) {
       let finalLvlImgUrl = lvl.image_url || '';
@@ -336,7 +337,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       location_url: actLocationUrl,
       ministry_id: ministryId
     };
-    
+
     if (finalImageUrl !== 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=800&q=80') {
       updates.image_url = finalImageUrl;
     }
@@ -402,7 +403,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
           const { data: { publicUrl } } = supabase.storage.from('photos').getPublicUrl(filePath);
           return publicUrl;
         });
-        
+
         const uploadedUrls = await Promise.all(uploadPromises);
 
         const addPromises = uploadedUrls.map(url => addPhotoToAlbum(targetAlbumId, url));
@@ -456,7 +457,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
 
   return (
     <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      
+
       {/* Header and Back Button */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '1rem' }}>
         <button onClick={onBack} className="btn" style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-primary)', border: '1px solid var(--border-color)', padding: '0.5rem 1rem' }}>
@@ -498,233 +499,233 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       {/* TAB 1: PROFILE */}
       {activeTab === 'profile' && (
         <form onSubmit={handleSaveProfile} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-           <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Información General</h3>
-           
-           <div className="grid-cols-3" style={{ display: 'grid', gap: '1rem' }}>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Nombre del Ministerio</label>
-               <input type="text" value={minName} onChange={(e) => setMinName(e.target.value)} style={inputStyle} required />
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Color Temático</label>
-               <input type="color" value={minColor} onChange={(e) => setMinColor(e.target.value)} style={{ ...inputStyle, padding: '0.2rem', height: '38px', cursor: 'pointer' }} />
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo del Ministerio (Subir o URL)</label>
-                {isSupabaseConfigured ? (
-                  <ImageUploadDropzone 
-                    onFileSelect={(file) => setMinLogoFile(file)} 
-                    previewUrl={minLogoFile ? URL.createObjectURL(minLogoFile) : minLogoUrl} 
-                    label="Subir Logo" 
-                  />
-                ) : (
-                  <>
-                    <input type="text" placeholder="https://..." value={minLogoUrl} onChange={(e) => setMinLogoUrl(e.target.value)} style={inputStyle} />
-                    {(minLogoUrl) && (
-                      <div style={{ marginTop: '0.5rem', width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#000' }}>
-                        <img src={minLogoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-           </div>
+          <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Información General</h3>
 
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-             <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción (Página de Inicio)</label>
-             <input type="text" value={minDesc} onChange={(e) => setMinDesc(e.target.value)} style={inputStyle} required />
-           </div>
-
-           <div className="grid-cols-2" style={{ display: 'grid', gap: '1rem' }}>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título Hero (Sub-sitio)</label>
-               <input type="text" value={minHeroTitle} onChange={(e) => setMinHeroTitle(e.target.value)} style={inputStyle} />
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción Larga (Sub-sitio)</label>
-               <textarea value={minHeroDesc} onChange={(e) => setMinHeroDesc(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} />
-             </div>
-           </div>
-
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
-              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Foto de Portada del Ministerio (Fondo)</label>
+          <div className="grid-cols-3" style={{ display: 'grid', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Nombre del Ministerio</label>
+              <input type="text" value={minName} onChange={(e) => setMinName(e.target.value)} style={inputStyle} required />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Color Temático</label>
+              <input type="color" value={minColor} onChange={(e) => setMinColor(e.target.value)} style={{ ...inputStyle, padding: '0.2rem', height: '38px', cursor: 'pointer' }} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Logo del Ministerio (Subir o URL)</label>
               {isSupabaseConfigured ? (
-                 <ImageUploadDropzone 
-                   onFileSelect={(file) => setMinHeroImageFile(file)} 
-                   previewUrl={minHeroImageFile ? URL.createObjectURL(minHeroImageFile) : minHeroImageUrl} 
-                   label="Subir Portada" 
-                   size="large"
-                 />
+                <ImageUploadDropzone
+                  onFileSelect={(file) => setMinLogoFile(file)}
+                  previewUrl={minLogoFile ? URL.createObjectURL(minLogoFile) : minLogoUrl}
+                  label="Subir Logo"
+                />
               ) : (
                 <>
-                  <input type="text" placeholder="URL..." value={minHeroImageUrl} onChange={(e) => setMinHeroImageUrl(e.target.value)} style={inputStyle} />
-                  {(minHeroImageUrl) && (
-                    <div style={{ marginTop: '0.5rem', width: '100%', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
-                      <img src={minHeroImageUrl} alt="Hero Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <input type="text" placeholder="https://..." value={minLogoUrl} onChange={(e) => setMinLogoUrl(e.target.value)} style={inputStyle} />
+                  {(minLogoUrl) && (
+                    <div style={{ marginTop: '0.5rem', width: '48px', height: '48px', borderRadius: '50%', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#000' }}>
+                      <img src={minLogoUrl} alt="Logo" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     </div>
                   )}
                 </>
               )}
             </div>
+          </div>
 
-           {/* Core Pillars */}
-           <div style={{ border: '1px solid var(--border-color)', padding: '1.25rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.01)' }}>
-             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-               <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-color)' }}>Tarjetas de Información (Pilares)</span>
-               <button type="button" onClick={addPillar} className="btn btn-secondary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}>+ Agregar Tarjeta</button>
-             </div>
-             
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-               {minPillars.map((pillar, index) => (
-                 <div key={pillar._localId} className="grid-cols-4" style={{ display: 'grid', gap: '1rem', alignItems: 'flex-start', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.35rem', border: '1px solid rgba(255,255,255,0.05)' }}>
-                   <div>
-                     <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Icono & Título</span>
-                     <input type="text" placeholder="Ej: Calendar, Heart..." value={pillar.icon} onChange={(e) => updatePillar(pillar._localId, 'icon', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0' }} />
-                     <input type="text" placeholder="Título" value={pillar.title} onChange={(e) => updatePillar(pillar._localId, 'title', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem' }} />
-                   </div>
-                   <div>
-                     <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Descripción Corta</span>
-                     <textarea placeholder="Texto explicativo..." value={pillar.desc} onChange={(e) => updatePillar(pillar._localId, 'desc', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0', minHeight: '68px' }} />
-                   </div>
-                   <div>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Imagen de Fondo</span>
-                      <ImageUploadDropzone 
-                        onFileSelect={(file) => updatePillar(pillar._localId, 'file', file)} 
-                        previewUrl={pillar.file ? URL.createObjectURL(pillar.file) : pillar.image_url} 
-                        label="Fondo" 
-                      />
-                    </div>
-                    <button 
-                      type="button" 
-                      onClick={() => removePillar(pillar._localId)} 
-                      title="Eliminar tarjeta"
-                      style={{ 
-                        background: 'rgba(239,68,68,0.12)',
-                        border: '1px solid rgba(239,68,68,0.35)',
-                        borderRadius: '0.5rem',
-                        padding: '0.5rem 0.65rem',
-                        cursor: 'pointer',
-                        color: '#ef4444',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        alignSelf: 'center',
-                        transition: 'background 0.2s ease'
-                      }}
-                      onMouseOver={e => e.currentTarget.style.background = 'rgba(239,68,68,0.25)'}
-                      onMouseOut={e => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
-                    >
-                      <Trash2 size={16} />
-                   </button>
-                 </div>
-               ))}
-             </div>
-           </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción (Página de Inicio)</label>
+            <input type="text" value={minDesc} onChange={(e) => setMinDesc(e.target.value)} style={inputStyle} required />
+          </div>
 
-           <div className="grid-cols-3" style={{ display: 'grid', gap: '1rem' }}>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Horario Corto</label>
-               <input type="text" value={minSchedule} onChange={(e) => setMinSchedule(e.target.value)} style={inputStyle} />
-             </div>
-             <div style={{ display: 'flex', gap: '1rem' }}>
+          <div className="grid-cols-2" style={{ display: 'grid', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título Hero (Sub-sitio)</label>
+              <input type="text" value={minHeroTitle} onChange={(e) => setMinHeroTitle(e.target.value)} style={inputStyle} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción Larga (Sub-sitio)</label>
+              <textarea value={minHeroDesc} onChange={(e) => setMinHeroDesc(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} />
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', border: '1px dashed var(--border-color)', padding: '0.75rem', borderRadius: '0.35rem' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Foto de Portada del Ministerio (Fondo)</label>
+            {isSupabaseConfigured ? (
+              <ImageUploadDropzone
+                onFileSelect={(file) => setMinHeroImageFile(file)}
+                previewUrl={minHeroImageFile ? URL.createObjectURL(minHeroImageFile) : minHeroImageUrl}
+                label="Subir Portada"
+                size="large"
+              />
+            ) : (
+              <>
+                <input type="text" placeholder="URL..." value={minHeroImageUrl} onChange={(e) => setMinHeroImageUrl(e.target.value)} style={inputStyle} />
+                {(minHeroImageUrl) && (
+                  <div style={{ marginTop: '0.5rem', width: '100%', height: '100px', borderRadius: '0.5rem', overflow: 'hidden', border: '1px solid var(--border-color)', background: '#111' }}>
+                    <img src={minHeroImageUrl} alt="Hero Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+
+          {/* Core Pillars */}
+          <div style={{ border: '1px solid var(--border-color)', padding: '1.25rem', borderRadius: '0.5rem', background: 'rgba(255,255,255,0.01)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--accent-color)' }}>Tarjetas de Información (Pilares)</span>
+              <button type="button" onClick={addPillar} className="btn btn-secondary" style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem' }}>+ Agregar Tarjeta</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {minPillars.map((pillar, index) => (
+                <div key={pillar._localId} className="grid-cols-4" style={{ display: 'grid', gap: '1rem', alignItems: 'flex-start', background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '0.35rem', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Icono & Título</span>
+                    <input type="text" placeholder="Ej: Calendar, Heart..." value={pillar.icon} onChange={(e) => updatePillar(pillar._localId, 'icon', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0' }} />
+                    <input type="text" placeholder="Título" value={pillar.title} onChange={(e) => updatePillar(pillar._localId, 'title', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem' }} />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Descripción Corta</span>
+                    <textarea placeholder="Texto explicativo..." value={pillar.desc} onChange={(e) => updatePillar(pillar._localId, 'desc', e.target.value)} style={{ ...inputStyle, fontSize: '0.8rem', margin: '4px 0', minHeight: '68px' }} />
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 600, display: 'block', marginBottom: '4px' }}>Imagen de Fondo</span>
+                    <ImageUploadDropzone
+                      onFileSelect={(file) => updatePillar(pillar._localId, 'file', file)}
+                      previewUrl={pillar.file ? URL.createObjectURL(pillar.file) : pillar.image_url}
+                      label="Fondo"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removePillar(pillar._localId)}
+                    title="Eliminar tarjeta"
+                    style={{
+                      background: 'rgba(239,68,68,0.12)',
+                      border: '1px solid rgba(239,68,68,0.35)',
+                      borderRadius: '0.5rem',
+                      padding: '0.5rem 0.65rem',
+                      cursor: 'pointer',
+                      color: '#ef4444',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      alignSelf: 'center',
+                      transition: 'background 0.2s ease'
+                    }}
+                    onMouseOver={e => e.currentTarget.style.background = 'rgba(239,68,68,0.25)'}
+                    onMouseOut={e => e.currentTarget.style.background = 'rgba(239,68,68,0.12)'}
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid-cols-3" style={{ display: 'grid', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Horario Corto</label>
+              <input type="text" value={minSchedule} onChange={(e) => setMinSchedule(e.target.value)} style={inputStyle} />
+            </div>
+            <div style={{ display: 'flex', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Lugar de Reunión</label><input type="text" value={minLocation} onChange={(e) => setMinLocation(e.target.value)} style={inputStyle} /></div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem', flex: 1 }}><label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Link Google Maps</label><input type="text" placeholder="https://maps.app.goo.gl/..." value={minLocationUrl} onChange={(e) => setMinLocationUrl(e.target.value)} style={inputStyle} /></div>
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email</label>
-               <input type="email" value={minEmail} onChange={(e) => setMinEmail(e.target.value)} style={inputStyle} />
-             </div>
-           </div>
-           
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de Contacto</label>
-               <input type="text" value={minContactTitle} onChange={(e) => setMinContactTitle(e.target.value)} style={inputStyle} placeholder="Conéctate Con Nosotros" />
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Texto del Botón</label>
-               <input type="text" value={minContactButtonText} onChange={(e) => setMinContactButtonText(e.target.value)} style={inputStyle} placeholder="Contactar por WhatsApp" />
-             </div>
-           </div>
-           
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-             <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción de Contacto</label>
-             <textarea value={minContactDesc} onChange={(e) => setMinContactDesc(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} placeholder="Queremos que seas parte de nuestras actividades..." />
-           </div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Email</label>
+              <input type="email" value={minEmail} onChange={(e) => setMinEmail(e.target.value)} style={inputStyle} />
+            </div>
+          </div>
 
-           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace del Botón (WhatsApp o Grupo)</label>
-               <input type="text" value={minLink} onChange={(e) => setMinLink(e.target.value)} style={inputStyle} />
-             </div>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Instagram (URL)</label>
-               <input type="text" value={minInstagram} onChange={(e) => setMinInstagram(e.target.value)} style={inputStyle} placeholder="https://instagram.com/..." />
-             </div>
-           </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de Contacto</label>
+              <input type="text" value={minContactTitle} onChange={(e) => setMinContactTitle(e.target.value)} style={inputStyle} placeholder="Conéctate Con Nosotros" />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Texto del Botón</label>
+              <input type="text" value={minContactButtonText} onChange={(e) => setMinContactButtonText(e.target.value)} style={inputStyle} placeholder="Contactar por WhatsApp" />
+            </div>
+          </div>
 
-           <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isMinLogoUploading || isMinHeroUploading}>
-             {(isMinLogoUploading || isMinHeroUploading) ? 'Subiendo...' : <><Save size={16} /> Guardar Perfil del Ministerio</>}
-           </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+            <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Descripción de Contacto</label>
+            <textarea value={minContactDesc} onChange={(e) => setMinContactDesc(e.target.value)} style={{ ...inputStyle, minHeight: '60px' }} placeholder="Queremos que seas parte de nuestras actividades..." />
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Enlace del Botón (WhatsApp o Grupo)</label>
+              <input type="text" value={minLink} onChange={(e) => setMinLink(e.target.value)} style={inputStyle} />
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Instagram (URL)</label>
+              <input type="text" value={minInstagram} onChange={(e) => setMinInstagram(e.target.value)} style={inputStyle} placeholder="https://instagram.com/..." />
+            </div>
+          </div>
+
+          <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '0.5rem' }} disabled={isMinLogoUploading || isMinHeroUploading}>
+            {(isMinLogoUploading || isMinHeroUploading) ? 'Subiendo...' : <><Save size={16} /> Guardar Perfil del Ministerio</>}
+          </button>
         </form>
       )}
 
       {/* TAB VISUAL */}
       {activeTab === 'visual' && (
         <form onSubmit={handleSaveProfile} className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-           <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Identidad Visual y Estilo</h3>
-           <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '-0.5rem' }}>
-             Configura el aspecto y sensación de este ministerio para darle su propia personalidad.
-           </p>
+          <h3 style={{ fontSize: '1.2rem', margin: 0 }}>Identidad Visual y Estilo</h3>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', marginTop: '-0.5rem' }}>
+            Configura el aspecto y sensación de este ministerio para darle su propia personalidad.
+          </p>
 
-           <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem', marginTop: '1rem' }}>
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Modo de Tema</label>
-               <select value={minThemeMode} onChange={(e) => setMinThemeMode(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
-                 <option value="dark">Modo Oscuro (Ej: Jóvenes, Hombres)</option>
-                 <option value="light">Modo Claro (Ej: Mujeres, Niños)</option>
-               </select>
-             </div>
-             
-             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-               <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Estilo de Diseño (Layout)</label>
-               {ministryId === 'ninos' ? (
-                 <div style={{ padding: '0.6rem 0.8rem', background: 'rgba(255,255,255,0.05)', borderRadius: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem', border: '1px solid var(--border-color)' }}>
-                   Divertido (Bordes redondeados, Juguetón) - Fijo
-                 </div>
-               ) : (
-                 <select value={minLayoutStyle} onChange={(e) => setMinLayoutStyle(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
-                   <option value="modern">Moderno (Industrial, Neón)</option>
-                   <option value="warm">Cálido (Acogedor, Delicado)</option>
-                   <option value="playful">Divertido (Bordes redondeados, Juguetón)</option>
-                 </select>
-               )}
-             </div>
-           </div>
+          <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem', marginTop: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Modo de Tema</label>
+              <select value={minThemeMode} onChange={(e) => setMinThemeMode(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
+                <option value="dark">Modo Oscuro (Ej: Jóvenes, Hombres)</option>
+                <option value="light">Modo Claro (Ej: Mujeres, Niños)</option>
+              </select>
+            </div>
 
-           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
-             <h4 style={{ fontSize: '1rem', margin: 0 }}>Textos de Secciones</h4>
-             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Cambia los títulos genéricos por los que mejor se adapten a tu ministerio.</p>
-             
-             <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem', marginTop: '0.5rem' }}>
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título para "Pilares" (Ej: Grupos de Apoyo, Clases)</label>
-                 <input type="text" value={minPillarsLabel} onChange={(e) => setMinPillarsLabel(e.target.value)} style={inputStyle} placeholder="Pilares" />
-               </div>
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Botón Principal de Llamado a la Acción</label>
-                 <input type="text" value={minPrimaryActionText} onChange={(e) => setMinPrimaryActionText(e.target.value)} style={inputStyle} placeholder="Participar" />
-               </div>
-               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Destino del Botón Principal</label>
-                 <input type="text" value={minPrimaryActionUrl} onChange={(e) => setMinPrimaryActionUrl(e.target.value)} style={inputStyle} placeholder="#contacto" />
-               </div>
-             </div>
-           </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <label style={{ fontSize: '0.85rem', fontWeight: 600 }}>Estilo de Diseño (Layout)</label>
+              {ministryId === 'ninos' ? (
+                <div style={{ padding: '0.6rem 0.8rem', background: 'rgba(255,255,255,0.05)', borderRadius: '0.5rem', color: 'var(--text-secondary)', fontSize: '0.9rem', border: '1px solid var(--border-color)' }}>
+                  Divertido (Bordes redondeados, Juguetón) - Fijo
+                </div>
+              ) : (
+                <select value={minLayoutStyle} onChange={(e) => setMinLayoutStyle(e.target.value)} style={{ ...inputStyle, appearance: 'auto' }}>
+                  <option value="modern">Moderno (Industrial, Neón)</option>
+                  <option value="warm">Cálido (Acogedor, Delicado)</option>
+                  <option value="playful">Divertido (Bordes redondeados, Juguetón)</option>
+                </select>
+              )}
+            </div>
+          </div>
 
-           <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '1rem' }} disabled={isMinLogoUploading || isMinHeroUploading}>
-             <Save size={16} /> Guardar Identidad Visual
-           </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1rem' }}>
+            <h4 style={{ fontSize: '1rem', margin: 0 }}>Textos de Secciones</h4>
+            <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Cambia los títulos genéricos por los que mejor se adapten a tu ministerio.</p>
+
+            <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem', marginTop: '0.5rem' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título para "Pilares" (Ej: Grupos de Apoyo, Clases)</label>
+                <input type="text" value={minPillarsLabel} onChange={(e) => setMinPillarsLabel(e.target.value)} style={inputStyle} placeholder="Pilares" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Botón Principal de Llamado a la Acción</label>
+                <input type="text" value={minPrimaryActionText} onChange={(e) => setMinPrimaryActionText(e.target.value)} style={inputStyle} placeholder="Participar" />
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Destino del Botón Principal</label>
+                <input type="text" value={minPrimaryActionUrl} onChange={(e) => setMinPrimaryActionUrl(e.target.value)} style={inputStyle} placeholder="#contacto" />
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" className="btn btn-primary" style={{ alignSelf: 'flex-end', marginTop: '1rem' }} disabled={isMinLogoUploading || isMinHeroUploading}>
+            <Save size={16} /> Guardar Identidad Visual
+          </button>
         </form>
       )}
 
@@ -746,7 +747,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                 <span style={{ fontSize: '0.9rem' }}>Habilitar sección</span>
               </label>
             </div>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título General del Juego</label>
@@ -772,7 +773,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                         </button>
                       )}
                     </div>
-                    
+
                     <div className="grid-cols-2" style={{ display: 'grid', gap: '1rem' }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                         <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Palabra a Adivinar (Ej: JONAS)</label>
@@ -794,7 +795,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                           onChange={(e) => {
                             setMinFunZonePuzzleLevels(minFunZonePuzzleLevels.map(l => l._localId === lvl._localId ? { ...l, difficulty: e.target.value } : l));
                           }}
-                          style={selectStyle}
+                          style={{ ...inputStyle, appearance: 'auto' }}
                           disabled={!minFunZonePuzzleEnabled}
                         >
                           <option value="3x3">Fácil (3x3 - 9 piezas)</option>
@@ -835,7 +836,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                     </div>
                   </div>
                 ))}
-                
+
                 <button
                   type="button"
                   onClick={() => {
@@ -869,7 +870,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                 <span style={{ fontSize: '0.9rem' }}>Habilitar sección</span>
               </label>
             </div>
-            
+
             <div className="grid-cols-2" style={{ display: 'grid', gap: '1.5rem' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600 }}>Título de la Tarjeta</label>
@@ -891,7 +892,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
           </button>
         </form>
       )}
-
       {/* TAB 2: ACTIVITIES */}
       {activeTab === 'activities' && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.5fr', gap: '1.5rem' }}>
@@ -942,9 +942,9 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                 {minActivities.map(act => (
-                  <div key={act.id} 
-                       onClick={() => loadActivityData(act)}
-                       style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.02)', border: editingActivityId === act.id ? `1px solid ${min.accent_color}` : '1px solid var(--border-color)', borderRadius: '0.5rem', cursor: 'pointer' }}>
+                  <div key={act.id}
+                    onClick={() => loadActivityData(act)}
+                    style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'rgba(255,255,255,0.02)', border: editingActivityId === act.id ? `1px solid ${min.accent_color}` : '1px solid var(--border-color)', borderRadius: '0.5rem', cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                       {act.image_url && <img src={act.image_url} alt="" style={{ width: '50px', height: '50px', borderRadius: '4px', objectFit: 'cover' }} />}
                       <div>
@@ -952,7 +952,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                         <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{act.date} | {act.time}</div>
                       </div>
                     </div>
-                    <button onClick={(e) => { e.stopPropagation(); deleteActivity(act.id); if(editingActivityId === act.id) cancelActivityEdit(); triggerSuccess('Actividad eliminada.'); }} className="btn btn-danger" style={{ padding: '0.35rem 0.6rem' }}>
+                    <button onClick={(e) => { e.stopPropagation(); deleteActivity(act.id); if (editingActivityId === act.id) cancelActivityEdit(); triggerSuccess('Actividad eliminada.'); }} className="btn btn-danger" style={{ padding: '0.35rem 0.6rem' }}>
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -966,7 +966,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       {/* TAB 3: GALLERY */}
       {activeTab === 'photos' && (
         <div style={{ display: 'grid', gridTemplateColumns: editingAlbumId ? '1fr' : '1fr 1.5fr', gap: '1.5rem' }}>
-          
+
           {editingAlbumId ? (
             <div className="glass-card animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
@@ -1004,11 +1004,11 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                 <h4 style={{ margin: 0, fontSize: '1rem', color: 'var(--text-secondary)' }}>Añadir Nuevas Fotos</h4>
                 {isSupabaseConfigured && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <ImageUploadDropzone 
-                      onFilesSelect={(files) => setSelectedFiles(files)} 
+                    <ImageUploadDropzone
+                      onFilesSelect={(files) => setSelectedFiles(files)}
                       multiple={true}
                       size="large"
-                      label="Haz clic para seleccionar fotos" 
+                      label="Haz clic para seleccionar fotos"
                     />
                     {selectedFiles.length > 0 && (
                       <div style={{ background: 'rgba(255,255,255,0.03)', padding: '1rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)' }}>
@@ -1120,22 +1120,22 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     {minAlbums.map(album => (
-                      <div key={album.id} 
-                           onClick={() => openEditAlbum(album)}
-                           style={{ 
-                             display: 'flex', 
-                             justifyContent: 'space-between', 
-                             alignItems: 'center', 
-                             padding: '1rem', 
-                             background: 'rgba(255,255,255,0.02)', 
-                             border: '1px solid var(--border-color)', 
-                             borderRadius: '0.5rem',
-                             cursor: 'pointer',
-                             transition: 'background 0.2s ease'
-                           }}
-                           onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                           onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
-                           >
+                      <div key={album.id}
+                        onClick={() => openEditAlbum(album)}
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '1rem',
+                          background: 'rgba(255,255,255,0.02)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '0.5rem',
+                          cursor: 'pointer',
+                          transition: 'background 0.2s ease'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                      >
                         <div>
                           <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '0.95rem' }}>{album.title}</div>
                           <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{album.photos?.length || 0} fotos | {album.date}</div>
@@ -1146,7 +1146,7 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
                           </button>
                           <button type="button" onClick={(e) => {
                             e.stopPropagation(); // Evitar abrir edición si da clic en borrar
-                            if(window.confirm('¿Seguro que deseas eliminar el álbum entero?')) deleteAlbum(album.id);
+                            if (window.confirm('¿Seguro que deseas eliminar el álbum entero?')) deleteAlbum(album.id);
                           }} className="btn btn-secondary" style={{ padding: '0.4rem', color: '#ef4444', borderColor: 'rgba(239, 68, 68, 0.3)' }} title="Eliminar Álbum Completo">
                             <Trash2 size={14} />
                           </button>
