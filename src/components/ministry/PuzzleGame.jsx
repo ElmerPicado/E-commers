@@ -67,7 +67,6 @@ const PuzzleGame = ({ puzzleData }) => {
     if (activeLevel?.image_url) {
       setImageLoaded(false);
       const img = new Image();
-      img.crossOrigin = 'anonymous';
       img.onload = () => setImageLoaded(true);
       img.onerror = () => {
         console.error("Failed to load puzzle image, retrying...");

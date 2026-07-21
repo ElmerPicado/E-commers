@@ -23,7 +23,6 @@ const ColoringGame = ({ gameData }) => {
     setFinished(false);
     const ctx = canvas.getContext('2d');
     const img = new Image();
-    img.crossOrigin = 'anonymous';
     img.onload = () => {
       // Fit to canvas size while keeping aspect
       const maxW = Math.min(window.innerWidth - 30, 600);

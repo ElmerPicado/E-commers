@@ -19,16 +19,38 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
     setError('');
     setLoading(true);
     try {
-      const { data, error: invokeError } = await supabase.functions.invoke('validar-codigo-estudiante', {
-        body: { p_codigo: codigo.toUpperCase().trim() }
-      });
-      if (invokeError) throw invokeError;
-      if (!data || !data.data || data.data.length === 0) {
-        throw new Error('Código inválido o estudiante inactivo');
+      const code = codigo.toUpperCase().trim();
+      
+      const { data: division, error: divError } = await supabase
+        .from('divisiones')
+        .select('id, nombre, codigo_acceso, ministerio_id')
+        .eq('codigo_acceso', code)
+        .single();
+
+      if (divError || !division) {
+        throw new Error('Código de división inválido.');
       }
+
+      const { data: estudiantes, error: estError } = await supabase
+        .from('estudiantes')
+        .select('id, nombre, apellido, division_id, activo')
+        .eq('division_id', division.id)
+        .eq('activo', true);
+
+      if (estError || !estudiantes || estudiantes.length === 0) {
+        throw new Error('No hay estudiantes activos en esta división.');
+      }
+
+      const estudianteData = {
+        ...estudiantes[0],
+        division_nombre: division.nombre,
+        division_codigo: division.codigo_acceso,
+        division_id: division.id
+      };
+      
       setSuccess(true);
       setTimeout(() => {
-        localStorage.setItem('aula_estudiante', JSON.stringify(data.data[0]));
+        localStorage.setItem('aula_estudiante', JSON.stringify(estudianteData));
         window.location.href = '/aula';
       }, 1000);
     } catch (err) {
