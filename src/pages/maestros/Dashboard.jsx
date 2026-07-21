@@ -210,10 +210,10 @@ const SistemaEscolar = () => {
   const currentMenus = currentUser.role === 'admin' ? adminMenus : maestroMenus;
 
   return (
-    // FORZAMOS W-SCREEN Y MIN-H-SCREEN PARA ANULAR LIMITACIONES PADRE
-    <div className="min-h-screen w-screen bg-slate-50 flex flex-row relative overflow-x-hidden antialiased left-0 top-0 m-0 p-0">
+    // CONTENEDOR PRINCIPAL FLUIDO Y SEGURO
+    <div className="min-h-screen w-full bg-slate-50 flex flex-row relative overflow-x-hidden antialiased m-0 p-0">
 
-      {/* SIDEBAR */}
+      {/* SIDEBAR FIJO */}
       <aside
         className={`fixed top-0 left-0 h-full z-40 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'
           }`}
@@ -267,13 +267,10 @@ const SistemaEscolar = () => {
         </div>
       </aside>
 
-      {/* ÁREA PRINCIPAL DERECHA */}
+      {/* ÁREA PRINCIPAL DERECHA (DINÁMICA MEDIANTE MARGIN-LEFT DE TAILWIND) */}
       <div
-        className="flex-1 min-h-screen transition-all duration-300 ease-in-out flex flex-col"
-        style={{
-          marginLeft: sidebarOpen ? '256px' : '80px',
-          width: `calc(100vw - ${sidebarOpen ? '256px' : '80px'})`
-        }}
+        className={`flex-1 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-64' : 'ml-20'
+          } w-full`}
       >
         <header className="h-16 bg-white border-b border-gray-200 sticky top-0 z-30 flex items-center justify-between px-6 w-full shrink-0">
           <h1 className="text-xl font-extrabold text-gray-900 capitalize tracking-tight flex items-center gap-2">
