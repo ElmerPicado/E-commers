@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Palette, Download, RotateCcw, Check, Eraser } from 'lucide-react';
+import { Palette, Download, RotateCcw, Check, Image as ImageIcon, X } from 'lucide-react';
 
 const ColoringGame = ({ gameData }) => {
   const pages = useMemo(() => {
@@ -8,54 +8,55 @@ const ColoringGame = ({ gameData }) => {
 
   const [activePageIdx, setActivePageIdx] = useState(0);
   const [color, setColor] = useState('#FF0000');
-  const [tool, setTool] = useState('brush'); // 'brush' | 'fill'
+  const [tool, setTool] = useState('brush'); // 'brush' | 'eraser' | 'fill'
   const [brushSize, setBrushSize] = useState(20);
   const [isDrawing, setIsDrawing] = useState(false);
   const [finished, setFinished] = useState(false);
-  const canvasRef = useRef(null);
-  const [forceReload, setForceReload] = useState(0);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false); // Estado para controlar el Modal
 
-  // Reset when page changes
+  const canvasRef = useRef(null);
+  const containerRef = useRef(null);
+
+  const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
+  const [currentImgUrl, setCurrentImgUrl] = useState('');
+
+  // Configuración de dimensiones e imagen base
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !pages.length) return;
+    if (!pages.length) return;
     const page = pages[activePageIdx];
     setFinished(false);
-    const ctx = canvas.getContext('2d');
+
     const img = new Image();
     img.onload = () => {
-      // Fit to canvas size while keeping aspect
-      const maxW = Math.min(window.innerWidth - 30, 600);
-      const maxH = Math.min(window.innerHeight * 0.6, 600);
+      const maxW = Math.min(window.innerWidth - 40, 550);
+      const maxH = Math.min(window.innerHeight * 0.52, 550);
       let w = img.width, h = img.height;
       const scale = Math.min(maxW / w, maxH / h);
-      canvas.width = w * scale;
-      canvas.height = h * scale;
-      // White background so we can "color" over the drawing (line art assumed)
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const finalW = Math.round(w * scale);
+      const finalH = Math.round(h * scale);
+
+      setDimensions({ width: finalW, height: finalH });
+
+      // Preparar el canvas limpio para pintar
+      const canvas = canvasRef.current;
+      if (canvas) {
+        canvas.width = finalW;
+        canvas.height = finalH;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, finalW, finalH);
+      }
     };
-    img.onerror = () => {
-      const maxW = Math.min(window.innerWidth - 30, 500);
-      const maxH = Math.min(window.innerHeight * 0.5, 500);
-      canvas.width = maxW;
-      canvas.height = maxH;
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 2;
-      ctx.font = '16px "Comic Sans MS", sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('No se pudo cargar el dibujo.', canvas.width / 2, canvas.height / 2 - 10);
-      ctx.fillText('Revisa tu conexión.', canvas.width / 2, canvas.height / 2 + 15);
-    };
-    // Append timestamp to bypass Safari cache issues
-    img.src = page.image_url + (page.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
-  }, [activePageIdx, pages, forceReload]);
+
+    const cacheBustedUrl = page.image_url + (page.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
+    setCurrentImgUrl(cacheBustedUrl);
+    img.src = cacheBustedUrl;
+  }, [activePageIdx, pages]);
 
   const getPos = (e) => {
     const canvas = canvasRef.current;
+    if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
@@ -75,7 +76,6 @@ const ColoringGame = ({ gameData }) => {
     const { x, y } = getPos(e);
 
     if (tool === 'fill') {
-      // Simple-ish fill: flood fill at point
       try {
         floodFill(ctx, Math.round(x), Math.round(y), hexToRgba(color));
       } catch (err) {
@@ -85,10 +85,10 @@ const ColoringGame = ({ gameData }) => {
       return;
     }
 
-    // Eraser tool uses white color with larger size
     if (tool === 'eraser') {
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.lineWidth = brushSize * 2;
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = brushSize * 1.5;
     } else {
       ctx.globalCompositeOperation = 'source-over';
       ctx.strokeStyle = color;
@@ -116,12 +116,6 @@ const ColoringGame = ({ gameData }) => {
   const endDraw = () => {
     if (!isDrawing) return;
     setIsDrawing(false);
-    // Reset composite operation after eraser
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      ctx.globalCompositeOperation = 'source-over';
-    }
     setFinished(true);
   };
 
@@ -129,19 +123,34 @@ const ColoringGame = ({ gameData }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    // Clear canvas and reload original image
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Force reload by briefly changing the key
-    setForceReload((r) => r + 1);
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    setFinished(false);
   };
 
   const downloadCanvas = () => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = `mi-dibujo-${Date.now()}.png`;
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    if (!canvas || !currentImgUrl) return;
+
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+
+    tempCtx.drawImage(canvas, 0, 0);
+
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      tempCtx.globalCompositeOperation = 'multiply';
+      tempCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+      const link = document.createElement('a');
+      link.download = `mi-dibujo-${Date.now()}.png`;
+      link.href = tempCanvas.toDataURL('image/png');
+      link.click();
+    };
+    img.src = currentImgUrl;
   };
 
   if (pages.length === 0) {
@@ -169,62 +178,66 @@ const ColoringGame = ({ gameData }) => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: '1.25rem',
-      padding: '1.5rem 1rem',
+      gap: '1rem',
+      padding: '1rem',
       fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif'
     }}>
+      {/* Cabecera principal */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '600px' }}>
-        <h3 style={{ fontSize: '1.4rem', fontWeight: 900, color: '#FF69B4', margin: 0, textShadow: '1px 1px 0 #fff' }}>
+        <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#FF69B4', margin: 0, textShadow: '1px 1px 0 #fff' }}>
           {gameData?.title || 'Coloreando la Biblia'}
         </h3>
         {finished && (
-          <span style={{ background: '#32CD32', color: '#fff', padding: '0.4rem 1rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.25rem', border: '3px solid #FFF' }}>
+          <span style={{ background: '#32CD32', color: '#fff', padding: '0.3rem 0.8rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem', border: '2px solid #FFF' }}>
             <Check size={14} /> ¡Terminado!
           </span>
         )}
       </div>
 
-      {/* Page selector */}
-      {pages.length > 1 && (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', justifyContent: 'center', maxWidth: '600px' }}>
-          {pages.map((p, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActivePageIdx(idx)}
-              style={{
-                padding: '0.5rem 1rem',
-                background: idx === activePageIdx ? 'linear-gradient(135deg, #FF69B4, #FF1493)' : '#FFF',
-                color: idx === activePageIdx ? '#fff' : '#333',
-                border: `2px solid ${idx === activePageIdx ? '#FF1493' : '#DDD'}`,
-                borderRadius: '999px',
-                fontSize: '0.85rem',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
-            >
-              {p.title || `Dibujo ${idx + 1}`}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Botón Selector de Galería + Título del dibujo activo */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+        {pages.length > 1 && (
+          <button
+            onClick={() => setIsGalleryOpen(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.5rem 1.2rem',
+              background: '#FFF',
+              color: '#FF69B4',
+              border: '3px solid #FF69B4',
+              borderRadius: '999px',
+              fontWeight: 800,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              boxShadow: '0 4px 10px rgba(255, 105, 180, 0.2)',
+              transition: 'transform 0.1s ease'
+            }}
+          >
+            <ImageIcon size={18} /> Cambiar Dibujo ({activePageIdx + 1}/{pages.length})
+          </button>
+        )}
+        <span style={{ color: '#4B0082', fontWeight: 800, fontSize: '1rem' }}>
+          {pages[activePageIdx]?.title}
+        </span>
+      </div>
 
-      <h4 style={{ margin: 0, color: '#4B0082', fontSize: '1.1rem' }}>{pages[activePageIdx]?.title}</h4>
-
-      {/* Tools */}
+      {/* Paleta de colores y herramientas */}
       <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '600px' }}>
         <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {palette.map((c) => (
             <button
               key={c}
-              onClick={() => setColor(c)}
+              onClick={() => { setColor(c); if (tool === 'eraser') setTool('brush'); }}
               style={{
-                width: '32px',
-                height: '32px',
+                width: '30px',
+                height: '30px',
                 borderRadius: '50%',
                 background: c,
-                border: `3px solid ${color === c ? '#333' : '#FFF'}`,
+                border: `3px solid ${color === c && tool !== 'eraser' ? '#333' : '#FFF'}`,
                 cursor: 'pointer',
-                boxShadow: color === c ? '0 2px 8px rgba(0,0,0,0.3)' : 'none',
+                boxShadow: color === c && tool !== 'eraser' ? '0 2px 8px rgba(0,0,0,0.3)' : 'none',
                 transition: 'all 0.2s ease'
               }}
               title={c}
@@ -232,18 +245,18 @@ const ColoringGame = ({ gameData }) => {
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center', padding: '0.4rem', background: '#FFF', borderRadius: '0.75rem', border: '2px solid #FF69B4' }}>
+        <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center', padding: '0.3rem', background: '#FFF', borderRadius: '0.75rem', border: '2px solid #FF69B4' }}>
           <button
             onClick={() => setTool('brush')}
             style={{
-              padding: '0.35rem 0.8rem',
+              padding: '0.35rem 0.7rem',
               background: tool === 'brush' ? '#FF69B4' : 'transparent',
               color: tool === 'brush' ? '#fff' : '#FF69B4',
               border: 'none',
               borderRadius: '0.5rem',
               cursor: 'pointer',
               fontWeight: 700,
-              fontSize: '0.85rem'
+              fontSize: '0.8rem'
             }}
           >
             🖌️ Pincel
@@ -251,14 +264,14 @@ const ColoringGame = ({ gameData }) => {
           <button
             onClick={() => setTool('eraser')}
             style={{
-              padding: '0.35rem 0.8rem',
+              padding: '0.35rem 0.7rem',
               background: tool === 'eraser' ? '#FF69B4' : 'transparent',
               color: tool === 'eraser' ? '#fff' : '#FF69B4',
               border: 'none',
               borderRadius: '0.5rem',
               cursor: 'pointer',
               fontWeight: 700,
-              fontSize: '0.85rem'
+              fontSize: '0.8rem'
             }}
           >
             🧽 Borrador
@@ -266,14 +279,14 @@ const ColoringGame = ({ gameData }) => {
           <button
             onClick={() => setTool('fill')}
             style={{
-              padding: '0.35rem 0.8rem',
+              padding: '0.35rem 0.7rem',
               background: tool === 'fill' ? '#FF69B4' : 'transparent',
               color: tool === 'fill' ? '#fff' : '#FF69B4',
               border: 'none',
               borderRadius: '0.5rem',
               cursor: 'pointer',
               fontWeight: 700,
-              fontSize: '0.85rem'
+              fontSize: '0.8rem'
             }}
           >
             🪣 Rellenar
@@ -295,14 +308,21 @@ const ColoringGame = ({ gameData }) => {
         </div>
       )}
 
-      {/* Canvas */}
-      <div style={{
-        background: '#FFF',
-        padding: '0.5rem',
-        borderRadius: '1.5rem',
-        border: '5px solid #FF69B4',
-        boxShadow: '0 12px 30px rgba(255, 105, 180, 0.25)'
-      }}>
+      {/* Contenedor multicapa del lienzo */}
+      <div
+        ref={containerRef}
+        style={{
+          position: 'relative',
+          width: `${dimensions.width}px`,
+          height: `${dimensions.height}px`,
+          background: '#FFF',
+          borderRadius: '1.5rem',
+          border: '5px solid #FF69B4',
+          boxShadow: '0 12px 30px rgba(255, 105, 180, 0.25)',
+          overflow: 'hidden',
+          touchAction: 'none'
+        }}
+      >
         <canvas
           ref={canvasRef}
           onMouseDown={startDraw}
@@ -313,17 +333,36 @@ const ColoringGame = ({ gameData }) => {
           onTouchMove={draw}
           onTouchEnd={endDraw}
           style={{
-            display: 'block',
-            maxWidth: '100%',
-            height: 'auto',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
             cursor: tool === 'brush' ? 'crosshair' : tool === 'eraser' ? 'cell' : 'pointer',
-            borderRadius: '1rem',
-            touchAction: 'none'
+            zIndex: 1
           }}
         />
+
+        {currentImgUrl && (
+          <img
+            src={currentImgUrl}
+            alt="Plantilla para colorear"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              pointerEvents: 'none',
+              mixBlendMode: 'multiply',
+              zIndex: 2
+            }}
+          />
+        )}
       </div>
 
-      {/* Action buttons */}
+      {/* Botones de acción inferiores */}
       <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
         <button
           onClick={clearCanvas}
@@ -339,11 +378,8 @@ const ColoringGame = ({ gameData }) => {
             fontSize: '0.9rem',
             fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: '0 4px 0px #c71585',
-            transform: 'translateY(-2px)'
+            boxShadow: '0 4px 0px #c71585'
           }}
-          onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0px)'; e.currentTarget.style.boxShadow = '0 2px 0px #c71585'; }}
-          onMouseUp={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 0px #c71585'; }}
         >
           <RotateCcw size={16} /> Limpiar
         </button>
@@ -361,20 +397,123 @@ const ColoringGame = ({ gameData }) => {
             fontSize: '0.9rem',
             fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: '0 4px 0px #228B22',
-            transform: 'translateY(-2px)'
+            boxShadow: '0 4px 0px #228B22'
           }}
-          onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0px)'; e.currentTarget.style.boxShadow = '0 2px 0px #228B22'; }}
-          onMouseUp={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 0px #228B22'; }}
         >
           <Download size={16} /> Descargar
         </button>
       </div>
+
+      {/* --- MODAL / GALERÍA EMERGENTE DE DIBUJOS --- */}
+      {isGalleryOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(3px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#FFF',
+            borderRadius: '2rem',
+            padding: '1.5rem',
+            maxWidth: '520px',
+            width: '100%',
+            maxHeight: '85vh',
+            display: 'flex',
+            flexDirection: 'column',
+            border: '5px solid #FF69B4',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
+          }}>
+            {/* Encabezado del Modal */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h4 style={{ margin: 0, color: '#4B0082', fontSize: '1.3rem', fontWeight: 900 }}>
+                🎨 Elige un dibujo
+              </h4>
+              <button
+                onClick={() => setIsGalleryOpen(false)}
+                style={{
+                  border: 'none',
+                  background: '#FFF0F5',
+                  color: '#FF1493',
+                  borderRadius: '50%',
+                  width: '36px',
+                  height: '36px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Cuadrícula de Dibujos */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
+              gap: '1rem',
+              overflowY: 'auto',
+              paddingRight: '0.25rem'
+            }}>
+              {pages.map((p, idx) => {
+                const isSelected = idx === activePageIdx;
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      setActivePageIdx(idx);
+                      setIsGalleryOpen(false);
+                    }}
+                    style={{
+                      border: `3px solid ${isSelected ? '#FF69B4' : '#E2E8F0'}`,
+                      borderRadius: '1.2rem',
+                      padding: '0.6rem',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      background: isSelected ? '#FFF0F5' : '#FFF',
+                      transition: 'transform 0.15 ease',
+                      boxShadow: isSelected ? '0 4px 12px rgba(255,105,180,0.3)' : '0 2px 4px rgba(0,0,0,0.05)'
+                    }}
+                  >
+                    <div style={{ width: '100%', height: '90px', borderRadius: '0.8rem', overflow: 'hidden', background: '#F8FAFC', marginBottom: '0.4rem' }}>
+                      <img
+                        src={p.image_url}
+                        alt={p.title}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      />
+                    </div>
+                    <p style={{
+                      margin: 0,
+                      fontSize: '0.8rem',
+                      fontWeight: 800,
+                      color: isSelected ? '#FF1493' : '#333',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {p.title || `Dibujo ${idx + 1}`}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-// ========== Helpers ==========
+// Helpers de relleno y color
 function hexToRgba(hex) {
   hex = hex.replace('#', '');
   if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
@@ -384,7 +523,6 @@ function hexToRgba(hex) {
   return { r, g, b, a: 255 };
 }
 
-// Flood fill algorithm (simple stack-based)
 function floodFill(ctx, x, y, fillColor) {
   const w = ctx.canvas.width;
   const h = ctx.canvas.height;
@@ -399,7 +537,6 @@ function floodFill(ctx, x, y, fillColor) {
     a: data[startIdx + 3]
   };
 
-  // Don't fill if same color
   if (startColor.r === fillColor.r && startColor.g === fillColor.g && startColor.b === fillColor.b) return;
 
   const stack = [{ x, y }];
