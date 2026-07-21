@@ -315,7 +315,7 @@ const GamesGrid = () => {
       </div>
 
     </div>
-    </div >
+
   );
 };
 
