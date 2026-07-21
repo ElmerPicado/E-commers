@@ -406,9 +406,8 @@ const SistemaEscolar = () => {
 
       {/* SIDEBAR OSCURO SÓLIDO (#0f172a / slate-900) */}
       <aside
-        className={`fixed md:sticky top-0 left-0 h-screen z-50 !bg-slate-900 border-r border-slate-800 transition-all duration-300 flex flex-col shrink-0 ${
-          sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-64'
-        }`}
+        className={`fixed md:sticky top-0 left-0 h-screen z-50 !bg-slate-900 border-r border-slate-800 transition-all duration-300 flex flex-col shrink-0 ${sidebarOpen ? 'translate-x-0 w-64' : '-translate-x-full md:translate-x-0 md:w-64'
+          }`}
       >
         <div className="h-16 flex items-center justify-between px-5 border-b border-slate-800 shrink-0">
           <span className="font-black text-xl !text-white flex items-center gap-2.5">
@@ -431,11 +430,10 @@ const SistemaEscolar = () => {
                 setActiveTab(item.id);
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === item.id
+              className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === item.id
                   ? '!bg-amber-600 !text-white shadow-md'
                   : '!text-slate-300 hover:!bg-slate-800 hover:!text-white'
-              }`}
+                }`}
             >
               <item.icon className="w-4 h-4 shrink-0" />
               <span>{item.label}</span>
@@ -488,9 +486,8 @@ const SistemaEscolar = () => {
             </button>
 
             <div className="flex items-center gap-3 border-l pl-3 sm:pl-4 border-slate-300">
-              <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs !text-white shadow-xs ${
-                currentUser.role === 'admin' ? '!bg-slate-900' : '!bg-amber-600'
-              }`}>
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-xs !text-white shadow-xs ${currentUser.role === 'admin' ? '!bg-slate-900' : '!bg-amber-600'
+                }`}>
                 {currentUser.role === 'admin' ? 'A' : 'P'}
               </div>
               <div className="hidden sm:block text-left">
