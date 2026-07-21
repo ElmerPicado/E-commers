@@ -62,20 +62,28 @@ const PuzzleGame = ({ puzzleData }) => {
     setLevelCleared(false);
   }, [activeLevel, totalPieces]);
 
+  // Stable cache-busted URL
+  const [bustedImageUrl, setBustedImageUrl] = useState('');
+
   // Preloading level image
   useEffect(() => {
     if (activeLevel?.image_url) {
       setImageLoaded(false);
+      const timestampUrl = activeLevel.image_url + (activeLevel.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
+      setBustedImageUrl(timestampUrl);
+      
       const img = new Image();
       img.onload = () => setImageLoaded(true);
       img.onerror = () => {
         console.error("Failed to load puzzle image, retrying...");
         setTimeout(() => {
-          img.src = activeLevel.image_url + (activeLevel.image_url.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+          const retryUrl = activeLevel.image_url + (activeLevel.image_url.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+          setBustedImageUrl(retryUrl);
+          img.src = retryUrl;
         }, 1500);
       };
       // Append timestamp to bypass Safari cache issues
-      img.src = activeLevel.image_url + (activeLevel.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
+      img.src = timestampUrl;
     }
   }, [activeLevel]);
 
@@ -377,7 +385,7 @@ const PuzzleGame = ({ puzzleData }) => {
                 style={{
                   width: '100%',
                   aspectRatio: '1 / 1',
-                  backgroundImage: `url(${activeLevel.image_url})`,
+                  backgroundImage: `url(${bustedImageUrl || activeLevel.image_url})`,
                   backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
                   backgroundPosition: `${correctCol * (100 / (gridSize - 1))}% ${correctRow * (100 / (gridSize - 1))}%`,
                   borderRadius: '0.5rem',
