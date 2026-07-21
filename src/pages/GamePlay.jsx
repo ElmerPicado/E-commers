@@ -70,11 +70,23 @@ const GamePlay = () => {
         rightHeader={
           <button
             onClick={() => setShowLevelSelector(true)}
-            style={buttonStyle('#FFD700', '#b89b00')}
+            style={{
+              ...buttonStyle('#FFD700', '#b89b00'),
+              padding: '0.4rem 0.6rem', // Padding ajustado
+              fontSize: '0.85rem',      // Texto ligeramente más pequeño
+              whiteSpace: 'nowrap',     // Evita que el texto se rompa en 2 líneas
+              flexShrink: 0,            // Impide que se salga del contenedor
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '0.25rem'
+            }}
             onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0px)'; e.currentTarget.style.boxShadow = '0 1px 0 #b89b00'; }}
             onMouseUp={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 0 #b89b00'; }}
           >
-            <Trophy size={16} /> Nivel {currentLevelIndex + 1}
+            <Trophy size={16} />
+            {/* Mostramos solo el número en celulares y el texto completo en pantallas grandes */}
+            <span className="hidden sm:inline">Nivel </span>
+            <span>{currentLevelIndex + 1}</span>
           </button>
         }
       >
@@ -84,7 +96,7 @@ const GamePlay = () => {
             levels: [activeLevel],
             title: `${gameTitle} - Nivel ${currentLevelIndex + 1}`,
             hasNextLevel: currentLevelIndex < puzzleLevels.length - 1,
-            onNextLevel: () => { setCurrentLevelIndex(currentLevelIndex + 1); window.scrollTo({top: 0, behavior: 'smooth'}); }
+            onNextLevel: () => { setCurrentLevelIndex(currentLevelIndex + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }
           }}
         />
 
