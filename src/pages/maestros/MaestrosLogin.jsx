@@ -96,144 +96,139 @@ const MaestrosLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden font-sans">
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-between p-6 sm:p-10 relative overflow-hidden font-sans text-slate-100">
 
-      <header className="max-w-6xl mx-auto w-full pt-2 z-10">
+      {/* Luces de fondo (Efecto Blur Sofisticado) */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
+
+      {/* Header superior estructurado */}
+      <header className="w-full max-w-4xl mx-auto flex items-center justify-between z-10">
         <button
           onClick={() => navigate('/ministerio/ninos')}
-          className="text-slate-400 hover:text-white text-sm font-semibold inline-flex items-center gap-2 transition-all duration-200 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-xl hover:bg-slate-800"
+          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 px-4 py-2.5 rounded-xl transition-all duration-200 shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Volver a Niños</span>
         </button>
       </header>
 
-      <main className="flex-1 flex items-center justify-center py-10 z-10">
-        <div className="w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl relative">
+      {/* Contenedor Principal (Tarjeta equilibrada) */}
+      <main className="flex-1 flex items-center justify-center py-8 z-10">
+        <div className="w-full max-w-lg bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl">
 
+          {/* Logo y Encabezado */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20 border border-purple-400/30">
               <ShieldCheck className="w-8 h-8" />
             </div>
-            <h1 className="text-3xl font-black text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
               IMR4 Maestros
             </h1>
-            <p className="text-sm font-medium text-slate-400 mt-1">
+            <p className="text-sm font-normal text-slate-400 mt-1.5">
               Plataforma Educativa · Área Docente
             </p>
           </div>
 
-          <div className="mb-6 flex flex-wrap gap-2 justify-center">
+          {/* Selector de Modo */}
+          <div className="mb-6 p-1.5 bg-slate-950/60 rounded-2xl border border-slate-800 flex gap-2">
             <button
               type="button"
               onClick={() => switchMode('email')}
-              className={`flex-1 min-w-[140px] px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${loginMode === 'email'
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
+              className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${loginMode === 'email'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                  : 'text-slate-400 hover:text-slate-200'
                 }`}
             >
-              <div className="flex items-center justify-center gap-1.5">
-                <Mail className="w-4 h-4 shrink-0" />
-                <span className="whitespace-nowrap">Email Auth</span>
-              </div>
+              <Mail className="w-4 h-4" />
+              <span>Email Auth</span>
             </button>
             <button
               type="button"
               onClick={() => switchMode('username')}
-              className={`flex-1 min-w-[140px] px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${loginMode === 'username'
-                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
+              className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${loginMode === 'username'
+                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                  : 'text-slate-400 hover:text-slate-200'
                 }`}
             >
-              <div className="flex items-center justify-center gap-1.5">
-                <User className="w-4 h-4 shrink-0" />
-                <span className="whitespace-nowrap">Admin Local</span>
-              </div>
+              <User className="w-4 h-4" />
+              <span>Admin Local</span>
             </button>
           </div>
 
+          {/* Formulario */}
           <form onSubmit={handleLogin} className="space-y-5">
             {errorMsg && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-all mb-4">
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-medium flex items-center gap-2.5">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             {loginMode === 'email' ? (
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Correo Electrónico
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Mail className="w-5 h-5 text-slate-400" />
-                  </div>
+                <div className="relative flex items-center">
+                  <Mail className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="maestra@imr4.com"
-                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm font-medium"
+                    className="w-full h-12 pl-12 pr-4 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
                     required
                   />
                 </div>
               </div>
             ) : (
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+              <div className="space-y-2">
+                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
                   Nombre de Usuario
                 </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <User className="w-5 h-5 text-slate-400" />
-                  </div>
+                <div className="relative flex items-center">
+                  <User className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="admin"
-                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm font-medium"
+                    className="w-full h-12 pl-12 pr-4 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
                     required
                   />
                 </div>
               </div>
             )}
 
-            <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+            <div className="space-y-2">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
                 Contraseña
               </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                  <Lock className="w-5 h-5 text-slate-400" />
-                </div>
+              <div className="relative flex items-center">
+                <Lock className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="block w-full pl-12 pr-12 py-3.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm font-medium"
+                  className="w-full h-12 pl-12 pr-12 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
                   required
                 />
-                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="p-1 text-slate-500 hover:text-slate-300 focus:outline-none transition-colors"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 text-slate-400 hover:text-slate-200 transition-colors"
+                >
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 text-sm disabled:opacity-50 border-b-2 border-indigo-800"
+              className="w-full h-12 mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
             >
               {loading ? (
                 <div className="flex items-center gap-2">
@@ -245,20 +240,21 @@ const MaestrosLogin = () => {
                 </div>
               ) : (
                 <>
-                  <LogIn className="w-4 h-4 stroke-[2.5]" />
+                  <LogIn className="w-4 h-4" />
                   <span>Acceder a la Plataforma</span>
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-center text-xs font-medium text-slate-500 mt-6">
+          <p className="text-center text-xs font-normal text-slate-500 mt-8">
             Acceso exclusivo para el equipo docente autorizado.
           </p>
         </div>
       </main>
 
-      <footer className="text-center py-2 text-xs font-medium text-slate-600 z-10">
+      {/* Footer */}
+      <footer className="text-center text-xs font-normal text-slate-500 z-10">
         IMR4 · Plataforma Educativa
       </footer>
     </div>
