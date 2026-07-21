@@ -121,191 +121,201 @@ const GamesGrid = () => {
       fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif',
       boxSizing: 'border-box'
     }}>
-      <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-
-        <header style={{ textAlign: 'center', marginBottom: isMobile ? '1rem' : '2.5rem', position: 'relative' }}>
-          <div style={{
-            position: 'absolute', top: isMobile ? '-1.2rem' : '-2rem', left: '50%', transform: 'translateX(-50%)',
-            fontSize: isMobile ? '2rem' : '4rem'
-          }}>🎮</div>
-          <h1 style={{
-            fontSize: 'clamp(1.8rem, 7vw, 3.5rem)',
-            fontWeight: 900,
-            color: '#4B0082',
-            textShadow: '2px 2px 0 #fff, 4px 4px 0 rgba(75,0,130,0.1)',
-            margin: '1.5rem 0 0.3rem 0',
-            fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive'
-          }}>
-            ¡Zona de Juegos!
-          </h1>
-          <p style={{
-            fontSize: isMobile ? '0.9rem' : '1.2rem',
-            color: '#555',
-            fontWeight: 700,
-            padding: '0 0.5rem'
-          }}>
-            Elige tu aventura
-          </p>
-        </header>
-
-        {/* CONTENEDOR GRID CORREGIDO PARA 2 COLUMNAS EN MÓVIL */}
+      <header style={{
+        textAlign: 'center',
+        marginBottom: isMobile ? '1rem' : '2.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: isMobile ? '0.2rem' : '0.5rem'
+      }}>
+        {/* Icono en flujo normal (arriba de las letras sin solaparse) */}
         <div style={{
-          display: 'grid',
-          gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(280px, 1fr))',
-          gap: isMobile ? '0.6rem' : '1.5rem' // Espacio más pequeño entre tarjetas en móvil
+          fontSize: isMobile ? '2.5rem' : '4rem',
+          lineHeight: 1
         }}>
-          {games.map((game) => (
-            <article
-              key={game.id}
-              style={{
-                background: game.disabled ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.95)',
-                borderRadius: isMobile ? '1.2rem' : '2.5rem',
-                border: `${isMobile ? '3px' : '5px'} solid ${game.disabled ? '#DDD' : game.color}`,
-                boxShadow: game.disabled
-                  ? '0 4px 10px rgba(0,0,0,0.05)'
-                  : `0 6px 15px ${game.color}22, 0 0 0 3px rgba(255,255,255,0.5) inset`,
-                overflow: 'hidden',
-                display: 'flex',
-                flexDirection: 'column',
-                position: 'relative'
-              }}
-            >
-              {/* Cabecera minificada para móvil */}
-              <div style={{
-                background: game.gradient,
-                padding: isMobile ? '0.6rem' : '1.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                position: 'relative',
-                overflow: 'hidden'
-              }}>
-                <div style={{ position: 'relative', zIndex: 1 }}>
-                  <game.icon size={isMobile ? 24 : 48} color="#fff" />
-                </div>
-                <span style={{
-                  position: 'relative',
-                  zIndex: 1,
-                  background: 'rgba(255,255,255,0.2)',
-                  padding: isMobile ? '0.2rem 0.5rem' : '0.35rem 1rem',
-                  borderRadius: '999px',
-                  fontSize: isMobile ? '0.6rem' : '0.75rem',
-                  fontWeight: 900,
-                  color: '#fff'
-                }}>
-                  {game.badge}
-                </span>
-              </div>
-
-              {/* Cuerpo de la tarjeta adaptable */}
-              <div style={{ padding: isMobile ? '0.6rem' : '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <h2 style={{
-                  fontSize: isMobile ? '0.95rem' : '1.4rem',
-                  fontWeight: 900,
-                  color: game.disabled ? '#999' : '#333',
-                  margin: '0 0 0.3rem 0',
-                  lineHeight: 1.2
-                }}>
-                  {game.title}
-                </h2>
-                <p style={{
-                  fontSize: isMobile ? '0.75rem' : '0.9rem',
-                  color: game.disabled ? '#999' : '#666',
-                  lineHeight: 1.3,
-                  margin: '0 0 0.6rem 0',
-                  flex: 1
-                }}>
-                  {game.description}
-                </p>
-
-                {/* Lista de características (se oculta en móvil para que no colapse el diseño) */}
-                {!isMobile && (
-                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
-                    {game.features.map((feature, idx) => (
-                      <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#555', fontWeight: 600 }}>
-                        <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: game.color, flexShrink: 0 }} />
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-
-              {/* Botón de acción */}
-              <div style={{
-                padding: isMobile ? '0.5rem' : '1rem 1.5rem 1.5rem',
-                borderTop: `2px dashed ${game.disabled ? '#EEE' : game.color}33`
-              }}>
-                {game.disabled ? (
-                  <button
-                    disabled
-                    style={{
-                      width: '100%',
-                      padding: isMobile ? '0.5rem' : '0.85rem',
-                      background: '#DDD',
-                      color: '#888',
-                      border: 'none',
-                      borderRadius: '999px',
-                      fontSize: isMobile ? '0.75rem' : '1rem',
-                      fontWeight: 900,
-                      cursor: 'not-allowed'
-                    }}
-                  >
-                    Cerrado
-                  </button>
-                ) : (
-                  <Link
-                    to={game.path}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.2rem',
-                      width: '100%',
-                      padding: isMobile ? '0.5rem' : '0.85rem',
-                      background: game.gradient,
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '999px',
-                      fontSize: isMobile ? '0.75rem' : '0.95rem',
-                      fontWeight: 900,
-                      textDecoration: 'none',
-                      boxShadow: `0 ${isMobile ? '2px' : '4px'} 0 ${game.color}CC`
-                    }}
-                  >
-                    {isMobile ? '¡JUGAR!' : '¡JUGAR AHORA!'} <ChevronRight size={isMobile ? 14 : 18} />
-                  </Link>
-                )}
-              </div>
-            </article>
-          ))}
+          🎮
         </div>
 
-        {/* Botón de regreso inferior */}
-        <div style={{ textAlign: 'center', marginTop: isMobile ? '1.5rem' : '3rem' }}>
-          <Link
-            to="/ministerio/ninos"
+        <h1 style={{
+          fontSize: 'clamp(1.8rem, 7vw, 3.5rem)',
+          fontWeight: 900,
+          color: '#4B0082',
+          textShadow: '2px 2px 0 #fff, 4px 4px 0 rgba(75,0,130,0.1)',
+          margin: 0,
+          fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive'
+        }}>
+          ¡Zona de Juegos!
+        </h1>
+
+        <p style={{
+          fontSize: isMobile ? '0.9rem' : '1.2rem',
+          color: '#555',
+          fontWeight: 700,
+          padding: '0 0.5rem',
+          margin: 0
+        }}>
+          Elige tu aventura
+        </p>
+      </header>
+      {/* CONTENEDOR GRID CORREGIDO PARA 2 COLUMNAS EN MÓVIL */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: isMobile ? 'repeat(2, 1fr)' : 'repeat(auto-fit, minmax(280px, 1fr))',
+        gap: isMobile ? '0.6rem' : '1.5rem' // Espacio más pequeño entre tarjetas en móvil
+      }}>
+        {games.map((game) => (
+          <article
+            key={game.id}
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              padding: isMobile ? '0.6rem 1.2rem' : '1rem 2.5rem',
-              background: '#FF6347',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '999px',
-              fontSize: isMobile ? '0.85rem' : '1.1rem',
-              fontWeight: 900,
-              textDecoration: 'none',
-              boxShadow: '0 4px 0 #b83214'
+              background: game.disabled ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.95)',
+              borderRadius: isMobile ? '1.2rem' : '2.5rem',
+              border: `${isMobile ? '3px' : '5px'} solid ${game.disabled ? '#DDD' : game.color}`,
+              boxShadow: game.disabled
+                ? '0 4px 10px rgba(0,0,0,0.05)'
+                : `0 6px 15px ${game.color}22, 0 0 0 3px rgba(255,255,255,0.5) inset`,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative'
             }}
           >
-            <Gamepad2 size={isMobile ? 18 : 24} /> Volver
-          </Link>
-        </div>
+            {/* Cabecera minificada para móvil */}
+            <div style={{
+              background: game.gradient,
+              padding: isMobile ? '0.6rem' : '1.5rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              position: 'relative',
+              overflow: 'hidden'
+            }}>
+              <div style={{ position: 'relative', zIndex: 1 }}>
+                <game.icon size={isMobile ? 24 : 48} color="#fff" />
+              </div>
+              <span style={{
+                position: 'relative',
+                zIndex: 1,
+                background: 'rgba(255,255,255,0.2)',
+                padding: isMobile ? '0.2rem 0.5rem' : '0.35rem 1rem',
+                borderRadius: '999px',
+                fontSize: isMobile ? '0.6rem' : '0.75rem',
+                fontWeight: 900,
+                color: '#fff'
+              }}>
+                {game.badge}
+              </span>
+            </div>
 
+            {/* Cuerpo de la tarjeta adaptable */}
+            <div style={{ padding: isMobile ? '0.6rem' : '1.5rem', flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <h2 style={{
+                fontSize: isMobile ? '0.95rem' : '1.4rem',
+                fontWeight: 900,
+                color: game.disabled ? '#999' : '#333',
+                margin: '0 0 0.3rem 0',
+                lineHeight: 1.2
+              }}>
+                {game.title}
+              </h2>
+              <p style={{
+                fontSize: isMobile ? '0.75rem' : '0.9rem',
+                color: game.disabled ? '#999' : '#666',
+                lineHeight: 1.3,
+                margin: '0 0 0.6rem 0',
+                flex: 1
+              }}>
+                {game.description}
+              </p>
+
+              {/* Lista de características (se oculta en móvil para que no colapse el diseño) */}
+              {!isMobile && (
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                  {game.features.map((feature, idx) => (
+                    <li key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: '#555', fontWeight: 600 }}>
+                      <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: game.color, flexShrink: 0 }} />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Botón de acción */}
+            <div style={{
+              padding: isMobile ? '0.5rem' : '1rem 1.5rem 1.5rem',
+              borderTop: `2px dashed ${game.disabled ? '#EEE' : game.color}33`
+            }}>
+              {game.disabled ? (
+                <button
+                  disabled
+                  style={{
+                    width: '100%',
+                    padding: isMobile ? '0.5rem' : '0.85rem',
+                    background: '#DDD',
+                    color: '#888',
+                    border: 'none',
+                    borderRadius: '999px',
+                    fontSize: isMobile ? '0.75rem' : '1rem',
+                    fontWeight: 900,
+                    cursor: 'not-allowed'
+                  }}
+                >
+                  Cerrado
+                </button>
+              ) : (
+                <Link
+                  to={game.path}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.2rem',
+                    width: '100%',
+                    padding: isMobile ? '0.5rem' : '0.85rem',
+                    background: game.gradient,
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '999px',
+                    fontSize: isMobile ? '0.75rem' : '0.95rem',
+                    fontWeight: 900,
+                    textDecoration: 'none',
+                    boxShadow: `0 ${isMobile ? '2px' : '4px'} 0 ${game.color}CC`
+                  }}
+                >
+                  {isMobile ? '¡JUGAR!' : '¡JUGAR AHORA!'} <ChevronRight size={isMobile ? 14 : 18} />
+                </Link>
+              )}
+            </div>
+          </article>
+        ))}
       </div>
+
+      {/* Botón de regreso inferior */}
+      <div style={{ textAlign: 'center', marginTop: isMobile ? '1.5rem' : '3rem' }}>
+        <Link
+          to="/ministerio/ninos"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: isMobile ? '0.6rem 1.2rem' : '1rem 2.5rem',
+            background: '#FF6347',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '999px',
+            fontSize: isMobile ? '0.85rem' : '1.1rem',
+            fontWeight: 900,
+            textDecoration: 'none',
+            boxShadow: '0 4px 0 #b83214'
+          }}
+        >
+          <Gamepad2 size={isMobile ? 18 : 24} /> Volver
+        </Link>
+      </div>
+
     </div>
+    </div >
   );
 };
 

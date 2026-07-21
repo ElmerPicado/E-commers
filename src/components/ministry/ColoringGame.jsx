@@ -12,15 +12,15 @@ const ColoringGame = ({ gameData }) => {
   const [brushSize, setBrushSize] = useState(20);
   const [isDrawing, setIsDrawing] = useState(false);
   const [finished, setFinished] = useState(false);
-  const [isGalleryOpen, setIsGalleryOpen] = useState(false); // Estado para controlar el Modal
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
 
-  const [dimensions, setDimensions] = useState({ width: 500, height: 500 });
+  const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [currentImgUrl, setCurrentImgUrl] = useState('');
 
-  // Configuración de dimensiones e imagen base
+  // Configuración de dimensiones optimizadas para iPhone / móviles
   useEffect(() => {
     if (!pages.length) return;
     const page = pages[activePageIdx];
@@ -28,8 +28,13 @@ const ColoringGame = ({ gameData }) => {
 
     const img = new Image();
     img.onload = () => {
-      const maxW = Math.min(window.innerWidth - 40, 550);
-      const maxH = Math.min(window.innerHeight * 0.52, 550);
+      const screenWidth = window.innerWidth;
+      const isMobile = screenWidth <= 480;
+
+      // Límites ajustados para evitar zoom desproporcionado en pantallas pequeñas
+      const maxW = isMobile ? Math.min(screenWidth - 32, 340) : Math.min(screenWidth - 40, 500);
+      const maxH = isMobile ? Math.min(window.innerHeight * 0.38, 380) : Math.min(window.innerHeight * 0.5, 500);
+
       let w = img.width, h = img.height;
       const scale = Math.min(maxW / w, maxH / h);
 
@@ -178,85 +183,84 @@ const ColoringGame = ({ gameData }) => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: '1rem',
-      padding: '1rem',
+      gap: '0.8rem',
+      padding: '0.5rem',
       fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif'
     }}>
       {/* Cabecera principal */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '600px' }}>
-        <h3 style={{ fontSize: '1.3rem', fontWeight: 900, color: '#FF69B4', margin: 0, textShadow: '1px 1px 0 #fff' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '500px' }}>
+        <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#FF69B4', margin: 0, textShadow: '1px 1px 0 #fff' }}>
           {gameData?.title || 'Coloreando la Biblia'}
         </h3>
         {finished && (
-          <span style={{ background: '#32CD32', color: '#fff', padding: '0.3rem 0.8rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: '0.25rem', border: '2px solid #FFF' }}>
+          <span style={{ background: '#32CD32', color: '#fff', padding: '0.25rem 0.7rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem', border: '2px solid #FFF' }}>
             <Check size={14} /> ¡Terminado!
           </span>
         )}
       </div>
 
       {/* Botón Selector de Galería + Título del dibujo activo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
         {pages.length > 1 && (
           <button
             onClick={() => setIsGalleryOpen(true)}
             style={{
               display: 'flex',
               alignItems: 'center',
-              gap: '0.5rem',
-              padding: '0.5rem 1.2rem',
+              gap: '0.4rem',
+              padding: '0.4rem 1rem',
               background: '#FFF',
               color: '#FF69B4',
-              border: '3px solid #FF69B4',
+              border: '2px solid #FF69B4',
               borderRadius: '999px',
               fontWeight: 800,
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               cursor: 'pointer',
-              boxShadow: '0 4px 10px rgba(255, 105, 180, 0.2)',
-              transition: 'transform 0.1s ease'
+              boxShadow: '0 3px 8px rgba(255, 105, 180, 0.2)'
             }}
           >
-            <ImageIcon size={18} /> Cambiar Dibujo ({activePageIdx + 1}/{pages.length})
+            <ImageIcon size={16} /> Cambiar Dibujo ({activePageIdx + 1}/{pages.length})
           </button>
         )}
-        <span style={{ color: '#4B0082', fontWeight: 800, fontSize: '1rem' }}>
+        <span style={{ color: '#4B0082', fontWeight: 800, fontSize: '0.95rem' }}>
           {pages[activePageIdx]?.title}
         </span>
       </div>
 
       {/* Paleta de colores y herramientas */}
-      <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '600px' }}>
-        <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '500px' }}>
+        <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap', justifyContent: 'center' }}>
           {palette.map((c) => (
             <button
               key={c}
               onClick={() => { setColor(c); if (tool === 'eraser') setTool('brush'); }}
               style={{
-                width: '30px',
-                height: '30px',
+                width: '28px',
+                height: '28px',
                 borderRadius: '50%',
                 background: c,
-                border: `3px solid ${color === c && tool !== 'eraser' ? '#333' : '#FFF'}`,
+                border: `2px solid ${color === c && tool !== 'eraser' ? '#333' : '#FFF'}`,
                 cursor: 'pointer',
-                boxShadow: color === c && tool !== 'eraser' ? '0 2px 8px rgba(0,0,0,0.3)' : 'none',
-                transition: 'all 0.2s ease'
+                boxShadow: color === c && tool !== 'eraser' ? '0 2px 6px rgba(0,0,0,0.3)' : 'none',
+                transition: 'all 0.15s ease'
               }}
               title={c}
             />
           ))}
         </div>
 
-        <div style={{ display: 'flex', gap: '0.3rem', alignItems: 'center', padding: '0.3rem', background: '#FFF', borderRadius: '0.75rem', border: '2px solid #FF69B4' }}>
+        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', padding: '0.25rem', background: '#FFF', borderRadius: '0.6rem', border: '2px solid #FF69B4' }}>
           <button
             onClick={() => setTool('brush')}
             style={{
-              padding: '0.35rem 0.7rem',
+              padding: '0.3rem 0.6rem',
               background: tool === 'brush' ? '#FF69B4' : 'transparent',
               color: tool === 'brush' ? '#fff' : '#FF69B4',
               border: 'none',
-              borderRadius: '0.5rem',
+              borderRadius: '0.4rem',
               cursor: 'pointer',
               fontWeight: 700,
-              fontSize: '0.8rem'
+              fontSize: '0.75rem'
             }}
           >
             🖌️ Pincel
@@ -264,14 +268,14 @@ const ColoringGame = ({ gameData }) => {
           <button
             onClick={() => setTool('eraser')}
             style={{
-              padding: '0.35rem 0.7rem',
+              padding: '0.3rem 0.6rem',
               background: tool === 'eraser' ? '#FF69B4' : 'transparent',
               color: tool === 'eraser' ? '#fff' : '#FF69B4',
               border: 'none',
-              borderRadius: '0.5rem',
+              borderRadius: '0.4rem',
               cursor: 'pointer',
               fontWeight: 700,
-              fontSize: '0.8rem'
+              fontSize: '0.75rem'
             }}
           >
             🧽 Borrador
@@ -279,14 +283,14 @@ const ColoringGame = ({ gameData }) => {
           <button
             onClick={() => setTool('fill')}
             style={{
-              padding: '0.35rem 0.7rem',
+              padding: '0.3rem 0.6rem',
               background: tool === 'fill' ? '#FF69B4' : 'transparent',
               color: tool === 'fill' ? '#fff' : '#FF69B4',
               border: 'none',
-              borderRadius: '0.5rem',
+              borderRadius: '0.4rem',
               cursor: 'pointer',
               fontWeight: 700,
-              fontSize: '0.8rem'
+              fontSize: '0.75rem'
             }}
           >
             🪣 Rellenar
@@ -295,20 +299,21 @@ const ColoringGame = ({ gameData }) => {
       </div>
 
       {(tool === 'brush' || tool === 'eraser') && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FF69B4' }}>Tamaño:</label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#FF69B4' }}>Tamaño:</label>
           <input
             type="range"
             min="5"
-            max="50"
+            max="40"
             value={brushSize}
             onChange={(e) => setBrushSize(Number(e.target.value))}
+            style={{ width: '100px' }}
           />
-          <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#FF69B4' }}>{brushSize}px</span>
+          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#FF69B4' }}>{brushSize}px</span>
         </div>
       )}
 
-      {/* Contenedor multicapa del lienzo */}
+      {/* Contenedor multicapa del lienzo adaptado */}
       <div
         ref={containerRef}
         style={{
@@ -316,9 +321,9 @@ const ColoringGame = ({ gameData }) => {
           width: `${dimensions.width}px`,
           height: `${dimensions.height}px`,
           background: '#FFF',
-          borderRadius: '1.5rem',
-          border: '5px solid #FF69B4',
-          boxShadow: '0 12px 30px rgba(255, 105, 180, 0.25)',
+          borderRadius: '1.2rem',
+          border: '4px solid #FF69B4',
+          boxShadow: '0 8px 20px rgba(255, 105, 180, 0.2)',
           overflow: 'hidden',
           touchAction: 'none'
         }}
@@ -363,48 +368,48 @@ const ColoringGame = ({ gameData }) => {
       </div>
 
       {/* Botones de acción inferiores */}
-      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'center' }}>
         <button
           onClick={clearCanvas}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
+            gap: '0.4rem',
             background: '#FF69B4',
             color: '#fff',
             border: 'none',
             borderRadius: '999px',
-            padding: '0.5rem 1.5rem',
-            fontSize: '0.9rem',
+            padding: '0.45rem 1.2rem',
+            fontSize: '0.85rem',
             fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: '0 4px 0px #c71585'
+            boxShadow: '0 3px 0px #c71585'
           }}
         >
-          <RotateCcw size={16} /> Limpiar
+          <RotateCcw size={15} /> Limpiar
         </button>
         <button
           onClick={downloadCanvas}
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
+            gap: '0.4rem',
             background: '#32CD32',
             color: '#fff',
             border: 'none',
             borderRadius: '999px',
-            padding: '0.5rem 1.5rem',
-            fontSize: '0.9rem',
+            padding: '0.45rem 1.2rem',
+            fontSize: '0.85rem',
             fontWeight: 800,
             cursor: 'pointer',
-            boxShadow: '0 4px 0px #228B22'
+            boxShadow: '0 3px 0px #228B22'
           }}
         >
-          <Download size={16} /> Descargar
+          <Download size={15} /> Descargar
         </button>
       </div>
 
-      {/* --- MODAL / GALERÍA EMERGENTE DE DIBUJOS --- */}
+      {/* Modal Galería de Dibujos */}
       {isGalleryOpen && (
         <div style={{
           position: 'fixed',
@@ -422,19 +427,18 @@ const ColoringGame = ({ gameData }) => {
         }}>
           <div style={{
             background: '#FFF',
-            borderRadius: '2rem',
-            padding: '1.5rem',
-            maxWidth: '520px',
+            borderRadius: '1.5rem',
+            padding: '1.2rem',
+            maxWidth: '480px',
             width: '100%',
-            maxHeight: '85vh',
+            maxHeight: '80vh',
             display: 'flex',
             flexDirection: 'column',
-            border: '5px solid #FF69B4',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
+            border: '4px solid #FF69B4',
+            boxShadow: '0 15px 30px rgba(0,0,0,0.3)'
           }}>
-            {/* Encabezado del Modal */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h4 style={{ margin: 0, color: '#4B0082', fontSize: '1.3rem', fontWeight: 900 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+              <h4 style={{ margin: 0, color: '#4B0082', fontSize: '1.1rem', fontWeight: 900 }}>
                 🎨 Elige un dibujo
               </h4>
               <button
@@ -444,25 +448,24 @@ const ColoringGame = ({ gameData }) => {
                   background: '#FFF0F5',
                   color: '#FF1493',
                   borderRadius: '50%',
-                  width: '36px',
-                  height: '36px',
+                  width: '32px',
+                  height: '32px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer'
                 }}
               >
-                <X size={20} />
+                <X size={18} />
               </button>
             </div>
 
-            {/* Cuadrícula de Dibujos */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(110px, 1fr))',
-              gap: '1rem',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+              gap: '0.8rem',
               overflowY: 'auto',
-              paddingRight: '0.25rem'
+              paddingRight: '0.2rem'
             }}>
               {pages.map((p, idx) => {
                 const isSelected = idx === activePageIdx;
@@ -475,16 +478,15 @@ const ColoringGame = ({ gameData }) => {
                     }}
                     style={{
                       border: `3px solid ${isSelected ? '#FF69B4' : '#E2E8F0'}`,
-                      borderRadius: '1.2rem',
-                      padding: '0.6rem',
+                      borderRadius: '1rem',
+                      padding: '0.5rem',
                       textAlign: 'center',
                       cursor: 'pointer',
                       background: isSelected ? '#FFF0F5' : '#FFF',
-                      transition: 'transform 0.15 ease',
-                      boxShadow: isSelected ? '0 4px 12px rgba(255,105,180,0.3)' : '0 2px 4px rgba(0,0,0,0.05)'
+                      boxShadow: isSelected ? '0 4px 10px rgba(255,105,180,0.3)' : '0 2px 4px rgba(0,0,0,0.05)'
                     }}
                   >
-                    <div style={{ width: '100%', height: '90px', borderRadius: '0.8rem', overflow: 'hidden', background: '#F8FAFC', marginBottom: '0.4rem' }}>
+                    <div style={{ width: '100%', height: '75px', borderRadius: '0.6rem', overflow: 'hidden', background: '#F8FAFC', marginBottom: '0.3rem' }}>
                       <img
                         src={p.image_url}
                         alt={p.title}
@@ -493,7 +495,7 @@ const ColoringGame = ({ gameData }) => {
                     </div>
                     <p style={{
                       margin: 0,
-                      fontSize: '0.8rem',
+                      fontSize: '0.75rem',
                       fontWeight: 800,
                       color: isSelected ? '#FF1493' : '#333',
                       whiteSpace: 'nowrap',
@@ -513,7 +515,7 @@ const ColoringGame = ({ gameData }) => {
   );
 };
 
-// Helpers de relleno y color
+// Helpers de relleno y conversión de color
 function hexToRgba(hex) {
   hex = hex.replace('#', '');
   if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
