@@ -271,14 +271,57 @@ export const PlayfulLayout = ({
 
            {/* Fun Zone Banner - Always visible */}
            <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem', boxSizing: 'border-box' }}>
-<Link
-                to="/ninos/juegos"
-                style={{
+             <Link
+               to="/ninos/juegos"
+               style={{
+                 background: 'linear-gradient(135deg, #8A2BE2, #FF1493, #FF4500)', 
+                 borderRadius: '2.5rem', 
+                 padding: '1.5rem 1rem', 
+                 cursor: 'pointer', 
+                 border: '5px solid #FFD700', 
+                 boxShadow: '0 15px 30px rgba(138, 43, 226, 0.3)', 
+                 display: 'flex', 
+                 flexDirection: 'column', 
+                 alignItems: 'center', 
+                 gap: '1rem',
+                 transition: 'transform 0.2s, box-shadow 0.2s',
+                 position: 'relative',
+                 overflow: 'hidden',
+                 textDecoration: 'none',
+                 color: 'inherit',
+                 width: '100%',
+                 boxSizing: 'border-box'
+               }}
+               onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(138, 43, 226, 0.4)'; }}
+               onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(138, 43, 226, 0.3)'; }}
+             >
+               {/* Decorative floating emojis */}
+               <div style={{ position: 'absolute', top: '10px', left: '20px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite' }}>🧩</div>
+               <div style={{ position: 'absolute', top: '15px', right: '25px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite 0.5s' }}>🎬</div>
+               <div style={{ position: 'absolute', bottom: '10px', left: '30%', fontSize: '2rem', opacity: 0.3, animation: 'float 3s ease-in-out infinite 1s' }}>⭐</div>
+               
+               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                 <Gamepad2 size={40} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+                 <h2 style={{ fontSize: 'clamp(2rem, 7vw, 2.8rem)', fontWeight: 900, color: '#FFD700', margin: 0, textShadow: '2px 2px 0 rgba(0,0,0,0.3)', textAlign: 'center' }}>
+                   ¡Zona de Juegos!
+                 </h2>
+                 <Gamepad2 size={40} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+               </div>
+               <p style={{ color: '#fff', fontSize: 'clamp(0.9rem, 4vw, 1.15rem)', fontWeight: 700, margin: 0, textAlign: 'center', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                 Rompecabezas Bíblicos, Videos, Canciones y ¡Mucho Más!
+               </p>
+               <div style={{ background: '#FFD700', color: '#8B4500', padding: '0.6rem 2rem', borderRadius: '999px', fontSize: 'clamp(1rem, 4vw, 1.2rem)', fontWeight: 900, boxShadow: '0 5px 0 #b89b00', transform: 'translateY(-2px)' }}>
+                 ENTRAR A JUGAR 🚀
+               </div>
+               <style>{`
+                 @keyframes float {
+                   0%, 100% { transform: translateY(0px); }
+                   50% { transform: translateY(-10px); }
+                 }
                `}</style>
-</Link>
-            </section>
-
-            {/* Videos Section */}
+             </Link>
+           </section>
+           {/* Videos Section */}
            <section id="videos" style={{ width: '100%', maxWidth: '1000px', marginTop: '1rem' }}>
              <VideosSection ministry={ministry} />
            </section>
