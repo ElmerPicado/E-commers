@@ -144,33 +144,47 @@ const GameShell = ({ gameTitle, onBack, rightHeader, children }) => (
   <div className="theme-ninos" style={{
     minHeight: '100vh',
     background: 'linear-gradient(180deg, #87CEEB 0%, #E0F6FF 50%, #90EE90 100%)',
-    padding: '1rem',
+    padding: '0.75rem',
     fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif'
   }}>
     <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+      <header style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '0.5rem',
+        width: '100%',
+        boxSizing: 'border-box'
+      }}>
+        {/* Botón Volver */}
         <button
           onClick={onBack}
           style={buttonStyle('#FF6347', '#b83214')}
           onMouseDown={e => { e.currentTarget.style.transform = 'translateY(0px)'; e.currentTarget.style.boxShadow = '0 1px 0 #b83214'; }}
           onMouseUp={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 5px 0 #b83214'; }}
         >
-          <ArrowLeft size={20} /> Volver
+          <ArrowLeft size={18} />
+          <span className="hidden sm:inline">Volver</span>
         </button>
 
+        {/* Título adaptable */}
         <h2 style={{
           flex: 1,
           textAlign: 'center',
-          fontSize: '1.8rem',
+          fontSize: 'clamp(1rem, 4vw, 1.8rem)', // Ajusta el tamaño de letra dinámicamente en celulares
           fontWeight: 900,
           color: '#4B0082',
           textShadow: '1px 1px 0 #fff',
-          margin: 0
+          margin: 0,
+          padding: '0 0.25rem',
+          lineHeight: 1.1,
+          wordBreak: 'break-word'
         }}>
           {gameTitle}
         </h2>
 
-        {rightHeader || <div style={{ flexShrink: 0, width: '90px' }} />}
+        {/* Espaciador o Botón del Trofeo */}
+        {rightHeader || <div style={{ flexShrink: 0, minWidth: '40px' }} />}
       </header>
 
       {children}
@@ -370,17 +384,19 @@ function buttonStyle(bg, shadow) {
     background: bg,
     border: 'none',
     color: '#fff',
-    padding: '0.6rem 1rem',
+    padding: '0.5rem 0.75rem', // Padding responsivo reducido
     borderRadius: '999px',
-    fontSize: '1rem',
+    fontSize: '0.9rem',
     fontWeight: 900,
     cursor: 'pointer',
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
-    gap: '0.5rem',
-    boxShadow: `0 5px 0 ${shadow}`,
+    justifyContent: 'center',
+    gap: '0.35rem',
+    boxShadow: `0 4px 0 ${shadow}`,
     transform: 'translateY(-2px)',
-    flexShrink: 0
+    flexShrink: 0,
+    whiteSpace: 'nowrap'
   };
 }
 
