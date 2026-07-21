@@ -16,13 +16,18 @@ import {
 
 const MaestrosLogin = () => {
   const navigate = useNavigate();
-  const [loginMode, setLoginMode] = useState('email'); 
+  const [loginMode, setLoginMode] = useState('email'); // 'email' | 'username'
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
+
+  const switchMode = (mode) => {
+    setLoginMode(mode);
+    setErrorMsg(null);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -30,38 +35,66 @@ const MaestrosLogin = () => {
     setErrorMsg(null);
 
     try {
-      if (loginMode === 'email') {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password: password,
-        });
+      let targetEmail = email.trim();
 
-        if (error) throw error;
+      // Si entra por Nombre de Usuario, buscamos su email cifrado en Supabase
+      if (loginMode === 'username') {
+        const { data: foundEmail, error: rpcError } = await supabase.rpc(
+          'get_email_by_username',
+          { p_username: username.trim() }
+        );
 
-        if (data.user) {
-          navigate('/maestros/dashboard');
+        if (rpcError || !foundEmail) {
+          throw new Error('El usuario ingresado no existe o no está habilitado.');
         }
-      } else {
-        const { data, error } = await supabase
-          .from('admin_users')
-          .select('id, username, role')
-          .eq('username', username.trim())
-          .eq('password', password) 
+        targetEmail = foundEmail;
+      }
+
+      // Autenticación nativa segura en Supabase Auth
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: targetEmail,
+        password: password,
+      });
+
+      if (authError) {
+        if (authError.message.includes('Invalid login credentials')) {
+          throw new Error('Credenciales incorrectas. Revisa tu contraseña.');
+        }
+        throw authError;
+      }
+
+      if (data.user) {
+        // Consultar el perfil del docente para validar permisos
+        const { data: profile } = await supabase
+          .from('teacher_profiles')
+          .select('role, full_name')
+          .eq('id', data.user.id)
           .single();
 
-        if (error || !data) {
-          throw new Error('Usuario o contraseña incorrectos');
-        }
+        // Guardar la sesión y redirigir
+        sessionStorage.setItem(
+          'teacher_session',
+          JSON.stringify({
+            id: data.user.id,
+            email: data.user.email,
+            role: profile?.role || 'maestro',
+            name: profile?.full_name || 'Docente'
+          })
+        );
 
-        sessionStorage.setItem('admin_user', JSON.stringify(data));
-        navigate('/admin');
+        if (profile?.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/maestros/dashboard');
+        }
       }
     } catch (err) {
       setErrorMsg(
         err instanceof Error
           ? err.message
-          : 'Credenciales inválidas. Verifica tus datos.'
+          : 'Ocurrió un error inesperado al intentar acceder.'
       );
+      setPassword(''); // Limpieza por seguridad
     } finally {
       setLoading(false);
     }
@@ -84,7 +117,7 @@ const MaestrosLogin = () => {
 
       <main className="flex-1 flex items-center justify-center py-10 z-10">
         <div className="w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl relative">
-          
+
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20 border border-purple-400/30">
               <ShieldCheck className="w-8 h-8" />
@@ -99,12 +132,12 @@ const MaestrosLogin = () => {
 
           <div className="mb-6 flex flex-wrap gap-2 justify-center">
             <button
-              onClick={() => setLoginMode('email')}
-              className={`flex-1 min-w-[140px] px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                loginMode === 'email'
+              type="button"
+              onClick={() => switchMode('email')}
+              className={`flex-1 min-w-[140px] px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${loginMode === 'email'
                   ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
                   : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-center gap-1.5">
                 <Mail className="w-4 h-4 shrink-0" />
@@ -112,12 +145,12 @@ const MaestrosLogin = () => {
               </div>
             </button>
             <button
-              onClick={() => setLoginMode('username')}
-              className={`flex-1 min-w-[140px] px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
-                loginMode === 'username'
+              type="button"
+              onClick={() => switchMode('username')}
+              className={`flex-1 min-w-[140px] px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${loginMode === 'username'
                   ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
                   : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
-              }`}
+                }`}
             >
               <div className="flex items-center justify-center gap-1.5">
                 <User className="w-4 h-4 shrink-0" />
@@ -128,99 +161,71 @@ const MaestrosLogin = () => {
 
           <form onSubmit={handleLogin} className="space-y-5">
             {errorMsg && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2.5">
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-all">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
             )}
 
             {loginMode === 'email' ? (
-              <>
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                    Correo Electrónico
-                  </label>
-                  <div className="relative">
-                    <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="maestra@imr4.com"
-                      className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
-                      required
-                    />
-                  </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                  Correo Electrónico
+                </label>
+                <div className="relative">
+                  <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="maestra@imr4.com"
+                    className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                    required
+                  />
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                    Contraseña
-                  </label>
-                  <div className="relative">
-                    <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full pl-11 pr-11 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-              </>
+              </div>
             ) : (
-              <>
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                    Nombre de Usuario
-                  </label>
-                  <div className="relative">
-                    <User className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="admin"
-                      className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
-                      required
-                    />
-                  </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                  Nombre de Usuario
+                </label>
+                <div className="relative">
+                  <User className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    placeholder="admin"
+                    className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                    required
+                  />
                 </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                    Contraseña
-                  </label>
-                  <div className="relative">
-                    <Key className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type={showPassword ? 'text' : 'password'}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full pl-11 pr-11 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
-                      required
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
-                    >
-                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-              </>
+              </div>
             )}
+
+            <div>
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                Contraseña
+              </label>
+              <div className="relative">
+                <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full pl-11 pr-11 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
+            </div>
 
             <button
               type="submit"
