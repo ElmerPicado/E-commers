@@ -50,7 +50,8 @@ const ColoringGame = ({ gameData }) => {
       ctx.fillText('No se pudo cargar el dibujo.', canvas.width / 2, canvas.height / 2 - 10);
       ctx.fillText('Revisa tu conexión.', canvas.width / 2, canvas.height / 2 + 15);
     };
-    img.src = page.image_url;
+    // Append timestamp to bypass Safari cache issues
+    img.src = page.image_url + (page.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
   }, [activePageIdx, pages, forceReload]);
 
   const getPos = (e) => {

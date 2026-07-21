@@ -74,7 +74,8 @@ const PuzzleGame = ({ puzzleData }) => {
           img.src = activeLevel.image_url + (activeLevel.image_url.includes('?') ? '&' : '?') + 'retry=' + Date.now();
         }, 1500);
       };
-      img.src = activeLevel.image_url;
+      // Append timestamp to bypass Safari cache issues
+      img.src = activeLevel.image_url + (activeLevel.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
     }
   }, [activeLevel]);
 
