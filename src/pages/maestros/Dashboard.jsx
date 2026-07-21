@@ -1,14 +1,10 @@
 import React, { useState } from 'react';
 import {
   Users, BookOpen, Calendar, CheckSquare,
-  Plus, Search, Trash2, ChevronRight, CheckCircle,
-  Clock, Menu, Bell, Shield, User, Briefcase, LayoutDashboard,
+  Plus, Search, Trash2, ChevronRight,
+  Clock, Menu, Bell, Shield, Briefcase, LayoutDashboard,
   LogOut, UserCheck
 } from 'lucide-react';
-
-// ==========================================
-// COMPONENTES REUTILIZABLES
-// ==========================================
 
 const StatCard = ({ title, value, icon: Icon, color = 'blue' }) => {
   const colorMap = {
@@ -33,10 +29,6 @@ const StatCard = ({ title, value, icon: Icon, color = 'blue' }) => {
   );
 };
 
-// ==========================================
-// VISTAS DEL ADMINISTRADOR
-// ==========================================
-
 const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) => {
   const [form, setForm] = useState({ maestroId: '', grupo: '', materia: '' });
 
@@ -50,7 +42,6 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
 
   return (
     <div className="space-y-6 w-full">
-      {/* Formulario de Asignación */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Briefcase className="w-5 h-5 text-indigo-600" />
@@ -84,20 +75,19 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
               {grupos.map(g => <option key={g} value={g}>{g}</option>)}
             </select>
           </div>
-          <button type="submit" className="w-full bg-indigo-600 text-white p-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm shadow-indigo-100">
+          <button type="submit" className="w-full bg-indigo-600 text-white p-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm">
             Guardar Asignación
           </button>
         </form>
       </div>
 
-      {/* Tabla de Asignaciones */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden w-full">
         <div className="p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
           <h3 className="font-bold text-gray-900">Control de Asignaciones Institucionales</h3>
           <span className="text-xs font-semibold bg-gray-200 text-gray-700 px-2.5 py-1 rounded-md">{asignaciones.length} Activas</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left text-sm min-w-[600px]">
             <thead className="bg-white text-gray-400 font-bold uppercase text-xs border-b border-gray-100">
               <tr>
                 <th className="p-4">Docente Titular</th>
@@ -133,20 +123,16 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
   );
 };
 
-// ==========================================
-// VISTAS DEL MAESTRO
-// ==========================================
-
 const MaestroResumenView = ({ asignacionesProfesor, maestroNombre }) => (
   <div className="space-y-6 w-full">
     <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
       <div>
         <h2 className="text-2xl font-bold">¡Bienvenido, {maestroNombre}! 👋</h2>
-        <p className="text-blue-100 text-sm mt-1">Este es el panel con las asignaturas e imprecisiones asignadas por la administración.</p>
+        <p className="text-blue-100 text-sm mt-1">Este es el panel con las asignaturas asignadas por la administración.</p>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
       <StatCard title="Mis Grupos Asignados" value={asignacionesProfesor.length} icon={Users} color="blue" />
       <StatCard title="Clases Agendadas" value="4" icon={Calendar} color="green" />
       <StatCard title="Revisiones Pendientes" value="8" icon={CheckSquare} color="amber" />
@@ -154,7 +140,7 @@ const MaestroResumenView = ({ asignacionesProfesor, maestroNombre }) => (
 
     <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
       <h3 className="text-lg font-bold text-gray-900 mb-4">Cátedras Asignadas a Tu Perfil</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         {asignacionesProfesor.map((clase, idx) => (
           <div key={idx} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all">
             <div className="flex items-center gap-4">
@@ -169,32 +155,21 @@ const MaestroResumenView = ({ asignacionesProfesor, maestroNombre }) => (
             <button className="text-sm font-bold text-indigo-600 hover:underline">Acceder</button>
           </div>
         ))}
-        {asignacionesProfesor.length === 0 && (
-          <p className="text-gray-400 text-sm col-span-2 text-center py-6 border border-dashed rounded-xl">
-            Aún no tienes asignaturas registradas por el Administrador.
-          </p>
-        )}
       </div>
     </div>
   </div>
 );
 
-// ==========================================
-// CONTENEDOR PRINCIPAL
-// ==========================================
-
 const SistemaEscolar = () => {
-  // Estado principal de sesión: Inicias directamente como ADMIN
   const [currentUser, setCurrentUser] = useState({
     id: 'admin-01',
     nombre: 'Administrador Principal',
-    role: 'admin', // 'admin' o 'maestro'
+    role: 'admin',
   });
 
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
-  // Datos Institucionales (BD Mock)
   const [maestros] = useState([
     { id: 'm1', nombre: 'Prof. García' },
     { id: 'm2', nombre: 'Profa. Martínez' }
@@ -210,26 +185,16 @@ const SistemaEscolar = () => {
     setAsignaciones([...asignaciones, nueva]);
   };
 
-  // Función de pruebas para simular entrar como el Maestro creado
   const probarComoMaestro = () => {
-    setCurrentUser({
-      id: 'm1',
-      nombre: 'Prof. García',
-      role: 'maestro'
-    });
+    setCurrentUser({ id: 'm1', nombre: 'Prof. García', role: 'maestro' });
     setActiveTab('dashboard');
   };
 
   const volverAAdmin = () => {
-    setCurrentUser({
-      id: 'admin-01',
-      nombre: 'Administrador Principal',
-      role: 'admin'
-    });
+    setCurrentUser({ id: 'admin-01', nombre: 'Administrador Principal', role: 'admin' });
     setActiveTab('dashboard');
   };
 
-  // Definición de Navegación por Perfil
   const adminMenus = [
     { id: 'dashboard', label: 'Panel Global', icon: LayoutDashboard },
     { id: 'asignaciones', label: 'Asignaciones y Grupos', icon: Briefcase },
@@ -245,11 +210,12 @@ const SistemaEscolar = () => {
   const currentMenus = currentUser.role === 'admin' ? adminMenus : maestroMenus;
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 flex flex-row relative overflow-x-hidden antialiased">
+    // FORZAMOS W-SCREEN Y MIN-H-SCREEN PARA ANULAR LIMITACIONES PADRE
+    <div className="min-h-screen w-screen bg-slate-50 flex flex-row relative overflow-x-hidden antialiased left-0 top-0 m-0 p-0">
 
       {/* SIDEBAR */}
       <aside
-        className={`fixed top-0 left-0 bottom-0 z-40 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'
+        className={`fixed top-0 left-0 h-full z-40 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'
           }`}
       >
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100 shrink-0">
@@ -265,14 +231,10 @@ const SistemaEscolar = () => {
         </div>
 
         <nav className="p-3 space-y-1.5 flex-1 overflow-y-auto mt-2">
-          <div className={`text-[11px] font-bold text-gray-400 mb-3 px-2 uppercase tracking-wider ${!sidebarOpen && 'hidden'}`}>
-            {currentUser.role === 'admin' ? 'Módulo de Gestión' : 'Área Docente'}
-          </div>
           {currentMenus.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              title={!sidebarOpen ? item.label : undefined}
               className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === item.id
                   ? 'bg-indigo-50 text-indigo-600 shadow-sm'
                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
@@ -284,13 +246,11 @@ const SistemaEscolar = () => {
           ))}
         </nav>
 
-        {/* BOTÓN MODO PRUEBA DE DOCENTE (Aparece en pie de menú) */}
         <div className="p-3 border-t border-gray-100 bg-gray-50/50">
           {currentUser.role === 'admin' ? (
             <button
               onClick={probarComoMaestro}
               className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors shadow-sm"
-              title="Probar vista de un maestro registrado"
             >
               <UserCheck className="w-4 h-4" />
               {sidebarOpen && <span>Probar Cuenta Maestro</span>}
@@ -308,9 +268,13 @@ const SistemaEscolar = () => {
       </aside>
 
       {/* ÁREA PRINCIPAL DERECHA */}
-      <div className={`flex-1 w-full min-w-0 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'pl-64' : 'pl-20'}`}>
-
-        {/* HEADER SUPERIOR CLEAN */}
+      <div
+        className="flex-1 min-h-screen transition-all duration-300 ease-in-out flex flex-col"
+        style={{
+          marginLeft: sidebarOpen ? '256px' : '80px',
+          width: `calc(100vw - ${sidebarOpen ? '256px' : '80px'})`
+        }}
+      >
         <header className="h-16 bg-white border-b border-gray-200 sticky top-0 z-30 flex items-center justify-between px-6 w-full shrink-0">
           <h1 className="text-xl font-extrabold text-gray-900 capitalize tracking-tight flex items-center gap-2">
             {currentMenus.find(m => m.id === activeTab)?.label || activeTab}
@@ -334,17 +298,14 @@ const SistemaEscolar = () => {
           </div>
         </header>
 
-        {/* CONTENIDO PRINCIPAL */}
-        <main className="flex-1 p-6 md:p-8 w-full max-w-7xl mx-auto">
-
-          {/* PERFIL: ADMINISTRADOR */}
+        <main className="flex-1 p-6 md:p-8 w-full box-border">
           {currentUser.role === 'admin' && (
-            <>
+            <div className="space-y-6 w-full">
               {activeTab === 'dashboard' && (
-                <div className="space-y-6 w-full">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full">
                     <StatCard title="Total Profesores" value={maestros.length} icon={Users} color="blue" />
-                    <StatCard title="Grupos de la Institución" value={grupos.length} icon={BookOpen} color="green" />
+                    <StatCard title="Grupos Institución" value={grupos.length} icon={BookOpen} color="green" />
                     <StatCard title="Asignaciones Activas" value={asignaciones.length} icon={Briefcase} color="purple" />
                   </div>
                   <AdminAsignacionesView
@@ -353,7 +314,7 @@ const SistemaEscolar = () => {
                     grupos={grupos}
                     onAsignar={handleNuevaAsignacion}
                   />
-                </div>
+                </>
               )}
               {activeTab === 'asignaciones' && (
                 <AdminAsignacionesView
@@ -363,31 +324,15 @@ const SistemaEscolar = () => {
                   onAsignar={handleNuevaAsignacion}
                 />
               )}
-              {activeTab === 'maestros' && (
-                <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center text-gray-400 font-medium">
-                  Módulo de Gestión de Profesores (Alta, Baja, Perfil).
-                </div>
-              )}
-            </>
+            </div>
           )}
 
-          {/* PERFIL: MAESTRO */}
           {currentUser.role === 'maestro' && (
-            <>
-              {activeTab === 'dashboard' && (
-                <MaestroResumenView
-                  asignacionesProfesor={asignaciones.filter(a => a.maestroId === currentUser.id)}
-                  maestroNombre={currentUser.nombre}
-                />
-              )}
-              {activeTab === 'mis_clases' && (
-                <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium">
-                  Aulas virtuales e interacción con los alumnos asignados.
-                </div>
-              )}
-            </>
+            <MaestroResumenView
+              asignacionesProfesor={asignaciones.filter(a => a.maestroId === currentUser.id)}
+              maestroNombre={currentUser.nombre}
+            />
           )}
-
         </main>
       </div>
     </div>
