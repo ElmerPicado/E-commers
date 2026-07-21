@@ -216,13 +216,7 @@ a {
   -webkit-text-fill-color: transparent;
 }
 
-/* Bloqueo estricto de scroll horizontal */
-html,
-#root {
-  width: 100%;
-  max-width: 100vw;
-  overflow-x: hidden;
-}
+
 
 /* Buttons */
 .btn {
