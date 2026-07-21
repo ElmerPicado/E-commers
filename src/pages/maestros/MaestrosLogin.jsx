@@ -97,31 +97,31 @@ const MaestrosLogin = () => {
             </p>
           </div>
 
-          <div className="mb-6">
+          <div className="mb-6 flex flex-wrap gap-2 justify-center">
             <button
               onClick={() => setLoginMode('email')}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+              className={`flex-1 min-w-[140px] px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                 loginMode === 'email'
                   ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
                   : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
               }`}
             >
-              <div className="flex items-center gap-1.5">
-                <Mail className="w-4 h-4" />
-                <span>Email / Supabase Auth</span>
+              <div className="flex items-center justify-center gap-1.5">
+                <Mail className="w-4 h-4 shrink-0" />
+                <span className="whitespace-nowrap">Email Auth</span>
               </div>
             </button>
             <button
               onClick={() => setLoginMode('username')}
-              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+              className={`flex-1 min-w-[140px] px-3 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
                 loginMode === 'username'
                   ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
                   : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
               }`}
             >
-              <div className="flex items-center gap-1.5">
-                <User className="w-4 h-4" />
-                <span>Usuario / Admin Local</span>
+              <div className="flex items-center justify-center gap-1.5">
+                <User className="w-4 h-4 shrink-0" />
+                <span className="whitespace-nowrap">Admin Local</span>
               </div>
             </button>
           </div>

@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Calendar, MapPin, Heart, MessageSquare, Play, Gamepad2, Puzzle, X, Video as YoutubeIcon, Music, GraduationCap, User, UserCheck, Mail, Shield, AlertCircle } from 'lucide-react';
 import VideosSection from './VideosSection';
+import { supabase } from '../../lib/supabaseClient';
 
 // Modal Aula Virtual
 const AulaVirtualModal = ({ isOpen, onClose }) => {
@@ -18,13 +19,11 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/validar-codigo-estudiante`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ p_codigo: codigo.toUpperCase().trim() })
+      const { data, error: invokeError } = await supabase.functions.invoke('validar-codigo-estudiante', {
+        body: { p_codigo: codigo.toUpperCase().trim() }
       });
-      const data = await res.json();
-      if (!res.ok || !data.data || data.data.length === 0) {
+      if (invokeError) throw invokeError;
+      if (!data || !data.data || data.data.length === 0) {
         throw new Error('Código inválido o estudiante inactivo');
       }
       setSuccess(true);
@@ -231,39 +230,39 @@ export const PlayfulLayout = ({
             {ministry.logo_url && (
               <img src={ministry.logo_url} alt="Logo" style={{ width: '150px', height: '150px', objectFit: 'contain', marginBottom: '1rem', filter: 'drop-shadow(0 5px 15px rgba(0,0,0,0.2))' }} />
             )}
-            <h1 style={{ fontSize: '3.5rem', fontWeight: 900, color: 'var(--accent-color)', textShadow: '2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.1)', lineHeight: 1.1, marginBottom: '1rem' }}>
+            <h1 style={{ fontSize: 'clamp(2rem, 8vw, 3.5rem)', fontWeight: 900, color: 'var(--accent-color)', textShadow: '2px 2px 0px #fff, 4px 4px 0px rgba(0,0,0,0.1)', lineHeight: 1.1, marginBottom: '1rem' }}>
               {ministry.hero_title || `¡Bienvenidos a ${ministry.name}!`}
             </h1>
-            <p style={{ fontSize: '1.2rem', color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2rem' }}>
+            <p style={{ fontSize: 'clamp(1rem, 4vw, 1.2rem)', color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2rem' }}>
               {ministry.hero_desc}
             </p>
             
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <a href={ministry.visual_settings?.primary_action_url || "#"} className="btn" style={{ background: 'var(--accent-color)', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900 }}>
+              <a href={ministry.visual_settings?.primary_action_url || "#"} className="btn" style={{ background: 'var(--accent-color)', color: '#fff', fontSize: 'clamp(1rem, 4vw, 1.2rem)', padding: '0.8rem 1.5rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900 }}>
                 {ministry.visual_settings?.primary_action_text || "¡Quiero Participar!"}
               </a>
-              <Link to="/ninos/juegos" className="btn" style={{ background: '#3b82f6', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900, cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
-                ¡A Jugar! <Gamepad2 size={24} style={{ display: 'inline', marginLeft: '10px' }} />
+              <Link to="/ninos/juegos" className="btn" style={{ background: '#3b82f6', color: '#fff', fontSize: 'clamp(1rem, 4vw, 1.2rem)', padding: '0.8rem 1.5rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900, cursor: 'pointer', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}>
+                ¡A Jugar! <Gamepad2 size={20} style={{ display: 'inline', marginLeft: '5px' }} />
               </Link>
               {/* Botón Aula Virtual */}
               <button 
                 onClick={() => setShowAulaVirtual(true)} 
                 className="btn" 
-                style={{ background: 'linear-gradient(135deg, #8A2BE2, #1E90FF)', color: '#fff', fontSize: '1.2rem', padding: '1rem 2rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(30,144,255,0.5)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                style={{ background: 'linear-gradient(135deg, #8A2BE2, #1E90FF)', color: '#fff', fontSize: 'clamp(1rem, 4vw, 1.2rem)', padding: '0.8rem 1.5rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(30,144,255,0.5)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
               >
-                <GraduationCap size={24} style={{ display: 'inline', marginLeft: '10px' }} /> Aula Virtual
+                <GraduationCap size={20} style={{ display: 'inline', marginLeft: '5px' }} /> Aula Virtual
               </button>
             </div>
           </div>
 
           {/* Schedule & Location Box */}
           {(ministry.schedule || ministry.location) && (
-             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', justifyContent: 'center', width: '100%', maxWidth: '900px' }}>
-                <div style={{ flex: '1 1 300px', background: '#FFD700', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #FFA500', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)', transform: 'rotate(-2deg)' }}>
+             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', width: '100%', maxWidth: '900px', boxSizing: 'border-box' }}>
+                <div style={{ flex: '1 1 280px', background: '#FFD700', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #FFA500', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)' }}>
                       <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#B8860B', marginBottom: '0.5rem' }}>¿Cuándo nos vemos?</h3>
                       <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#000' }}>{ministry.schedule}</p>
                 </div>
-                <div style={{ flex: '1 1 300px', background: '#FF69B4', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #C71585', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)', transform: 'rotate(2deg)' }}>
+                <div style={{ flex: '1 1 280px', background: '#FF69B4', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #C71585', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)' }}>
                       <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#8B008B', marginBottom: '0.5rem' }}>¿Dónde estamos?</h3>
                       <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>{ministry.location}</p>
                 </div>
@@ -271,52 +270,10 @@ export const PlayfulLayout = ({
            )}
 
            {/* Fun Zone Banner - Always visible */}
-           <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem' }}>
+           <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem', boxSizing: 'border-box' }}>
 <Link
                 to="/ninos/juegos"
                 style={{
-                 background: 'linear-gradient(135deg, #8A2BE2, #FF1493, #FF4500)', 
-                 borderRadius: '2.5rem', 
-                 padding: '2.5rem 2rem', 
-                 cursor: 'pointer', 
-                 border: '5px solid #FFD700', 
-                 boxShadow: '0 15px 30px rgba(138, 43, 226, 0.3)', 
-                 display: 'flex', 
-                 flexDirection: 'column', 
-                 alignItems: 'center', 
-                 gap: '1rem',
-                 transition: 'transform 0.2s, box-shadow 0.2s',
-                 position: 'relative',
-                 overflow: 'hidden',
-                 textDecoration: 'none',
-                 color: 'inherit'
-               }}
-               onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(138, 43, 226, 0.4)'; }}
-               onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(138, 43, 226, 0.3)'; }}
-             >
-               {/* Decorative floating emojis */}
-               <div style={{ position: 'absolute', top: '10px', left: '20px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite' }}>🧩</div>
-               <div style={{ position: 'absolute', top: '15px', right: '25px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite 0.5s' }}>🎬</div>
-               <div style={{ position: 'absolute', bottom: '10px', left: '30%', fontSize: '2rem', opacity: 0.3, animation: 'float 3s ease-in-out infinite 1s' }}>⭐</div>
-               
-               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                 <Gamepad2 size={50} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
-                 <h2 style={{ fontSize: '2.8rem', fontWeight: 900, color: '#FFD700', margin: 0, textShadow: '2px 2px 0 rgba(0,0,0,0.3)' }}>
-                   ¡Zona de Juegos!
-                 </h2>
-                 <Gamepad2 size={50} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
-               </div>
-               <p style={{ color: '#fff', fontSize: '1.15rem', fontWeight: 700, margin: 0, textAlign: 'center', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
-                 Rompecabezas Bíblicos, Videos, Canciones y ¡Mucho Más!
-               </p>
-               <div style={{ background: '#FFD700', color: '#8B4500', padding: '0.6rem 2.5rem', borderRadius: '999px', fontSize: '1.2rem', fontWeight: 900, boxShadow: '0 5px 0 #b89b00', transform: 'translateY(-2px)' }}>
-                 ENTRAR A JUGAR 🚀
-               </div>
-               <style>{`
-                 @keyframes float {
-                   0%, 100% { transform: translateY(0px); }
-                   50% { transform: translateY(-10px); }
-                 }
                `}</style>
 </Link>
             </section>

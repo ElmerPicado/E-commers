@@ -67,7 +67,14 @@ const PuzzleGame = ({ puzzleData }) => {
     if (activeLevel?.image_url) {
       setImageLoaded(false);
       const img = new Image();
+      img.crossOrigin = 'anonymous';
       img.onload = () => setImageLoaded(true);
+      img.onerror = () => {
+        console.error("Failed to load puzzle image, retrying...");
+        setTimeout(() => {
+          img.src = activeLevel.image_url + (activeLevel.image_url.includes('?') ? '&' : '?') + 'retry=' + Date.now();
+        }, 1500);
+      };
       img.src = activeLevel.image_url;
     }
   }, [activeLevel]);
@@ -349,8 +356,14 @@ const PuzzleGame = ({ puzzleData }) => {
           border: isPuzzleSolved ? '4px solid #32CD32' : '4px solid #FFD700',
           touchAction: 'none',
           userSelect: 'none',
-          '-webkit-user-select': 'none'
+          '-webkit-user-select': 'none',
+          position: 'relative'
         }}>
+          {!imageLoaded && (
+             <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+               <div style={{ padding: '1rem', background: 'rgba(255,255,255,0.8)', borderRadius: '1rem', color: '#4B0082', fontWeight: 800 }}>Cargando...</div>
+             </div>
+          )}
           {pieces.map((pieceIndex, gridIndex) => {
             const correctRow = Math.floor(pieceIndex / gridSize);
             const correctCol = pieceIndex % gridSize;

@@ -26,7 +26,8 @@ const ColoringGame = ({ gameData }) => {
     img.crossOrigin = 'anonymous';
     img.onload = () => {
       // Fit to canvas size while keeping aspect
-      const maxW = 600, maxH = 600;
+      const maxW = Math.min(window.innerWidth - 30, 600);
+      const maxH = Math.min(window.innerHeight * 0.6, 600);
       let w = img.width, h = img.height;
       const scale = Math.min(maxW / w, maxH / h);
       canvas.width = w * scale;
@@ -37,16 +38,18 @@ const ColoringGame = ({ gameData }) => {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     };
     img.onerror = () => {
-      const maxW = 500, maxH = 500;
+      const maxW = Math.min(window.innerWidth - 30, 500);
+      const maxH = Math.min(window.innerHeight * 0.5, 500);
       canvas.width = maxW;
       canvas.height = maxH;
       ctx.fillStyle = '#FFFFFF';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.strokeStyle = '#333';
       ctx.lineWidth = 2;
-      ctx.font = '20px "Comic Sans MS", sans-serif';
+      ctx.font = '16px "Comic Sans MS", sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText('Imagen no disponible', canvas.width / 2, canvas.height / 2);
+      ctx.fillText('No se pudo cargar el dibujo.', canvas.width / 2, canvas.height / 2 - 10);
+      ctx.fillText('Revisa tu conexión.', canvas.width / 2, canvas.height / 2 + 15);
     };
     img.src = page.image_url;
   }, [activePageIdx, pages, forceReload]);
