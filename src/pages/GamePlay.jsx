@@ -93,11 +93,11 @@ const GamePlay = () => {
         <PuzzleGame
           puzzleData={{
             ...sectionData,
-            levels: [activeLevel],
+            levels: puzzleLevels, // ✅ Le pasamos TODOS los niveles reales, no solo [activeLevel]
             title: `${gameTitle} - Nivel ${currentLevelIndex + 1}`,
             hasNextLevel: currentLevelIndex < puzzleLevels.length - 1,
-            onNextLevel: () => { setCurrentLevelIndex(currentLevelIndex + 1); window.scrollTo({ top: 0, behavior: 'smooth' }); }
           }}
+          initialLevelIndex={currentLevelIndex} // ✅ Le comunicamos cuál seleccionó en el selector/trofeo
         />
 
         {puzzleLevels.length > 1 && (
