@@ -82,7 +82,9 @@ const GamePlay = () => {
           puzzleData={{
             ...sectionData,
             levels: [activeLevel],
-            title: `${gameTitle} - Nivel ${currentLevelIndex + 1}`
+            title: `${gameTitle} - Nivel ${currentLevelIndex + 1}`,
+            hasNextLevel: currentLevelIndex < puzzleLevels.length - 1,
+            onNextLevel: () => { setCurrentLevelIndex(currentLevelIndex + 1); window.scrollTo({top: 0, behavior: 'smooth'}); }
           }}
         />
 
@@ -219,14 +221,17 @@ const LevelSelectorModal = ({ levels, currentIdx, onPick, onClose }) => (
             }}
           >
             <span style={{ fontSize: '1.5rem' }}>Nivel {idx + 1}</span>
-            <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>
-              {level.difficulty === '4x4' ? '16 piezas' : '9 piezas'}
-            </span>
-          </button>
-        ))}
-      </div>
-      <button
-        onClick={onClose}
+            <p style={{ fontSize: '0.95rem', margin: 0, fontWeight: 700 }}>
+            {puzzleData.hasNextLevel === false || (puzzleData.hasNextLevel === undefined && currentLevelIndex === levels.length - 1) ? '¡Completaste todo el juego!' : '¡Desbloqueaste el siguiente nivel!'}
+          </p>
+          <button
+            onClick={() => {
+              if (puzzleData.onNextLevel && puzzleData.hasNextLevel) {
+                puzzleData.onNextLevel();
+              } else {
+                goToNextLevel();
+              }
+            }}
         style={{
           marginTop: '1.5rem', width: '100%', padding: '0.75rem',
           background: '#FF6347', border: 'none', color: '#fff', borderRadius: '999px',
