@@ -40,15 +40,14 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
 
   return (
     <div className="w-full space-y-6">
-      {/* Formulario corregido con estructura robusta */}
       <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm w-full">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Briefcase className="w-5 h-5 text-indigo-600" />
           Asignar Cátedra a Maestro
         </h3>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center w-full">
-          <div className="w-full">
-            <label className="block text-xs font-bold text-gray-700 mb-1">Maestro</label>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 items-end">
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">Maestro</label>
             <select
               value={form.maestroId}
               onChange={e => setForm({ ...form, maestroId: e.target.value })}
@@ -60,8 +59,8 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
             </select>
           </div>
 
-          <div className="w-full">
-            <label className="block text-xs font-bold text-gray-700 mb-1">Materia / Asignatura</label>
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">Materia / Asignatura</label>
             <input
               type="text"
               placeholder="Ej. Programación Web"
@@ -72,8 +71,8 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
             />
           </div>
 
-          <div className="w-full">
-            <label className="block text-xs font-bold text-gray-700 mb-1">Grupo</label>
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">Grupo</label>
             <select
               value={form.grupo}
               onChange={e => setForm({ ...form, grupo: e.target.value })}
@@ -85,8 +84,7 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
             </select>
           </div>
 
-          <div className="w-full">
-            <label className="block text-xs font-bold text-transparent mb-1 select-none">Acción</label>
+          <div>
             <button
               type="submit"
               className="w-full h-11 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center"
@@ -97,14 +95,13 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
         </form>
       </div>
 
-      {/* Tabla de Control */}
       <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden w-full">
         <div className="p-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
           <h3 className="font-bold text-gray-900">Control de Asignaciones Institucionales</h3>
           <span className="text-xs font-semibold bg-gray-200 text-gray-700 px-2.5 py-1 rounded-md">{asignaciones.length} Activas</span>
         </div>
-        <div className="overflow-x-auto w-full">
-          <table className="w-full text-left text-sm min-w-[600px]">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
             <thead className="bg-white text-gray-400 font-bold uppercase text-xs border-b border-gray-200">
               <tr>
                 <th className="p-4">Docente Titular</th>
@@ -227,7 +224,7 @@ const SistemaEscolar = () => {
   const currentMenus = currentUser.role === 'admin' ? adminMenus : maestroMenus;
 
   return (
-    <div className="min-h-screen w-full bg-slate-50 flex flex-row relative overflow-x-hidden m-0 p-0">
+    <div className="min-h-screen bg-slate-50 flex m-0 p-0">
       {/* SIDEBAR */}
       <aside
         className={`fixed top-0 left-0 h-full z-40 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'
@@ -282,12 +279,12 @@ const SistemaEscolar = () => {
         </div>
       </aside>
 
-      {/* CONTENIDO PRINCIPAL */}
+      {/* CONTENEDOR PRINCIPAL DERECHO */}
       <div
-        className={`flex-1 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-64' : 'ml-20'
-          } w-full`}
+        className={`flex-1 min-h-screen transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-64' : 'ml-20'
+          }`}
       >
-        <header className="h-16 bg-white border-b border-gray-200 sticky top-0 z-30 flex items-center justify-between px-6 w-full shrink-0">
+        <header className="h-16 bg-white border-b border-gray-200 sticky top-0 z-30 flex items-center justify-between px-6 shrink-0">
           <h1 className="text-xl font-extrabold text-gray-900 capitalize tracking-tight flex items-center gap-2">
             {currentMenus.find(m => m.id === activeTab)?.label || activeTab}
           </h1>
@@ -310,7 +307,7 @@ const SistemaEscolar = () => {
           </div>
         </header>
 
-        <main className="flex-1 p-6 md:p-8 w-full box-border">
+        <main className="p-6 md:p-8 pt-8 overflow-x-hidden">
           {currentUser.role === 'admin' && (
             <div className="space-y-6 w-full">
               {activeTab === 'dashboard' && (
@@ -339,12 +336,12 @@ const SistemaEscolar = () => {
             </div>
           )}
 
-          ({currentUser.role === 'maestro' && (
+          {currentUser.role === 'maestro' && (
             <MaestroResumenView
               asignacionesProfesor={asignaciones.filter(a => a.maestroId === currentUser.id)}
               maestroNombre={currentUser.nombre}
             />
-          )})
+          )}
         </main>
       </div>
     </div>
