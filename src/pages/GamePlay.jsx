@@ -220,18 +220,13 @@ const LevelSelectorModal = ({ levels, currentIdx, onPick, onClose }) => (
               transition: 'all 0.2s ease'
             }}
           >
-            <span style={{ fontSize: '1.5rem' }}>Nivel {idx + 1}</span>
-            <p style={{ fontSize: '0.95rem', margin: 0, fontWeight: 700 }}>
-            {puzzleData.hasNextLevel === false || (puzzleData.hasNextLevel === undefined && currentLevelIndex === levels.length - 1) ? '¡Completaste todo el juego!' : '¡Desbloqueaste el siguiente nivel!'}
-          </p>
-          <button
-            onClick={() => {
-              if (puzzleData.onNextLevel && puzzleData.hasNextLevel) {
-                puzzleData.onNextLevel();
-              } else {
-                goToNextLevel();
-              }
-            }}
+            <span style={{ fontSize: '1.1rem' }}>Nivel</span>
+            <span style={{ fontSize: '1.5rem', fontWeight: 900 }}>{idx + 1}</span>
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={onClose}
         style={{
           marginTop: '1.5rem', width: '100%', padding: '0.75rem',
           background: '#FF6347', border: 'none', color: '#fff', borderRadius: '999px',
