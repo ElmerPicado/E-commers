@@ -1,7 +1,16 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
-import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, LogIn } from 'lucide-react';
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  ArrowLeft,
+  LogIn,
+  AlertCircle
+} from 'lucide-react';
 
 const MaestrosLogin = () => {
   const navigate = useNavigate();
@@ -9,86 +18,79 @@ const MaestrosLogin = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg(null);
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password,
+        email: email.trim(),
+        password: password,
       });
 
       if (error) throw error;
 
-      // Verificar que es maestro
-      const { data: perfil, error: perfilError } = await supabase
-        .from('maestro_users')
-        .select('role, activo')
-        .eq('id', data.user.id)
-        .single();
-
-      if (perfilError || !perfil) {
-        await supabase.auth.signOut();
-        throw new Error('No tienes acceso a la plataforma de maestros');
-      }
-
-      if (!perfil.activo) {
-        await supabase.auth.signOut();
-        throw new Error('Tu cuenta está desactivada. Contacta al administrador');
-      }
-
-      if (!['maestro', 'maestro_lider', 'admin_maestros'].includes(perfil.role)) {
-        await supabase.auth.signOut();
-        throw new Error('Rol no autorizado');
-      }
-
-      setTimeout(() => {
-        navigate('/maestros');
-      }, 800);
+      navigate('/maestros/dashboard');
     } catch (err) {
-      alert(err.message);
+      setErrorMsg(
+        err instanceof Error
+          ? err.message
+          : 'Credenciales inválidas. Verifica tu correo y contraseña.'
+      );
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-between p-4 relative overflow-hidden">
-      {/* Glow de fondo */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden font-sans">
+      {/* Círculos decorativos de luz en el fondo */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      {/* Header simple con botón volver */}
-      <header className="max-w-7xl mx-auto w-full pt-4 z-10">
+      {/* Header con botón para volver */}
+      <header className="max-w-6xl mx-auto w-full pt-2 z-10">
         <button
           onClick={() => navigate('/ministerio/ninos')}
-          className="text-slate-400 hover:text-white text-sm font-medium inline-flex items-center gap-2 transition"
+          className="text-slate-400 hover:text-white text-sm font-semibold inline-flex items-center gap-2 transition-all duration-200 bg-slate-900/60 border border-slate-800 px-4 py-2 rounded-xl hover:bg-slate-800"
         >
           <ArrowLeft className="w-4 h-4" />
-          Volver a Niños
+          <span>Volver a Niños</span>
         </button>
       </header>
 
-      {/* Card Formulario */}
-      <main className="flex-1 flex items-center justify-center py-12 z-10">
-        <div className="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl">
+      {/* Tarjeta de Formulario Principal */}
+      <main className="flex-1 flex items-center justify-center py-10 z-10">
+        <div className="w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl relative">
           
+          {/* Encabezado */}
           <div className="text-center mb-8">
-            <div className="w-14 h-14 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
-              <ShieldCheck className="w-7 h-7" />
+            <div className="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20 border border-purple-400/30">
+              <ShieldCheck className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">
+            <h1 className="text-3xl font-black text-white tracking-tight">
               IMR4 Maestros
             </h1>
-            <p className="text-sm text-slate-400 mt-1">
-              Plataforma Educativa · Área de Maestras
+            <p className="text-sm font-medium text-slate-400 mt-1">
+              Plataforma Educativa · Área Docente
             </p>
           </div>
 
+          {/* Formulario */}
           <form onSubmit={handleLogin} className="space-y-5">
+            {errorMsg && (
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2.5">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
+
             {/* Campo Correo */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                 Correo Electrónico
               </label>
               <div className="relative">
@@ -98,7 +100,7 @@ const MaestrosLogin = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="maestra@imr4.com"
-                  className="w-full pl-11 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-sm"
+                  className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
                   required
                 />
               </div>
@@ -106,7 +108,7 @@ const MaestrosLogin = () => {
 
             {/* Campo Contraseña */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                 Contraseña
               </label>
               <div className="relative">
@@ -116,13 +118,13 @@ const MaestrosLogin = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-11 py-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-sm"
+                  className="w-full pl-11 pr-11 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -133,27 +135,30 @@ const MaestrosLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl shadow-lg shadow-purple-600/25 transition flex items-center justify-center gap-2 text-sm disabled:opacity-50 mt-2"
+              className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 text-sm disabled:opacity-50 border-b-2 border-indigo-800"
             >
               {loading ? (
-                <span>Ingresando...</span>
+                <div className="flex items-center gap-2">
+                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                  <span>Verificando...</span>
+                </div>
               ) : (
                 <>
-                  <LogIn className="w-4 h-4" />
+                  <LogIn className="w-4 h-4 stroke-[2.5]" />
                   <span>Acceder a la Plataforma</span>
                 </>
               )}
             </button>
           </form>
 
-          <p className="text-center text-xs text-slate-500 mt-6">
-            Acceso exclusivo para equipo docente autorizado.
+          <p className="text-center text-xs font-medium text-slate-500 mt-6">
+            Acceso exclusivo para el equipo docente autorizado.
           </p>
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="text-center py-4 text-xs text-slate-600 z-10">
+      {/* Pie de página */}
+      <footer className="text-center py-2 text-xs font-medium text-slate-600 z-10">
         IMR4 · Plataforma Educativa
       </footer>
     </div>
