@@ -159,53 +159,18 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        background: 'rgba(0,0,0,0.7)',
-        backdropFilter: 'blur(4px)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.5rem',
-        zIndex: 10000,
-        animation: 'fadeIn 0.2s ease-out'
-      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={onClose}
+      style={{ animation: 'fadeIn 0.2s ease-out' }}
     >
       <div
-        style={{
-          background: '#fff',
-          borderRadius: '2rem',
-          padding: '2.5rem 2rem',
-          maxWidth: '420px',
-          width: '100%',
-          maxHeight: '90vh',
-          overflowY: 'auto',
-          boxShadow: '0 25px 50px rgba(0,0,0,0.2)',
-          position: 'relative',
-          animation: 'slideUp 0.3s ease-out'
-        }}
+        className="w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-3xl p-6 bg-white shadow-2xl relative"
+        style={{ animation: 'slideUp 0.3s ease-out' }}
         onClick={e => e.stopPropagation()}
       >
         <button
           onClick={onClose}
-          style={{
-            position: 'absolute',
-            top: '1rem',
-            right: '1rem',
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            background: '#f0f0f0',
-            border: 'none',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '1.5rem',
-            color: '#666'
-          }}
+          className="absolute top-4 right-4 w-10 h-10 rounded-full bg-slate-100 border-none cursor-pointer flex items-center justify-center text-slate-500 hover:bg-slate-200 transition"
         >
           <X size={24} />
         </button>

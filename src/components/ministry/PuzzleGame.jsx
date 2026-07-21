@@ -324,7 +324,7 @@ const PuzzleGame = ({ puzzleData }) => {
       </div>
 
       {/* Jigsaw Solver Board */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '100%', maxWidth: '400px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', width: '100%', maxWidth: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', fontSize: '0.85rem', color: '#666', fontWeight: 700, padding: '0 0.5rem' }}>
           <span>🧩 Movimientos: {moves}</span>
           <span style={{ color: isPuzzleSolved ? '#228B22' : '#e67e22', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
@@ -336,16 +336,20 @@ const PuzzleGame = ({ puzzleData }) => {
         <div style={{
           display: 'grid',
           gridTemplateColumns: `repeat(${gridSize}, 1fr)`,
-          gap: '4px',
+          gap: '3px',
           width: '100%',
           aspectRatio: '1 / 1',
+          maxWidth: '340px',
           background: '#4B0082',
-          padding: '6px',
-          borderRadius: '1.5rem',
-          boxShadow: '0 10px 25px rgba(75, 0, 130, 0.25)',
+          padding: '4px',
+          borderRadius: '1.25rem',
+          boxShadow: '0 8px 20px rgba(75, 0, 130, 0.25)',
           opacity: imageLoaded ? 1 : 0.4,
           transition: 'all 0.3s ease',
-          border: isPuzzleSolved ? '5px solid #32CD32' : '5px solid #FFD700'
+          border: isPuzzleSolved ? '4px solid #32CD32' : '4px solid #FFD700',
+          touchAction: 'none',
+          userSelect: 'none',
+          '-webkit-user-select': 'none'
         }}>
           {pieces.map((pieceIndex, gridIndex) => {
             const correctRow = Math.floor(pieceIndex / gridSize);
@@ -390,16 +394,16 @@ const PuzzleGame = ({ puzzleData }) => {
       {/* Word Guessing Board */}
       <div style={{
         width: '100%',
-        maxWidth: '400px',
+        maxWidth: '340px',
         background: '#FFF',
-        padding: '1.25rem',
-        borderRadius: '1.5rem',
-        boxShadow: '0 8px 20px rgba(0,0,0,0.08)',
+        padding: '1rem',
+        borderRadius: '1.25rem',
+        boxShadow: '0 6px 16px rgba(0,0,0,0.08)',
         border: '3px solid #1E90FF',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '1rem'
+        gap: '0.75rem'
       }}>
         <div style={{ textAlign: 'center' }}>
           <h4 style={{ margin: 0, color: '#1E90FF', fontSize: '1.1rem', fontWeight: 800 }}>🤔 ¿Qué historia bíblica es?</h4>
@@ -524,17 +528,17 @@ const PuzzleGame = ({ puzzleData }) => {
         <div style={{
           textAlign: 'center',
           background: 'linear-gradient(135deg, #32CD32, #228B22)',
-          padding: '1.5rem',
-          borderRadius: '1.5rem',
-          boxShadow: '0 8px 25px rgba(34, 139, 34, 0.25)',
+          padding: '1.25rem',
+          borderRadius: '1.25rem',
+          boxShadow: '0 6px 20px rgba(34, 139, 34, 0.25)',
           animation: 'bounceIn 0.4s ease-out',
           width: '100%',
-          maxWidth: '400px',
+          maxWidth: '340px',
           color: '#FFF',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          gap: '0.75rem'
+          gap: '0.5rem'
         }}>
           <Sparkles size={36} style={{ color: '#FFD700', animation: 'spin 4s linear infinite' }} />
           <h4 style={{ fontSize: '1.6rem', fontWeight: 900, margin: 0, textShadow: '1px 1px 2px rgba(0,0,0,0.2)' }}>

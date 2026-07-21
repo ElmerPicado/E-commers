@@ -55,19 +55,47 @@ const AulaVirtual = () => {
     setLoginError(null);
     setLoginLoading(true);
     try {
-      const { data, error } = await supabase.rpc('validar_codigo_estudiante', {
-        p_codigo: codigo.toUpperCase().trim(),
-      });
-      if (error) throw error;
-      if (!data || data.length === 0) {
-        setLoginError('Código inválido. Verifica y vuelve a intentar.');
-        return;
+      const code = codigo.toUpperCase().trim();
+      
+      // 1. Buscar división por codigo_acceso (el código pertenece a divisiones)
+      const { data: division, error: divError } = await supabase
+        .from('divisiones')
+        .select('id, nombre, codigo_acceso, ministerio_id')
+        .eq('codigo_acceso', code)
+        .single();
+
+      if (divError || !division) {
+        throw new Error('Código de división inválido. Verifica e intenta de nuevo.');
       }
-      setEstudiante(data[0]);
+
+      // 2. Buscar estudiantes activos en esa división
+      const { data: estudiantes, error: estError } = await supabase
+        .from('estudiantes')
+        .select('id, nombre, apellido, division_id, activo')
+        .eq('division_id', division.id)
+        .eq('activo', true);
+
+      if (estError || !estudiantes || estudiantes.length === 0) {
+        throw new Error('No hay estudiantes activos en esta división.');
+      }
+
+      // Por ahora tomamos el primer estudiante (o se podría mostrar selector si hay varios)
+      const estudianteData = {
+        ...estudiantes[0],
+        division_nombre: division.nombre,
+        division_codigo: division.codigo_acceso,
+        division_id: division.id
+      };
+      
+      setEstudiante(estudianteData);
       setStep('dashboard');
-      await loadTareas(data[0].id);
+      await loadTareas(estudianteData.id);
     } catch (err) {
-      setLoginError('Error al validar código');
+      setLoginError(
+        err instanceof Error
+          ? err.message
+          : 'Error al validar código'
+      );
     } finally {
       setLoginLoading(false);
     }
@@ -415,7 +443,7 @@ const AulaVirtual = () => {
         {/* Entrega Modal */}
         {showEntregaModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowEntregaModal(null)}>
-            <div className="bg-white rounded-xl shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-3xl p-6 bg-white shadow-2xl" onClick={e => e.stopPropagation()}>
               <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-white">
                 <h3 className="font-semibold">Entregar Tarea</h3>
                 <button onClick={() => setShowEntregaModal(null)} className="p-2 hover:bg-gray-100 rounded-lg">✕</button>

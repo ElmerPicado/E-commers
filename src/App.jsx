@@ -96,11 +96,15 @@ import './App.css';
 const LayoutWrapper = () => {
   const location = useLocation();
   const isDevocionalWritePage = location.pathname === '/devocional';
+  // Rutas que requieren layout de pantalla completa (sin Navbar/Footer global)
+  const isStandaloneRoute =
+    location.pathname.startsWith('/maestros') ||
+    location.pathname.startsWith('/aula');
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <DynamicHead />
-      {!isDevocionalWritePage && <Navbar />}
+      {!isDevocionalWritePage && !isStandaloneRoute && <Navbar />}
       <main style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -131,7 +135,7 @@ const LayoutWrapper = () => {
           <Route path="/admin" element={<ProtectedAdminRoute />} />
         </Routes>
       </main>
-      {!isDevocionalWritePage && <Footer />}
+      {!isDevocionalWritePage && !isStandaloneRoute && <Footer />}
     </div>
   );
 };

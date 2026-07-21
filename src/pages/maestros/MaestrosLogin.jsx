@@ -9,13 +9,17 @@ import {
   ShieldCheck,
   ArrowLeft,
   LogIn,
-  AlertCircle
+  AlertCircle,
+  User,
+  Key
 } from 'lucide-react';
 
 const MaestrosLogin = () => {
   const navigate = useNavigate();
+  const [loginMode, setLoginMode] = useState('email'); 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState(null);
@@ -26,19 +30,37 @@ const MaestrosLogin = () => {
     setErrorMsg(null);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password: password,
-      });
+      if (loginMode === 'email') {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password: password,
+        });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      navigate('/maestros/dashboard');
+        if (data.user) {
+          navigate('/maestros/dashboard');
+        }
+      } else {
+        const { data, error } = await supabase
+          .from('admin_users')
+          .select('id, username, role')
+          .eq('username', username.trim())
+          .eq('password', password) 
+          .single();
+
+        if (error || !data) {
+          throw new Error('Usuario o contraseña incorrectos');
+        }
+
+        sessionStorage.setItem('admin_user', JSON.stringify(data));
+        navigate('/admin');
+      }
     } catch (err) {
       setErrorMsg(
         err instanceof Error
           ? err.message
-          : 'Credenciales inválidas. Verifica tu correo y contraseña.'
+          : 'Credenciales inválidas. Verifica tus datos.'
       );
     } finally {
       setLoading(false);
@@ -47,11 +69,9 @@ const MaestrosLogin = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden font-sans">
-      {/* Círculos decorativos de luz en el fondo */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-10 right-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
-      {/* Header con botón para volver */}
       <header className="max-w-6xl mx-auto w-full pt-2 z-10">
         <button
           onClick={() => navigate('/ministerio/ninos')}
@@ -62,11 +82,9 @@ const MaestrosLogin = () => {
         </button>
       </header>
 
-      {/* Tarjeta de Formulario Principal */}
       <main className="flex-1 flex items-center justify-center py-10 z-10">
         <div className="w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl relative">
           
-          {/* Encabezado */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20 border border-purple-400/30">
               <ShieldCheck className="w-8 h-8" />
@@ -79,7 +97,35 @@ const MaestrosLogin = () => {
             </p>
           </div>
 
-          {/* Formulario */}
+          <div className="mb-6">
+            <button
+              onClick={() => setLoginMode('email')}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                loginMode === 'email'
+                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                  : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <Mail className="w-4 h-4" />
+                <span>Email / Supabase Auth</span>
+              </div>
+            </button>
+            <button
+              onClick={() => setLoginMode('username')}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${
+                loginMode === 'username'
+                  ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30'
+                  : 'bg-slate-800 text-slate-400 hover:text-slate-200 hover:bg-slate-700'
+              }`}
+            >
+              <div className="flex items-center gap-1.5">
+                <User className="w-4 h-4" />
+                <span>Usuario / Admin Local</span>
+              </div>
+            </button>
+          </div>
+
           <form onSubmit={handleLogin} className="space-y-5">
             {errorMsg && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2.5">
@@ -88,50 +134,94 @@ const MaestrosLogin = () => {
               </div>
             )}
 
-            {/* Campo Correo */}
-            <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Correo Electrónico
-              </label>
-              <div className="relative">
-                <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="maestra@imr4.com"
-                  className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
-                  required
-                />
-              </div>
-            </div>
+            {loginMode === 'email' ? (
+              <>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    Correo Electrónico
+                  </label>
+                  <div className="relative">
+                    <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="maestra@imr4.com"
+                      className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                      required
+                    />
+                  </div>
+                </div>
 
-            {/* Campo Contraseña */}
-            <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
-                Contraseña
-              </label>
-              <div className="relative">
-                <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full pl-11 pr-11 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
-                >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-            </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    Contraseña
+                  </label>
+                  <div className="relative">
+                    <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-11 pr-11 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    Nombre de Usuario
+                  </label>
+                  <div className="relative">
+                    <User className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="admin"
+                      className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                      required
+                    />
+                  </div>
+                </div>
 
-            {/* Botón Acceder */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+                    Contraseña
+                  </label>
+                  <div className="relative">
+                    <Key className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full pl-11 pr-11 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                      required
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+
             <button
               type="submit"
               disabled={loading}
@@ -139,7 +229,10 @@ const MaestrosLogin = () => {
             >
               {loading ? (
                 <div className="flex items-center gap-2">
-                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
                   <span>Verificando...</span>
                 </div>
               ) : (
@@ -157,7 +250,6 @@ const MaestrosLogin = () => {
         </div>
       </main>
 
-      {/* Pie de página */}
       <footer className="text-center py-2 text-xs font-medium text-slate-600 z-10">
         IMR4 · Plataforma Educativa
       </footer>
