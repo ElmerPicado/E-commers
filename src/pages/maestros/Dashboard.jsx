@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import {
-  Users, BookOpen, Calendar, FileText, CheckSquare,
+  Users, BookOpen, Calendar, CheckSquare,
   Plus, Search, Trash2, ChevronRight, CheckCircle,
-  Clock, Upload, ExternalLink, X, FolderOpen, Menu,
-  Bell, Sparkles, Tag
+  Clock, Menu, Bell, Shield, User, Briefcase, LayoutDashboard,
+  LogOut, UserCheck
 } from 'lucide-react';
 
 // ==========================================
 // COMPONENTES REUTILIZABLES
 // ==========================================
 
-const StatCard = ({ title, value, icon: Icon, change, trend, color = 'blue' }) => {
+const StatCard = ({ title, value, icon: Icon, color = 'blue' }) => {
   const colorMap = {
     blue: 'bg-blue-50 text-blue-600 border-blue-200',
     green: 'bg-emerald-50 text-emerald-600 border-emerald-200',
@@ -24,12 +24,6 @@ const StatCard = ({ title, value, icon: Icon, change, trend, color = 'blue' }) =
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{title}</p>
           <p className="text-3xl font-extrabold text-gray-900 mt-2">{value}</p>
-          {change && (
-            <p className={`text-xs font-semibold mt-2 flex items-center gap-1 ${trend === 'up' ? 'text-emerald-600' : 'text-rose-600'}`}>
-              <span>{trend === 'up' ? '↑' : '↓'}</span>
-              <span>{change} vs mes anterior</span>
-            </p>
-          )}
         </div>
         <div className={`p-3.5 rounded-2xl border ${colorMap[color]}`}>
           <Icon className="w-6 h-6" />
@@ -39,30 +33,100 @@ const StatCard = ({ title, value, icon: Icon, change, trend, color = 'blue' }) =
   );
 };
 
-const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
-  if (!isOpen) return null;
+// ==========================================
+// VISTAS DEL ADMINISTRADOR
+// ==========================================
 
-  const sizeMap = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
+const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) => {
+  const [form, setForm] = useState({ maestroId: '', grupo: '', materia: '' });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (form.maestroId && form.grupo && form.materia) {
+      onAsignar(form);
+      setForm({ maestroId: '', grupo: '', materia: '' });
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className={`bg-white rounded-2xl shadow-2xl w-full ${sizeMap[size]} transform transition-all border border-gray-100`}>
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
-          <h3 className="text-lg font-bold text-gray-900">{title}</h3>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
-          >
-            <X className="w-5 h-5" />
+    <div className="space-y-6 w-full">
+      {/* Formulario de Asignación */}
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
+        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <Briefcase className="w-5 h-5 text-indigo-600" />
+          Asignar Cátedra a Maestro
+        </h3>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">Maestro</label>
+            <select
+              value={form.maestroId} onChange={e => setForm({ ...form, maestroId: e.target.value })}
+              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:border-indigo-500" required
+            >
+              <option value="">Seleccionar Maestro...</option>
+              {maestros.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">Materia / Asignatura</label>
+            <input
+              type="text" placeholder="Ej. Programación Web" value={form.materia} onChange={e => setForm({ ...form, materia: e.target.value })}
+              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:border-indigo-500" required
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-gray-700 mb-1.5">Grupo</label>
+            <select
+              value={form.grupo} onChange={e => setForm({ ...form, grupo: e.target.value })}
+              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:border-indigo-500" required
+            >
+              <option value="">Seleccionar Grupo...</option>
+              {grupos.map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+          </div>
+          <button type="submit" className="w-full bg-indigo-600 text-white p-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm shadow-indigo-100">
+            Guardar Asignación
           </button>
+        </form>
+      </div>
+
+      {/* Tabla de Asignaciones */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden w-full">
+        <div className="p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+          <h3 className="font-bold text-gray-900">Control de Asignaciones Institucionales</h3>
+          <span className="text-xs font-semibold bg-gray-200 text-gray-700 px-2.5 py-1 rounded-md">{asignaciones.length} Activas</span>
         </div>
-        <div className="p-6 max-h-[80vh] overflow-y-auto">
-          {children}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-white text-gray-400 font-bold uppercase text-xs border-b border-gray-100">
+              <tr>
+                <th className="p-4">Docente Titular</th>
+                <th className="p-4">Materia</th>
+                <th className="p-4">Grupo</th>
+                <th className="p-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {asignaciones.map((asig, idx) => {
+                const maestro = maestros.find(m => m.id === asig.maestroId);
+                return (
+                  <tr key={idx} className="hover:bg-gray-50/80 transition-colors border-b border-gray-50">
+                    <td className="p-4 font-semibold text-gray-900 flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">
+                        {maestro?.nombre?.charAt(0) || 'D'}
+                      </div>
+                      {maestro?.nombre}
+                    </td>
+                    <td className="p-4 text-gray-600 font-medium">{asig.materia}</td>
+                    <td className="p-4"><span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold text-xs">{asig.grupo}</span></td>
+                    <td className="p-4 text-right">
+                      <button className="text-gray-400 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition-colors"><Trash2 className="w-4 h-4" /></button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
@@ -70,353 +134,141 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
 };
 
 // ==========================================
-// VISTAS PRINCIPALES
+// VISTAS DEL MAESTRO
 // ==========================================
 
-const ResumenView = ({ onNavigate }) => {
-  return (
-    <div className="space-y-8 w-full">
-      {/* Banner Principal */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
-        <div>
-          <h2 className="text-2xl font-bold flex items-center gap-2">
-            ¡Hola, Prof. García! 👋
-          </h2>
-          <p className="text-blue-100 text-sm mt-1">Aquí tienes el resumen de tu actividad académica para hoy.</p>
-        </div>
-        <button
-          onClick={() => onNavigate('biblioteca')}
-          className="bg-white text-indigo-600 font-semibold px-4 py-2.5 rounded-xl text-sm hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-2 shrink-0"
-        >
-          <Sparkles className="w-4 h-4 text-indigo-600" />
-          Gestionar Materiales
-        </button>
+const MaestroResumenView = ({ asignacionesProfesor, maestroNombre }) => (
+  <div className="space-y-6 w-full">
+    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
+      <div>
+        <h2 className="text-2xl font-bold">¡Bienvenido, {maestroNombre}! 👋</h2>
+        <p className="text-blue-100 text-sm mt-1">Este es el panel con las asignaturas e imprecisiones asignadas por la administración.</p>
       </div>
+    </div>
 
-      {/* Grid de Tarjetas de Estadísticas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full">
-        <StatCard title="Estudiantes Activos" value="128" icon={Users} change="12%" trend="up" color="blue" />
-        <StatCard title="Clases Programadas" value="24" icon={Calendar} change="4%" trend="up" color="green" />
-        <StatCard title="Materiales Subidos" value="86" icon={FolderOpen} change="8%" trend="up" color="purple" />
-        <StatCard title="Tareas Pendientes" value="15" icon={CheckSquare} change="2%" trend="down" color="amber" />
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <StatCard title="Mis Grupos Asignados" value={asignacionesProfesor.length} icon={Users} color="blue" />
+      <StatCard title="Clases Agendadas" value="4" icon={Calendar} color="green" />
+      <StatCard title="Revisiones Pendientes" value="8" icon={CheckSquare} color="amber" />
+    </div>
 
-      {/* Contenido en 2 Columnas */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h3 className="text-lg font-bold text-gray-900">Próximas Clases</h3>
-              <p className="text-xs text-gray-500 mt-0.5">Sesiones agendadas para las próximas horas</p>
+    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
+      <h3 className="text-lg font-bold text-gray-900 mb-4">Cátedras Asignadas a Tu Perfil</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {asignacionesProfesor.map((clase, idx) => (
+          <div key={idx} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all">
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-indigo-100/70 text-indigo-600 rounded-xl shrink-0">
+                <BookOpen className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="font-bold text-gray-900">{clase.materia}</p>
+                <p className="text-xs text-gray-500 mt-0.5">Grupo {clase.grupo}</p>
+              </div>
             </div>
-            <button onClick={() => onNavigate('clases')} className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
-              Ver todas <ChevronRight className="w-4 h-4" />
-            </button>
+            <button className="text-sm font-bold text-indigo-600 hover:underline">Acceder</button>
           </div>
-          <div className="space-y-3">
-            {[1, 2, 3].map((_, idx) => (
-              <div key={idx} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-blue-200 hover:bg-blue-50/30 transition-all">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100/70 text-blue-600 rounded-xl shrink-0">
-                    <Calendar className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-900 text-sm">Matemáticas Avanzadas</p>
-                    <p className="text-xs text-gray-500 mt-0.5">Grupo 4A • 10:00 AM - 11:30 AM</p>
-                  </div>
-                </div>
-                <span className="text-xs px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-full font-semibold shrink-0">
-                  En vivo
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
-          <h3 className="text-lg font-bold text-gray-900 mb-1">Actividad Reciente</h3>
-          <p className="text-xs text-gray-500 mb-5">Notificaciones del sistema</p>
-          <div className="space-y-4">
-            {[
-              { text: 'Entrega de tarea recibida', time: 'Hace 10 min', icon: CheckCircle, color: 'text-emerald-500 bg-emerald-50' },
-              { text: 'Nuevo material publicado', time: 'Hace 1 hora', icon: Upload, color: 'text-blue-500 bg-blue-50' },
-              { text: 'Recordatorio de clase', time: 'Hace 3 horas', icon: Clock, color: 'text-amber-500 bg-amber-50' },
-            ].map((item, idx) => (
-              <div key={idx} className="flex items-start gap-3.5 text-sm p-2.5 rounded-xl hover:bg-gray-50 transition-colors">
-                <div className={`p-2 rounded-xl shrink-0 ${item.color}`}>
-                  <item.icon className="w-4 h-4" />
-                </div>
-                <div>
-                  <p className="text-gray-900 font-semibold text-xs">{item.text}</p>
-                  <p className="text-[11px] text-gray-400 mt-0.5">{item.time}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+        ))}
+        {asignacionesProfesor.length === 0 && (
+          <p className="text-gray-400 text-sm col-span-2 text-center py-6 border border-dashed rounded-xl">
+            Aún no tienes asignaturas registradas por el Administrador.
+          </p>
+        )}
       </div>
-    </div>
-  );
-};
-
-const MaterialCard = ({ material, onDelete }) => (
-  <div className="bg-white border border-gray-200 hover:border-indigo-300 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group w-full">
-    <div>
-      <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors shrink-0">
-          {material.tipo === 'enlace' ? <ExternalLink className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
-        </div>
-        <button
-          onClick={() => onDelete(material.id)}
-          className="text-gray-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition-colors"
-          title="Eliminar material"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
-      </div>
-
-      <h4 className="font-bold text-gray-900 text-base group-hover:text-indigo-600 transition-colors">
-        {material.titulo}
-      </h4>
-      <p className="text-xs text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">
-        {material.descripcion || 'Sin descripción disponible.'}
-      </p>
-    </div>
-
-    <div className="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between">
-      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg uppercase tracking-wider">
-        <Tag className="w-3 h-3" />
-        {material.tipo || 'ARCHIVO'}
-      </span>
-      <button className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">
-        Ver detalles <ChevronRight className="w-3.5 h-3.5" />
-      </button>
     </div>
   </div>
 );
 
-const BibliotecaView = ({ materiales = [], onDelete }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const filtered = materiales.filter(m =>
-    m.titulo?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    m.descripcion?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  return (
-    <div className="space-y-6 w-full">
-      {/* Buscador */}
-      <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between w-full">
-        <div className="relative w-full sm:w-96">
-          <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar por título o descripción..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
-          />
-        </div>
-        <div className="text-xs text-gray-500 font-semibold w-full sm:w-auto text-right">
-          Mostrando <span className="text-gray-900 font-bold">{filtered.length}</span> recurso(s)
-        </div>
-      </div>
-
-      {/* Grid de Materiales */}
-      {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
-          {filtered.map((item) => (
-            <MaterialCard key={item.id} material={item} onDelete={onDelete} />
-          ))}
-        </div>
-      ) : (
-        <div className="bg-white rounded-2xl border border-dashed border-gray-200 text-center py-16 px-4 w-full">
-          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-400">
-            <FolderOpen className="w-8 h-8" />
-          </div>
-          <h3 className="text-base font-bold text-gray-800">No hay materiales cargados</h3>
-          <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
-            Utiliza el botón superior para adjuntar tu primer documento o enlace externo.
-          </p>
-        </div>
-      )}
-    </div>
-  );
-};
-
 // ==========================================
-// FORMULARIOS
+// CONTENEDOR PRINCIPAL
 // ==========================================
 
-const CrearMaterialForm = ({ onSuccess }) => {
-  const [form, setForm] = useState({
-    titulo: '',
-    descripcion: '',
-    tipo: 'archivo',
-    url_externo: '',
-    file: null
+const SistemaEscolar = () => {
+  // Estado principal de sesión: Inicias directamente como ADMIN
+  const [currentUser, setCurrentUser] = useState({
+    id: 'admin-01',
+    nombre: 'Administrador Principal',
+    role: 'admin', // 'admin' o 'maestro'
   });
-  const [loading, setLoading] = useState(false);
-  const [dragActive, setDragActive] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    setTimeout(() => {
-      setLoading(false);
-      if (onSuccess) onSuccess(form);
-    }, 800);
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Título del Material *</label>
-        <input
-          type="text"
-          value={form.titulo}
-          onChange={e => setForm({ ...form, titulo: e.target.value })}
-          placeholder="Ej: Guía de estudio 2026"
-          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
-          required
-        />
-      </div>
-
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Descripción</label>
-        <textarea
-          value={form.descripcion}
-          onChange={e => setForm({ ...form, descripcion: e.target.value })}
-          placeholder="Describe brevemente el contenido..."
-          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
-          rows={3}
-        />
-      </div>
-
-      <div>
-        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Tipo de Recurso</label>
-        <select
-          value={form.tipo}
-          onChange={e => setForm({ ...form, tipo: e.target.value })}
-          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
-        >
-          <option value="archivo">Documento / Archivo (PDF, Word, etc.)</option>
-          <option value="enlace">Enlace Web Externo</option>
-        </select>
-      </div>
-
-      {form.tipo === 'archivo' ? (
-        <div
-          onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
-          onDragLeave={() => setDragActive(false)}
-          onDrop={(e) => { e.preventDefault(); setDragActive(false); if (e.dataTransfer.files[0]) setForm({ ...form, file: e.dataTransfer.files[0] }); }}
-          className={`border-2 border-dashed p-8 rounded-2xl text-center transition-colors cursor-pointer ${dragActive ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-200 hover:border-indigo-300'}`}
-        >
-          <input
-            type="file"
-            onChange={e => setForm({ ...form, file: e.target.files[0] })}
-            className="hidden"
-            id="file-upload"
-          />
-          <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center">
-            <Upload className="w-8 h-8 text-indigo-500 mb-2" />
-            <span className="text-sm font-bold text-indigo-600">
-              {form.file ? form.file.name : 'Selecciona un archivo o arrástralo aquí'}
-            </span>
-            <span className="text-xs text-gray-400 mt-1">Máximo 25MB (PDF, DOCX, PNG)</span>
-          </label>
-        </div>
-      ) : (
-        <div>
-          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">URL Destino *</label>
-          <input
-            type="url"
-            value={form.url_externo}
-            onChange={e => setForm({ ...form, url_externo: e.target.value })}
-            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
-            placeholder="https://ejemplo.com/recurso"
-            required
-          />
-        </div>
-      )}
-
-      <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-        <button
-          type="button"
-          onClick={() => onSuccess && onSuccess(null)}
-          className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors"
-        >
-          Cancelar
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-md shadow-indigo-100 disabled:opacity-50 transition-colors"
-        >
-          {loading ? 'Subiendo...' : 'Publicar Material'}
-        </button>
-      </div>
-    </form>
-  );
-};
-
-// ==========================================
-// COMPONENTE PRINCIPAL (DASHBOARD)
-// ==========================================
-
-const MaestrosDashboard = () => {
-  const [activeTab, setActiveTab] = useState('resumen');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showCreateMaterial, setShowCreateMaterial] = useState(false);
-  const [materiales, setMateriales] = useState([
-    { id: '1', titulo: 'Guía de Álgebra Avanzada', descripcion: 'Ejercicios prácticos para el examen final del período.', tipo: 'archivo' },
-    { id: '2', titulo: 'Documentación Oficial React', descripcion: 'Enlace web para consulta técnica de Hooks y componentes.', tipo: 'enlace' },
+
+  // Datos Institucionales (BD Mock)
+  const [maestros] = useState([
+    { id: 'm1', nombre: 'Prof. García' },
+    { id: 'm2', nombre: 'Profa. Martínez' }
+  ]);
+  const grupos = ['1A', '1B', '2A', '3C', '4A'];
+  const [asignaciones, setAsignaciones] = useState([
+    { maestroId: 'm1', materia: 'Matemáticas Avanzadas', grupo: '4A' },
+    { maestroId: 'm1', materia: 'Física I', grupo: '1A' },
+    { maestroId: 'm2', materia: 'Química Orgánica', grupo: '2A' },
   ]);
 
-  const handleAddMaterial = (newMat) => {
-    if (newMat) {
-      setMateriales(prev => [...prev, { ...newMat, id: Date.now().toString() }]);
-    }
-    setShowCreateMaterial(false);
+  const handleNuevaAsignacion = (nueva) => {
+    setAsignaciones([...asignaciones, nueva]);
   };
 
-  const handleDeleteMaterial = (id) => {
-    setMateriales(prev => prev.filter(m => m.id !== id));
+  // Función de pruebas para simular entrar como el Maestro creado
+  const probarComoMaestro = () => {
+    setCurrentUser({
+      id: 'm1',
+      nombre: 'Prof. García',
+      role: 'maestro'
+    });
+    setActiveTab('dashboard');
   };
 
-  const navItems = [
-    { id: 'resumen', label: 'Resumen', icon: BookOpen },
-    { id: 'biblioteca', label: 'Biblioteca', icon: FolderOpen },
-    { id: 'clases', label: 'Clases', icon: Calendar },
-    { id: 'estudiantes', label: 'Estudiantes', icon: Users },
+  const volverAAdmin = () => {
+    setCurrentUser({
+      id: 'admin-01',
+      nombre: 'Administrador Principal',
+      role: 'admin'
+    });
+    setActiveTab('dashboard');
+  };
+
+  // Definición de Navegación por Perfil
+  const adminMenus = [
+    { id: 'dashboard', label: 'Panel Global', icon: LayoutDashboard },
+    { id: 'asignaciones', label: 'Asignaciones y Grupos', icon: Briefcase },
+    { id: 'maestros', label: 'Lista de Profesores', icon: Users },
   ];
 
+  const maestroMenus = [
+    { id: 'dashboard', label: 'Mi Resumen', icon: LayoutDashboard },
+    { id: 'mis_clases', label: 'Mis Aulas', icon: BookOpen },
+    { id: 'calendario', label: 'Mi Horario', icon: Calendar },
+  ];
+
+  const currentMenus = currentUser.role === 'admin' ? adminMenus : maestroMenus;
+
   return (
-    // CONTENEDOR RAIZ: flex-row y overflow-x-hidden para prevenir barras horiz. indeseadas
     <div className="min-h-screen w-full bg-slate-50 flex flex-row relative overflow-x-hidden antialiased">
 
-      {/* SIDEBAR FIXED */}
+      {/* SIDEBAR */}
       <aside
         className={`fixed top-0 left-0 bottom-0 z-40 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'
           }`}
       >
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100 shrink-0">
           {sidebarOpen && (
-            <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate">
+            <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate flex items-center gap-2">
+              <Shield className="w-5 h-5 text-indigo-600" />
               EduControl
             </span>
           )}
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors mx-auto"
-          >
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 mx-auto transition-colors">
             <Menu className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="p-3 space-y-1.5 flex-1 overflow-y-auto">
-          {navItems.map((item) => (
+        <nav className="p-3 space-y-1.5 flex-1 overflow-y-auto mt-2">
+          <div className={`text-[11px] font-bold text-gray-400 mb-3 px-2 uppercase tracking-wider ${!sidebarOpen && 'hidden'}`}>
+            {currentUser.role === 'admin' ? 'Módulo de Gestión' : 'Área Docente'}
+          </div>
+          {currentMenus.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
@@ -431,41 +283,52 @@ const MaestrosDashboard = () => {
             </button>
           ))}
         </nav>
+
+        {/* BOTÓN MODO PRUEBA DE DOCENTE (Aparece en pie de menú) */}
+        <div className="p-3 border-t border-gray-100 bg-gray-50/50">
+          {currentUser.role === 'admin' ? (
+            <button
+              onClick={probarComoMaestro}
+              className="w-full flex items-center justify-center gap-2 bg-slate-900 text-white p-2.5 rounded-xl text-xs font-bold hover:bg-slate-800 transition-colors shadow-sm"
+              title="Probar vista de un maestro registrado"
+            >
+              <UserCheck className="w-4 h-4" />
+              {sidebarOpen && <span>Probar Cuenta Maestro</span>}
+            </button>
+          ) : (
+            <button
+              onClick={volverAAdmin}
+              className="w-full flex items-center justify-center gap-2 bg-rose-50 text-rose-600 border border-rose-200 p-2.5 rounded-xl text-xs font-bold hover:bg-rose-100 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              {sidebarOpen && <span>Volver a Admin</span>}
+            </button>
+          )}
+        </div>
       </aside>
 
-      {/* ÁREA DERECHA: PADDING DINÁMICO + FLEX-1 + MIN-W-0 */}
-      <div
-        className={`flex-1 w-full min-w-0 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'pl-64' : 'pl-20'
-          }`}
-      >
-        {/* HEADER SUPERIOR */}
-        <header className="h-16 bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-30 flex items-center justify-between px-6 w-full shrink-0">
-          <h1 className="text-xl font-extrabold text-gray-900 capitalize tracking-tight">
-            {activeTab}
+      {/* ÁREA PRINCIPAL DERECHA */}
+      <div className={`flex-1 w-full min-w-0 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'pl-64' : 'pl-20'}`}>
+
+        {/* HEADER SUPERIOR CLEAN */}
+        <header className="h-16 bg-white border-b border-gray-200 sticky top-0 z-30 flex items-center justify-between px-6 w-full shrink-0">
+          <h1 className="text-xl font-extrabold text-gray-900 capitalize tracking-tight flex items-center gap-2">
+            {currentMenus.find(m => m.id === activeTab)?.label || activeTab}
           </h1>
 
           <div className="flex items-center gap-4">
-            {activeTab === 'biblioteca' && (
-              <button
-                onClick={() => setShowCreateMaterial(true)}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-md shadow-indigo-100 transition-all"
-              >
-                <Plus className="w-4 h-4" />
-                Subir Material
-              </button>
-            )}
             <button className="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-100 relative transition-colors">
               <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-indigo-600 rounded-full ring-2 ring-white"></span>
             </button>
 
             <div className="flex items-center gap-3 border-l pl-4 border-gray-200">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
-                P
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shadow-sm text-white ${currentUser.role === 'admin' ? 'bg-slate-900' : 'bg-indigo-600'}`}>
+                {currentUser.role === 'admin' ? 'A' : 'P'}
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-xs font-extrabold text-gray-900">Prof. García</p>
-                <p className="text-[11px] text-gray-400 font-semibold">Docente Titular</p>
+                <p className="text-xs font-extrabold text-gray-900">{currentUser.nombre}</p>
+                <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">{currentUser.role === 'admin' ? 'Administrador' : 'Docente Titular'}</p>
               </div>
             </div>
           </div>
@@ -473,32 +336,62 @@ const MaestrosDashboard = () => {
 
         {/* CONTENIDO PRINCIPAL */}
         <main className="flex-1 p-6 md:p-8 w-full max-w-7xl mx-auto">
-          {activeTab === 'resumen' && <ResumenView onNavigate={setActiveTab} />}
-          {activeTab === 'biblioteca' && <BibliotecaView materiales={materiales} onDelete={handleDeleteMaterial} />}
-          {activeTab === 'clases' && (
-            <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium shadow-sm">
-              Módulo de Clases en construcción.
-            </div>
+
+          {/* PERFIL: ADMINISTRADOR */}
+          {currentUser.role === 'admin' && (
+            <>
+              {activeTab === 'dashboard' && (
+                <div className="space-y-6 w-full">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                    <StatCard title="Total Profesores" value={maestros.length} icon={Users} color="blue" />
+                    <StatCard title="Grupos de la Institución" value={grupos.length} icon={BookOpen} color="green" />
+                    <StatCard title="Asignaciones Activas" value={asignaciones.length} icon={Briefcase} color="purple" />
+                  </div>
+                  <AdminAsignacionesView
+                    asignaciones={asignaciones}
+                    maestros={maestros}
+                    grupos={grupos}
+                    onAsignar={handleNuevaAsignacion}
+                  />
+                </div>
+              )}
+              {activeTab === 'asignaciones' && (
+                <AdminAsignacionesView
+                  asignaciones={asignaciones}
+                  maestros={maestros}
+                  grupos={grupos}
+                  onAsignar={handleNuevaAsignacion}
+                />
+              )}
+              {activeTab === 'maestros' && (
+                <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center text-gray-400 font-medium">
+                  Módulo de Gestión de Profesores (Alta, Baja, Perfil).
+                </div>
+              )}
+            </>
           )}
-          {activeTab === 'estudiantes' && (
-            <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium shadow-sm">
-              Módulo de Estudiantes en construcción.
-            </div>
+
+          {/* PERFIL: MAESTRO */}
+          {currentUser.role === 'maestro' && (
+            <>
+              {activeTab === 'dashboard' && (
+                <MaestroResumenView
+                  asignacionesProfesor={asignaciones.filter(a => a.maestroId === currentUser.id)}
+                  maestroNombre={currentUser.nombre}
+                />
+              )}
+              {activeTab === 'mis_clases' && (
+                <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium">
+                  Aulas virtuales e interacción con los alumnos asignados.
+                </div>
+              )}
+            </>
           )}
+
         </main>
       </div>
-
-      {/* MODAL */}
-      <Modal
-        isOpen={showCreateMaterial}
-        onClose={() => setShowCreateMaterial(false)}
-        title="Agregar Nuevo Material"
-        size="md"
-      >
-        <CrearMaterialForm onSuccess={handleAddMaterial} />
-      </Modal>
     </div>
   );
 };
 
-export default MaestrosDashboard;
+export default SistemaEscolar;
