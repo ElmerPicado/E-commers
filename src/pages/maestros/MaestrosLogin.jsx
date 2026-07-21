@@ -10,8 +10,7 @@ import {
   ArrowLeft,
   LogIn,
   AlertCircle,
-  User,
-  Key
+  User
 } from 'lucide-react';
 
 const MaestrosLogin = () => {
@@ -37,7 +36,6 @@ const MaestrosLogin = () => {
     try {
       let targetEmail = email.trim();
 
-      // Si entra por Nombre de Usuario, buscamos su email cifrado en Supabase
       if (loginMode === 'username') {
         const { data: foundEmail, error: rpcError } = await supabase.rpc(
           'get_email_by_username',
@@ -50,7 +48,6 @@ const MaestrosLogin = () => {
         targetEmail = foundEmail;
       }
 
-      // Autenticación nativa segura en Supabase Auth
       const { data, error: authError } = await supabase.auth.signInWithPassword({
         email: targetEmail,
         password: password,
@@ -64,14 +61,12 @@ const MaestrosLogin = () => {
       }
 
       if (data.user) {
-        // Consultar el perfil del docente para validar permisos
         const { data: profile } = await supabase
           .from('teacher_profiles')
           .select('role, full_name')
           .eq('id', data.user.id)
           .single();
 
-        // Guardar la sesión y redirigir
         sessionStorage.setItem(
           'teacher_session',
           JSON.stringify({
@@ -94,7 +89,7 @@ const MaestrosLogin = () => {
           ? err.message
           : 'Ocurrió un error inesperado al intentar acceder.'
       );
-      setPassword(''); // Limpieza por seguridad
+      setPassword('');
     } finally {
       setLoading(false);
     }
@@ -159,7 +154,7 @@ const MaestrosLogin = () => {
             </button>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5" autoComplete="off">
             {errorMsg && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-all">
                 <AlertCircle className="w-4 h-4 shrink-0" />
@@ -172,14 +167,19 @@ const MaestrosLogin = () => {
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                   Correo Electrónico
                 </label>
-                <div className="relative">
-                  <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <div className="relative flex items-center">
+                  <div className="absolute left-3.5 z-10 pointer-events-none text-slate-500 flex items-center justify-center">
+                    <Mail className="w-5 h-5" />
+                  </div>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="maestra@imr4.com"
-                    className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                    autoComplete="off"
+                    data-1p-ignore
+                    data-lpignore="true"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
                     required
                   />
                 </div>
@@ -189,14 +189,19 @@ const MaestrosLogin = () => {
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                   Nombre de Usuario
                 </label>
-                <div className="relative">
-                  <User className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <div className="relative flex items-center">
+                  <div className="absolute left-3.5 z-10 pointer-events-none text-slate-500 flex items-center justify-center">
+                    <User className="w-5 h-5" />
+                  </div>
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="admin"
-                    className="w-full pl-11 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                    autoComplete="off"
+                    data-1p-ignore
+                    data-lpignore="true"
+                    className="w-full pl-12 pr-4 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
                     required
                   />
                 </div>
@@ -207,20 +212,25 @@ const MaestrosLogin = () => {
               <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                 Contraseña
               </label>
-              <div className="relative">
-                <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <div className="relative flex items-center">
+                <div className="absolute left-3.5 z-10 pointer-events-none text-slate-500 flex items-center justify-center">
+                  <Lock className="w-5 h-5" />
+                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-11 pr-11 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
+                  autoComplete="new-password"
+                  data-1p-ignore
+                  data-lpignore="true"
+                  className="w-full pl-12 pr-12 py-3.5 bg-slate-950/80 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all text-sm font-medium"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 p-1"
+                  className="absolute right-3.5 z-10 text-slate-500 hover:text-slate-300 p-1 flex items-center justify-center"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
