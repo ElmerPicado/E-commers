@@ -3,7 +3,7 @@ import {
   Users, BookOpen, Calendar, FileText, CheckSquare, Settings,
   Plus, Search, Filter, Download, Trash2, Edit3, Eye,
   ChevronRight, AlertCircle, CheckCircle, Clock, Upload,
-  ExternalLink, X, FolderOpen, Menu, Bell, User
+  ExternalLink, X, FolderOpen, Menu, Bell, User, Sparkles, Tag
 } from 'lucide-react';
 
 // ==========================================
@@ -13,24 +13,25 @@ import {
 const StatCard = ({ title, value, icon: Icon, change, trend, color = 'blue' }) => {
   const colorMap = {
     blue: 'bg-blue-50 text-blue-600 border-blue-200',
-    green: 'bg-green-50 text-green-600 border-green-200',
+    green: 'bg-emerald-50 text-emerald-600 border-emerald-200',
     purple: 'bg-purple-50 text-purple-600 border-purple-200',
     amber: 'bg-amber-50 text-amber-600 border-amber-200',
   };
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-200">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{title}</p>
+          <p className="text-3xl font-extrabold text-gray-900 mt-2">{value}</p>
           {change && (
-            <p className={`text-xs font-medium mt-2 ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-              {trend === 'up' ? '↑' : '↓'} {change} vs mes anterior
+            <p className={`text-xs font-semibold mt-2 flex items-center gap-1 ${trend === 'up' ? 'text-emerald-600' : 'text-rose-600'}`}>
+              <span>{trend === 'up' ? '↑' : '↓'}</span>
+              <span>{change} vs mes anterior</span>
             </p>
           )}
         </div>
-        <div className={`p-3 rounded-xl border ${colorMap[color]}`}>
+        <div className={`p-3.5 rounded-2xl border ${colorMap[color]}`}>
           <Icon className="w-6 h-6" />
         </div>
       </div>
@@ -49,13 +50,13 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
-      <div className={`bg-white rounded-xl shadow-xl w-full ${sizeMap[size]} transform transition-all`}>
-        <div className="flex items-center justify-between p-5 border-b border-gray-100">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-gray-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className={`bg-white rounded-2xl shadow-2xl w-full ${sizeMap[size]} transform transition-all border border-gray-100`}>
+        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <h3 className="text-lg font-bold text-gray-900">{title}</h3>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+            className="p-1.5 rounded-xl text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -74,8 +75,25 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
 
 const ResumenView = ({ onNavigate }) => {
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="space-y-8">
+      {/* Header Banner de Bienvenida */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold flex items-center gap-2">
+            ¡Hola, Prof. García! 👋
+          </h2>
+          <p className="text-blue-100 text-sm mt-1">Aquí tienes el resumen de tu actividad académica para hoy.</p>
+        </div>
+        <button
+          onClick={() => onNavigate('biblioteca')}
+          className="bg-white text-indigo-600 font-semibold px-4 py-2.5 rounded-xl text-sm hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-2"
+        >
+          <Sparkles className="w-4 h-4 text-indigo-600" />
+          Gestionar Materiales
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <StatCard title="Estudiantes Activos" value="128" icon={Users} change="12%" trend="up" color="blue" />
         <StatCard title="Clases Programadas" value="24" icon={Calendar} change="4%" trend="up" color="green" />
         <StatCard title="Materiales Subidos" value="86" icon={FolderOpen} change="8%" trend="up" color="purple" />
@@ -83,26 +101,29 @@ const ResumenView = ({ onNavigate }) => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-bold text-gray-900">Próximas Clases</h2>
-            <button onClick={() => onNavigate('clases')} className="text-sm font-medium text-blue-600 hover:underline">
-              Ver todas
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+          <div className="flex items-center justify-between mb-5">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Próximas Clases</h3>
+              <p className="text-xs text-gray-500 mt-0.5">Sesiones agendadas para las próximas horas</p>
+            </div>
+            <button onClick={() => onNavigate('clases')} className="text-sm font-semibold text-blue-600 hover:text-blue-700 flex items-center gap-1">
+              Ver todas <ChevronRight className="w-4 h-4" />
             </button>
           </div>
           <div className="space-y-3">
             {[1, 2, 3].map((_, idx) => (
-              <div key={idx} className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
+              <div key={idx} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-blue-200 hover:bg-blue-50/30 transition-all">
+                <div className="flex items-center gap-4">
+                  <div className="p-3 bg-blue-100/70 text-blue-600 rounded-xl">
                     <Calendar className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="font-semibold text-gray-800 text-sm">Matemáticas Avanzadas</p>
-                    <p className="text-xs text-gray-500">Grupo 4A • 10:00 AM - 11:30 AM</p>
+                    <p className="font-bold text-gray-900 text-sm">Matemáticas Avanzadas</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Grupo 4A • 10:00 AM - 11:30 AM</p>
                   </div>
                 </div>
-                <span className="text-xs px-2.5 py-1 bg-green-100 text-green-700 rounded-full font-medium">
+                <span className="text-xs px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-full font-semibold">
                   En vivo
                 </span>
               </div>
@@ -110,19 +131,22 @@ const ResumenView = ({ onNavigate }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-          <h2 className="text-lg font-bold text-gray-900 mb-4">Actividad Reciente</h2>
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+          <h3 className="text-lg font-bold text-gray-900 mb-1">Actividad Reciente</h3>
+          <p className="text-xs text-gray-500 mb-5">Notificaciones del sistema</p>
           <div className="space-y-4">
             {[
-              { text: 'Entrega de tarea recibida', time: 'Hace 10 min', icon: CheckCircle, color: 'text-green-500' },
-              { text: 'Nuevo material publicado', time: 'Hace 1 hora', icon: Upload, color: 'text-blue-500' },
-              { text: 'Recordatorio de clase', time: 'Hace 3 horas', icon: Clock, color: 'text-amber-500' },
+              { text: 'Entrega de tarea recibida', time: 'Hace 10 min', icon: CheckCircle, color: 'text-emerald-500 bg-emerald-50' },
+              { text: 'Nuevo material publicado', time: 'Hace 1 hora', icon: Upload, color: 'text-blue-500 bg-blue-50' },
+              { text: 'Recordatorio de clase', time: 'Hace 3 horas', icon: Clock, color: 'text-amber-500 bg-amber-50' },
             ].map((item, idx) => (
-              <div key={idx} className="flex items-start gap-3 text-sm">
-                <item.icon className={`w-5 h-5 mt-0.5 ${item.color}`} />
+              <div key={idx} className="flex items-start gap-3.5 text-sm p-2.5 rounded-xl hover:bg-gray-50 transition-colors">
+                <div className={`p-2 rounded-xl ${item.color}`}>
+                  <item.icon className="w-4 h-4" />
+                </div>
                 <div>
-                  <p className="text-gray-800 font-medium">{item.text}</p>
-                  <p className="text-xs text-gray-400">{item.time}</p>
+                  <p className="text-gray-900 font-semibold text-xs">{item.text}</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{item.time}</p>
                 </div>
               </div>
             ))}
@@ -134,22 +158,38 @@ const ResumenView = ({ onNavigate }) => {
 };
 
 const MaterialCard = ({ material, onDelete }) => (
-  <div className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md transition-shadow flex items-start justify-between">
-    <div className="flex items-start gap-3">
-      <div className="p-2 bg-purple-50 text-purple-600 rounded-lg">
-        {material.tipo === 'enlace' ? <ExternalLink className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+  <div className="bg-white border border-gray-200/80 hover:border-blue-300 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+    <div>
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+          {material.tipo === 'enlace' ? <ExternalLink className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+        </div>
+        <button
+          onClick={() => onDelete(material.id)}
+          className="text-gray-400 hover:text-rose-600 hover:bg-rose-50 p-2 rounded-xl transition-colors"
+          title="Eliminar material"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
       </div>
-      <div>
-        <h4 className="font-semibold text-gray-900 text-sm">{material.titulo}</h4>
-        <p className="text-xs text-gray-500 mt-1">{material.descripcion}</p>
-        <span className="inline-block mt-2 text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-medium">
-          {material.tipo?.toUpperCase() || 'ARCHIVO'}
-        </span>
-      </div>
+
+      <h4 className="font-bold text-gray-900 text-base group-hover:text-indigo-600 transition-colors">
+        {material.titulo}
+      </h4>
+      <p className="text-xs text-gray-500 mt-1.5 line-clamp-2 leading-relaxed">
+        {material.descripcion || 'Sin descripción disponible.'}
+      </p>
     </div>
-    <button onClick={() => onDelete(material.id)} className="text-gray-400 hover:text-red-600 p-1">
-      <Trash2 className="w-4 h-4" />
-    </button>
+
+    <div className="mt-5 pt-3 border-t border-gray-100 flex items-center justify-between">
+      <span className="inline-flex items-center gap-1.5 text-[11px] font-bold bg-gray-100 text-gray-700 px-2.5 py-1 rounded-lg uppercase tracking-wider">
+        <Tag className="w-3 h-3" />
+        {material.tipo || 'ARCHIVO'}
+      </span>
+      <button className="text-xs font-semibold text-indigo-600 hover:underline flex items-center gap-1">
+        Ver detalles <ChevronRight className="w-3.5 h-3.5" />
+      </button>
+    </div>
   </div>
 );
 
@@ -162,30 +202,40 @@ const BibliotecaView = ({ materiales = [], onDelete }) => {
   );
 
   return (
-    <div className="space-y-4">
-      <div className="flex gap-4 mb-6">
-        <div className="relative flex-1">
-          <Search className="w-4 h-4 absolute left-3 top-3 text-gray-400" />
+    <div className="space-y-6">
+      {/* Barra de Búsqueda y Filtros */}
+      <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+        <div className="relative w-full sm:w-96">
+          <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400" />
           <input
             type="text"
-            placeholder="Buscar material..."
+            placeholder="Buscar por título o descripción..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+            className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
           />
+        </div>
+        <div className="text-xs text-gray-500 font-semibold w-full sm:w-auto text-right">
+          Mostrando <span className="text-gray-900 font-bold">{filtered.length}</span> recurso(s)
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((item) => (
-          <MaterialCard key={item.id} material={item} onDelete={onDelete} />
-        ))}
-      </div>
-
-      {filtered.length === 0 && (
-        <div className="text-center py-12 text-gray-500">
-          <FolderOpen className="w-16 h-16 mx-auto mb-3 text-gray-300" />
-          <p>No se encontraron materiales</p>
+      {/* Grid de Materiales */}
+      {filtered.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filtered.map((item) => (
+            <MaterialCard key={item.id} material={item} onDelete={onDelete} />
+          ))}
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-dashed border-gray-200 text-center py-16 px-4">
+          <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-400">
+            <FolderOpen className="w-8 h-8" />
+          </div>
+          <h3 className="text-base font-bold text-gray-800">No hay materiales cargados</h3>
+          <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+            Utiliza el botón superior para adjuntar tu primer documento o enlace externo.
+          </p>
         </div>
       )}
     </div>
@@ -214,41 +264,43 @@ const CrearMaterialForm = ({ onSuccess }) => {
     setTimeout(() => {
       setLoading(false);
       if (onSuccess) onSuccess(form);
-    }, 1000);
+    }, 800);
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Título del Material *</label>
+        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Título del Material *</label>
         <input
           type="text"
           value={form.titulo}
           onChange={e => setForm({ ...form, titulo: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+          placeholder="Ej: Guía de estudio 2026"
+          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
           required
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Descripción</label>
         <textarea
           value={form.descripcion}
           onChange={e => setForm({ ...form, descripcion: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
+          placeholder="Describe brevemente el contenido..."
+          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
           rows={3}
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de Material</label>
+        <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">Tipo de Recurso</label>
         <select
           value={form.tipo}
           onChange={e => setForm({ ...form, tipo: e.target.value })}
-          className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500 bg-white"
+          className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
         >
-          <option value="archivo">Archivo (PDF, Imagen, etc.)</option>
-          <option value="enlace">Enlace Externo</option>
+          <option value="archivo">Documento / Archivo (PDF, Word, etc.)</option>
+          <option value="enlace">Enlace Web Externo</option>
         </select>
       </div>
 
@@ -257,7 +309,7 @@ const CrearMaterialForm = ({ onSuccess }) => {
           onDragOver={(e) => { e.preventDefault(); setDragActive(true); }}
           onDragLeave={() => setDragActive(false)}
           onDrop={(e) => { e.preventDefault(); setDragActive(false); if (e.dataTransfer.files[0]) setForm({ ...form, file: e.dataTransfer.files[0] }); }}
-          className={`border-2 border-dashed p-6 rounded-lg text-center ${dragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300'}`}
+          className={`border-2 border-dashed p-8 rounded-2xl text-center transition-colors cursor-pointer ${dragActive ? 'border-indigo-500 bg-indigo-50/50' : 'border-gray-200 hover:border-indigo-300'}`}
         >
           <input
             type="file"
@@ -265,19 +317,23 @@ const CrearMaterialForm = ({ onSuccess }) => {
             className="hidden"
             id="file-upload"
           />
-          <label htmlFor="file-upload" className="cursor-pointer text-blue-600 font-medium text-sm">
-            {form.file ? form.file.name : 'Haz clic para seleccionar o arrastra un archivo'}
+          <label htmlFor="file-upload" className="cursor-pointer flex flex-col items-center">
+            <Upload className="w-8 h-8 text-indigo-500 mb-2" />
+            <span className="text-sm font-bold text-indigo-600">
+              {form.file ? form.file.name : 'Selecciona un archivo o arrástralo aquí'}
+            </span>
+            <span className="text-xs text-gray-400 mt-1">Máximo 25MB (PDF, DOCX, PNG)</span>
           </label>
         </div>
       ) : (
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">URL Externo *</label>
+          <label className="block text-xs font-bold uppercase tracking-wider text-gray-700 mb-1.5">URL Destino *</label>
           <input
             type="url"
             value={form.url_externo}
             onChange={e => setForm({ ...form, url_externo: e.target.value })}
-            className="w-full p-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:border-blue-500"
-            placeholder="https://..."
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-900 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
+            placeholder="https://ejemplo.com/recurso"
             required
           />
         </div>
@@ -287,16 +343,16 @@ const CrearMaterialForm = ({ onSuccess }) => {
         <button
           type="button"
           onClick={() => onSuccess && onSuccess(null)}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm text-gray-700 hover:bg-gray-50"
+          className="px-5 py-2.5 border border-gray-200 rounded-xl text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors"
         >
           Cancelar
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50"
+          className="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-md shadow-indigo-100 disabled:opacity-50 transition-colors"
         >
-          {loading ? 'Subiendo...' : 'Subir Material'}
+          {loading ? 'Subiendo...' : 'Publicar Material'}
         </button>
       </div>
     </form>
@@ -312,8 +368,8 @@ const MaestrosDashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [showCreateMaterial, setShowCreateMaterial] = useState(false);
   const [materiales, setMateriales] = useState([
-    { id: '1', titulo: 'Guía de Álgebra', descripcion: 'Ejercicios para el examen final', tipo: 'archivo' },
-    { id: '2', titulo: 'Documentación React', descripcion: 'Enlace oficial', tipo: 'enlace' },
+    { id: '1', titulo: 'Guía de Álgebra Avanzada', descripcion: 'Ejercicios prácticos para el examen final del período.', tipo: 'archivo' },
+    { id: '2', titulo: 'Documentación Oficial React', descripcion: 'Enlace web para consulta técnica de Hooks y componentes.', tipo: 'enlace' },
   ]);
 
   const handleAddMaterial = (newMat) => {
@@ -335,24 +391,27 @@ const MaestrosDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
+    <div className="min-h-screen bg-slate-50 flex">
+      {/* Sidebar Fijo y Adaptable */}
       <aside className={`fixed inset-y-0 left-0 z-40 bg-white border-r border-gray-200 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'}`}>
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100">
-          {sidebarOpen && <span className="font-bold text-xl text-blue-600">EduControl</span>}
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
+        <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100">
+          {sidebarOpen && <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">EduControl</span>}
+          <button
+            onClick={() => setSidebarOpen(!sidebarOpen)}
+            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors"
+          >
             <Menu className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="p-4 space-y-1">
+        <nav className="p-4 space-y-1.5">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${activeTab === item.id
-                  ? 'bg-blue-50 text-blue-600'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+              className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === item.id
+                  ? 'bg-indigo-50 text-indigo-600 shadow-sm'
+                  : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                 }`}
             >
               <item.icon className="w-5 h-5 shrink-0" />
@@ -362,56 +421,57 @@ const MaestrosDashboard = () => {
         </nav>
       </aside>
 
-      {/* Main Content Area */}
-      <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`} style={{ minHeight: '100vh' }}>
-        {/* Header */}
-        <header className="h-16 bg-white border-b border-gray-200 sticky top-0 z-30 flex items-center justify-between px-6">
-          <h1 className="text-xl font-bold text-gray-800 capitalize">{activeTab}</h1>
+      {/* Área Principal Dinámica (Ajusta sus márgenes dinámicamente) */}
+      <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'pl-64' : 'pl-20'}`}>
+        {/* Header Superior */}
+        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200/80 sticky top-0 z-30 flex items-center justify-between px-8">
+          <h1 className="text-xl font-extrabold text-gray-900 capitalize tracking-tight">{activeTab}</h1>
 
           <div className="flex items-center gap-4">
             {activeTab === 'biblioteca' && (
               <button
                 onClick={() => setShowCreateMaterial(true)}
-                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-indigo-700 shadow-md shadow-indigo-100 transition-all"
               >
                 <Plus className="w-4 h-4" />
                 Subir Material
               </button>
             )}
-            <button className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 relative">
+            <button className="p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-100 relative transition-colors">
               <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white"></span>
             </button>
+
             <div className="flex items-center gap-3 border-l pl-4 border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-sm">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-sm">
                 P
               </div>
               <div className="hidden sm:block text-left">
-                <p className="text-sm font-medium text-gray-700">Prof. García</p>
-                <p className="text-xs text-gray-400">Docente</p>
+                <p className="text-xs font-extrabold text-gray-900">Prof. García</p>
+                <p className="text-[11px] text-gray-400 font-semibold">Docente Titular</p>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Content View */}
-        <div className="p-6">
+        {/* Contenido Principal con Padding Cómodo */}
+        <div className="p-8 max-w-7xl mx-auto">
           {activeTab === 'resumen' && <ResumenView onNavigate={setActiveTab} />}
           {activeTab === 'biblioteca' && <BibliotecaView materiales={materiales} onDelete={handleDeleteMaterial} />}
           {activeTab === 'clases' && (
-            <div className="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-500">
+            <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium">
               Módulo de Clases en construcción.
             </div>
           )}
           {activeTab === 'estudiantes' && (
-            <div className="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-500">
+            <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium">
               Módulo de Estudiantes en construcción.
             </div>
           )}
         </div>
       </main>
 
-      {/* Modals */}
+      {/* Modal */}
       <Modal
         isOpen={showCreateMaterial}
         onClose={() => setShowCreateMaterial(false)}
