@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
-  Users, BookOpen, Calendar, FileText, CheckSquare, Settings,
-  Plus, Search, Filter, Download, Trash2, Edit3, Eye,
-  ChevronRight, AlertCircle, CheckCircle, Clock, Upload,
-  ExternalLink, X, FolderOpen, Menu, Bell, User, Sparkles, Tag
+  Users, BookOpen, Calendar, FileText, CheckSquare,
+  Plus, Search, Trash2, ChevronRight, CheckCircle,
+  Clock, Upload, ExternalLink, X, FolderOpen, Menu,
+  Bell, Sparkles, Tag
 } from 'lucide-react';
 
 // ==========================================
@@ -19,7 +19,7 @@ const StatCard = ({ title, value, icon: Icon, change, trend, color = 'blue' }) =
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-200">
+    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-200 w-full">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{title}</p>
@@ -75,9 +75,9 @@ const Modal = ({ isOpen, onClose, title, children, size = 'md' }) => {
 
 const ResumenView = ({ onNavigate }) => {
   return (
-    <div className="space-y-8">
-      {/* Header Banner de Bienvenida */}
-      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-100 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+    <div className="space-y-8 w-full">
+      {/* Banner Principal */}
+      <div className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-lg shadow-indigo-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
         <div>
           <h2 className="text-2xl font-bold flex items-center gap-2">
             ¡Hola, Prof. García! 👋
@@ -86,22 +86,24 @@ const ResumenView = ({ onNavigate }) => {
         </div>
         <button
           onClick={() => onNavigate('biblioteca')}
-          className="bg-white text-indigo-600 font-semibold px-4 py-2.5 rounded-xl text-sm hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-2"
+          className="bg-white text-indigo-600 font-semibold px-4 py-2.5 rounded-xl text-sm hover:bg-blue-50 transition-colors shadow-sm flex items-center gap-2 shrink-0"
         >
           <Sparkles className="w-4 h-4 text-indigo-600" />
           Gestionar Materiales
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      {/* Grid de Tarjetas de Estadísticas */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 w-full">
         <StatCard title="Estudiantes Activos" value="128" icon={Users} change="12%" trend="up" color="blue" />
         <StatCard title="Clases Programadas" value="24" icon={Calendar} change="4%" trend="up" color="green" />
         <StatCard title="Materiales Subidos" value="86" icon={FolderOpen} change="8%" trend="up" color="purple" />
         <StatCard title="Tareas Pendientes" value="15" icon={CheckSquare} change="2%" trend="down" color="amber" />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+      {/* Contenido en 2 Columnas */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
           <div className="flex items-center justify-between mb-5">
             <div>
               <h3 className="text-lg font-bold text-gray-900">Próximas Clases</h3>
@@ -115,7 +117,7 @@ const ResumenView = ({ onNavigate }) => {
             {[1, 2, 3].map((_, idx) => (
               <div key={idx} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-blue-200 hover:bg-blue-50/30 transition-all">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 bg-blue-100/70 text-blue-600 rounded-xl">
+                  <div className="p-3 bg-blue-100/70 text-blue-600 rounded-xl shrink-0">
                     <Calendar className="w-5 h-5" />
                   </div>
                   <div>
@@ -123,7 +125,7 @@ const ResumenView = ({ onNavigate }) => {
                     <p className="text-xs text-gray-500 mt-0.5">Grupo 4A • 10:00 AM - 11:30 AM</p>
                   </div>
                 </div>
-                <span className="text-xs px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-full font-semibold">
+                <span className="text-xs px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200/60 rounded-full font-semibold shrink-0">
                   En vivo
                 </span>
               </div>
@@ -131,7 +133,7 @@ const ResumenView = ({ onNavigate }) => {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+        <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
           <h3 className="text-lg font-bold text-gray-900 mb-1">Actividad Reciente</h3>
           <p className="text-xs text-gray-500 mb-5">Notificaciones del sistema</p>
           <div className="space-y-4">
@@ -141,7 +143,7 @@ const ResumenView = ({ onNavigate }) => {
               { text: 'Recordatorio de clase', time: 'Hace 3 horas', icon: Clock, color: 'text-amber-500 bg-amber-50' },
             ].map((item, idx) => (
               <div key={idx} className="flex items-start gap-3.5 text-sm p-2.5 rounded-xl hover:bg-gray-50 transition-colors">
-                <div className={`p-2 rounded-xl ${item.color}`}>
+                <div className={`p-2 rounded-xl shrink-0 ${item.color}`}>
                   <item.icon className="w-4 h-4" />
                 </div>
                 <div>
@@ -158,10 +160,10 @@ const ResumenView = ({ onNavigate }) => {
 };
 
 const MaterialCard = ({ material, onDelete }) => (
-  <div className="bg-white border border-gray-200/80 hover:border-blue-300 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
+  <div className="bg-white border border-gray-200 hover:border-indigo-300 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all duration-200 flex flex-col justify-between group w-full">
     <div>
       <div className="flex items-start justify-between gap-3 mb-3">
-        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-colors shrink-0">
           {material.tipo === 'enlace' ? <ExternalLink className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
         </div>
         <button
@@ -202,9 +204,9 @@ const BibliotecaView = ({ materiales = [], onDelete }) => {
   );
 
   return (
-    <div className="space-y-6">
-      {/* Barra de Búsqueda y Filtros */}
-      <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+    <div className="space-y-6 w-full">
+      {/* Buscador */}
+      <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between w-full">
         <div className="relative w-full sm:w-96">
           <Search className="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400" />
           <input
@@ -212,7 +214,7 @@ const BibliotecaView = ({ materiales = [], onDelete }) => {
             placeholder="Buscar por título o descripción..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
+            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium text-gray-800 placeholder-gray-400 focus:outline-none focus:border-indigo-500 focus:bg-white transition-all"
           />
         </div>
         <div className="text-xs text-gray-500 font-semibold w-full sm:w-auto text-right">
@@ -222,13 +224,13 @@ const BibliotecaView = ({ materiales = [], onDelete }) => {
 
       {/* Grid de Materiales */}
       {filtered.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 w-full">
           {filtered.map((item) => (
             <MaterialCard key={item.id} material={item} onDelete={onDelete} />
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-dashed border-gray-200 text-center py-16 px-4">
+        <div className="bg-white rounded-2xl border border-dashed border-gray-200 text-center py-16 px-4 w-full">
           <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-gray-400">
             <FolderOpen className="w-8 h-8" />
           </div>
@@ -360,7 +362,7 @@ const CrearMaterialForm = ({ onSuccess }) => {
 };
 
 // ==========================================
-// DASHBOARD PRINCIPAL
+// COMPONENTE PRINCIPAL (DASHBOARD)
 // ==========================================
 
 const MaestrosDashboard = () => {
@@ -391,41 +393,56 @@ const MaestrosDashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar Fijo y Adaptable */}
-      <aside className={`fixed inset-y-0 left-0 z-40 bg-white border-r border-gray-200 transition-all duration-300 ${sidebarOpen ? 'w-64' : 'w-20'}`}>
-        <div className="h-16 flex items-center justify-between px-5 border-b border-gray-100">
-          {sidebarOpen && <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">EduControl</span>}
+    // CONTENEDOR RAIZ: flex-row y overflow-x-hidden para prevenir barras horiz. indeseadas
+    <div className="min-h-screen w-full bg-slate-50 flex flex-row relative overflow-x-hidden antialiased">
+
+      {/* SIDEBAR FIXED */}
+      <aside
+        className={`fixed top-0 left-0 bottom-0 z-40 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'
+          }`}
+      >
+        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100 shrink-0">
+          {sidebarOpen && (
+            <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate">
+              EduControl
+            </span>
+          )}
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors"
+            className="p-2 rounded-xl hover:bg-gray-100 text-gray-500 transition-colors mx-auto"
           >
             <Menu className="w-5 h-5" />
           </button>
         </div>
 
-        <nav className="p-4 space-y-1.5">
+        <nav className="p-3 space-y-1.5 flex-1 overflow-y-auto">
           {navItems.map((item) => (
             <button
               key={item.id}
               onClick={() => setActiveTab(item.id)}
+              title={!sidebarOpen ? item.label : undefined}
               className={`w-full flex items-center gap-3.5 px-3.5 py-3 rounded-xl text-sm font-bold transition-all ${activeTab === item.id
                   ? 'bg-indigo-50 text-indigo-600 shadow-sm'
                   : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                 }`}
             >
               <item.icon className="w-5 h-5 shrink-0" />
-              {sidebarOpen && <span>{item.label}</span>}
+              {sidebarOpen && <span className="truncate">{item.label}</span>}
             </button>
           ))}
         </nav>
       </aside>
 
-      {/* Área Principal Dinámica (Ajusta sus márgenes dinámicamente) */}
-      <main className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'pl-64' : 'pl-20'}`}>
-        {/* Header Superior */}
-        <header className="h-16 bg-white/80 backdrop-blur-md border-b border-gray-200/80 sticky top-0 z-30 flex items-center justify-between px-8">
-          <h1 className="text-xl font-extrabold text-gray-900 capitalize tracking-tight">{activeTab}</h1>
+      {/* ÁREA DERECHA: PADDING DINÁMICO + FLEX-1 + MIN-W-0 */}
+      <div
+        className={`flex-1 w-full min-w-0 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'pl-64' : 'pl-20'
+          }`}
+      >
+        {/* HEADER SUPERIOR */}
+        <header className="h-16 bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-30 flex items-center justify-between px-6 w-full shrink-0">
+          <h1 className="text-xl font-extrabold text-gray-900 capitalize tracking-tight">
+            {activeTab}
+          </h1>
 
           <div className="flex items-center gap-4">
             {activeTab === 'biblioteca' && (
@@ -454,24 +471,24 @@ const MaestrosDashboard = () => {
           </div>
         </header>
 
-        {/* Contenido Principal con Padding Cómodo */}
-        <div className="p-8 max-w-7xl mx-auto">
+        {/* CONTENIDO PRINCIPAL */}
+        <main className="flex-1 p-6 md:p-8 w-full max-w-7xl mx-auto">
           {activeTab === 'resumen' && <ResumenView onNavigate={setActiveTab} />}
           {activeTab === 'biblioteca' && <BibliotecaView materiales={materiales} onDelete={handleDeleteMaterial} />}
           {activeTab === 'clases' && (
-            <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium">
+            <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium shadow-sm">
               Módulo de Clases en construcción.
             </div>
           )}
           {activeTab === 'estudiantes' && (
-            <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium">
+            <div className="bg-white p-12 rounded-2xl border border-gray-100 text-center text-gray-400 font-medium shadow-sm">
               Módulo de Estudiantes en construcción.
             </div>
           )}
-        </div>
-      </main>
+        </main>
+      </div>
 
-      {/* Modal */}
+      {/* MODAL */}
       <Modal
         isOpen={showCreateMaterial}
         onClose={() => setShowCreateMaterial(false)}
