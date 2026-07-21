@@ -2,36 +2,42 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
-  Mail,
+  ShieldAlert,
+  LogIn,
   Lock,
+  User,
+  Mail,
   Eye,
   EyeOff,
-  ShieldCheck,
-  ArrowLeft,
-  LogIn,
-  AlertCircle,
-  User
+  ArrowLeft
 } from 'lucide-react';
 
-const MaestrosLogin = () => {
+export default function MaestrosLogin() {
   const navigate = useNavigate();
   const [loginMode, setLoginMode] = useState('email'); // 'email' | 'username'
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const switchMode = (mode) => {
     setLoginMode(mode);
-    setErrorMsg(null);
+    setError('');
   };
 
-  const handleLogin = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
-    setErrorMsg(null);
+    setError('');
+
+    const identifier = loginMode === 'email' ? email : username;
+    if (!identifier || !password) {
+      setError('Por favor completa todos los campos.');
+      return;
+    }
+
+    setIsLoading(true);
 
     try {
       let targetEmail = email.trim();
@@ -84,181 +90,352 @@ const MaestrosLogin = () => {
         }
       }
     } catch (err) {
-      setErrorMsg(
+      setError(
         err instanceof Error
           ? err.message
           : 'Ocurrió un error inesperado al intentar acceder.'
       );
       setPassword('');
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-between p-6 sm:p-10 relative overflow-hidden font-sans text-slate-100">
-
-      {/* Luces de fondo (Efecto Blur Sofisticado) */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-10 right-10 w-[400px] h-[400px] bg-indigo-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-
-      {/* Header superior estructurado */}
-      <header className="w-full max-w-4xl mx-auto flex items-center justify-between z-10">
+    <div
+      className="theme-imr4"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '2rem',
+        background: 'var(--bg-default)',
+        position: 'relative'
+      }}
+    >
+      {/* Botón Volver (Alineado arriba en el contenedor global) */}
+      <div style={{ position: 'absolute', top: '1.5rem', left: '1.5rem' }}>
         <button
           onClick={() => navigate('/ministerio/ninos')}
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-400 hover:text-white bg-slate-900/80 hover:bg-slate-800 border border-slate-800 px-4 py-2.5 rounded-xl transition-all duration-200 shadow-sm"
+          className="btn"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-secondary)',
+            fontSize: '0.85rem',
+            padding: '0.5rem 1rem',
+            borderRadius: '0.5rem',
+            cursor: 'pointer'
+          }}
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Volver a Niños</span>
+          <ArrowLeft size={16} />
+          Volver a Niños
         </button>
-      </header>
+      </div>
 
-      {/* Contenedor Principal (Tarjeta equilibrada) */}
-      <main className="flex-1 flex items-center justify-center py-8 z-10">
-        <div className="w-full max-w-lg bg-slate-900/80 backdrop-blur-xl border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl">
-
-          {/* Logo y Encabezado */}
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20 border border-purple-400/30">
-              <ShieldCheck className="w-8 h-8" />
-            </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
-              IMR4 Maestros
-            </h1>
-            <p className="text-sm font-normal text-slate-400 mt-1.5">
-              Plataforma Educativa · Área Docente
-            </p>
+      {/* Tarjeta idéntica al Login de Admin */}
+      <div
+        className="glass-card animate-fade-in"
+        style={{
+          maxWidth: '420px',
+          width: '100%',
+          padding: '2.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem'
+        }}
+      >
+        {/* Encabezado con Icono Centrado */}
+        <div style={{ textAlign: 'center' }}>
+          <div
+            style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.05)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1rem auto',
+              border: '1px solid var(--border-color)'
+            }}
+          >
+            <ShieldAlert size={32} style={{ color: 'var(--accent-color)' }} />
           </div>
-
-          {/* Selector de Modo */}
-          <div className="mb-6 p-1.5 bg-slate-950/60 rounded-2xl border border-slate-800 flex gap-2">
-            <button
-              type="button"
-              onClick={() => switchMode('email')}
-              className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${loginMode === 'email'
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                  : 'text-slate-400 hover:text-slate-200'
-                }`}
-            >
-              <Mail className="w-4 h-4" />
-              <span>Email Auth</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => switchMode('username')}
-              className={`flex-1 py-2.5 px-3 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${loginMode === 'username'
-                  ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
-                  : 'text-slate-400 hover:text-slate-200'
-                }`}
-            >
-              <User className="w-4 h-4" />
-              <span>Admin Local</span>
-            </button>
-          </div>
-
-          {/* Formulario */}
-          <form onSubmit={handleLogin} className="space-y-5">
-            {errorMsg && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-medium flex items-center gap-2.5">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
-            {loginMode === 'email' ? (
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                  Correo Electrónico
-                </label>
-                <div className="relative flex items-center">
-                  <Mail className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="maestra@imr4.com"
-                    className="w-full h-12 pl-12 pr-4 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
-                    required
-                  />
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                  Nombre de Usuario
-                </label>
-                <div className="relative flex items-center">
-                  <User className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="admin"
-                    className="w-full h-12 pl-12 pr-4 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
-                    required
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                Contraseña
-              </label>
-              <div className="relative flex items-center">
-                <Lock className="w-5 h-5 text-slate-400 absolute left-4 pointer-events-none" />
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  className="w-full h-12 pl-12 pr-12 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-sm"
-                  required
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 text-slate-400 hover:text-slate-200 transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full h-12 mt-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/25 active:scale-[0.99] transition-all flex items-center justify-center gap-2 text-sm disabled:opacity-50"
-            >
-              {loading ? (
-                <div className="flex items-center gap-2">
-                  <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  <span>Verificando...</span>
-                </div>
-              ) : (
-                <>
-                  <LogIn className="w-4 h-4" />
-                  <span>Acceder a la Plataforma</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          <p className="text-center text-xs font-normal text-slate-500 mt-8">
-            Acceso exclusivo para el equipo docente autorizado.
+          <h2
+            style={{
+              fontSize: '1.75rem',
+              fontWeight: 800,
+              marginBottom: '0.25rem',
+              color: 'var(--text-primary)'
+            }}
+          >
+            IMR4 Maestros
+          </h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+            Plataforma Educativa · Área Docente
           </p>
         </div>
-      </main>
 
-      {/* Footer */}
-      <footer className="text-center text-xs font-normal text-slate-500 z-10">
-        IMR4 · Plataforma Educativa
-      </footer>
+        {/* Selector de modo de Login (Email / Username) */}
+        <div
+          style={{
+            display: 'flex',
+            background: 'rgba(0, 0, 0, 0.25)',
+            padding: '0.25rem',
+            borderRadius: '0.5rem',
+            border: '1px solid var(--border-color)',
+            gap: '0.25rem'
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => switchMode('email')}
+            style={{
+              flex: 1,
+              padding: '0.5rem',
+              borderRadius: '0.375rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.4rem',
+              background:
+                loginMode === 'email' ? 'var(--accent-color)' : 'transparent',
+              color: loginMode === 'email' ? '#ffffff' : 'var(--text-secondary)'
+            }}
+          >
+            <Mail size={15} />
+            Email Auth
+          </button>
+          <button
+            type="button"
+            onClick={() => switchMode('username')}
+            style={{
+              flex: 1,
+              padding: '0.5rem',
+              borderRadius: '0.375rem',
+              fontSize: '0.8rem',
+              fontWeight: 600,
+              border: 'none',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.4rem',
+              background:
+                loginMode === 'username' ? 'var(--accent-color)' : 'transparent',
+              color: loginMode === 'username' ? '#ffffff' : 'var(--text-secondary)'
+            }}
+          >
+            <User size={15} />
+            Admin Local
+          </button>
+        </div>
+
+        {/* Formulario */}
+        <form
+          onSubmit={handleSubmit}
+          style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}
+        >
+          {error && (
+            <div
+              style={{
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                color: '#ef4444',
+                padding: '0.75rem',
+                borderRadius: '0.5rem',
+                fontSize: '0.85rem',
+                textAlign: 'center'
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          {loginMode === 'email' ? (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem'
+              }}
+            >
+              <label
+                style={{
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)'
+                }}
+              >
+                Correo Electrónico
+              </label>
+              <div style={{ position: 'relative' }}>
+                <Mail
+                  size={18}
+                  style={{
+                    position: 'absolute',
+                    left: '1rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-muted)'
+                  }}
+                />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="maestra@imr4.com"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem 0.75rem 2.75rem',
+                    background: 'rgba(0,0,0,0.2)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '0.5rem',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.95rem'
+                  }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem'
+              }}
+            >
+              <label
+                style={{
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: 'var(--text-secondary)'
+                }}
+              >
+                Usuario
+              </label>
+              <div style={{ position: 'relative' }}>
+                <User
+                  size={18}
+                  style={{
+                    position: 'absolute',
+                    left: '1rem',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--text-muted)'
+                  }}
+                />
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="admin"
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem 1rem 0.75rem 2.75rem',
+                    background: 'rgba(0,0,0,0.2)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '0.5rem',
+                    color: 'var(--text-primary)',
+                    fontSize: '0.95rem'
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          <div
+            style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}
+          >
+            <label
+              style={{
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                color: 'var(--text-secondary)'
+              }}
+            >
+              Contraseña
+            </label>
+            <div style={{ position: 'relative' }}>
+              <Lock
+                size={18}
+                style={{
+                  position: 'absolute',
+                  left: '1rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: 'var(--text-muted)'
+                }}
+              />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 2.75rem 0.75rem 2.75rem',
+                  background: 'rgba(0,0,0,0.2)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '0.5rem',
+                  color: 'var(--text-primary)',
+                  fontSize: '0.95rem'
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '1rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            className="btn btn-primary"
+            disabled={isLoading}
+            style={{
+              marginTop: '0.5rem',
+              padding: '0.85rem',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}
+          >
+            {isLoading ? (
+              'Verificando...'
+            ) : (
+              <>
+                <LogIn size={18} /> Acceder a la Plataforma
+              </>
+            )}
+          </button>
+        </form>
+      </div>
     </div>
   );
-};
-
-export default MaestrosLogin;
+}
