@@ -15,15 +15,13 @@ const StatCard = ({ title, value, icon: Icon, color = 'blue' }) => {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm hover:shadow-md transition-all duration-200 w-full">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-gray-400">{title}</p>
-          <p className="text-3xl font-extrabold text-gray-900 mt-2">{value}</p>
-        </div>
-        <div className={`p-3.5 rounded-2xl border ${colorMap[color]}`}>
-          <Icon className="w-6 h-6" />
-        </div>
+    <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-all duration-200 w-full flex items-center justify-between">
+      <div>
+        <p className="text-xs font-bold uppercase tracking-wider text-gray-400">{title}</p>
+        <p className="text-3xl font-extrabold text-gray-900 mt-1">{value}</p>
+      </div>
+      <div className={`p-3.5 rounded-2xl border ${colorMap[color]}`}>
+        <Icon className="w-6 h-6" />
       </div>
     </div>
   );
@@ -41,54 +39,73 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
   };
 
   return (
-    <div className="space-y-6 w-full">
-      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
+    <div className="w-full space-y-6">
+      {/* Formulario corregido con estructura robusta */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm w-full">
         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
           <Briefcase className="w-5 h-5 text-indigo-600" />
           Asignar Cátedra a Maestro
         </h3>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1.5">Maestro</label>
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center w-full">
+          <div className="w-full">
+            <label className="block text-xs font-bold text-gray-700 mb-1">Maestro</label>
             <select
-              value={form.maestroId} onChange={e => setForm({ ...form, maestroId: e.target.value })}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:border-indigo-500" required
+              value={form.maestroId}
+              onChange={e => setForm({ ...form, maestroId: e.target.value })}
+              className="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
             >
               <option value="">Seleccionar Maestro...</option>
               {maestros.map(m => <option key={m.id} value={m.id}>{m.nombre}</option>)}
             </select>
           </div>
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1.5">Materia / Asignatura</label>
+
+          <div className="w-full">
+            <label className="block text-xs font-bold text-gray-700 mb-1">Materia / Asignatura</label>
             <input
-              type="text" placeholder="Ej. Programación Web" value={form.materia} onChange={e => setForm({ ...form, materia: e.target.value })}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:border-indigo-500" required
+              type="text"
+              placeholder="Ej. Programación Web"
+              value={form.materia}
+              onChange={e => setForm({ ...form, materia: e.target.value })}
+              className="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
             />
           </div>
-          <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1.5">Grupo</label>
+
+          <div className="w-full">
+            <label className="block text-xs font-bold text-gray-700 mb-1">Grupo</label>
             <select
-              value={form.grupo} onChange={e => setForm({ ...form, grupo: e.target.value })}
-              className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:border-indigo-500" required
+              value={form.grupo}
+              onChange={e => setForm({ ...form, grupo: e.target.value })}
+              className="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              required
             >
               <option value="">Seleccionar Grupo...</option>
               {grupos.map(g => <option key={g} value={g}>{g}</option>)}
             </select>
           </div>
-          <button type="submit" className="w-full bg-indigo-600 text-white p-2.5 rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm">
-            Guardar Asignación
-          </button>
+
+          <div className="w-full">
+            <label className="block text-xs font-bold text-transparent mb-1 select-none">Acción</label>
+            <button
+              type="submit"
+              className="w-full h-11 bg-indigo-600 text-white rounded-xl text-sm font-bold hover:bg-indigo-700 transition-colors shadow-sm flex items-center justify-center"
+            >
+              Guardar Asignación
+            </button>
+          </div>
         </form>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden w-full">
-        <div className="p-5 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+      {/* Tabla de Control */}
+      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden w-full">
+        <div className="p-5 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
           <h3 className="font-bold text-gray-900">Control de Asignaciones Institucionales</h3>
           <span className="text-xs font-semibold bg-gray-200 text-gray-700 px-2.5 py-1 rounded-md">{asignaciones.length} Activas</span>
         </div>
         <div className="overflow-x-auto w-full">
           <table className="w-full text-left text-sm min-w-[600px]">
-            <thead className="bg-white text-gray-400 font-bold uppercase text-xs border-b border-gray-100">
+            <thead className="bg-white text-gray-400 font-bold uppercase text-xs border-b border-gray-200">
               <tr>
                 <th className="p-4">Docente Titular</th>
                 <th className="p-4">Materia</th>
@@ -100,7 +117,7 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
               {asignaciones.map((asig, idx) => {
                 const maestro = maestros.find(m => m.id === asig.maestroId);
                 return (
-                  <tr key={idx} className="hover:bg-gray-50/80 transition-colors border-b border-gray-50">
+                  <tr key={idx} className="hover:bg-gray-50 transition-colors border-b border-gray-100">
                     <td className="p-4 font-semibold text-gray-900 flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">
                         {maestro?.nombre?.charAt(0) || 'D'}
@@ -124,7 +141,7 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
 };
 
 const MaestroResumenView = ({ asignacionesProfesor, maestroNombre }) => (
-  <div className="space-y-6 w-full">
+  <div className="w-full space-y-6">
     <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
       <div>
         <h2 className="text-2xl font-bold">¡Bienvenido, {maestroNombre}! 👋</h2>
@@ -138,11 +155,11 @@ const MaestroResumenView = ({ asignacionesProfesor, maestroNombre }) => (
       <StatCard title="Revisiones Pendientes" value="8" icon={CheckSquare} color="amber" />
     </div>
 
-    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm w-full">
+    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm w-full">
       <h3 className="text-lg font-bold text-gray-900 mb-4">Cátedras Asignadas a Tu Perfil</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         {asignacionesProfesor.map((clase, idx) => (
-          <div key={idx} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all">
+          <div key={idx} className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-indigo-200 hover:bg-indigo-50/30 transition-all">
             <div className="flex items-center gap-4">
               <div className="p-3 bg-indigo-100/70 text-indigo-600 rounded-xl shrink-0">
                 <BookOpen className="w-5 h-5" />
@@ -210,15 +227,13 @@ const SistemaEscolar = () => {
   const currentMenus = currentUser.role === 'admin' ? adminMenus : maestroMenus;
 
   return (
-    // CONTENEDOR PRINCIPAL FLUIDO Y SEGURO
-    <div className="min-h-screen w-full bg-slate-50 flex flex-row relative overflow-x-hidden antialiased m-0 p-0">
-
-      {/* SIDEBAR FIJO */}
+    <div className="min-h-screen w-full bg-slate-50 flex flex-row relative overflow-x-hidden m-0 p-0">
+      {/* SIDEBAR */}
       <aside
         className={`fixed top-0 left-0 h-full z-40 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'
           }`}
       >
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100 shrink-0">
+        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 shrink-0">
           {sidebarOpen && (
             <span className="font-extrabold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent truncate flex items-center gap-2">
               <Shield className="w-5 h-5 text-indigo-600" />
@@ -246,7 +261,7 @@ const SistemaEscolar = () => {
           ))}
         </nav>
 
-        <div className="p-3 border-t border-gray-100 bg-gray-50/50">
+        <div className="p-3 border-t border-gray-200 bg-gray-50">
           {currentUser.role === 'admin' ? (
             <button
               onClick={probarComoMaestro}
@@ -267,7 +282,7 @@ const SistemaEscolar = () => {
         </div>
       </aside>
 
-      {/* ÁREA PRINCIPAL DERECHA (DINÁMICA MEDIANTE MARGIN-LEFT DE TAILWIND) */}
+      {/* CONTENIDO PRINCIPAL */}
       <div
         className={`flex-1 min-h-screen flex flex-col transition-all duration-300 ease-in-out ${sidebarOpen ? 'ml-64' : 'ml-20'
           } w-full`}
@@ -324,12 +339,12 @@ const SistemaEscolar = () => {
             </div>
           )}
 
-          {currentUser.role === 'maestro' && (
+          ({currentUser.role === 'maestro' && (
             <MaestroResumenView
               asignacionesProfesor={asignaciones.filter(a => a.maestroId === currentUser.id)}
               maestroNombre={currentUser.nombre}
             />
-          )}
+          )})
         </main>
       </div>
     </div>
