@@ -8,19 +8,19 @@ import {
 
 const StatCard = ({ title, value, icon: Icon, color = 'blue' }) => {
   const colorMap = {
-    blue: 'bg-blue-50 text-blue-600 border-blue-200',
-    green: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    purple: 'bg-purple-50 text-purple-600 border-purple-200',
-    amber: 'bg-amber-50 text-amber-600 border-amber-200',
+    blue: 'bg-blue-50 text-blue-600 border-blue-100 group-hover:bg-blue-600 group-hover:text-white',
+    green: 'bg-emerald-50 text-emerald-600 border-emerald-100 group-hover:bg-emerald-600 group-hover:text-white',
+    purple: 'bg-purple-50 text-purple-600 border-purple-100 group-hover:bg-purple-600 group-hover:text-white',
+    amber: 'bg-amber-50 text-amber-600 border-amber-100 group-hover:bg-amber-600 group-hover:text-white',
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md transition-all duration-200 w-full flex items-center justify-between">
+    <div className="group bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 w-full flex items-center justify-between">
       <div>
         <p className="text-xs font-bold uppercase tracking-wider text-gray-400">{title}</p>
-        <p className="text-3xl font-extrabold text-gray-900 mt-1">{value}</p>
+        <p className="text-3xl font-black text-gray-900 mt-2">{value}</p>
       </div>
-      <div className={`p-3.5 rounded-2xl border ${colorMap[color]}`}>
+      <div className={`p-4 rounded-2xl border transition-all duration-300 ${colorMap[color]}`}>
         <Icon className="w-6 h-6" />
       </div>
     </div>
@@ -39,19 +39,26 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
   };
 
   return (
-    <div className="w-full space-y-6">
-      <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm w-full">
-        <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-          <Briefcase className="w-5 h-5 text-indigo-600 shrink-0" />
-          Asignar Cátedra a Maestro
-        </h3>
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+    <div className="w-full space-y-8">
+      {/* TARJETA DE FORMULARIO DE ASIGNACIÓN */}
+      <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm hover:shadow-md transition-all w-full">
+        <div className="flex items-center gap-3 mb-6 border-b border-gray-100 pb-4">
+          <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+            <Briefcase className="w-6 h-6" />
+          </div>
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1.5">Maestro</label>
+            <h3 className="text-lg font-extrabold text-gray-900">Asignar Cátedra a Maestro</h3>
+            <p className="text-xs text-gray-400 font-medium">Asigna una nueva materia y grupo a un profesor titulado</p>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 items-end">
+          <div>
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Maestro</label>
             <select
               value={form.maestroId}
               onChange={e => setForm({ ...form, maestroId: e.target.value })}
-              className="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full h-12 px-4 bg-gray-50/80 border border-gray-200 rounded-2xl text-sm font-semibold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               required
             >
               <option value="">Seleccionar Maestro...</option>
@@ -60,23 +67,23 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1.5">Materia / Asignatura</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Materia / Asignatura</label>
             <input
               type="text"
               placeholder="Ej. Programación Web"
               value={form.materia}
               onChange={e => setForm({ ...form, materia: e.target.value })}
-              className="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full h-12 px-4 bg-gray-50/80 border border-gray-200 rounded-2xl text-sm font-semibold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-gray-700 mb-1.5">Grupo</label>
+            <label className="block text-xs font-bold text-gray-600 uppercase tracking-wider mb-2">Grupo</label>
             <select
               value={form.grupo}
               onChange={e => setForm({ ...form, grupo: e.target.value })}
-              className="w-full h-11 px-3 bg-gray-50 border border-gray-300 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+              className="w-full h-12 px-4 bg-gray-50/80 border border-gray-200 rounded-2xl text-sm font-semibold text-gray-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
               required
             >
               <option value="">Seleccionar Grupo...</option>
@@ -87,78 +94,73 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
           <div>
             <button
               type="submit"
-              className="w-full h-11 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-sm font-bold transition-all shadow-md hover:shadow-indigo-200 flex items-center justify-center gap-2 active:scale-95"
+              className="w-full h-12 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white rounded-2xl text-sm font-bold transition-all shadow-md hover:shadow-indigo-200 flex items-center justify-center gap-2 active:scale-98"
             >
-              <Plus className="w-4 h-4" />
+              <Plus className="w-5 h-5" />
               <span>Guardar Asignación</span>
             </button>
           </div>
         </form>
       </div>
 
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden w-full">
-        <div className="p-4 sm:p-5 border-b border-gray-200 bg-gray-50/70 flex justify-between items-center">
-          <h3 className="font-bold text-gray-900 text-sm sm:text-base">Control de Asignaciones Institucionales</h3>
-          <span className="text-xs font-semibold bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full border border-indigo-100">{asignaciones.length} Activas</span>
-        </div>
-        
-        {/* Vista para Pantallas Grandes (Tabla) */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-gray-50/50 text-gray-400 font-bold uppercase text-[11px] tracking-wider border-b border-gray-200">
-              <tr>
-                <th className="p-4">Docente Titular</th>
-                <th className="p-4">Materia</th>
-                <th className="p-4">Grupo</th>
-                <th className="p-4 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {asignaciones.map((asig, idx) => {
-                const maestro = maestros.find(m => m.id === asig.maestroId);
-                return (
-                  <tr key={idx} className="hover:bg-indigo-50/30 transition-colors">
-                    <td className="p-4 font-semibold text-gray-900 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-xs shadow-sm shrink-0">
-                        {maestro?.nombre?.charAt(0) || 'D'}
-                      </div>
-                      {maestro?.nombre}
-                    </td>
-                    <td className="p-4 text-gray-600 font-medium">{asig.materia}</td>
-                    <td className="p-4"><span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-lg font-bold text-xs border border-indigo-100">{asig.grupo}</span></td>
-                    <td className="p-4 text-right">
-                      <button className="text-gray-400 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+      {/* SECCIÓN DE TARJETAS DE ASIGNACIONES */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center px-1">
+          <div>
+            <h3 className="font-extrabold text-gray-900 text-lg">Asignaciones Institucionales</h3>
+            <p className="text-xs text-gray-400 font-medium">Control de materias impertidas actualmente</p>
+          </div>
+          <span className="text-xs font-bold bg-indigo-50 text-indigo-700 px-3.5 py-1.5 rounded-full border border-indigo-100 shadow-xs">
+            {asignaciones.length} Cátedras Activas
+          </span>
         </div>
 
-        {/* Vista Móvil (Tarjetas) */}
-        <div className="block md:hidden divide-y divide-gray-100">
+        {/* REJILLA DE TARJETAS (GRID CARDS) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {asignaciones.map((asig, idx) => {
             const maestro = maestros.find(m => m.id === asig.maestroId);
             return (
-              <div key={idx} className="p-4 flex items-center justify-between gap-3 hover:bg-gray-50">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-sm shrink-0">
-                    {maestro?.nombre?.charAt(0) || 'D'}
+              <div
+                key={idx}
+                className="bg-white rounded-3xl border border-gray-100 p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+              >
+                <div className="absolute top-0 right-0 w-24 h-24 bg-indigo-50/40 rounded-bl-full -mr-6 -mt-6 pointer-events-none transition-all group-hover:bg-indigo-100/50" />
+
+                <div>
+                  {/* Avatar y Grupo */}
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-indigo-600 to-purple-600 text-white flex items-center justify-center font-black text-base shadow-md shadow-indigo-100 shrink-0">
+                        {maestro?.nombre?.charAt(0) || 'D'}
+                      </div>
+                      <div>
+                        <p className="font-extrabold text-gray-900 text-base group-hover:text-indigo-600 transition-colors leading-tight">
+                          {maestro?.nombre}
+                        </p>
+                        <p className="text-xs font-semibold text-gray-400 mt-0.5">Docente Titular</p>
+                      </div>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="font-bold text-gray-900 text-sm truncate">{maestro?.nombre}</p>
-                    <p className="text-xs text-gray-500 truncate">{asig.materia}</p>
-                    <span className="inline-block mt-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-md font-bold text-[10px]">
-                      Grupo {asig.grupo}
-                    </span>
+
+                  {/* Detalle Materia */}
+                  <div className="my-4 p-4 rounded-2xl bg-slate-50 border border-slate-100/80">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-gray-400">Asignatura</p>
+                    <p className="text-base font-extrabold text-gray-800 mt-0.5">{asig.materia}</p>
                   </div>
                 </div>
-                <button className="text-gray-400 hover:text-rose-600 p-2 rounded-lg hover:bg-rose-50 transition-colors shrink-0">
-                  <Trash2 className="w-4 h-4" />
-                </button>
+
+                {/* Footer de Tarjeta */}
+                <div className="flex items-center justify-between pt-3 border-t border-gray-100 mt-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-bold text-gray-400 uppercase">Grupo:</span>
+                    <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-xl font-black text-xs border border-indigo-100">
+                      {asig.grupo}
+                    </span>
+                  </div>
+                  <button className="text-gray-400 hover:text-rose-600 p-2 rounded-xl hover:bg-rose-50 transition-all">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -169,35 +171,35 @@ const AdminAsignacionesView = ({ asignaciones, maestros, grupos, onAsignar }) =>
 };
 
 const MaestroResumenView = ({ asignacionesProfesor, maestroNombre }) => (
-  <div className="w-full space-y-6">
-    <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-5 sm:p-6 text-white shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full">
-      <div>
-        <h2 className="text-xl sm:text-2xl font-bold">¡Bienvenido, {maestroNombre}! 👋</h2>
-        <p className="text-blue-100 text-xs sm:text-sm mt-1">Este es el panel con las asignaturas asignadas por la administración.</p>
+  <div className="w-full space-y-8">
+    <div className="bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full relative overflow-hidden">
+      <div className="relative z-10">
+        <h2 className="text-2xl sm:text-3xl font-black">¡Bienvenido, {maestroNombre}! 👋</h2>
+        <p className="text-blue-100 text-sm mt-1.5 font-medium">Este es el panel con las asignaturas asignadas por la administración escolar.</p>
       </div>
     </div>
 
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 w-full">
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 w-full">
       <StatCard title="Mis Grupos Asignados" value={asignacionesProfesor.length} icon={Users} color="blue" />
       <StatCard title="Clases Agendadas" value="4" icon={Calendar} color="green" />
       <StatCard title="Revisiones Pendientes" value="8" icon={CheckSquare} color="amber" />
     </div>
 
-    <div className="bg-white rounded-2xl border border-gray-200 p-4 sm:p-6 shadow-sm w-full">
-      <h3 className="text-base sm:text-lg font-bold text-gray-900 mb-4">Cátedras Asignadas a Tu Perfil</h3>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+    <div className="bg-white rounded-3xl border border-gray-100 p-6 sm:p-8 shadow-sm w-full">
+      <h3 className="text-lg font-extrabold text-gray-900 mb-6">Cátedras Asignadas a Tu Perfil</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 w-full">
         {asignacionesProfesor.map((clase, idx) => (
-          <div key={idx} className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-indigo-300 hover:shadow-sm hover:bg-indigo-50/20 transition-all">
-            <div className="flex items-center gap-3.5 min-w-0">
-              <div className="p-3 bg-indigo-50 text-indigo-600 rounded-xl shrink-0">
-                <BookOpen className="w-5 h-5" />
+          <div key={idx} className="flex items-center justify-between p-5 border border-gray-100 rounded-2xl hover:border-indigo-200 hover:shadow-lg hover:-translate-y-0.5 bg-white transition-all duration-300">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="p-3.5 bg-indigo-50 text-indigo-600 rounded-2xl shrink-0">
+                <BookOpen className="w-6 h-6" />
               </div>
               <div className="min-w-0">
-                <p className="font-bold text-gray-900 text-sm truncate">{clase.materia}</p>
-                <p className="text-xs text-gray-500 mt-0.5">Grupo {clase.grupo}</p>
+                <p className="font-extrabold text-gray-900 text-base truncate">{clase.materia}</p>
+                <p className="text-xs font-semibold text-gray-400 mt-0.5">Grupo {clase.grupo}</p>
               </div>
             </div>
-            <button className="text-xs sm:text-sm font-bold text-indigo-600 hover:text-indigo-700 bg-indigo-50 sm:bg-transparent px-3 py-1.5 sm:p-0 rounded-lg shrink-0">
+            <button className="text-xs sm:text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2.5 rounded-xl shadow-sm transition-all shrink-0">
               Acceder
             </button>
           </div>
