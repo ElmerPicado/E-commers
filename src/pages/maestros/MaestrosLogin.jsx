@@ -97,7 +97,6 @@ const MaestrosLogin = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 flex flex-col justify-between p-4 sm:p-6 relative overflow-hidden font-sans">
-      {/* Luz ambiental de fondo */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-purple-600/15 rounded-full blur-3xl pointer-events-none"></div>
       <div className="absolute bottom-10 right-10 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -114,7 +113,6 @@ const MaestrosLogin = () => {
       <main className="flex-1 flex items-center justify-center py-10 z-10">
         <div className="w-full max-w-md bg-slate-900/90 backdrop-blur-2xl border border-slate-800/80 p-8 sm:p-10 rounded-3xl shadow-2xl relative">
 
-          {/* Encabezado del Formulario */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-tr from-purple-600 to-indigo-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20 border border-purple-400/30">
               <ShieldCheck className="w-8 h-8" />
@@ -127,7 +125,6 @@ const MaestrosLogin = () => {
             </p>
           </div>
 
-          {/* Selector de modo */}
           <div className="mb-6 flex flex-wrap gap-2 justify-center">
             <button
               type="button"
@@ -157,9 +154,9 @@ const MaestrosLogin = () => {
             </button>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-5" autoComplete="off">
+          <form onSubmit={handleLogin} className="space-y-5">
             {errorMsg && (
-              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-all">
+              <div className="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-2.5 transition-all mb-4">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMsg}</span>
               </div>
@@ -170,17 +167,16 @@ const MaestrosLogin = () => {
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                   Correo Electrónico
                 </label>
-                <div className="relative flex items-center">
-                  <span className="absolute left-4 z-20 pointer-events-none text-slate-400 flex items-center justify-center">
-                    <Mail className="w-5 h-5" />
-                  </span>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Mail className="w-5 h-5 text-slate-400" />
+                  </div>
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="maestra@imr4.com"
-                    autoComplete="off"
-                    className="login-input-clean w-full pl-12 pr-4 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none transition-all text-sm font-medium"
+                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm font-medium"
                     required
                   />
                 </div>
@@ -190,17 +186,16 @@ const MaestrosLogin = () => {
                 <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                   Nombre de Usuario
                 </label>
-                <div className="relative flex items-center">
-                  <span className="absolute left-4 z-20 pointer-events-none text-slate-400 flex items-center justify-center">
-                    <User className="w-5 h-5" />
-                  </span>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <User className="w-5 h-5 text-slate-400" />
+                  </div>
                   <input
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     placeholder="admin"
-                    autoComplete="off"
-                    className="login-input-clean w-full pl-12 pr-4 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none transition-all text-sm font-medium"
+                    className="block w-full pl-12 pr-4 py-3.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm font-medium"
                     required
                   />
                 </div>
@@ -211,33 +206,34 @@ const MaestrosLogin = () => {
               <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
                 Contraseña
               </label>
-              <div className="relative flex items-center">
-                <span className="absolute left-4 z-20 pointer-events-none text-slate-400 flex items-center justify-center">
-                  <Lock className="w-5 h-5" />
-                </span>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <Lock className="w-5 h-5 text-slate-400" />
+                </div>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  autoComplete="new-password"
-                  className="login-input-clean w-full pl-12 pr-12 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none transition-all text-sm font-medium"
+                  className="block w-full pl-12 pr-12 py-3.5 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-600 focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500 transition-all text-sm font-medium"
                   required
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 z-20 text-slate-400 hover:text-slate-200 p-1 flex items-center justify-center transition-colors"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="p-1 text-slate-500 hover:text-slate-300 focus:outline-none transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
               </div>
             </div>
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 text-sm disabled:opacity-50 border-b-2 border-indigo-800"
+              className="w-full py-4 mt-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 hover:scale-[1.01] active:scale-[0.99] transition-all duration-200 flex items-center justify-center gap-2 text-sm disabled:opacity-50 border-b-2 border-indigo-800"
             >
               {loading ? (
                 <div className="flex items-center gap-2">
