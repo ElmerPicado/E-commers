@@ -421,6 +421,12 @@ const SistemaEscolar = () => {
     e.preventDefault();
     if (!newMaestro.nombre) return;
 
+    // Validación: Evitar duplicado de correos
+    if (newMaestro.email && maestros.some(m => m.email?.toLowerCase() === newMaestro.email.toLowerCase())) {
+      alert("Este correo electrónico ya está registrado con otro maestro.");
+      return;
+    }
+
     const id = `m_${Date.now()}`;
     const nuevo = { id, ...newMaestro };
 
@@ -446,6 +452,12 @@ const SistemaEscolar = () => {
     e.preventDefault();
     if (!newDivisionNombre.trim()) return;
 
+    // Validación: Evitar duplicado de nombres de división
+    if (divisiones.some(d => d.nombre.toLowerCase() === newDivisionNombre.trim().toLowerCase())) {
+      alert("Esta división o rango de edad ya existe.");
+      return;
+    }
+
     const id = `d_${Date.now()}`;
     const nueva = { id, nombre: newDivisionNombre.trim() };
 
@@ -466,7 +478,10 @@ const SistemaEscolar = () => {
 
   const handleAddAsignacion = async (e) => {
     e.preventDefault();
-    if (!newAsignacion.maestroId || !newAsignacion.materia) return;
+    if (!newAsignacion.maestroId || !newAsignacion.materia || !newAsignacion.grupo) {
+      alert("Por favor, completa todos los campos requeridos para la asignación.");
+      return;
+    }
 
     const codigoVirtual = Math.floor(100000 + Math.random() * 900000).toString();
     const id = `a_${Date.now()}`;
