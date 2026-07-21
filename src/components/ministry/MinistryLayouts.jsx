@@ -13,11 +13,6 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  const handleMaestraClick = () => {
-    setStep('maestra');
-    window.location.href = '/maestros/login';
-  };
-
   const handleEstudianteSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -48,58 +43,56 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
     <div style={{ textAlign: 'center', padding: '1rem' }}>
       <GraduationCap size={64} color="#8A2BE2" style={{ marginBottom: '1.5rem' }} />
       <h2 style={{ fontSize: '2rem', fontWeight: 900, color: '#4B0082', marginBottom: '0.5rem' }}>
-        🏫 Aula Virtual IMR4 Niños
+        🏫 Aula Virtual IMR4
       </h2>
       <p style={{ color: '#666', marginBottom: '2rem', fontSize: '1.1rem' }}>
-        ¿Cómo quieres entrar?
+        ¿Cómo quieres entrar hoy?
       </p>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '300px', margin: '0 auto' }}>
-        <button
-          onClick={handleMaestraClick}
+
+      {/* BOTÓN ÚNICO Y PRINCIPAL PARA NIÑOS */}
+      <button
+        onClick={() => setStep('estudiante')}
+        style={{
+          padding: '1.25rem 2rem',
+          background: 'linear-gradient(135deg, #1E90FF, #00BFFF)',
+          color: '#fff',
+          border: 'none',
+          borderRadius: '999px',
+          fontSize: '1.1rem',
+          fontWeight: 900,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.75rem',
+          boxShadow: '0 6px 0 #0066CC',
+          transition: 'transform 0.1s',
+          width: '100%',
+          maxWidth: '300px',
+          margin: '0 auto 1.5rem auto'
+        }}
+      >
+        <GraduationCap size={24} /> ¡SOY ESTUDIANTE!
+      </button>
+
+      {/* ENLACE DISCRETO EN EL PIE DE PÁGINA */}
+      <div style={{ paddingTop: '1.5rem', borderTop: '1px solid #eee' }}>
+        <p style={{ fontSize: '0.8rem', color: '#999', marginBottom: '0.5rem' }}>
+          ¿Perteneces al equipo docente?
+        </p>
+        <a
+          href="/maestros/login"
           style={{
-            padding: '1.25rem 2rem',
-            background: 'linear-gradient(135deg, #8A2BE2, #4B0082)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '999px',
-            fontSize: '1.1rem',
-            fontWeight: 900,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.75rem',
-            boxShadow: '0 6px 0 #4B0082',
-            transition: 'transform 0.1s'
+            fontSize: '0.8rem',
+            color: '#8A2BE2',
+            fontWeight: 700,
+            textDecoration: 'underline',
+            textUnderlineOffset: '4px'
           }}
         >
-          <UserCheck size={24} /> Soy Maestra / Líder
-        </button>
-        <button
-          onClick={() => setStep('estudiante')}
-          style={{
-            padding: '1.25rem 2rem',
-            background: 'linear-gradient(135deg, #1E90FF, #00BFFF)',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '999px',
-            fontSize: '1.1rem',
-            fontWeight: 900,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.75rem',
-            boxShadow: '0 6px 0 #0066CC',
-            transition: 'transform 0.1s'
-          }}
-        >
-          <GraduationCap size={24} /> Soy Estudiante
-        </button>
+          Acceso a Panel de Maestras →
+        </a>
       </div>
-      <p style={{ marginTop: '1.5rem', fontSize: '0.9rem', color: '#888', maxWidth: '300px', margin: '1.5rem auto 0' }}>
-        ¿No tienes acceso? <strong>Contacta a tu líder o escríbenos</strong> para que te den tu código de acceso o te registren como maestra.
-      </p>
     </div>
   );
 

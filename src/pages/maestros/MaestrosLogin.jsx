@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
-import { GraduationCap, Eye, EyeOff, Loader2, AlertCircle, CheckCircle, Mail, Lock, User, Shield } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, ShieldCheck, ArrowLeft, LogIn } from 'lucide-react';
 
 const MaestrosLogin = () => {
   const navigate = useNavigate();
@@ -9,27 +9,17 @@ const MaestrosLogin = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
 
-  const handleSubmit = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
-    
-    if (!email || !password) {
-      setError('Completa todos los campos');
-      return;
-    }
-
     setLoading(true);
     try {
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
       });
 
-      if (authError) throw authError;
+      if (error) throw error;
 
       // Verificar que es maestro
       const { data: perfil, error: perfilError } = await supabase
@@ -53,131 +43,119 @@ const MaestrosLogin = () => {
         throw new Error('Rol no autorizado');
       }
 
-      setSuccess('¡Bienvenido! Redirigiendo...');
-      setTimeout(() => navigate('/maestros'), 800);
+      setTimeout(() => {
+        navigate('/maestros');
+      }, 800);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al iniciar sesión');
+      alert(err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50 px-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 mb-4 shadow-lg">
-            <GraduationCap className="w-10 h-10 text-white" />
+    <div className="min-h-screen bg-slate-950 flex flex-col justify-between p-4 relative overflow-hidden">
+      {/* Glow de fondo */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      {/* Header simple con botón volver */}
+      <header className="max-w-7xl mx-auto w-full pt-4 z-10">
+        <button
+          onClick={() => navigate('/ministerio/ninos')}
+          className="text-slate-400 hover:text-white text-sm font-medium inline-flex items-center gap-2 transition"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Volver a Niños
+        </button>
+      </header>
+
+      {/* Card Formulario */}
+      <main className="flex-1 flex items-center justify-center py-12 z-10">
+        <div className="w-full max-w-md bg-slate-900/80 backdrop-blur-xl border border-slate-800 p-8 rounded-3xl shadow-2xl">
+          
+          <div className="text-center mb-8">
+            <div className="w-14 h-14 bg-purple-500/10 border border-purple-500/20 text-purple-400 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <ShieldCheck className="w-7 h-7" />
+            </div>
+            <h1 className="text-2xl font-bold text-white tracking-tight">
+              IMR4 Maestros
+            </h1>
+            <p className="text-sm text-slate-400 mt-1">
+              Plataforma Educativa · Área de Maestras
+            </p>
           </div>
-          <h1 className="text-3xl font-bold text-gray-800">IMR4 Maestros</h1>
-          <p className="text-gray-500 mt-1">Plataforma Educativa · Área de Maestras</p>
-        </div>
 
-        {/* Login Card */}
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl flex items-center gap-3 text-red-700">
-              <AlertCircle className="w-5 h-5 flex-shrink-0" />
-              <p className="text-sm">{error}</p>
-            </div>
-          )}
-
-          {success && (
-            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-center gap-3 text-green-700">
-              <CheckCircle className="w-5 h-5 flex-shrink-0" />
-              <p className="text-sm">{success}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <form onSubmit={handleLogin} className="space-y-5">
+            {/* Campo Correo */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
-                Correo electrónico
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
+                Correo Electrónico
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  id="email"
                   type="email"
                   value={email}
-                  onChange={e => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                  placeholder="maestra@imr4.org"
-                  autoComplete="email"
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="maestra@imr4.com"
+                  className="w-full pl-11 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-sm"
                   required
-                  disabled={loading}
                 />
               </div>
             </div>
 
+            {/* Campo Contraseña */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
                 Contraseña
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="w-5 h-5 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
-                  id="password"
                   type={showPassword ? 'text' : 'password'}
                   value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  autoComplete="current-password"
+                  className="w-full pl-11 pr-11 py-3 bg-slate-950 border border-slate-800 rounded-xl text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition text-sm"
                   required
-                  disabled={loading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               </div>
             </div>
 
+            {/* Botón Acceder */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 px-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-xl hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              className="w-full py-3.5 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-xl shadow-lg shadow-purple-600/25 transition flex items-center justify-center gap-2 text-sm disabled:opacity-50 mt-2"
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  Iniciando sesión...
-                </span>
+                <span>Ingresando...</span>
               ) : (
-                'Acceder a la Plataforma'
+                <>
+                  <LogIn className="w-4 h-4" />
+                  <span>Acceder a la Plataforma</span>
+                </>
               )}
             </button>
           </form>
 
-          <div className="mt-6 pt-6 border-t border-gray-100">
-            <p className="text-center text-sm text-gray-500 mb-3">¿No tienes cuenta?</p>
-            <p className="text-center text-sm text-gray-600">
-              Contacta al administrador para crear tu usuario maestro.
-            </p>
-          </div>
-
-          <div className="mt-6 space-y-3 text-xs text-center text-gray-400">
-            <p><strong>Roles disponibles:</strong></p>
-            <div className="flex justify-center gap-4 text-xs">
-              <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded">Maestra</span>
-              <span className="px-2 py-1 bg-purple-100 text-purple-700 rounded">Maestra Líder</span>
-              <span className="px-2 py-1 bg-red-100 text-red-700 rounded">Admin Maestros</span>
-            </div>
-          </div>
+          <p className="text-center text-xs text-slate-500 mt-6">
+            Acceso exclusivo para equipo docente autorizado.
+          </p>
         </div>
+      </main>
 
-        {/* Footer */}
-        <div className="text-center mt-6 text-sm text-gray-400">
-          <p>IMR4 Niños · Plataforma Educativa</p>
-          <p>Acceso exclusivo para equipo docente autorizado</p>
-        </div>
-      </div>
+      {/* Footer */}
+      <footer className="text-center py-4 text-xs text-slate-600 z-10">
+        IMR4 · Plataforma Educativa
+      </footer>
     </div>
   );
 };
