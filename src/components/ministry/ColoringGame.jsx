@@ -17,21 +17,29 @@ const ColoringGame = ({ gameData }) => {
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  const templateImageRef = useRef(null); // 🧠 Guardamos la plantilla limpia en memoria
+  const templateImageRef = useRef(null);
 
   const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [currentImgUrl, setCurrentImgUrl] = useState('');
 
-  // Configuración de dimensiones y redimensionamiento sin perder el progreso del dibujo
+  // Configuración segura de dimensiones y carga de imagen principal
   useEffect(() => {
     if (!pages.length) return;
     const page = pages[activePageIdx];
+    if (!page?.image_url) return;
 
-    const cacheBustedUrl = page.image_url + (page.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
+    // Evitamos problemas de caché y URLs blob malformadas
+    const rawUrl = page.image_url;
+    const cacheBustedUrl = rawUrl.startsWith('blob:')
+      ? rawUrl
+      : rawUrl + (rawUrl.includes('?') ? '&' : '?') + 't=' + Date.now();
+
     setCurrentImgUrl(cacheBustedUrl);
 
     const img = new Image();
-    img.crossOrigin = 'anonymous';
+    if (!rawUrl.startsWith('blob:')) {
+      img.crossOrigin = 'anonymous';
+    }
 
     img.onload = () => {
       templateImageRef.current = img;
@@ -50,22 +58,25 @@ const ColoringGame = ({ gameData }) => {
         maxH = isMobile ? Math.min(screenHeight * 0.38, 380) : Math.min(screenHeight * 0.5, 500);
       }
 
-      let w = img.width, h = img.height;
+      let w = img.width || 300;
+      let h = img.height || 300;
       const scale = Math.min(maxW / w, maxH / h);
 
-      const finalW = Math.round(w * scale);
-      const finalH = Math.round(h * scale);
+      const finalW = Math.max(Math.round(w * scale), 200);
+      const finalH = Math.max(Math.round(h * scale), 200);
 
-      // 💾 Guardamos lo que ya estaba pintado antes de cambiar el tamaño del canvas
       const currentCanvas = canvasRef.current;
       let savedDataUrl = null;
       if (currentCanvas && currentCanvas.width > 0 && currentCanvas.height > 0) {
-        savedDataUrl = currentCanvas.toDataURL('image/png');
+        try {
+          savedDataUrl = currentCanvas.toDataURL('image/png');
+        } catch (e) {
+          console.warn("No se pudo respaldar el canvas anterior:", e);
+        }
       }
 
       setDimensions({ width: finalW, height: finalH });
 
-      // Esperamos a que el DOM se actualice con las nuevas dimensiones para restaurar el dibujo
       setTimeout(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -73,25 +84,31 @@ const ColoringGame = ({ gameData }) => {
         canvas.height = finalH;
         const ctx = canvas.getContext('2d');
 
-        // Fondo blanco inicial
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, finalW, finalH);
 
         if (savedDataUrl) {
-          // Si ya había trazos previos, reescalamos el progreso guardado al nuevo tamaño
           const savedImg = new Image();
           savedImg.onload = () => {
             ctx.drawImage(savedImg, 0, 0, finalW, finalH);
           };
           savedImg.src = savedDataUrl;
         } else {
-          // Si es la primera carga, estampamos la plantilla limpia
           ctx.drawImage(img, 0, 0, finalW, finalH);
         }
       }, 50);
     };
 
+    img.onerror = (err) => {
+      console.error("Error al cargar la imagen del dibujo:", err);
+    };
+
     img.src = cacheBustedUrl;
+
+    return () => {
+      img.onload = null;
+      img.onerror = null;
+    };
   }, [activePageIdx, pages, isFullscreen]);
 
   const getPos = (e) => {
@@ -126,7 +143,6 @@ const ColoringGame = ({ gameData }) => {
     }
 
     if (tool === 'eraser') {
-      // 🧽 Borrador inteligente: borra el color y restaura el trozo de línea negra correspondiente
       ctx.globalCompositeOperation = 'source-over';
       const size = brushSize * 1.5;
 
@@ -185,7 +201,6 @@ const ColoringGame = ({ gameData }) => {
     setFinished(true);
   };
 
-  // 🧹 Botón limpiar: Restaura el lienzo completo con la plantilla limpia original
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -251,7 +266,6 @@ const ColoringGame = ({ gameData }) => {
         padding: '0.6rem'
       } : {})
     }}>
-      {/* Cabecera principal compacta */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '500px' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#FF69B4', margin: 0, textShadow: '1px 1px 0 #fff' }}>
           {gameData?.title || 'Coloreando la Biblia'}
@@ -263,7 +277,6 @@ const ColoringGame = ({ gameData }) => {
         )}
       </div>
 
-      {/* Selector de Galería y Título activo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
         {pages.length > 1 && (
           <button
@@ -291,7 +304,6 @@ const ColoringGame = ({ gameData }) => {
         </span>
       </div>
 
-      {/* Paleta de colores */}
       <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '500px' }}>
         {palette.map((c) => (
           <button
@@ -312,7 +324,6 @@ const ColoringGame = ({ gameData }) => {
         ))}
       </div>
 
-      {/* Herramientas de dibujo y tamaños */}
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         <div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center', padding: '0.2rem', background: '#FFF', borderRadius: '0.6rem', border: '2px solid #FF69B4' }}>
           <button
@@ -377,7 +388,6 @@ const ColoringGame = ({ gameData }) => {
         )}
       </div>
 
-      {/* Contenedor del lienzo con el botón flotante de pantalla completa integrado en la esquina */}
       <div
         ref={containerRef}
         style={{
@@ -412,7 +422,6 @@ const ColoringGame = ({ gameData }) => {
           }}
         />
 
-        {/* 🔍 Botón flotante justo en la esquina superior derecha */}
         <button
           onClick={() => setIsFullscreen(!isFullscreen)}
           title={isFullscreen ? "Minimizar" : "Pantalla completa"}
@@ -439,7 +448,6 @@ const ColoringGame = ({ gameData }) => {
         </button>
       </div>
 
-      {/* Botones de acción inferiores */}
       <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'center', paddingBottom: isFullscreen ? '1rem' : '0' }}>
         <button
           onClick={clearCanvas}
@@ -481,7 +489,6 @@ const ColoringGame = ({ gameData }) => {
         </button>
       </div>
 
-      {/* Modal Galería de Dibujos */}
       {isGalleryOpen && (
         <div style={{
           position: 'fixed',
@@ -561,8 +568,8 @@ const ColoringGame = ({ gameData }) => {
                     <div style={{ width: '100%', height: '75px', borderRadius: '0.6rem', overflow: 'hidden', background: '#F8FAFC', marginBottom: '0.3rem' }}>
                       <img
                         src={p.image_url}
-                        crossOrigin="anonymous"
-                        alt={p.title}
+                        {...(!p.image_url.startsWith('blob:') ? { crossOrigin: "anonymous" } : {})}
+                        alt={p.title || `Dibujo ${idx + 1}`}
                         style={{ width: '100%', height: '100%', objectFit: 'contain' }}
                       />
                     </div>
@@ -588,7 +595,6 @@ const ColoringGame = ({ gameData }) => {
   );
 };
 
-// Helpers de relleno y conversión de color con restricciones de bordes
 function hexToRgba(hex) {
   hex = hex.replace('#', '');
   if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
