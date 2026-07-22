@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { RotateCcw, Trophy, Sparkles, ChevronRight, CheckCircle } from 'lucide-react';
 
-const PuzzleGame = ({ puzzleData }) => {
+const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
   // Parse levels with legacy fallback
   const levels = React.useMemo(() => {
     if (puzzleData && Array.isArray(puzzleData.levels) && puzzleData.levels.length > 0) {
@@ -18,8 +18,16 @@ const PuzzleGame = ({ puzzleData }) => {
     return [];
   }, [puzzleData]);
 
-  const [currentLevelIndex, setCurrentLevelIndex] = useState(0);
-  const activeLevel = levels[currentLevelIndex];
+  const [currentLevelIndex, setCurrentLevelIndex] = useState(initialLevelIndex);
+
+  // Sincronizar el nivel interno si cambia desde el menú de la aplicación (GamePlay)
+  useEffect(() => {
+    if (initialLevelIndex !== undefined && initialLevelIndex !== currentLevelIndex) {
+      setCurrentLevelIndex(initialLevelIndex);
+    }
+  }, [initialLevelIndex]);
+
+  const activeLevel = levels[currentLevelIndex] || levels[0];
 
   // Game States
   const [pieces, setPieces] = useState([]);
@@ -185,7 +193,11 @@ const PuzzleGame = ({ puzzleData }) => {
     setActiveSlotIndex(index);
   };
 
-  const goToNextLevel = () => {
+  const handleNextLevelClick = () => {
+    if (onNextLevel) {
+      onNextLevel(); // Llama a la función del componente padre (GamePlay)
+    }
+
     if (currentLevelIndex < levels.length - 1) {
       setCurrentLevelIndex(prev => prev + 1);
       setLevelCleared(false);
@@ -315,7 +327,7 @@ const PuzzleGame = ({ puzzleData }) => {
       {/* Top Banner - Level Indicator */}
       <div style={{
         display: 'flex',
-        justify: 'space-between',
+        justifyContent: 'space-between',
         alignItems: 'center',
         width: '100%',
         maxWidth: '340px',
@@ -586,7 +598,7 @@ const PuzzleGame = ({ puzzleData }) => {
             {currentLevelIndex === levels.length - 1 ? '¡Completaste todo el juego!' : '¡Desbloqueaste el siguiente nivel!'}
           </p>
           <button
-            onClick={goToNextLevel}
+            onClick={handleNextLevelClick}
             style={{
               background: '#FFD700',
               color: '#8B4500',
