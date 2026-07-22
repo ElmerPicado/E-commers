@@ -38,7 +38,7 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
         .from('estudiantes')
         .select('id, nombre, apellido, division_id, activo')
         .eq('division_id', division.id)
-        .eq('activo', true);
+        .eq('activa', true);
 
       if (estError || !estudiantes || estudiantes.length === 0) {
         throw new Error('No hay estudiantes activos en esta división.');
@@ -52,7 +52,7 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
       };
 
       // Resto de tu lógica para avanzar...
-      console.log("Estudiante validado:", estudianteData);
+      console.log("Bienvenido", estudianteData);
 
     } catch (err) {
       setError(err.message);
