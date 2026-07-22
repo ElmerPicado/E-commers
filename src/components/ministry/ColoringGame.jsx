@@ -84,9 +84,9 @@ const ColoringGame = ({ gameData }) => {
             ctx.drawImage(savedImg, 0, 0, finalW, finalH);
           };
           savedImg.src = savedDataUrl;
-        } else {
-          // Si es la primera carga, estampamos la plantilla limpia
-          ctx.drawImage(img, 0, 0, finalW, finalH);
+        } else if (templateImageRef.current) {
+          // 💡 Pintamos la plantilla limpia desde la primera carga de forma inmediata
+          ctx.drawImage(templateImageRef.current, 0, 0, finalW, finalH);
         }
       }, 50);
     };
