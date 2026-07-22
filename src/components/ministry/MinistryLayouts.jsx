@@ -47,7 +47,7 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
 
       // 4. Redirigir al Aula Virtual
       setTimeout(() => {
-        window.location.href = '/aula-virtual';
+        window.location.href = '/aula';
       }, 1000);
 
     } catch (err) {
