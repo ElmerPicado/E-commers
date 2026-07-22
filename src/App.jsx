@@ -20,7 +20,7 @@ const DynamicHead = () => {
       let ogTitle = document.querySelector('meta[property="og:title"]');
       if (ogTitle) ogTitle.setAttribute('content', livestream.churchName);
     }
-    
+
     if (livestream?.churchLogo) {
       // Hacer el favicon redondo usando Canvas
       const img = new Image();
@@ -35,7 +35,7 @@ const DynamicHead = () => {
         ctx.closePath();
         ctx.clip();
         ctx.drawImage(img, 0, 0, 128, 128);
-        
+
         let link = document.querySelector("link[rel*='icon']");
         if (!link) {
           link = document.createElement('link');
@@ -51,7 +51,7 @@ const DynamicHead = () => {
         if (link) link.href = livestream.churchLogo;
       };
       img.src = livestream.churchLogo;
-      
+
       // Actualizar og:image dinámicamente (ayuda a algunos scrapers, aunque no a todos)
       let ogImage = document.querySelector('meta[property="og:image"]');
       if (ogImage) ogImage.setAttribute('content', livestream.churchLogo);
@@ -124,14 +124,14 @@ const LayoutWrapper = () => {
           <Route path="/ninos/juegos/:gameId" element={<GamePlay />} />
           <Route path="/ninos/videos" element={<VideosGrid />} />
           <Route path="/ninos/videos/:videoId" element={<VideoPlayer />} />
-          
+
           {/* Maestros Platform */}
           <Route path="/maestros/login" element={<MaestrosLogin />} />
           <Route path="/maestros/*" element={<MaestrosDashboard />} />
-          
+
           {/* Aula Virtual Estudiantes */}
-          <Route path="/aula/*" element={<AulaVirtual />} />
-          
+          <Route path="/aula/" element={<AulaVirtual />} />
+
           <Route path="/admin" element={<ProtectedAdminRoute />} />
         </Routes>
       </main>
