@@ -56,8 +56,7 @@ const AulaVirtual = () => {
     setLoginLoading(true);
     try {
       const code = codigo.toUpperCase().trim();
-      
-      // 1. Buscar división por codigo_acceso (el código pertenece a divisiones)
+
       const { data: division, error: divError } = await supabase
         .from('divisiones')
         .select('id, nombre, codigo_acceso')
@@ -68,7 +67,6 @@ const AulaVirtual = () => {
         throw new Error('Código de división inválido. Verifica e intenta de nuevo.');
       }
 
-      // 2. Buscar estudiantes activos en esa división
       const { data: estudiantes, error: estError } = await supabase
         .from('estudiantes')
         .select('id, nombre, apellido, division_id, activo')
@@ -79,14 +77,13 @@ const AulaVirtual = () => {
         throw new Error('No hay estudiantes activos en esta división.');
       }
 
-      // Por ahora tomamos el primer estudiante (o se podría mostrar selector si hay varios)
       const estudianteData = {
         ...estudiantes[0],
         division_nombre: division.nombre,
         division_codigo: division.codigo_acceso,
         division_id: division.id
       };
-      
+
       setEstudiante(estudianteData);
       localStorage.setItem('aula_estudiante', JSON.stringify(estudianteData));
       setStep('dashboard');
@@ -117,7 +114,6 @@ const AulaVirtual = () => {
     }
   };
 
-  // Cargar sesión del estudiante desde localStorage al montar el componente
   useEffect(() => {
     const savedEstudiante = localStorage.getItem('aula_estudiante');
     if (savedEstudiante) {
@@ -166,17 +162,13 @@ const AulaVirtual = () => {
     activeFilter === 'all' || t.estado === activeFilter
   );
 
-  // ================= NUEVA VISTA DE LOGIN REMODELADA =================
   if (step === 'login') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-sky-400 via-indigo-500 to-purple-600 p-4 relative overflow-hidden">
-        {/* Adornos infantiles flotantes de fondo */}
         <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-pulse"></div>
         <div className="absolute bottom-10 right-10 w-32 h-32 bg-yellow-300/20 rounded-full blur-2xl"></div>
 
         <div className="w-full max-w-md bg-white/95 backdrop-blur-md rounded-3xl shadow-2xl p-8 border-4 border-white/50 text-center relative z-10">
-
-          {/* Header con ícono grande e infantil */}
           <div className="mb-6">
             <div className="w-24 h-24 mx-auto mb-3 bg-gradient-to-tr from-yellow-300 to-amber-400 rounded-2xl rotate-3 flex items-center justify-center shadow-lg border-2 border-white">
               <GraduationCap className="w-12 h-12 text-amber-900 -rotate-3" />
@@ -192,7 +184,6 @@ const AulaVirtual = () => {
             </p>
           </div>
 
-          {/* Formulario Estudiante */}
           <form onSubmit={handleLogin} className="space-y-5">
             {loginError && (
               <div className="bg-red-50 border-2 border-red-200 text-red-600 px-4 py-3 rounded-2xl text-sm font-bold flex items-center gap-2 text-left animate-shake">
@@ -217,7 +208,6 @@ const AulaVirtual = () => {
               />
             </div>
 
-            {/* BOTÓN DIVERTIDO Y VISIBLE PARA NIÑOS */}
             <button
               type="submit"
               disabled={loginLoading || !codigo.trim()}
@@ -237,7 +227,6 @@ const AulaVirtual = () => {
             </button>
           </form>
 
-          {/* SECCIÓN INFERIOR DISCRETA PARA MAESTRAS / LÍDERES */}
           <div className="mt-8 pt-5 border-t border-gray-100">
             <p className="text-xs text-gray-400 mb-2">
               ¿Eres la maestra o líder del grupo?
@@ -251,7 +240,6 @@ const AulaVirtual = () => {
             </button>
           </div>
 
-          {/* Botón Volver */}
           <div className="mt-6">
             <button
               onClick={() => navigate('/ministerio/ninos')}
@@ -261,16 +249,13 @@ const AulaVirtual = () => {
               Volver al Inicio
             </button>
           </div>
-
         </div>
       </div>
     );
   }
 
-  // ================= VISTA DASHBOARD =================
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-white shadow-sm sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -298,9 +283,7 @@ const AulaVirtual = () => {
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Total Tareas', value: tareas.length, icon: FileText, color: 'bg-blue-500' },
@@ -322,7 +305,6 @@ const AulaVirtual = () => {
           ))}
         </div>
 
-        {/* Filters */}
         <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 mb-6">
           <div className="flex flex-wrap gap-2">
             {['all', 'pendiente', 'entregado', 'revisado'].map(f => {
@@ -348,7 +330,6 @@ const AulaVirtual = () => {
           </div>
         </div>
 
-        {/* Tareas List */}
         {loading ? (
           <div className="text-center py-12">
             <svg className="animate-spin h-10 w-10 mx-auto text-blue-500" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
@@ -458,7 +439,6 @@ const AulaVirtual = () => {
           </div>
         )}
 
-        {/* Entrega Modal */}
         {showEntregaModal && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50" onClick={() => setShowEntregaModal(null)}>
             <div className="w-[92vw] max-w-md max-h-[90vh] overflow-y-auto rounded-3xl p-6 bg-white shadow-2xl" onClick={e => e.stopPropagation()}>
