@@ -20,7 +20,7 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
     setLoading(true);
     try {
       const code = codigo.toUpperCase().trim();
-      
+
       const { data: division, error: divError } = await supabase
         .from('divisiones')
         .select('id, nombre, codigo_acceso')
@@ -47,7 +47,8 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
         division_codigo: division.codigo_acceso,
         division_id: division.id
       };
-      
+
+
       setSuccess(true);
       setTimeout(() => {
         localStorage.setItem('aula_estudiante', JSON.stringify(estudianteData));
@@ -208,11 +209,11 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
   );
 };
 
-export const PlayfulLayout = ({ 
-  ministry, 
-  ministryActivities, 
+export const PlayfulLayout = ({
+  ministry,
+  ministryActivities,
   ministryAlbums,
-  customThemeVars, 
+  customThemeVars,
   getThemeClass,
   setSelectedActivity,
   setSelectedAlbum,
@@ -225,7 +226,7 @@ export const PlayfulLayout = ({
 
   return (
     <div className={getThemeClass(ministry)} style={{ ...customThemeVars, minHeight: '100vh', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden', fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif' }}>
-      
+
       {/* Playful Animated Sky / Grass Background */}
       {ministry.hero_image ? (
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '75vh', backgroundImage: `url("${ministry.hero_image}")`, backgroundSize: 'cover', backgroundPosition: 'center', zIndex: 0 }}>
@@ -244,7 +245,7 @@ export const PlayfulLayout = ({
 
       {/* Content wrapper - single div wrapping everything */}
       <div style={{ position: 'relative', zIndex: 1, padding: '2rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3rem', minHeight: '75vh', justifyContent: 'flex-end', paddingBottom: '10vh' }}>
-        
+
         {/* REGULAR DOMINICAL HOME SCREEN */}
         <div>
           {/* Hero */}
@@ -258,7 +259,7 @@ export const PlayfulLayout = ({
             <p style={{ fontSize: 'clamp(1rem, 4vw, 1.2rem)', color: 'var(--text-primary)', fontWeight: 600, marginBottom: '2rem' }}>
               {ministry.hero_desc}
             </p>
-            
+
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <a href={ministry.visual_settings?.primary_action_url || "#"} className="btn" style={{ background: 'var(--accent-color)', color: '#fff', fontSize: 'clamp(1rem, 4vw, 1.2rem)', padding: '0.8rem 1.5rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(0,0,0,0.2)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900 }}>
                 {ministry.visual_settings?.primary_action_text || "¡Quiero Participar!"}
@@ -267,9 +268,9 @@ export const PlayfulLayout = ({
                 ¡A Jugar! <Gamepad2 size={20} style={{ display: 'inline', marginLeft: '5px' }} />
               </Link>
               {/* Botón Aula Virtual */}
-              <button 
-                onClick={() => setShowAulaVirtual(true)} 
-                className="btn" 
+              <button
+                onClick={() => setShowAulaVirtual(true)}
+                className="btn"
                 style={{ background: 'linear-gradient(135deg, #8A2BE2, #1E90FF)', color: '#fff', fontSize: 'clamp(1rem, 4vw, 1.2rem)', padding: '0.8rem 1.5rem', borderRadius: '999px', border: 'none', boxShadow: '0 8px 0px rgba(30,144,255,0.5)', transform: 'translateY(-4px)', transition: 'all 0.1s', fontWeight: 900, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
               >
                 <GraduationCap size={20} style={{ display: 'inline', marginLeft: '5px' }} /> Aula Virtual
@@ -279,159 +280,160 @@ export const PlayfulLayout = ({
 
           {/* Schedule & Location Box */}
           {(ministry.schedule || ministry.location) && (
-             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', width: '100%', maxWidth: '900px', boxSizing: 'border-box' }}>
-                <div style={{ flex: '1 1 280px', background: '#FFD700', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #FFA500', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)' }}>
-                      <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#B8860B', marginBottom: '0.5rem' }}>¿Cuándo nos vemos?</h3>
-                      <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#000' }}>{ministry.schedule}</p>
-                </div>
-                <div style={{ flex: '1 1 280px', background: '#FF69B4', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #C71585', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)' }}>
-                      <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#8B008B', marginBottom: '0.5rem' }}>¿Dónde estamos?</h3>
-                      <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>{ministry.location}</p>
-                </div>
-             </div>
-           )}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', width: '100%', maxWidth: '900px', boxSizing: 'border-box' }}>
+              <div style={{ flex: '1 1 280px', background: '#FFD700', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #FFA500', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#B8860B', marginBottom: '0.5rem' }}>¿Cuándo nos vemos?</h3>
+                <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#000' }}>{ministry.schedule}</p>
+              </div>
+              <div style={{ flex: '1 1 280px', background: '#FF69B4', padding: '1.5rem', borderRadius: '2rem', border: '4px solid #C71585', textAlign: 'center', boxShadow: '0 8px 15px rgba(0,0,0,0.1)' }}>
+                <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#8B008B', marginBottom: '0.5rem' }}>¿Dónde estamos?</h3>
+                <p style={{ fontSize: '1.2rem', fontWeight: 700, color: '#fff' }}>{ministry.location}</p>
+              </div>
+            </div>
+          )}
 
-           {/* Fun Zone Banner - Always visible */}
-           <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem', boxSizing: 'border-box' }}>
-             <Link
-               to="/ninos/juegos"
-               style={{
-                 background: 'linear-gradient(135deg, #8A2BE2, #FF1493, #FF4500)', 
-                 borderRadius: '2.5rem', 
-                 padding: '1.5rem 1rem', 
-                 cursor: 'pointer', 
-                 border: '5px solid #FFD700', 
-                 boxShadow: '0 15px 30px rgba(138, 43, 226, 0.3)', 
-                 display: 'flex', 
-                 flexDirection: 'column', 
-                 alignItems: 'center', 
-                 gap: '1rem',
-                 transition: 'transform 0.2s, box-shadow 0.2s',
-                 position: 'relative',
-                 overflow: 'hidden',
-                 textDecoration: 'none',
-                 color: 'inherit',
-                 width: '100%',
-                 boxSizing: 'border-box'
-               }}
-               onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(138, 43, 226, 0.4)'; }}
-               onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(138, 43, 226, 0.3)'; }}
-             >
-               {/* Decorative floating emojis */}
-               <div style={{ position: 'absolute', top: '10px', left: '20px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite' }}>🧩</div>
-               <div style={{ position: 'absolute', top: '15px', right: '25px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite 0.5s' }}>🎬</div>
-               <div style={{ position: 'absolute', bottom: '10px', left: '30%', fontSize: '2rem', opacity: 0.3, animation: 'float 3s ease-in-out infinite 1s' }}>⭐</div>
-               
-               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-                 <Gamepad2 size={40} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
-                 <h2 style={{ fontSize: 'clamp(2rem, 7vw, 2.8rem)', fontWeight: 900, color: '#FFD700', margin: 0, textShadow: '2px 2px 0 rgba(0,0,0,0.3)', textAlign: 'center' }}>
-                   ¡Zona de Juegos!
-                 </h2>
-                 <Gamepad2 size={40} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
-               </div>
-               <p style={{ color: '#fff', fontSize: 'clamp(0.9rem, 4vw, 1.15rem)', fontWeight: 700, margin: 0, textAlign: 'center', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
-                 Rompecabezas Bíblicos, Videos, Canciones y ¡Mucho Más!
-               </p>
-               <div style={{ background: '#FFD700', color: '#8B4500', padding: '0.6rem 2rem', borderRadius: '999px', fontSize: 'clamp(1rem, 4vw, 1.2rem)', fontWeight: 900, boxShadow: '0 5px 0 #b89b00', transform: 'translateY(-2px)' }}>
-                 ENTRAR A JUGAR 🚀
-               </div>
-               <style>{`
+          {/* Fun Zone Banner - Always visible */}
+          <section id="juegos" style={{ width: '100%', maxWidth: '1000px', marginTop: '2rem', boxSizing: 'border-box' }}>
+            <Link
+              to="/ninos/juegos"
+              style={{
+                background: 'linear-gradient(135deg, #8A2BE2, #FF1493, #FF4500)',
+                borderRadius: '2.5rem',
+                padding: '1.5rem 1rem',
+                cursor: 'pointer',
+                border: '5px solid #FFD700',
+                boxShadow: '0 15px 30px rgba(138, 43, 226, 0.3)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '1rem',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                position: 'relative',
+                overflow: 'hidden',
+                textDecoration: 'none',
+                color: 'inherit',
+                width: '100%',
+                boxSizing: 'border-box'
+              }}
+              onMouseOver={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(138, 43, 226, 0.4)'; }}
+              onMouseOut={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(138, 43, 226, 0.3)'; }}
+            >
+              {/* Decorative floating emojis */}
+              <div style={{ position: 'absolute', top: '10px', left: '20px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite' }}>🧩</div>
+              <div style={{ position: 'absolute', top: '15px', right: '25px', fontSize: '2rem', opacity: 0.4, animation: 'float 3s ease-in-out infinite 0.5s' }}>🎬</div>
+              <div style={{ position: 'absolute', bottom: '10px', left: '30%', fontSize: '2rem', opacity: 0.3, animation: 'float 3s ease-in-out infinite 1s' }}>⭐</div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                <Gamepad2 size={40} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+                <h2 style={{ fontSize: 'clamp(2rem, 7vw, 2.8rem)', fontWeight: 900, color: '#FFD700', margin: 0, textShadow: '2px 2px 0 rgba(0,0,0,0.3)', textAlign: 'center' }}>
+                  ¡Zona de Juegos!
+                </h2>
+                <Gamepad2 size={40} color="#FFD700" style={{ filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.3))' }} />
+              </div>
+              <p style={{ color: '#fff', fontSize: 'clamp(0.9rem, 4vw, 1.15rem)', fontWeight: 700, margin: 0, textAlign: 'center', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                Rompecabezas Bíblicos, Videos, Canciones y ¡Mucho Más!
+              </p>
+              <div style={{ background: '#FFD700', color: '#8B4500', padding: '0.6rem 2rem', borderRadius: '999px', fontSize: 'clamp(1rem, 4vw, 1.2rem)', fontWeight: 900, boxShadow: '0 5px 0 #b89b00', transform: 'translateY(-2px)' }}>
+                ENTRAR A JUGAR 🚀
+              </div>
+              <style>{`
                  @keyframes float {
                    0%, 100% { transform: translateY(0px); }
                    50% { transform: translateY(-10px); }
                  }
                `}</style>
-             </Link>
-           </section>
-           {/* Videos Section */}
-           <section id="videos" style={{ width: '100%', maxWidth: '1000px', marginTop: '1rem' }}>
-             <VideosSection ministry={ministry} />
-           </section>
+            </Link>
+          </section>
+          {/* Videos Section */}
+          <section id="videos" style={{ width: '100%', maxWidth: '1000px', marginTop: '1rem' }}>
+            <VideosSection ministry={ministry} />
+          </section>
 
-           {/* Activities Section - Playful Style */}
-           {ministryActivities && ministryActivities.length > 0 && (
-             <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
-               <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#FF1493', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
-                 🌟 ¡Nuestras Actividades! 🌟
-               </h2>
-               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
-{ministryActivities.map((act) => (
-                    <div
-                      key={act.id}
-                      onClick={() => setSelectedActivity(act)}
-                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
-                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                      style={{
-                        width: '100%',
-                        maxWidth: '320px',
-                        background: '#FFF',
-                        borderRadius: '2rem',
-                        overflow: 'hidden',
-                        border: '4px solid #32CD32',
-                        boxShadow: '0 10px 20px rgba(0,0,0,0.15)',
-                        cursor: 'pointer',
-                        transition: 'transform 0.2s',
-                        transform: 'scale(1)'
-                      }}
-                    >
-                     {act.image_url ? (
-                       <div style={{ height: '200px', width: '100%', background: '#f0f0f0' }}>
-                         <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                       </div>
-                     ) : (
-                       <div style={{ height: '150px', background: '#32CD32', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                         <Calendar size={60} color="#fff" />
-                       </div>
-                     )}
-                     <div style={{ padding: '1.5rem', textAlign: 'center' }}>
-                       <div style={{ background: '#FFD700', color: '#8B4500', display: 'inline-block', padding: '0.25rem 1rem', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '1rem', border: '2px solid #DAA520' }}>
-                         {new Date(act.date + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
-                       </div>
-                       <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#228B22', marginBottom: '0.5rem', lineHeight: 1.2 }}>{act.title}</h3>
-                       <p style={{ color: '#666', fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{act.description}</p>
-                     </div>
-</div>
-                     ))}
-                </div>
-             </section>
-           )}
-
-           {/* Gallery Section - Playful Style */}
-           {ministryAlbums && ministryAlbums.length > 0 && (
-             <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto', background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.5))', borderRadius: '3rem' }}>
-               <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1E90FF', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
-                 📸 ¡Nuestros Recuerdos! 📸
-               </h2>
-               <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
-{ministryAlbums.map((album) => {
-                    const rotation = parseInt(album.id.toString().slice(-2), 10) % 6 - 3;
-                    return (
-                      <div key={album.id} style={{ width: '100%', maxWidth: '300px', background: '#FFF', borderRadius: '2rem', padding: '1rem', border: '4px solid #1E90FF', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', transform: `rotate(${rotation}deg)` }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0000CD', textAlign: 'center', marginBottom: '1rem' }}>{album.title}</h3>
-                        {album.photos && album.photos.length > 0 ? (
-                          <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: '1rem', overflow: 'hidden', cursor: 'pointer', border: '2px solid #87CEEB' }} onClick={() => { setSelectedAlbum(album); setLightboxIndex(0); }}>
-                            <img src={album.photos[0]} alt={album.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(30, 144, 255, 0.8)', color: '#fff', textAlign: 'center', padding: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
-                              Ver {album.photos.length} fotos
-                            </div>
-                          </div>
-                        ) : (
-                          <div style={{ width: '100%', aspectRatio: '1', background: '#F0F8FF', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1E90FF', fontWeight: 700 }}>
-                            Sin fotos aún
-                          </div>
-                        )}
+          {/* Activities Section - Playful Style */}
+          {ministryActivities && ministryActivities.length > 0 && (
+            <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto' }}>
+              <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#FF1493', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
+                🌟 ¡Nuestras Actividades! 🌟
+              </h2>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
+                {ministryActivities.map((act) => (
+                  <div
+                    key={act.id}
+                    onClick={() => setSelectedActivity(act)}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                    style={{
+                      width: '100%',
+                      maxWidth: '320px',
+                      background: '#FFF',
+                      borderRadius: '2rem',
+                      overflow: 'hidden',
+                      border: '4px solid #32CD32',
+                      boxShadow: '0 10px 20px rgba(0,0,0,0.15)',
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s',
+                      transform: 'scale(1)'
+                    }}
+                  >
+                    {act.image_url ? (
+                      <div style={{ height: '200px', width: '100%', background: '#f0f0f0' }}>
+                        <img src={act.image_url} alt={act.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                       </div>
-                    )})}
-                </div>
-              </section>
-            )}
-          </div>
+                    ) : (
+                      <div style={{ height: '150px', background: '#32CD32', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Calendar size={60} color="#fff" />
+                      </div>
+                    )}
+                    <div style={{ padding: '1.5rem', textAlign: 'center' }}>
+                      <div style={{ background: '#FFD700', color: '#8B4500', display: 'inline-block', padding: '0.25rem 1rem', borderRadius: '999px', fontSize: '0.85rem', fontWeight: 800, marginBottom: '1rem', border: '2px solid #DAA520' }}>
+                        {new Date(act.date + 'T00:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
+                      </div>
+                      <h3 style={{ fontSize: '1.4rem', fontWeight: 800, color: '#228B22', marginBottom: '0.5rem', lineHeight: 1.2 }}>{act.title}</h3>
+                      <p style={{ color: '#666', fontSize: '0.9rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{act.description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Gallery Section - Playful Style */}
+          {ministryAlbums && ministryAlbums.length > 0 && (
+            <section style={{ padding: '3rem 1.5rem', width: '100%', maxWidth: '1000px', margin: '0 auto', background: 'linear-gradient(to bottom, transparent, rgba(255,255,255,0.5))', borderRadius: '3rem' }}>
+              <h2 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#1E90FF', textAlign: 'center', marginBottom: '2rem', textShadow: '2px 2px 0px #FFF, 4px 4px 0px rgba(0,0,0,0.1)', fontFamily: '"Comic Sans MS", "Bubblegum Sans", cursive' }}>
+                📸 ¡Nuestros Recuerdos! 📸
+              </h2>
+              <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '2rem' }}>
+                {ministryAlbums.map((album) => {
+                  const rotation = parseInt(album.id.toString().slice(-2), 10) % 6 - 3;
+                  return (
+                    <div key={album.id} style={{ width: '100%', maxWidth: '300px', background: '#FFF', borderRadius: '2rem', padding: '1rem', border: '4px solid #1E90FF', boxShadow: '0 10px 20px rgba(0,0,0,0.15)', transform: `rotate(${rotation}deg)` }}>
+                      <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0000CD', textAlign: 'center', marginBottom: '1rem' }}>{album.title}</h3>
+                      {album.photos && album.photos.length > 0 ? (
+                        <div style={{ position: 'relative', width: '100%', aspectRatio: '1', borderRadius: '1rem', overflow: 'hidden', cursor: 'pointer', border: '2px solid #87CEEB' }} onClick={() => { setSelectedAlbum(album); setLightboxIndex(0); }}>
+                          <img src={album.photos[0]} alt={album.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'rgba(30, 144, 255, 0.8)', color: '#fff', textAlign: 'center', padding: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}>
+                            Ver {album.photos.length} fotos
+                          </div>
+                        </div>
+                      ) : (
+                        <div style={{ width: '100%', aspectRatio: '1', background: '#F0F8FF', borderRadius: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#1E90FF', fontWeight: 700 }}>
+                          Sin fotos aún
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
+            </section>
+          )}
         </div>
+      </div>
       {showAulaVirtual && (
         <AulaVirtualModal isOpen={showAulaVirtual} onClose={() => setShowAulaVirtual(false)} />
       )}
     </div>
-   );
+  );
 };
 
 export const SoftLayout = ({
