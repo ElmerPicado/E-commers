@@ -284,25 +284,26 @@ const SistemaEscolar = () => {
   const [isAddAsignacionOpen, setIsAddAsignacionOpen] = useState(false);
   const [isAddDivisionOpen, setIsAddDivisionOpen] = useState(false);
 
+  // Generador de UUID para identificadores válidos en PostgreSQL
+  const generateUUID = () => {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+      const r = (Math.random() * 16) | 0;
+      const v = c === 'x' ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  };
+
   // Divisiones
-  const [divisiones, setDivisiones] = useState([
-    { id: 'd1', nombre: 'Cuna / Párvulos (0-5 años)' },
-    { id: 'd2', nombre: 'Primarios / Intermedios (6-11 años)' },
-    { id: 'd3', nombre: 'Adolescentes (12-15 años)' },
-    { id: 'd4', nombre: 'Jóvenes de Fe (16+ años)' }
-  ]);
+  const [divisiones, setDivisiones] = useState([]);
 
   // Maestros
-  const [maestros, setMaestros] = useState([
-    { id: 'm1', nombre: 'Prof. Carlos García', especialidad: 'Adolescentes & Discipulado', email: 'carlos.garcia@educontrol.edu', telefono: '+506 8888-1111' },
-    { id: 'm2', nombre: 'Profa. María Martínez', especialidad: 'Escuela Dominical Infantil', email: 'maria.martinez@educontrol.edu', telefono: '+506 8888-2222' }
-  ]);
+  const [maestros, setMaestros] = useState([]);
 
   // Asignaciones
-  const [asignaciones, setAsignaciones] = useState([
-    { id: 'a1', maestroId: 'm1', materia: 'Historias Bíblicas & Valores', grupo: 'Primarios / Intermedios (6-11 años)', horario: 'Domingos 10:00 AM', aula: 'Salón Infantil A', codigoVirtual: '782910' },
-    { id: 'a2', maestroId: 'm2', materia: 'Fundamentos de la Fe', grupo: 'Adolescentes (12-15 años)', horario: 'Domingos 11:30 AM', aula: 'Salón de Jóvenes', codigoVirtual: '439201' }
-  ]);
+  const [asignaciones, setAsignaciones] = useState([]);
 
   // Forms
   const [newMaestro, setNewMaestro] = useState({ nombre: '', especialidad: '', email: '', telefono: '' });
@@ -314,19 +315,56 @@ const SistemaEscolar = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const { data: dbMaestros, error: errM } = await supabase.from('maestro_users').select('*');
-        if (!errM && dbMaestros?.length > 0) {
+        
+        // Cargar Maestros
+        const { data: dbMaestros, error: errM } = await supabase
+          .from('maestro_users')
+          .select('*');
+        if (!errM && dbMaestros) {
           setMaestros(dbMaestros.map(m => ({
-            id: m.id, nombre: m.nombre || 'Maestro', especialidad: m.role || 'Maestro Titular',
-            email: m.email, telefono: m.telefono || m.whatsapp || ''
+            id: m.id,
+            nombre: m.nombre || 'Maestro',
+            especialidad: m.role || 'Maestro Titular',
+            email: m.email,
+            telefono: m.telefono || m.whatsapp || ''
           })));
+        } else if (errM) {
+          console.error('Error cargando maestros de Supabase:', errM);
         }
-        const { data: dbDiv, error: errD } = await supabase.from('divisiones').select('*').order('orden', { ascending: true });
-        if (!errD && dbDiv?.length > 0) {
-          setDivisiones(dbDiv.map(d => ({ id: d.id, nombre: d.nombre })));
+
+        // Cargar Divisiones
+        const { data: dbDiv, error: errD } = await supabase
+          .from('divisiones')
+          .select('*')
+          .order('orden', { ascending: true });
+        if (!errD && dbDiv) {
+          setDivisiones(dbDiv.map(d => ({
+            id: d.id,
+            nombre: d.nombre
+          })));
+        } else if (errD) {
+          console.error('Error cargando divisiones de Supabase:', errD);
+        }
+
+        // Cargar Asignaciones (si la tabla existe)
+        const { data: dbAsig, error: errA } = await supabase
+          .from('asignaciones')
+          .select('*');
+        if (!errA && dbAsig) {
+          setAsignaciones(dbAsig.map(a => ({
+            id: a.id,
+            maestroId: a.maestro_id || a.maestroId || '',
+            materia: a.materia || '',
+            grupo: a.grupo || '',
+            horario: a.horario || '',
+            aula: a.aula || '',
+            codigoVirtual: a.codigo_virtual || a.codigoVirtual || ''
+          })));
+        } else if (errA) {
+          console.error('Error cargando asignaciones de Supabase:', errA);
         }
       } catch (err) {
-        console.log('Modo local activo:', err);
+        console.error('Error general al cargar datos de Supabase:', err);
       } finally {
         setLoading(false);
       }
@@ -342,11 +380,33 @@ const SistemaEscolar = () => {
       alert('Este correo electrónico ya está registrado con otro maestro.');
       return;
     }
-    const id = `m_${Date.now()}`;
+    const id = generateUUID();
+    const maestroData = {
+      id,
+      nombre: newMaestro.nombre,
+      especialidad: newMaestro.especialidad || 'Maestro Titular',
+      email: newMaestro.email || `${id}@ministerio.edu`,
+      telefono: newMaestro.telefono || ''
+    };
+
     try {
-      await supabase.from('maestro_users').insert([{ id, nombre: newMaestro.nombre, email: newMaestro.email || `${Date.now()}@ministerio.edu`, telefono: newMaestro.telefono, role: 'maestro' }]);
-    } catch (err) { console.log('Guardado local:', err); }
-    setMaestros([...maestros, { id, ...newMaestro }]);
+      const { error } = await supabase
+        .from('maestro_users')
+        .insert([{
+          id,
+          nombre: newMaestro.nombre,
+          email: maestroData.email,
+          telefono: newMaestro.telefono || null,
+          whatsapp: newMaestro.telefono || null,
+          role: 'maestro',
+          activo: true
+        }]);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error al guardar maestro en Supabase:', err);
+    }
+
+    setMaestros(prev => [...prev, maestroData]);
     setNewMaestro({ nombre: '', especialidad: '', email: '', telefono: '' });
     setIsAddMaestroOpen(false);
   };
@@ -358,11 +418,30 @@ const SistemaEscolar = () => {
       alert('Esta división o rango de edad ya existe.');
       return;
     }
-    const id = `d_${Date.now()}`;
+    const id = generateUUID();
+    const divisionData = {
+      id,
+      nombre: newDivisionNombre.trim()
+    };
+
     try {
-      await supabase.from('divisiones').insert([{ id, nombre: newDivisionNombre.trim(), activa: true }]);
-    } catch (err) { console.log('Guardado local:', err); }
-    setDivisiones([...divisiones, { id, nombre: newDivisionNombre.trim() }]);
+      const cleanName = newDivisionNombre.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+      const codigo_acceso = `${cleanName}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+      const { error } = await supabase
+        .from('divisiones')
+        .insert([{
+          id,
+          nombre: divisionData.nombre,
+          codigo_acceso,
+          activa: true
+        }]);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error al guardar división en Supabase:', err);
+    }
+
+    setDivisiones(prev => [...prev, divisionData]);
     setNewDivisionNombre('');
     setIsAddDivisionOpen(false);
   };
@@ -373,19 +452,79 @@ const SistemaEscolar = () => {
       alert('Por favor, completa todos los campos requeridos.');
       return;
     }
+    const id = generateUUID();
     const codigoVirtual = Math.floor(100000 + Math.random() * 900000).toString();
-    setAsignaciones([...asignaciones, { id: `a_${Date.now()}`, ...newAsignacion, codigoVirtual }]);
+    const asignacionData = {
+      id,
+      ...newAsignacion,
+      codigoVirtual
+    };
+
+    try {
+      const { error: err1 } = await supabase
+        .from('asignaciones')
+        .insert([{
+          id,
+          maestro_id: newAsignacion.maestroId,
+          materia: newAsignacion.materia,
+          grupo: newAsignacion.grupo,
+          horario: newAsignacion.horario,
+          aula: newAsignacion.aula,
+          codigo_virtual: codigoVirtual
+        }]);
+      if (err1) {
+        const { error: err2 } = await supabase
+          .from('asignaciones')
+          .insert([{
+            id,
+            maestroId: newAsignacion.maestroId,
+            materia: newAsignacion.materia,
+            grupo: newAsignacion.grupo,
+            horario: newAsignacion.horario,
+            aula: newAsignacion.aula,
+            codigoVirtual
+          }]);
+        if (err2) throw err2;
+      }
+    } catch (err) {
+      console.error('Error al guardar asignación en Supabase:', err);
+    }
+
+    setAsignaciones(prev => [...prev, asignacionData]);
     setNewAsignacion({ maestroId: '', materia: '', grupo: '', horario: 'Domingos 10:00 AM', aula: 'Salón Principal' });
     setIsAddAsignacionOpen(false);
   };
 
-  const handleDeleteMaestro = (id) => {
-    setMaestros(maestros.filter(m => m.id !== id));
-    setAsignaciones(asignaciones.filter(a => a.maestroId !== id));
+  const handleDeleteMaestro = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('maestro_users')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+
+      await supabase.from('asignaciones').delete().eq('maestro_id', id);
+      await supabase.from('asignaciones').delete().eq('maestroId', id);
+    } catch (err) {
+      console.error('Error al eliminar maestro de Supabase:', err);
+    }
+
+    setMaestros(prev => prev.filter(m => m.id !== id));
+    setAsignaciones(prev => prev.filter(a => a.maestroId !== id));
   };
 
-  const handleDeleteAsignacion = (id) => {
-    setAsignaciones(asignaciones.filter(a => a.id !== id));
+  const handleDeleteAsignacion = async (id) => {
+    try {
+      const { error } = await supabase
+        .from('asignaciones')
+        .delete()
+        .eq('id', id);
+      if (error) throw error;
+    } catch (err) {
+      console.error('Error al eliminar asignación de Supabase:', err);
+    }
+
+    setAsignaciones(prev => prev.filter(a => a.id !== id));
   };
 
   const cambiarARol = (role) => {
