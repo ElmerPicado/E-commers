@@ -47,8 +47,9 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
       localStorage.setItem('estudiante_actual', JSON.stringify(aulaData));
 
       // 4. Redirigir al Aula Virtual
+      // 4. Redirigir al Aula Virtual
       setTimeout(() => {
-        window.location.href = '/aula';
+        window.location.href = '/aula-virtual'; // Ajustado para que coincida con App.jsx
       }, 1000);
 
     } catch (err) {
