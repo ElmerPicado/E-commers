@@ -23,7 +23,7 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
       
       const { data: division, error: divError } = await supabase
         .from('divisiones')
-        .select('id, nombre, codigo_acceso, ministerio_id')
+        .select('id, nombre, codigo_acceso')
         .eq('codigo_acceso', code)
         .single();
 

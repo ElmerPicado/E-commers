@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
@@ -60,7 +60,7 @@ const AulaVirtual = () => {
       // 1. Buscar división por codigo_acceso (el código pertenece a divisiones)
       const { data: division, error: divError } = await supabase
         .from('divisiones')
-        .select('id, nombre, codigo_acceso, ministerio_id')
+        .select('id, nombre, codigo_acceso')
         .eq('codigo_acceso', code)
         .single();
 
@@ -88,6 +88,7 @@ const AulaVirtual = () => {
       };
       
       setEstudiante(estudianteData);
+      localStorage.setItem('aula_estudiante', JSON.stringify(estudianteData));
       setStep('dashboard');
       await loadTareas(estudianteData.id);
     } catch (err) {
@@ -115,6 +116,23 @@ const AulaVirtual = () => {
       setLoading(false);
     }
   };
+
+  // Cargar sesión del estudiante desde localStorage al montar el componente
+  useEffect(() => {
+    const savedEstudiante = localStorage.getItem('aula_estudiante');
+    if (savedEstudiante) {
+      try {
+        const parsed = JSON.parse(savedEstudiante);
+        if (parsed && parsed.id) {
+          setEstudiante(parsed);
+          setStep('dashboard');
+          loadTareas(parsed.id);
+        }
+      } catch (e) {
+        console.error('Error al parsear sesión guardada de estudiante:', e);
+      }
+    }
+  }, []);
 
   const handleEntregar = async (formData) => {
     setEntregaLoading(true);
@@ -272,7 +290,7 @@ const AulaVirtual = () => {
               <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
                 {estudiante?.division_codigo}
               </span>
-              <button onClick={() => { setStep('login'); setCodigo(''); setEstudiante(null); }} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
+              <button onClick={() => { setStep('login'); setCodigo(''); setEstudiante(null); localStorage.removeItem('aula_estudiante'); }} className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg">
                 <LogOut className="w-5 h-5" />
               </button>
             </div>
