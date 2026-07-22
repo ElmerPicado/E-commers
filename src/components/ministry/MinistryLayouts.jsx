@@ -368,4 +368,4 @@ export const SoftLayout = ({
       </section>
     </div>
   );
-}; nm
+};
