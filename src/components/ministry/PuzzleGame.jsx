@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RotateCcw, Trophy, Sparkles, ChevronRight, CheckCircle, Image as ImageIcon, X, Award } from 'lucide-react';
+import { RotateCcw, Trophy, Sparkles, ChevronRight, CheckCircle, Image as ImageIcon, X } from 'lucide-react';
 
 const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
   // Parse levels with legacy fallback
@@ -20,7 +20,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
 
   const [currentLevelIndex, setCurrentLevelIndex] = useState(initialLevelIndex);
 
-  // Sincronizar el nivel interno si cambia desde el menú de la aplicación (GamePlay)
+  // Sincronizar el nivel interno si cambia desde el menú de la aplicación
   useEffect(() => {
     if (initialLevelIndex !== undefined && initialLevelIndex !== currentLevelIndex) {
       setCurrentLevelIndex(initialLevelIndex);
@@ -34,7 +34,6 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
   const [selectedPiece, setSelectedPiece] = useState(null);
   const [isPuzzleSolved, setIsPuzzleSolved] = useState(false);
   const [moves, setMoves] = useState(0);
-  const [imageLoaded, setImageLoaded] = useState(false);
 
   // Word Game States
   const [userWord, setUserWord] = useState([]);
@@ -73,30 +72,6 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
     setMoves(0);
     setLevelCleared(false);
   }, [activeLevel, totalPieces]);
-
-  // Stable cache-busted URL
-  const [bustedImageUrl, setBustedImageUrl] = useState('');
-
-  // Preloading level image
-  useEffect(() => {
-    if (activeLevel?.image_url) {
-      setImageLoaded(false);
-      const timestampUrl = activeLevel.image_url + (activeLevel.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
-      setBustedImageUrl(timestampUrl);
-
-      const img = new Image();
-      img.onload = () => setImageLoaded(true);
-      img.onerror = () => {
-        console.error("Failed to load puzzle image, retrying...");
-        setTimeout(() => {
-          const retryUrl = activeLevel.image_url + (activeLevel.image_url.includes('?') ? '&' : '?') + 'retry=' + Date.now();
-          setBustedImageUrl(retryUrl);
-          img.src = retryUrl;
-        }, 1500);
-      };
-      img.src = timestampUrl;
-    }
-  }, [activeLevel]);
 
   // Re-generate puzzle when level changes
   useEffect(() => {
@@ -144,7 +119,6 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
       setLevelCleared(true);
       setShowConfetti(true);
 
-      // Marcar este nivel como completado en el registro
       setCompletedLevels(prev => ({ ...prev, [currentLevelIndex]: true }));
 
       const timer = setTimeout(() => setShowConfetti(false), 4000);
@@ -209,7 +183,6 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
       setIsPuzzleSolved(false);
       setIsWordCorrect(false);
     } else {
-      // Si era el último nivel, activamos la pantalla final con copa
       setGameFinished(true);
       setShowConfetti(true);
     }
@@ -266,7 +239,6 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
         position: 'relative',
         overflow: 'hidden'
       }}>
-        {/* Efectos de confeti en la pantalla final */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1, overflow: 'hidden' }}>
           {Array.from({ length: 40 }).map((_, i) => (
             <div
@@ -362,7 +334,6 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
       boxSizing: 'border-box',
       overflowX: 'hidden'
     }}>
-      {/* Confetti falling */}
       {showConfetti && !gameFinished && (
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
           {Array.from({ length: 50 }).map((_, i) => (
@@ -472,7 +443,6 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
           padding: '4px',
           borderRadius: '1.25rem',
           boxShadow: '0 8px 20px rgba(75, 0, 130, 0.25)',
-          opacity: imageLoaded ? 1 : 0.4,
           transition: 'all 0.3s ease',
           border: isPuzzleSolved ? '4px solid #32CD32' : '4px solid #FFD700',
           touchAction: 'none',
@@ -481,11 +451,6 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
           position: 'relative',
           boxSizing: 'border-box'
         }}>
-          {!imageLoaded && (
-            <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
-              <div style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.85)', borderRadius: '1rem', color: '#4B0082', fontWeight: 800, fontSize: '0.9rem' }}>Cargando...</div>
-            </div>
-          )}
           {pieces.map((pieceIndex, gridIndex) => {
             const correctRow = Math.floor(pieceIndex / gridSize);
             const correctCol = pieceIndex % gridSize;
@@ -499,7 +464,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
                 style={{
                   width: '100%',
                   aspectRatio: '1 / 1',
-                  backgroundImage: `url(${bustedImageUrl || activeLevel.image_url})`,
+                  backgroundImage: `url(${activeLevel.image_url})`,
                   backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
                   backgroundPosition: gridSize > 1
                     ? `${(correctCol / (gridSize - 1)) * 100}% ${(correctRow / (gridSize - 1)) * 100}%`
@@ -736,7 +701,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
         </button>
       )}
 
-      {/* Modal Galería de Rompecabezas (Buscador/Selector de Niveles) */}
+      {/* Modal Galería de Rompecabezas */}
       {isGalleryOpen && (
         <div style={{
           position: 'fixed',
@@ -844,7 +809,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
                         src={lvl.image_url}
                         crossOrigin="anonymous"
                         alt={lvl.answer || `Nivel ${idx + 1}`}
-                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </div>
                     <p style={{
