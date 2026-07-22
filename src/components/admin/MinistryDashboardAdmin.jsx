@@ -550,7 +550,6 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
       setIsSavingTrivia(false);
     }
   };
-
   // Handler: Save Coloring only
   const handleSaveColoring = async (e) => {
     e.preventDefault();
@@ -1775,5 +1774,5 @@ const selectStyle = {
   width: '100%',
   cursor: 'pointer'
 };
-
+f
 
