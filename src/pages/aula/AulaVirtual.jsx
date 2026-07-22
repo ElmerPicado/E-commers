@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
   BookOpen, Video, FileText, CheckCircle, Clock, AlertCircle,
-  ArrowLeft, Upload, Eye, Star, Target, MessageSquare, LogOut, GraduationCap, Sparkles
+  ArrowLeft, Upload, Eye, Star, Target, MessageSquare, GraduationCap
 } from 'lucide-react';
 
 // === Clases de estilos reutilizables ===
@@ -39,6 +39,7 @@ const getTipoIcon = (tipo) => {
 
 const AulaVirtual = () => {
   const navigate = useNavigate();
+  const { codigo } = useParams(); // O puedes ajustarlo si el código viene por query params o props
   const [divisionInfo, setDivisionInfo] = useState(null);
   const [tareas, setTareas] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -46,19 +47,19 @@ const AulaVirtual = () => {
   const [showEntregaModal, setShowEntregaModal] = useState(null);
   const [entregaLoading, setEntregaLoading] = useState(false);
 
-  // Cargar datos de la división por defecto al iniciar la pantalla
+  // Buscar la división usando el código de acceso
   useEffect(() => {
     const initDivision = async () => {
+      if (!codigo) return;
       setLoading(true);
       try {
-        // Puedes cambiar o automatizar cómo seleccionas la división aquí (por ejemplo, por ID o código fijo de la clase)
         const { data: division, error: divError } = await supabase
           .from('divisiones')
-          .select('id, nombre, codigo_acceso')
-          .limit(1)
+          .select('id, nombre, descripcion, codigo_acceso')
+          .eq('codigo_acceso', codigo.toUpperCase())
           .single();
 
-        if (divError || !division) throw new Error('No se encontró ninguna división configurada.');
+        if (divError || !division) throw new Error('No se encontró la división con ese código.');
 
         setDivisionInfo(division);
         await loadTareas(division.id);
@@ -70,7 +71,7 @@ const AulaVirtual = () => {
     };
 
     initDivision();
-  }, []);
+  }, [codigo]);
 
   const loadTareas = async (divisionId) => {
     try {
@@ -129,17 +130,14 @@ const AulaVirtual = () => {
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-800">Aula Virtual</h1>
-                <p className="text-sm text-gray-500">{divisionInfo?.nombre || 'Cargando división...'}</p>
+                <h1 className="text-xl font-bold text-gray-800">{divisionInfo?.nombre || 'Aula Virtual'}</h1>
+                <p className="text-sm text-gray-500">{divisionInfo?.descripcion || 'Cargando...'}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
                 {divisionInfo?.codigo_acceso}
               </span>
-              <button onClick={() => navigate('/login')} className="text-xs text-indigo-600 hover:text-indigo-800 font-bold">
-                Panel Maestras
-              </button>
             </div>
           </div>
         </div>
@@ -195,7 +193,7 @@ const AulaVirtual = () => {
         {loading ? (
           <div className="text-center py-12">
             <svg className="animate-spin h-10 w-10 mx-auto text-blue-500" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-            <p className="mt-2 text-gray-500">Cargando espacio de la división...</p>
+            <p className="mt-2 text-gray-500">Cargando...</p>
           </div>
         ) : filteredTareas.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
