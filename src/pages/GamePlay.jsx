@@ -60,7 +60,6 @@ const GamePlay = () => {
     if (puzzleLevels.length === 0) {
       return renderUnavailable();
     }
-    const activeLevel = puzzleLevels[currentLevelIndex];
     const gameTitle = sectionData.title || gameMeta.title;
 
     return (
@@ -72,10 +71,10 @@ const GamePlay = () => {
             onClick={() => setShowLevelSelector(true)}
             style={{
               ...buttonStyle('#FFD700', '#b89b00'),
-              padding: '0.4rem 0.6rem', // Padding ajustado
-              fontSize: '0.85rem',      // Texto ligeramente más pequeño
-              whiteSpace: 'nowrap',     // Evita que el texto se rompa en 2 líneas
-              flexShrink: 0,            // Impide que se salga del contenedor
+              padding: '0.4rem 0.6rem',
+              fontSize: '0.85rem',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
               display: 'inline-flex',
               alignItems: 'center',
               gap: '0.25rem'
@@ -84,7 +83,6 @@ const GamePlay = () => {
             onMouseUp={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 4px 0 #b89b00'; }}
           >
             <Trophy size={16} />
-            {/* Mostramos solo el número en celulares y el texto completo en pantallas grandes */}
             <span className="hidden sm:inline">Nivel </span>
             <span>{currentLevelIndex + 1}</span>
           </button>
@@ -93,11 +91,16 @@ const GamePlay = () => {
         <PuzzleGame
           puzzleData={{
             ...sectionData,
-            levels: puzzleLevels, // ✅ Le pasamos TODOS los niveles reales, no solo [activeLevel]
+            levels: puzzleLevels,
             title: `${gameTitle} - Nivel ${currentLevelIndex + 1}`,
             hasNextLevel: currentLevelIndex < puzzleLevels.length - 1,
           }}
-          initialLevelIndex={currentLevelIndex} // ✅ Le comunicamos cuál seleccionó en el selector/trofeo
+          initialLevelIndex={currentLevelIndex}
+          onNextLevel={() => {
+            if (currentLevelIndex < puzzleLevels.length - 1) {
+              setCurrentLevelIndex(prev => prev + 1);
+            }
+          }}
         />
 
         {puzzleLevels.length > 1 && (
@@ -171,7 +174,7 @@ const GameShell = ({ gameTitle, onBack, rightHeader, children }) => (
         <h2 style={{
           flex: 1,
           textAlign: 'center',
-          fontSize: 'clamp(1rem, 4vw, 1.8rem)', // Ajusta el tamaño de letra dinámicamente en celulares
+          fontSize: 'clamp(1rem, 4vw, 1.8rem)',
           fontWeight: 900,
           color: '#4B0082',
           textShadow: '1px 1px 0 #fff',
@@ -183,7 +186,6 @@ const GameShell = ({ gameTitle, onBack, rightHeader, children }) => (
           {gameTitle}
         </h2>
 
-        {/* Espaciador o Botón del Trofeo */}
         {rightHeader || <div style={{ flexShrink: 0, minWidth: '40px' }} />}
       </header>
 
@@ -265,13 +267,11 @@ const LevelSelectorModal = ({ levels, currentIdx, onPick, onClose }) => (
   </div>
 );
 
-// Renders embedded videos (just shows the card linking to YouTube for simplicity, or embeds)
 function renderVideos(videosData) {
   const url = videosData.youtube_url || '';
   const button = videosData.button_text || 'Ver ahora';
   let embedUrl = '';
   if (url) {
-    // Try to extract a YouTube channel/playlist/video URL into an embeddable one
     const ytMatch = url.match(/youtube\.com\/(?:channel\/|@|c\/|playlist\?list=|watch\?v=)?([\w-]+)/);
     if (ytMatch) {
       embedUrl = url.includes('playlist') || url.includes('list=')
@@ -384,7 +384,7 @@ function buttonStyle(bg, shadow) {
     background: bg,
     border: 'none',
     color: '#fff',
-    padding: '0.5rem 0.75rem', // Padding responsivo reducido
+    padding: '0.5rem 0.75rem',
     borderRadius: '999px',
     fontSize: '0.9rem',
     fontWeight: 900,
