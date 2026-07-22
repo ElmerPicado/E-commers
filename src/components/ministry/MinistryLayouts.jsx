@@ -21,15 +21,16 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
     try {
       const code = codigo.toUpperCase().trim();
 
-      const { data: division, error: divError } = await supabase
-        .from('divisiones')
-        .select('id, nombre, codigo_acceso')
-        .eq('codigo_acceso', code)
-        .single();
+      // Consulta segura usando la función RPC para evitar el error 500 por políticas RLS
+      const { data: divisionesList, error: rpcError } = await supabase.rpc('verify_student_code', {
+        p_code: code
+      });
 
-      if (divError || !division) {
+      if (rpcError || !divisionesList || divisionesList.length === 0) {
         throw new Error('Código de división inválido.');
       }
+
+      const division = divisionesList[0];
 
       const { data: estudiantes, error: estError } = await supabase
         .from('estudiantes')
@@ -47,7 +48,6 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
         division_codigo: division.codigo_acceso,
         division_id: division.id
       };
-
 
       setSuccess(true);
       setTimeout(() => {
