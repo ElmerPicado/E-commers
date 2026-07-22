@@ -13,15 +13,16 @@ const ColoringGame = ({ gameData }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [finished, setFinished] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false); // 🖥️ Estado para pantalla completa
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
+  const templateImageRef = useRef(null); // 🧠 Guardamos la plantilla limpia aquí para usarla al limpiar
 
   const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [currentImgUrl, setCurrentImgUrl] = useState('');
 
-  // Configuración de dimensiones optimizadas para modo normal y pantalla completa
+  // Configuración de dimensiones y carga inicial del dibujo en el canvas
   useEffect(() => {
     if (!pages.length) return;
     const page = pages[activePageIdx];
@@ -34,6 +35,8 @@ const ColoringGame = ({ gameData }) => {
     img.crossOrigin = 'anonymous';
 
     img.onload = () => {
+      templateImageRef.current = img; // Guardamos la referencia de la plantilla limpia
+
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
       const isMobile = screenWidth <= 480;
@@ -41,9 +44,8 @@ const ColoringGame = ({ gameData }) => {
       let maxW, maxH;
 
       if (isFullscreen) {
-        // En pantalla completa aprovechamos casi toda la altura y ancho disponibles
-        maxW = screenWidth - 24;
-        maxH = screenHeight - (isMobile ? 180 : 200); // Dejamos espacio para la botonera inferior
+        maxW = screenWidth - 32;
+        maxH = screenHeight - (isMobile ? 180 : 210);
       } else {
         maxW = isMobile ? Math.min(screenWidth - 32, 340) : Math.min(screenWidth - 40, 500);
         maxH = isMobile ? Math.min(screenHeight * 0.38, 380) : Math.min(screenHeight * 0.5, 500);
@@ -62,8 +64,13 @@ const ColoringGame = ({ gameData }) => {
         canvas.width = finalW;
         canvas.height = finalH;
         const ctx = canvas.getContext('2d');
+
+        // Fondo blanco
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, finalW, finalH);
+
+        // Estampamos las líneas negras en el canvas para que el relleno las respete como bordes
+        ctx.drawImage(img, 0, 0, finalW, finalH);
       }
     };
 
@@ -102,20 +109,32 @@ const ColoringGame = ({ gameData }) => {
     }
 
     if (tool === 'eraser') {
+      // 🧽 El borrador inteligente: borra el color pintado pero RESTAURA el trozo de línea negra correspondiente de la plantilla
       ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = brushSize * 1.5;
+      const size = brushSize * 1.5;
+
+      // Si tenemos la plantilla original, podemos borrar localmente y volver a dibujar solo esa parte de la línea
+      if (templateImageRef.current) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(templateImageRef.current, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+      }
     } else {
       ctx.globalCompositeOperation = 'source-over';
       ctx.strokeStyle = color;
       ctx.lineWidth = brushSize;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
     }
 
     setIsDrawing(true);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
   };
 
   const draw = (e) => {
@@ -125,8 +144,23 @@ const ColoringGame = ({ gameData }) => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     const { x, y } = getPos(e);
-    ctx.lineTo(x, y);
-    ctx.stroke();
+
+    if (tool === 'eraser') {
+      const size = brushSize * 1.5;
+      if (templateImageRef.current) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(x, y, size / 2, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(templateImageRef.current, 0, 0, canvas.width, canvas.height);
+        ctx.restore();
+      }
+    } else {
+      ctx.lineTo(x, y);
+      ctx.stroke();
+    }
   };
 
   const endDraw = () => {
@@ -135,38 +169,30 @@ const ColoringGame = ({ gameData }) => {
     setFinished(true);
   };
 
+  // 🧹 Botón limpiar: Restaura el lienzo con la plantilla limpia original
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
+
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (templateImageRef.current) {
+      ctx.drawImage(templateImageRef.current, 0, 0, canvas.width, canvas.height);
+    }
+
     setFinished(false);
   };
 
   const downloadCanvas = () => {
     const canvas = canvasRef.current;
-    if (!canvas || !currentImgUrl) return;
+    if (!canvas) return;
 
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = canvas.width;
-    tempCanvas.height = canvas.height;
-    const tempCtx = tempCanvas.getContext('2d');
-
-    tempCtx.drawImage(canvas, 0, 0);
-
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      tempCtx.globalCompositeOperation = 'multiply';
-      tempCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-      const link = document.createElement('a');
-      link.download = `mi-dibujo-${Date.now()}.png`;
-      link.href = tempCanvas.toDataURL('image/png');
-      link.click();
-    };
-    img.src = currentImgUrl;
+    const link = document.createElement('a');
+    link.download = `mi-dibujo-${Date.now()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
   };
 
   if (pages.length === 0) {
@@ -194,10 +220,9 @@ const ColoringGame = ({ gameData }) => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: '0.8rem',
-      padding: '0.5rem',
+      gap: '0.6rem',
+      padding: '0.4rem',
       fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif',
-      // Si está en pantalla completa, abarcamos toda la ventana de forma fija
       ...(isFullscreen ? {
         position: 'fixed',
         top: 0,
@@ -207,44 +232,22 @@ const ColoringGame = ({ gameData }) => {
         background: '#FFF0F5',
         zIndex: 9998,
         overflowY: 'auto',
-        padding: '0.8rem'
+        padding: '0.6rem'
       } : {})
     }}>
-      {/* Cabecera principal */}
+      {/* Cabecera principal compacta */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '500px' }}>
-        <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#FF69B4', margin: 0, textShadow: '1px 1px 0 #fff' }}>
+        <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#FF69B4', margin: 0, textShadow: '1px 1px 0 #fff' }}>
           {gameData?.title || 'Coloreando la Biblia'}
         </h3>
-        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
-          {finished && (
-            <span style={{ background: '#32CD32', color: '#fff', padding: '0.2rem 0.6rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem', border: '2px solid #FFF' }}>
-              <Check size={14} /> ¡Terminado!
-            </span>
-          )}
-          {/* Botón rápido para alternar pantalla completa */}
-          <button
-            onClick={() => setIsFullscreen(!isFullscreen)}
-            title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
-            style={{
-              background: '#FFF',
-              border: '2px solid #FF69B4',
-              color: '#FF69B4',
-              borderRadius: '50%',
-              width: '32px',
-              height: '32px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
-            }}
-          >
-            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
-          </button>
-        </div>
+        {finished && (
+          <span style={{ background: '#32CD32', color: '#fff', padding: '0.2rem 0.6rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem', border: '2px solid #FFF' }}>
+            <Check size={14} /> ¡Terminado!
+          </span>
+        )}
       </div>
 
-      {/* Botón Selector de Galería + Título del dibujo activo */}
+      {/* Selector de Galería y Título activo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
         {pages.length > 1 && (
           <button
@@ -253,7 +256,7 @@ const ColoringGame = ({ gameData }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '0.4rem',
-              padding: '0.4rem 1rem',
+              padding: '0.35rem 0.9rem',
               background: '#FFF',
               color: '#FF69B4',
               border: '2px solid #FF69B4',
@@ -264,41 +267,42 @@ const ColoringGame = ({ gameData }) => {
               boxShadow: '0 3px 8px rgba(255, 105, 180, 0.2)'
             }}
           >
-            <ImageIcon size={16} /> Cambiar Dibujo ({activePageIdx + 1}/{pages.length})
+            <ImageIcon size={15} /> Cambiar Dibujo ({activePageIdx + 1}/{pages.length})
           </button>
         )}
-        <span style={{ color: '#4B0082', fontWeight: 800, fontSize: '0.95rem' }}>
+        <span style={{ color: '#4B0082', fontWeight: 800, fontSize: '0.9rem' }}>
           {pages[activePageIdx]?.title}
         </span>
       </div>
 
-      {/* Paleta de colores y herramientas */}
-      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '500px' }}>
-        <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {palette.map((c) => (
-            <button
-              key={c}
-              onClick={() => { setColor(c); if (tool === 'eraser') setTool('brush'); }}
-              style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                background: c,
-                border: `2px solid ${color === c && tool !== 'eraser' ? '#333' : '#FFF'}`,
-                cursor: 'pointer',
-                boxShadow: color === c && tool !== 'eraser' ? '0 2px 6px rgba(0,0,0,0.3)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
-              title={c}
-            />
-          ))}
-        </div>
+      {/* Paleta de colores */}
+      <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '500px' }}>
+        {palette.map((c) => (
+          <button
+            key={c}
+            onClick={() => { setColor(c); if (tool === 'eraser') setTool('brush'); }}
+            style={{
+              width: '26px',
+              height: '26px',
+              borderRadius: '50%',
+              background: c,
+              border: `2px solid ${color === c && tool !== 'eraser' ? '#333' : '#FFF'}`,
+              cursor: 'pointer',
+              boxShadow: color === c && tool !== 'eraser' ? '0 2px 6px rgba(0,0,0,0.3)' : 'none',
+              transition: 'all 0.15s ease'
+            }}
+            title={c}
+          />
+        ))}
+      </div>
 
-        <div style={{ display: 'flex', gap: '0.25rem', alignItems: 'center', padding: '0.25rem', background: '#FFF', borderRadius: '0.6rem', border: '2px solid #FF69B4' }}>
+      {/* Herramientas de dibujo y tamaños */}
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center', padding: '0.2rem', background: '#FFF', borderRadius: '0.6rem', border: '2px solid #FF69B4' }}>
           <button
             onClick={() => setTool('brush')}
             style={{
-              padding: '0.3rem 0.6rem',
+              padding: '0.25rem 0.5rem',
               background: tool === 'brush' ? '#FF69B4' : 'transparent',
               color: tool === 'brush' ? '#fff' : '#FF69B4',
               border: 'none',
@@ -313,7 +317,7 @@ const ColoringGame = ({ gameData }) => {
           <button
             onClick={() => setTool('eraser')}
             style={{
-              padding: '0.3rem 0.6rem',
+              padding: '0.25rem 0.5rem',
               background: tool === 'eraser' ? '#FF69B4' : 'transparent',
               color: tool === 'eraser' ? '#fff' : '#FF69B4',
               border: 'none',
@@ -328,7 +332,7 @@ const ColoringGame = ({ gameData }) => {
           <button
             onClick={() => setTool('fill')}
             style={{
-              padding: '0.3rem 0.6rem',
+              padding: '0.25rem 0.5rem',
               background: tool === 'fill' ? '#FF69B4' : 'transparent',
               color: tool === 'fill' ? '#fff' : '#FF69B4',
               border: 'none',
@@ -341,24 +345,23 @@ const ColoringGame = ({ gameData }) => {
             🪣 Rellenar
           </button>
         </div>
+
+        {(tool === 'brush' || tool === 'eraser') && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+            <input
+              type="range"
+              min="5"
+              max="40"
+              value={brushSize}
+              onChange={(e) => setBrushSize(Number(e.target.value))}
+              style={{ width: '80px' }}
+            />
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#FF69B4' }}>{brushSize}px</span>
+          </div>
+        )}
       </div>
 
-      {(tool === 'brush' || tool === 'eraser') && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-          <label style={{ fontSize: '0.8rem', fontWeight: 700, color: '#FF69B4' }}>Tamaño:</label>
-          <input
-            type="range"
-            min="5"
-            max="40"
-            value={brushSize}
-            onChange={(e) => setBrushSize(Number(e.target.value))}
-            style={{ width: '100px' }}
-          />
-          <span style={{ fontSize: '0.8rem', fontWeight: 700, color: '#FF69B4' }}>{brushSize}px</span>
-        </div>
-      )}
-
-      {/* Contenedor multicapa del lienzo adaptado */}
+      {/* Contenedor del lienzo con el botón de pantalla completa flotando en la esquina */}
       <div
         ref={containerRef}
         style={{
@@ -393,24 +396,31 @@ const ColoringGame = ({ gameData }) => {
           }}
         />
 
-        {currentImgUrl && (
-          <img
-            src={currentImgUrl}
-            crossOrigin="anonymous"
-            alt="Plantilla para colorear"
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'contain',
-              pointerEvents: 'none',
-              mixBlendMode: 'multiply',
-              zIndex: 2
-            }}
-          />
-        )}
+        {/* Botón flotante de pantalla completa integrado */}
+        <button
+          onClick={() => setIsFullscreen(!isFullscreen)}
+          title={isFullscreen ? "Minimizar" : "Pantalla completa"}
+          style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            zIndex: 10,
+            background: 'rgba(255, 255, 255, 0.9)',
+            border: '2px solid #FF69B4',
+            color: '#FF69B4',
+            borderRadius: '50%',
+            width: '36px',
+            height: '36px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 3px 8px rgba(0,0,0,0.2)',
+            transition: 'transform 0.1s ease'
+          }}
+        >
+          {isFullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
+        </button>
       </div>
 
       {/* Botones de acción inferiores */}
@@ -425,14 +435,14 @@ const ColoringGame = ({ gameData }) => {
             color: '#fff',
             border: 'none',
             borderRadius: '999px',
-            padding: '0.45rem 1.2rem',
-            fontSize: '0.85rem',
+            padding: '0.4rem 1.1rem',
+            fontSize: '0.8rem',
             fontWeight: 800,
             cursor: 'pointer',
             boxShadow: '0 3px 0px #c71585'
           }}
         >
-          <RotateCcw size={15} /> Limpiar
+          <RotateCcw size={14} /> Limpiar
         </button>
         <button
           onClick={downloadCanvas}
@@ -444,36 +454,15 @@ const ColoringGame = ({ gameData }) => {
             color: '#fff',
             border: 'none',
             borderRadius: '999px',
-            padding: '0.45rem 1.2rem',
-            fontSize: '0.85rem',
+            padding: '0.4rem 1.1rem',
+            fontSize: '0.8rem',
             fontWeight: 800,
             cursor: 'pointer',
             boxShadow: '0 3px 0px #228B22'
           }}
         >
-          <Download size={15} /> Descargar
+          <Download size={14} /> Descargar
         </button>
-        {isFullscreen && (
-          <button
-            onClick={() => setIsFullscreen(false)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              background: '#4B0082',
-              color: '#fff',
-              border: 'none',
-              borderRadius: '999px',
-              padding: '0.45rem 1.2rem',
-              fontSize: '0.85rem',
-              fontWeight: 800,
-              cursor: 'pointer',
-              boxShadow: '0 3px 0px #2d004e'
-            }}
-          >
-            <X size={15} /> Salir de Pantalla Completa
-          </button>
-        )}
       </div>
 
       {/* Modal Galería de Dibujos */}
