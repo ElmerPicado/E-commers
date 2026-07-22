@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { Palette, Download, RotateCcw, Check, Image as ImageIcon, X } from 'lucide-react';
+import { Palette, Download, RotateCcw, Check, Image as ImageIcon, X, Maximize2, Minimize2 } from 'lucide-react';
 
 const ColoringGame = ({ gameData }) => {
   const pages = useMemo(() => {
@@ -13,6 +13,7 @@ const ColoringGame = ({ gameData }) => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [finished, setFinished] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false); // 🖥️ Estado para pantalla completa
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -20,7 +21,7 @@ const ColoringGame = ({ gameData }) => {
   const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [currentImgUrl, setCurrentImgUrl] = useState('');
 
-  // Configuración de dimensiones optimizadas para PC y móviles con soporte CORS seguro
+  // Configuración de dimensiones optimizadas para modo normal y pantalla completa
   useEffect(() => {
     if (!pages.length) return;
     const page = pages[activePageIdx];
@@ -30,16 +31,23 @@ const ColoringGame = ({ gameData }) => {
     setCurrentImgUrl(cacheBustedUrl);
 
     const img = new Image();
-    // 🛡️ SOLUCIÓN MÓVIL: Indicar crossOrigin antes del src evita que los celulares bloqueen la imagen
     img.crossOrigin = 'anonymous';
 
     img.onload = () => {
       const screenWidth = window.innerWidth;
+      const screenHeight = window.innerHeight;
       const isMobile = screenWidth <= 480;
 
-      // Límites ajustados para evitar zoom desproporcionado en pantallas pequeñas
-      const maxW = isMobile ? Math.min(screenWidth - 32, 340) : Math.min(screenWidth - 40, 500);
-      const maxH = isMobile ? Math.min(window.innerHeight * 0.38, 380) : Math.min(window.innerHeight * 0.5, 500);
+      let maxW, maxH;
+
+      if (isFullscreen) {
+        // En pantalla completa aprovechamos casi toda la altura y ancho disponibles
+        maxW = screenWidth - 24;
+        maxH = screenHeight - (isMobile ? 180 : 200); // Dejamos espacio para la botonera inferior
+      } else {
+        maxW = isMobile ? Math.min(screenWidth - 32, 340) : Math.min(screenWidth - 40, 500);
+        maxH = isMobile ? Math.min(screenHeight * 0.38, 380) : Math.min(screenHeight * 0.5, 500);
+      }
 
       let w = img.width, h = img.height;
       const scale = Math.min(maxW / w, maxH / h);
@@ -49,7 +57,6 @@ const ColoringGame = ({ gameData }) => {
 
       setDimensions({ width: finalW, height: finalH });
 
-      // Preparar el canvas limpio para pintar
       const canvas = canvasRef.current;
       if (canvas) {
         canvas.width = finalW;
@@ -61,7 +68,7 @@ const ColoringGame = ({ gameData }) => {
     };
 
     img.src = cacheBustedUrl;
-  }, [activePageIdx, pages]);
+  }, [activePageIdx, pages, isFullscreen]);
 
   const getPos = (e) => {
     const canvas = canvasRef.current;
@@ -189,18 +196,52 @@ const ColoringGame = ({ gameData }) => {
       alignItems: 'center',
       gap: '0.8rem',
       padding: '0.5rem',
-      fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif'
+      fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif',
+      // Si está en pantalla completa, abarcamos toda la ventana de forma fija
+      ...(isFullscreen ? {
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: '100vw',
+        height: '100vh',
+        background: '#FFF0F5',
+        zIndex: 9998,
+        overflowY: 'auto',
+        padding: '0.8rem'
+      } : {})
     }}>
       {/* Cabecera principal */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '500px' }}>
         <h3 style={{ fontSize: '1.2rem', fontWeight: 900, color: '#FF69B4', margin: 0, textShadow: '1px 1px 0 #fff' }}>
           {gameData?.title || 'Coloreando la Biblia'}
         </h3>
-        {finished && (
-          <span style={{ background: '#32CD32', color: '#fff', padding: '0.25rem 0.7rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem', border: '2px solid #FFF' }}>
-            <Check size={14} /> ¡Terminado!
-          </span>
-        )}
+        <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
+          {finished && (
+            <span style={{ background: '#32CD32', color: '#fff', padding: '0.2rem 0.6rem', borderRadius: '999px', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.2rem', border: '2px solid #FFF' }}>
+              <Check size={14} /> ¡Terminado!
+            </span>
+          )}
+          {/* Botón rápido para alternar pantalla completa */}
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            title={isFullscreen ? "Salir de pantalla completa" : "Pantalla completa"}
+            style={{
+              background: '#FFF',
+              border: '2px solid #FF69B4',
+              color: '#FF69B4',
+              borderRadius: '50%',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 2px 5px rgba(0,0,0,0.1)'
+            }}
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+        </div>
       </div>
 
       {/* Botón Selector de Galería + Título del dibujo activo */}
@@ -373,7 +414,7 @@ const ColoringGame = ({ gameData }) => {
       </div>
 
       {/* Botones de acción inferiores */}
-      <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+      <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'center', paddingBottom: isFullscreen ? '1rem' : '0' }}>
         <button
           onClick={clearCanvas}
           style={{
@@ -412,6 +453,27 @@ const ColoringGame = ({ gameData }) => {
         >
           <Download size={15} /> Descargar
         </button>
+        {isFullscreen && (
+          <button
+            onClick={() => setIsFullscreen(false)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              background: '#4B0082',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '999px',
+              padding: '0.45rem 1.2rem',
+              fontSize: '0.85rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 3px 0px #2d004e'
+            }}
+          >
+            <X size={15} /> Salir de Pantalla Completa
+          </button>
+        )}
       </div>
 
       {/* Modal Galería de Dibujos */}
@@ -521,7 +583,7 @@ const ColoringGame = ({ gameData }) => {
   );
 };
 
-// Helpers de relleno y conversión de color
+// Helpers de relleno y conversión de color con restricciones de bordes
 function hexToRgba(hex) {
   hex = hex.replace('#', '');
   if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
@@ -531,49 +593,62 @@ function hexToRgba(hex) {
   return { r, g, b, a: 255 };
 }
 
-function floodFill(ctx, x, y, fillColor) {
-  const w = ctx.canvas.width;
-  const h = ctx.canvas.height;
-  if (x < 0 || y < 0 || x >= w || y >= h) return;
-  const imgData = ctx.getImageData(0, 0, w, h);
+function floodFill(ctx, startX, startY, fillColor) {
+  const canvas = ctx.canvas;
+  const width = canvas.width;
+  const height = canvas.height;
+
+  if (startX < 0 || startY < 0 || startX >= width || startY >= height) return;
+
+  const imgData = ctx.getImageData(0, 0, width, height);
   const data = imgData.data;
-  const startIdx = (y * w + x) * 4;
-  const startColor = {
-    r: data[startIdx],
-    g: data[startIdx + 1],
-    b: data[startIdx + 2],
-    a: data[startIdx + 3]
+
+  const startPos = (startY * width + startX) * 4;
+  const startR = data[startPos];
+  const startG = data[startPos + 1];
+  const startB = data[startPos + 2];
+
+  if (startR < 80 && startG < 80 && startB < 80) return;
+
+  const colorMatch = (pos) => {
+    const r = data[pos];
+    const g = data[pos + 1];
+    const b = data[pos + 2];
+
+    if (r < 100 && g < 100 && b < 100) return false;
+
+    const tolerance = 35;
+    return (
+      Math.abs(r - startR) <= tolerance &&
+      Math.abs(g - startG) <= tolerance &&
+      Math.abs(b - startB) <= tolerance
+    );
   };
 
-  if (startColor.r === fillColor.r && startColor.g === fillColor.g && startColor.b === fillColor.b) return;
+  const queue = [[startX, startY]];
+  const visited = new Uint8Array(width * height);
 
-  const stack = [{ x, y }];
-  const visited = new Set();
+  while (queue.length > 0) {
+    const [x, y] = queue.pop();
+    if (x < 0 || x >= width || y < 0 || y >= height) continue;
 
-  while (stack.length > 0) {
-    const { x: px, y: py } = stack.pop();
-    if (px < 0 || py < 0 || px >= w || py >= h) continue;
-    const key = `${px},${py}`;
-    if (visited.has(key)) continue;
+    const pixelIndex = y * width + x;
+    if (visited[pixelIndex]) continue;
 
-    const idx = (py * w + px) * 4;
-    if (
-      data[idx] !== startColor.r ||
-      data[idx + 1] !== startColor.g ||
-      data[idx + 2] !== startColor.b ||
-      data[idx + 3] !== startColor.a
-    ) continue;
+    const dataIndex = pixelIndex * 4;
+    if (!colorMatch(dataIndex)) continue;
 
-    visited.add(key);
-    data[idx] = fillColor.r;
-    data[idx + 1] = fillColor.g;
-    data[idx + 2] = fillColor.b;
-    data[idx + 3] = fillColor.a;
+    data[dataIndex] = fillColor.r;
+    data[dataIndex + 1] = fillColor.g;
+    data[dataIndex + 2] = fillColor.b;
+    data[dataIndex + 3] = 255;
 
-    stack.push({ x: px + 1, y: py });
-    stack.push({ x: px - 1, y: py });
-    stack.push({ x: px, y: py + 1 });
-    stack.push({ x: px, y: py - 1 });
+    visited[pixelIndex] = 1;
+
+    queue.push([x + 1, y]);
+    queue.push([x - 1, y]);
+    queue.push([x, y + 1]);
+    queue.push([x, y - 1]);
   }
 
   ctx.putImageData(imgData, 0, 0);
