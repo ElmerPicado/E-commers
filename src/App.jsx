@@ -130,7 +130,7 @@ const LayoutWrapper = () => {
           <Route path="/maestros/*" element={<MaestrosDashboard />} />
 
           {/* Aula Virtual Estudiantes */}
-          <Route path="aula-virtual/:codigo" element={<AulaVirtual />} />
+          <Route path="aula-virtual/:codigo?" element={<AulaVirtual />} />
 
           <Route path="/admin" element={<ProtectedAdminRoute />} />
         </Routes>
