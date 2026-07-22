@@ -1774,5 +1774,4 @@ const selectStyle = {
   width: '100%',
   cursor: 'pointer'
 };
-f
 
