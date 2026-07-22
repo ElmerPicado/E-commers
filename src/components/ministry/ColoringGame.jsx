@@ -17,16 +17,15 @@ const ColoringGame = ({ gameData }) => {
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  const templateImageRef = useRef(null); // 🧠 Guardamos la plantilla limpia aquí para usarla al limpiar
+  const templateImageRef = useRef(null); // 🧠 Guardamos la plantilla limpia en memoria
 
   const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [currentImgUrl, setCurrentImgUrl] = useState('');
 
-  // Configuración de dimensiones y carga inicial del dibujo en el canvas
+  // Configuración de dimensiones y redimensionamiento sin perder el progreso del dibujo
   useEffect(() => {
     if (!pages.length) return;
     const page = pages[activePageIdx];
-    setFinished(false);
 
     const cacheBustedUrl = page.image_url + (page.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
     setCurrentImgUrl(cacheBustedUrl);
@@ -35,7 +34,7 @@ const ColoringGame = ({ gameData }) => {
     img.crossOrigin = 'anonymous';
 
     img.onload = () => {
-      templateImageRef.current = img; // Guardamos la referencia de la plantilla limpia
+      templateImageRef.current = img;
 
       const screenWidth = window.innerWidth;
       const screenHeight = window.innerHeight;
@@ -57,21 +56,39 @@ const ColoringGame = ({ gameData }) => {
       const finalW = Math.round(w * scale);
       const finalH = Math.round(h * scale);
 
+      // 💾 Guardamos lo que ya estaba pintado antes de cambiar el tamaño del canvas
+      const currentCanvas = canvasRef.current;
+      let savedDataUrl = null;
+      if (currentCanvas && currentCanvas.width > 0 && currentCanvas.height > 0) {
+        savedDataUrl = currentCanvas.toDataURL('image/png');
+      }
+
       setDimensions({ width: finalW, height: finalH });
 
-      const canvas = canvasRef.current;
-      if (canvas) {
+      // Esperamos a que el DOM se actualice con las nuevas dimensiones para restaurar el dibujo
+      setTimeout(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
         canvas.width = finalW;
         canvas.height = finalH;
         const ctx = canvas.getContext('2d');
 
-        // Fondo blanco
+        // Fondo blanco inicial
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, finalW, finalH);
 
-        // Estampamos las líneas negras en el canvas para que el relleno las respete como bordes
-        ctx.drawImage(img, 0, 0, finalW, finalH);
-      }
+        if (savedDataUrl) {
+          // Si ya había trazos previos, reescalamos el progreso guardado al nuevo tamaño
+          const savedImg = new Image();
+          savedImg.onload = () => {
+            ctx.drawImage(savedImg, 0, 0, finalW, finalH);
+          };
+          savedImg.src = savedDataUrl;
+        } else {
+          // Si es la primera carga, estampamos la plantilla limpia
+          ctx.drawImage(img, 0, 0, finalW, finalH);
+        }
+      }, 50);
     };
 
     img.src = cacheBustedUrl;
@@ -109,11 +126,10 @@ const ColoringGame = ({ gameData }) => {
     }
 
     if (tool === 'eraser') {
-      // 🧽 El borrador inteligente: borra el color pintado pero RESTAURA el trozo de línea negra correspondiente de la plantilla
+      // 🧽 Borrador inteligente: borra el color y restaura el trozo de línea negra correspondiente
       ctx.globalCompositeOperation = 'source-over';
       const size = brushSize * 1.5;
 
-      // Si tenemos la plantilla original, podemos borrar localmente y volver a dibujar solo esa parte de la línea
       if (templateImageRef.current) {
         ctx.save();
         ctx.beginPath();
@@ -169,7 +185,7 @@ const ColoringGame = ({ gameData }) => {
     setFinished(true);
   };
 
-  // 🧹 Botón limpiar: Restaura el lienzo con la plantilla limpia original
+  // 🧹 Botón limpiar: Restaura el lienzo completo con la plantilla limpia original
   const clearCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -361,7 +377,7 @@ const ColoringGame = ({ gameData }) => {
         )}
       </div>
 
-      {/* Contenedor del lienzo con el botón de pantalla completa flotando en la esquina */}
+      {/* Contenedor del lienzo con el botón flotante de pantalla completa integrado en la esquina */}
       <div
         ref={containerRef}
         style={{
@@ -396,7 +412,7 @@ const ColoringGame = ({ gameData }) => {
           }}
         />
 
-        {/* Botón flotante de pantalla completa integrado */}
+        {/* 🔍 Botón flotante justo en la esquina superior derecha */}
         <button
           onClick={() => setIsFullscreen(!isFullscreen)}
           title={isFullscreen ? "Minimizar" : "Pantalla completa"}
