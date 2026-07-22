@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Calendar, Gamepad2, X, GraduationCap } from 'lucide-react';
 import VideosSection from './VideosSection';
 import { supabase } from '../../lib/supabaseClient';
+import { useNavigate } from 'react-router-dom';
 
 // Modal Aula Virtual (Acceso Grupal Directo por División)
 const AulaVirtualModal = ({ isOpen, onClose }) => {
