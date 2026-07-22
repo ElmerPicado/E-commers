@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
   BookOpen, Video, FileText, CheckCircle, Clock, AlertCircle,
@@ -34,7 +34,10 @@ const getTipoIcon = (tipo) => {
 
 const AulaVirtual = () => {
   const navigate = useNavigate();
-  const { codigo } = useParams(); // <-- Extrae automáticamente el :codigo de la URL
+
+  // Lee el código guardado temporalmente en la sesión del navegador
+  const sessionData = JSON.parse(localStorage.getItem('estudiante_actual') || '{}');
+  const codigoGuardado = sessionData.division_codigo;
 
   const [divisionInfo, setDivisionInfo] = useState(null);
   const [tareas, setTareas] = useState([]);
@@ -45,18 +48,18 @@ const AulaVirtual = () => {
 
   useEffect(() => {
     const fetchDivisionYTareas = async () => {
-      if (!codigo) {
+      if (!codigoGuardado) {
         setLoading(false);
         return;
       }
 
       setLoading(true);
       try {
-        // Consulta exacta: busca la división donde el código de acceso coincida con el de la URL
+        // Consulta exacta: where codigo_acceso = al codigo guardado en la sesión
         const { data: division, error: divError } = await supabase
           .from('divisiones')
           .select('id, nombre, descripcion, codigo_acceso')
-          .eq('codigo_acceso', codigo.toUpperCase().trim())
+          .eq('codigo_acceso', codigoGuardado.toUpperCase().trim())
           .single();
 
         if (divError || !division) {
@@ -74,14 +77,14 @@ const AulaVirtual = () => {
         setTareas(tareasData || []);
 
       } catch (err) {
-        console.error('Error al cargar los datos de la división:', err);
+        console.error('Error al cargar la división:', err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchDivisionYTareas();
-  }, [codigo]);
+  }, [codigoGuardado]);
 
   const handleEntregar = async (formData) => {
     setEntregaLoading(true);
@@ -94,7 +97,6 @@ const AulaVirtual = () => {
       if (!res.ok) throw new Error(result.error);
       setShowEntregaModal(null);
 
-      // Recargar tareas
       if (divisionInfo) {
         const { data: tareasData } = await supabase.rpc('obtener_tareas_division', { p_division_id: divisionInfo.id });
         setTareas(tareasData || []);
@@ -137,13 +139,13 @@ const AulaVirtual = () => {
                   {divisionInfo ? divisionInfo.nombre : 'Aula Virtual'}
                 </h1>
                 <p className="text-sm text-gray-500">
-                  {loading ? 'Cargando información...' : (divisionInfo?.descripcion || 'Sin descripción')}
+                  {loading ? 'Cargando...' : (divisionInfo?.descripcion || 'Sin descripción')}
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full uppercase">
-                {codigo}
+                {codigoGuardado || '---'}
               </span>
             </div>
           </div>
