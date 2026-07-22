@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RotateCcw, Trophy, Sparkles, ChevronRight, CheckCircle } from 'lucide-react';
+import { RotateCcw, Trophy, Sparkles, ChevronRight, CheckCircle, Image as ImageIcon, X } from 'lucide-react';
 
 const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
   // Parse levels with legacy fallback
@@ -41,10 +41,14 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
   const [isWordCorrect, setIsWordCorrect] = useState(false);
   const [activeSlotIndex, setActiveSlotIndex] = useState(1);
 
-  // Celebration States
+  // Celebration & Gallery States
   const [showConfetti, setShowConfetti] = useState(false);
   const [levelCleared, setLevelCleared] = useState(false);
   const [gameFinished, setGameFinished] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+
+  // Registro de niveles completados
+  const [completedLevels, setCompletedLevels] = useState({});
 
   const title = puzzleData?.title || 'Rompecabezas Bíblico';
   const gridSize = activeLevel?.difficulty === '4x4' ? 4 : 3;
@@ -139,10 +143,14 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
     if (isPuzzleSolved && isWordCorrect && !levelCleared) {
       setLevelCleared(true);
       setShowConfetti(true);
+
+      // Marcar este nivel como completado en el registro
+      setCompletedLevels(prev => ({ ...prev, [currentLevelIndex]: true }));
+
       const timer = setTimeout(() => setShowConfetti(false), 4000);
       return () => clearTimeout(timer);
     }
-  }, [isPuzzleSolved, isWordCorrect, levelCleared]);
+  }, [isPuzzleSolved, isWordCorrect, levelCleared, currentLevelIndex]);
 
   const handlePieceClick = (clickedIndex) => {
     if (isPuzzleSolved) return;
@@ -195,7 +203,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
 
   const handleNextLevelClick = () => {
     if (onNextLevel) {
-      onNextLevel(); // Llama a la función del componente padre (GamePlay)
+      onNextLevel();
     }
 
     if (currentLevelIndex < levels.length - 1) {
@@ -214,6 +222,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
     setLevelCleared(false);
     setIsPuzzleSolved(false);
     setIsWordCorrect(false);
+    setCompletedLevels({});
   };
 
   if (levels.length === 0) {
@@ -287,7 +296,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
-      gap: '1.25rem',
+      gap: '1rem',
       padding: '1rem 0.5rem',
       position: 'relative',
       fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif',
@@ -324,7 +333,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
         </div>
       )}
 
-      {/* Top Banner - Level Indicator */}
+      {/* Top Banner - Title and Level Indicator */}
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
@@ -335,7 +344,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
         gap: '0.5rem'
       }}>
         <h3 style={{
-          fontSize: '1.25rem',
+          fontSize: '1.1rem',
           fontWeight: 900,
           color: '#4B0082',
           margin: 0,
@@ -361,6 +370,29 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
           Nivel {currentLevelIndex + 1} de {levels.length}
         </span>
       </div>
+
+      {/* Botón para abrir la galería de selección de niveles */}
+      {levels.length > 1 && (
+        <button
+          onClick={() => setIsGalleryOpen(true)}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            padding: '0.35rem 0.9rem',
+            background: '#FFF',
+            color: '#1E90FF',
+            border: '2px solid #1E90FF',
+            borderRadius: '999px',
+            fontWeight: 800,
+            fontSize: '0.8rem',
+            cursor: 'pointer',
+            boxShadow: '0 3px 8px rgba(30, 144, 255, 0.2)'
+          }}
+        >
+          <ImageIcon size={15} /> Cambiar Rompecabezas ({currentLevelIndex + 1}/{levels.length})
+        </button>
+      )}
 
       {/* Jigsaw Solver Board */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.4rem', width: '100%', maxWidth: '340px', boxSizing: 'border-box' }}>
@@ -412,7 +444,9 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
                   aspectRatio: '1 / 1',
                   backgroundImage: `url(${bustedImageUrl || activeLevel.image_url})`,
                   backgroundSize: `${gridSize * 100}% ${gridSize * 100}%`,
-                  backgroundPosition: `${correctCol * (100 / (gridSize - 1))}% ${correctRow * (100 / (gridSize - 1))}%`,
+                  backgroundPosition: gridSize > 1
+                    ? `${(correctCol / (gridSize - 1)) * 100}% ${(correctRow / (gridSize - 1)) * 100}%`
+                    : '0% 0%',
                   borderRadius: '0.4rem',
                   cursor: isPuzzleSolved ? 'default' : 'pointer',
                   border: isSelected
@@ -643,6 +677,135 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
           <RotateCcw size={14} />
           Mezclar de nuevo
         </button>
+      )}
+
+      {/* Modal Galería de Rompecabezas (Buscador/Selector de Niveles) */}
+      {isGalleryOpen && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.65)',
+          backdropFilter: 'blur(3px)',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 9999,
+          padding: '1rem'
+        }}>
+          <div style={{
+            background: '#FFF',
+            borderRadius: '1.5rem',
+            padding: '1.2rem',
+            maxWidth: '480px',
+            width: '100%',
+            maxHeight: '80vh',
+            display: 'flex',
+            flexDirection: 'column',
+            border: '4px solid #1E90FF',
+            boxShadow: '0 15px 30px rgba(0,0,0,0.3)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.8rem' }}>
+              <h4 style={{ margin: 0, color: '#1E90FF', fontSize: '1.1rem', fontWeight: 900 }}>
+                🧩 Elige un Rompecabezas
+              </h4>
+              <button
+                onClick={() => setIsGalleryOpen(false)}
+                style={{
+                  border: 'none',
+                  background: '#F0F8FF',
+                  color: '#1E90FF',
+                  borderRadius: '50%',
+                  width: '32px',
+                  height: '32px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+              gap: '0.8rem',
+              overflowY: 'auto',
+              paddingRight: '0.2rem'
+            }}>
+              {levels.map((lvl, idx) => {
+                const isSelected = idx === currentLevelIndex;
+                const isDone = completedLevels[idx];
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      setCurrentLevelIndex(idx);
+                      setLevelCleared(false);
+                      setIsPuzzleSolved(false);
+                      setIsWordCorrect(false);
+                      setIsGalleryOpen(false);
+                    }}
+                    style={{
+                      position: 'relative',
+                      border: `3px solid ${isSelected ? '#1E90FF' : isDone ? '#32CD32' : '#E2E8F0'}`,
+                      borderRadius: '1rem',
+                      padding: '0.5rem',
+                      textAlign: 'center',
+                      cursor: 'pointer',
+                      background: isSelected ? '#E6F2FF' : '#FFF',
+                      boxShadow: isSelected ? '0 4px 10px rgba(30,144,255,0.3)' : '0 2px 4px rgba(0,0,0,0.05)'
+                    }}
+                  >
+                    {isDone && (
+                      <span style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        background: '#32CD32',
+                        color: '#fff',
+                        borderRadius: '50%',
+                        width: '20px',
+                        height: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '11px',
+                        zIndex: 2,
+                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                      }}>
+                        ✓
+                      </span>
+                    )}
+                    <div style={{ width: '100%', height: '75px', borderRadius: '0.6rem', overflow: 'hidden', background: '#F8FAFC', marginBottom: '0.3rem' }}>
+                      <img
+                        src={lvl.image_url}
+                        crossOrigin="anonymous"
+                        alt={lvl.answer || `Nivel ${idx + 1}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                      />
+                    </div>
+                    <p style={{
+                      margin: 0,
+                      fontSize: '0.75rem',
+                      fontWeight: 800,
+                      color: isSelected ? '#1E90FF' : '#333',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      Nivel {idx + 1}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       )}
 
       <style>{`
