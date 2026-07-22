@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
   BookOpen, Video, FileText, CheckCircle, Clock, AlertCircle,
@@ -39,7 +39,12 @@ const getTipoIcon = (tipo) => {
 
 const AulaVirtual = () => {
   const navigate = useNavigate();
-  const { codigo } = useParams(); // O puedes ajustarlo si el código viene por query params o props
+  const location = useLocation();
+
+  // Extraer el código ya sea por query param (?codigo=XYZ) o desde el almacenamiento local si lo guardaste antes
+  const queryParams = new URLSearchParams(location.search);
+  const codigoIngresado = queryParams.get('codigo') || localStorage.getItem('aula_codigo_division');
+
   const [divisionInfo, setDivisionInfo] = useState(null);
   const [tareas, setTareas] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -47,31 +52,41 @@ const AulaVirtual = () => {
   const [showEntregaModal, setShowEntregaModal] = useState(null);
   const [entregaLoading, setEntregaLoading] = useState(false);
 
-  // Buscar la división usando el código de acceso
   useEffect(() => {
     const initDivision = async () => {
-      if (!codigo) return;
+      if (!codigoIngresado) {
+        console.warn('No se encontró un código de acceso en la URL.');
+        setLoading(false);
+        return;
+      }
+
+      // Guardarlo por seguridad en localStorage
+      localStorage.setItem('aula_codigo_division', codigoIngresado);
+
       setLoading(true);
       try {
+        // Consulta directa: where codigo_acceso = al codigo con el que ingreso
         const { data: division, error: divError } = await supabase
           .from('divisiones')
           .select('id, nombre, descripcion, codigo_acceso')
-          .eq('codigo_acceso', codigo.toUpperCase())
+          .eq('codigo_acceso', codigoIngresado.toUpperCase().trim())
           .single();
 
-        if (divError || !division) throw new Error('No se encontró la división con ese código.');
+        if (divError || !division) {
+          throw new Error('No se encontró ninguna división con ese código de acceso.');
+        }
 
         setDivisionInfo(division);
         await loadTareas(division.id);
       } catch (err) {
-        console.error('Error al inicializar la división:', err);
+        console.error('Error al buscar la división:', err);
       } finally {
         setLoading(false);
       }
     };
 
     initDivision();
-  }, [codigo]);
+  }, [codigoIngresado]);
 
   const loadTareas = async (divisionId) => {
     try {
@@ -131,12 +146,12 @@ const AulaVirtual = () => {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-gray-800">{divisionInfo?.nombre || 'Aula Virtual'}</h1>
-                <p className="text-sm text-gray-500">{divisionInfo?.descripcion || 'Cargando...'}</p>
+                <p className="text-sm text-gray-500">{divisionInfo?.descripcion || (loading ? 'Cargando...' : 'Sin descripción')}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
-                {divisionInfo?.codigo_acceso}
+                {divisionInfo?.codigo_acceso || codigoIngresado || '---'}
               </span>
             </div>
           </div>
