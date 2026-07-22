@@ -1,22 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import {
   BookOpen, Video, FileText, CheckCircle, Clock, AlertCircle,
   ArrowLeft, Upload, Eye, Star, Target, MessageSquare, GraduationCap
 } from 'lucide-react';
 
-// === Clases de estilos reutilizables ===
 const styles = {
   btnPrimary: "inline-flex items-center justify-center bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed",
   btnSecondary: "inline-flex items-center justify-center bg-gray-100 text-gray-700 px-4 py-2 rounded-lg font-medium hover:bg-gray-200 transition",
   input: "w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent",
   label: "block text-sm font-medium text-gray-700 mb-1"
 };
-
-// === Helper Functions ===
-const formatDate = (dateStr) =>
-  dateStr ? new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', weekday: 'short' }) : 'Sin fecha';
 
 const getEstadoBadge = (estado) => {
   switch (estado) {
@@ -39,66 +34,54 @@ const getTipoIcon = (tipo) => {
 
 const AulaVirtual = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-
-  // Extraer el código ya sea por query param (?codigo=XYZ) o desde el almacenamiento local si lo guardaste antes
-  const queryParams = new URLSearchParams(location.search);
-  const codigoIngresado = queryParams.get('codigo') || localStorage.getItem('aula_codigo_division');
+  const { codigo } = useParams(); // <-- Extrae automáticamente el :codigo de la URL
 
   const [divisionInfo, setDivisionInfo] = useState(null);
   const [tareas, setTareas] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
   const [showEntregaModal, setShowEntregaModal] = useState(null);
   const [entregaLoading, setEntregaLoading] = useState(false);
 
   useEffect(() => {
-    const initDivision = async () => {
-      if (!codigoIngresado) {
-        console.warn('No se encontró un código de acceso en la URL.');
+    const fetchDivisionYTareas = async () => {
+      if (!codigo) {
         setLoading(false);
         return;
       }
 
-      // Guardarlo por seguridad en localStorage
-      localStorage.setItem('aula_codigo_division', codigoIngresado);
-
       setLoading(true);
       try {
-        // Consulta directa: where codigo_acceso = al codigo con el que ingreso
+        // Consulta exacta: busca la división donde el código de acceso coincida con el de la URL
         const { data: division, error: divError } = await supabase
           .from('divisiones')
           .select('id, nombre, descripcion, codigo_acceso')
-          .eq('codigo_acceso', codigoIngresado.toUpperCase().trim())
+          .eq('codigo_acceso', codigo.toUpperCase().trim())
           .single();
 
         if (divError || !division) {
-          throw new Error('No se encontró ninguna división con ese código de acceso.');
+          throw new Error('No se encontró ninguna división con este código.');
         }
 
         setDivisionInfo(division);
-        await loadTareas(division.id);
+
+        // Cargar las tareas de esta división
+        const { data: tareasData, error: tareasError } = await supabase.rpc('obtener_tareas_division', {
+          p_division_id: division.id,
+        });
+
+        if (tareasError) throw tareasError;
+        setTareas(tareasData || []);
+
       } catch (err) {
-        console.error('Error al buscar la división:', err);
+        console.error('Error al cargar los datos de la división:', err);
       } finally {
         setLoading(false);
       }
     };
 
-    initDivision();
-  }, [codigoIngresado]);
-
-  const loadTareas = async (divisionId) => {
-    try {
-      const { data, error } = await supabase.rpc('obtener_tareas_division', {
-        p_division_id: divisionId,
-      });
-      if (error) throw error;
-      setTareas(data || []);
-    } catch (err) {
-      console.error('Error loading tareas:', err);
-    }
-  };
+    fetchDivisionYTareas();
+  }, [codigo]);
 
   const handleEntregar = async (formData) => {
     setEntregaLoading(true);
@@ -110,7 +93,12 @@ const AulaVirtual = () => {
       const result = await res.json();
       if (!res.ok) throw new Error(result.error);
       setShowEntregaModal(null);
-      if (divisionInfo) await loadTareas(divisionInfo.id);
+
+      // Recargar tareas
+      if (divisionInfo) {
+        const { data: tareasData } = await supabase.rpc('obtener_tareas_division', { p_division_id: divisionInfo.id });
+        setTareas(tareasData || []);
+      }
       alert('¡Entrega realizada correctamente!');
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Error al entregar');
@@ -138,20 +126,24 @@ const AulaVirtual = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-4">
-              <button onClick={() => navigate('/ministerio/ninos')} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
+              <button onClick={() => navigate(-1)} className="p-2 rounded-lg hover:bg-gray-100 text-gray-500">
                 <ArrowLeft className="w-5 h-5" />
               </button>
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-green-500 rounded-xl flex items-center justify-center">
                 <GraduationCap className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-800">{divisionInfo?.nombre || 'Aula Virtual'}</h1>
-                <p className="text-sm text-gray-500">{divisionInfo?.descripcion || (loading ? 'Cargando...' : 'Sin descripción')}</p>
+                <h1 className="text-xl font-bold text-gray-800">
+                  {divisionInfo ? divisionInfo.nombre : 'Aula Virtual'}
+                </h1>
+                <p className="text-sm text-gray-500">
+                  {loading ? 'Cargando información...' : (divisionInfo?.descripcion || 'Sin descripción')}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full">
-                {divisionInfo?.codigo_acceso || codigoIngresado || '---'}
+              <span className="px-3 py-1 bg-blue-100 text-blue-700 text-sm font-medium rounded-full uppercase">
+                {codigo}
               </span>
             </div>
           </div>
@@ -208,7 +200,7 @@ const AulaVirtual = () => {
         {loading ? (
           <div className="text-center py-12">
             <svg className="animate-spin h-10 w-10 mx-auto text-blue-500" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
-            <p className="mt-2 text-gray-500">Cargando...</p>
+            <p className="mt-2 text-gray-500">Cargando división...</p>
           </div>
         ) : filteredTareas.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-12 text-center">
