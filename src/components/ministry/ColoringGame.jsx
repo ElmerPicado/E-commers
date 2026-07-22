@@ -20,7 +20,7 @@ const ColoringGame = ({ gameData }) => {
   const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [currentImgUrl, setCurrentImgUrl] = useState('');
 
-  // Configuración de dimensiones y carga segura optimizada para móviles
+  // Configuración de dimensiones optimizadas para PC y móviles con soporte CORS seguro
   useEffect(() => {
     if (!pages.length) return;
     const page = pages[activePageIdx];
@@ -30,17 +30,18 @@ const ColoringGame = ({ gameData }) => {
     setCurrentImgUrl(cacheBustedUrl);
 
     const img = new Image();
-    // 🛡️ CRUCIAL PARA MÓVILES: Evita bloqueos de seguridad por CORS antes de asignar el src
+    // 🛡️ SOLUCIÓN MÓVIL: Indicar crossOrigin antes del src evita que los celulares bloqueen la imagen
     img.crossOrigin = 'anonymous';
 
     img.onload = () => {
       const screenWidth = window.innerWidth;
       const isMobile = screenWidth <= 480;
 
+      // Límites ajustados para evitar zoom desproporcionado en pantallas pequeñas
       const maxW = isMobile ? Math.min(screenWidth - 32, 340) : Math.min(screenWidth - 40, 500);
       const maxH = isMobile ? Math.min(window.innerHeight * 0.38, 380) : Math.min(window.innerHeight * 0.5, 500);
 
-      let w = img.width || 300, h = img.height || 300;
+      let w = img.width, h = img.height;
       const scale = Math.min(maxW / w, maxH / h);
 
       const finalW = Math.round(w * scale);
@@ -48,6 +49,7 @@ const ColoringGame = ({ gameData }) => {
 
       setDimensions({ width: finalW, height: finalH });
 
+      // Preparar el canvas limpio para pintar
       const canvas = canvasRef.current;
       if (canvas) {
         canvas.width = finalW;
@@ -56,10 +58,6 @@ const ColoringGame = ({ gameData }) => {
         ctx.fillStyle = '#FFFFFF';
         ctx.fillRect(0, 0, finalW, finalH);
       }
-    };
-
-    img.onerror = () => {
-      console.error("Error al cargar la imagen en el dispositivo:", cacheBustedUrl);
     };
 
     img.src = cacheBustedUrl;
@@ -90,7 +88,7 @@ const ColoringGame = ({ gameData }) => {
       try {
         floodFill(ctx, Math.round(x), Math.round(y), hexToRgba(color));
       } catch (err) {
-        console.error("Error en relleno:", err);
+        console.error(err);
       }
       setFinished(true);
       return;
@@ -151,7 +149,7 @@ const ColoringGame = ({ gameData }) => {
     tempCtx.drawImage(canvas, 0, 0);
 
     const img = new Image();
-    img.crossOrigin = 'anonymous'; // 🛡️ Evita contaminación de canvas al descargar en móvil
+    img.crossOrigin = 'anonymous';
     img.onload = () => {
       tempCtx.globalCompositeOperation = 'multiply';
       tempCtx.drawImage(img, 0, 0, canvas.width, canvas.height);
@@ -159,13 +157,6 @@ const ColoringGame = ({ gameData }) => {
       const link = document.createElement('a');
       link.download = `mi-dibujo-${Date.now()}.png`;
       link.href = tempCanvas.toDataURL('image/png');
-      link.click();
-    };
-    img.onerror = () => {
-      // Fallback si el servidor bloquea la descarga directa por CORS en móviles
-      const link = document.createElement('a');
-      link.download = `mi-dibujo-${Date.now()}.png`;
-      link.href = canvas.toDataURL('image/png');
       link.click();
     };
     img.src = currentImgUrl;
