@@ -36,7 +36,7 @@ const AulaVirtualModal = ({ isOpen, onClose }) => {
 
       const { data: estudiantes, error: estError } = await supabase
         .from('estudiantes')
-        .select('id, nombre, apellido, division_id, activo')
+        .select('id, nombre, apellido, division_id, activa')
         .eq('division_id', division.id)
         .eq('activa', true);
 
