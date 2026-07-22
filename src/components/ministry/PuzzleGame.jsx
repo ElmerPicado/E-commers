@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { RotateCcw, Trophy, Sparkles, ChevronRight, CheckCircle, Image as ImageIcon, X } from 'lucide-react';
+import { RotateCcw, Trophy, Sparkles, ChevronRight, CheckCircle, Image as ImageIcon, X, Award } from 'lucide-react';
 
 const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
   // Parse levels with legacy fallback
@@ -202,17 +202,16 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
   };
 
   const handleNextLevelClick = () => {
-    if (onNextLevel) {
-      onNextLevel();
-    }
-
     if (currentLevelIndex < levels.length - 1) {
+      if (onNextLevel) onNextLevel();
       setCurrentLevelIndex(prev => prev + 1);
       setLevelCleared(false);
       setIsPuzzleSolved(false);
       setIsWordCorrect(false);
     } else {
+      // Si era el último nivel, activamos la pantalla final con copa
       setGameFinished(true);
+      setShowConfetti(true);
     }
   };
 
@@ -223,6 +222,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
     setIsPuzzleSolved(false);
     setIsWordCorrect(false);
     setCompletedLevels({});
+    setShowConfetti(false);
   };
 
   if (levels.length === 0) {
@@ -244,49 +244,106 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
     );
   }
 
+  // Pantalla Final de Victoria (Copa Gigante y Mensaje de Ganador)
   if (gameFinished) {
     return (
       <div style={{
-        textAlign: 'center',
-        background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-        padding: '2rem 1rem',
-        borderRadius: '1.5rem',
-        boxShadow: '0 10px 30px rgba(255, 165, 0, 0.3)',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
-        gap: '1.2rem',
-        color: '#fff',
-        fontFamily: '"Comic Sans MS", sans-serif',
+        justifyContent: 'center',
+        textAlign: 'center',
+        background: 'linear-gradient(135deg, #FFF9C4, #FFE082)',
+        padding: '2rem 1.5rem',
+        borderRadius: '1.5rem',
+        boxShadow: '0 12px 35px rgba(255, 193, 7, 0.4)',
+        border: '4px solid #FFD700',
         width: '100%',
         maxWidth: '360px',
-        margin: '0 auto',
-        boxSizing: 'border-box'
+        margin: '1rem auto',
+        boxSizing: 'border-box',
+        fontFamily: '"Comic Sans MS", "Chalkboard SE", sans-serif',
+        position: 'relative',
+        overflow: 'hidden'
       }}>
-        <Trophy size={70} style={{ filter: 'drop-shadow(0px 4px 10px rgba(0,0,0,0.2))', animation: 'wiggle 1s ease-in-out infinite' }} />
-        <h2 style={{ fontSize: '2rem', fontWeight: 900, margin: 0, textShadow: '2px 2px 4px rgba(0,0,0,0.2)' }}>
-          ¡Eres un Campeón Bíblico!
-        </h2>
-        <p style={{ fontSize: '1rem', margin: 0, fontWeight: 700 }}>
-          ¡Completaste todos los niveles y adivinaste todas las historias! 🌟
-        </p>
-        <button
-          onClick={restartGame}
-          style={{
-            background: '#8A2BE2',
-            color: '#fff',
-            border: 'none',
-            borderRadius: '999px',
-            padding: '0.75rem 2rem',
-            fontSize: '1.1rem',
-            fontWeight: 800,
-            cursor: 'pointer',
-            boxShadow: '0 5px 0px #5c18a3',
-            marginTop: '0.5rem'
-          }}
-        >
-          ¡Jugar de nuevo!
-        </button>
+        {/* Efectos de confeti en la pantalla final */}
+        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1, overflow: 'hidden' }}>
+          {Array.from({ length: 40 }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                position: 'absolute',
+                top: '-10px',
+                left: `${Math.random() * 100}%`,
+                width: `${6 + Math.random() * 6}px`,
+                height: `${6 + Math.random() * 6}px`,
+                background: ['#FFD700', '#FF4500', '#00CED1', '#FF69B4', '#9370DB'][i % 5],
+                borderRadius: '50%',
+                animation: `confettiFall ${2 + Math.random() * 2}s linear infinite`,
+                animationDelay: `${Math.random() * 2}s`
+              }}
+            />
+          ))}
+        </div>
+
+        <div style={{ position: 'relative', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+          <div style={{
+            background: '#FFF',
+            borderRadius: '50%',
+            padding: '1.2rem',
+            boxShadow: '0 8px 25px rgba(255, 215, 0, 0.6)',
+            border: '4px solid #FFA500',
+            animation: 'bounceIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+          }}>
+            <Trophy size={75} style={{ color: '#FFD700', filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.15))' }} />
+          </div>
+
+          <div>
+            <h2 style={{ fontSize: '1.8rem', fontWeight: 900, color: '#D35400', margin: '0 0 0.3rem 0', textShadow: '1px 1px 0px #FFF' }}>
+              ¡CAMPEÓN BÍBLICO! 🏆
+            </h2>
+            <p style={{ fontSize: '0.95rem', color: '#7F8C8D', margin: 0, fontWeight: 700, lineHeight: 1.4 }}>
+              ¡Increíble! Completaste todos los rompecabezas y descubriste todas las historias con éxito. 🌟
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', gap: '0.5rem', width: '100%', marginTop: '0.5rem' }}>
+            <button
+              onClick={() => setIsGalleryOpen(true)}
+              style={{
+                flex: 1,
+                background: '#1E90FF',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '999px',
+                padding: '0.7rem 1rem',
+                fontSize: '0.9rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 4px 0px #104E8B'
+              }}
+            >
+              Ver Galería
+            </button>
+            <button
+              onClick={restartGame}
+              style={{
+                flex: 1,
+                background: '#27AE60',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '999px',
+                padding: '0.7rem 1rem',
+                fontSize: '0.9rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                boxShadow: '0 4px 0px #145A32'
+              }}
+            >
+              Jugar de Nuevo
+            </button>
+          </div>
+        </div>
       </div>
     );
   }
@@ -306,7 +363,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
       overflowX: 'hidden'
     }}>
       {/* Confetti falling */}
-      {showConfetti && (
+      {showConfetti && !gameFinished && (
         <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 9999, overflow: 'hidden' }}>
           {Array.from({ length: 50 }).map((_, i) => (
             <div
@@ -629,7 +686,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
             ¡Nivel Completado! 🎉
           </h4>
           <p style={{ fontSize: '0.85rem', margin: 0, fontWeight: 700 }}>
-            {currentLevelIndex === levels.length - 1 ? '¡Completaste todo el juego!' : '¡Desbloqueaste el siguiente nivel!'}
+            {currentLevelIndex === levels.length - 1 ? '¡Estás a un paso de la victoria total!' : '¡Desbloqueaste el siguiente nivel!'}
           </p>
           <button
             onClick={handleNextLevelClick}
@@ -649,7 +706,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
               marginTop: '0.3rem'
             }}
           >
-            {currentLevelIndex === levels.length - 1 ? 'Terminar Juego' : 'Siguiente Nivel'}
+            {currentLevelIndex === levels.length - 1 ? 'Ver Premio Final' : 'Siguiente Nivel'}
             <ChevronRight size={16} />
           </button>
         </div>
@@ -748,6 +805,7 @@ const PuzzleGame = ({ puzzleData, initialLevelIndex = 0, onNextLevel }) => {
                       setLevelCleared(false);
                       setIsPuzzleSolved(false);
                       setIsWordCorrect(false);
+                      setGameFinished(false);
                       setIsGalleryOpen(false);
                     }}
                     style={{
