@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Upload } from 'lucide-react';
 
 export default function ImageUploadDropzone({
@@ -13,6 +13,15 @@ export default function ImageUploadDropzone({
   const isLarge = size === 'large';
   const padding = isLarge ? '2rem' : '1rem';
 
+  // Limpieza automática de URLs de tipo blob al desmontar el componente o cambiar el preview
+  useEffect(() => {
+    return () => {
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   const handleFileChange = (e) => {
     if (multiple && onFilesSelect) {
       if (e.target.files && e.target.files.length > 0) {
@@ -22,7 +31,7 @@ export default function ImageUploadDropzone({
       if (onFileSelect) onFileSelect(e.target.files[0]);
     }
 
-    // Resetea el valor del input para permitir volver a subir el mismo archivo si se borra
+    // Resetea el valor del input para permitir volver a subir el mismo archivo si se elimina
     e.target.value = null;
   };
 
@@ -32,7 +41,7 @@ export default function ImageUploadDropzone({
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         padding: padding, border: '2px dashed var(--accent-color)', borderRadius: '0.5rem',
         cursor: 'pointer', background: 'rgba(255,255,255,0.02)', transition: 'all 0.3s',
-        flex: 1, width: isLarge ? '100%' : 'auto'
+        flex: 1, width: isLarge ? '100% ' : 'auto'
       }}
         onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
         onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
