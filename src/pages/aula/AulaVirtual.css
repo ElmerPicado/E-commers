@@ -1,5 +1,5 @@
 /* ==========================================================
-   AULAVIRTUAL.CSS - ESTILO COMPLETO Y UNIFICADO
+   AULAVIRTUAL.CSS - CORRECCIÓN DE LEGIBILIDAD Y ESTÉTICA
    ========================================================== */
 
 :root {
@@ -16,24 +16,26 @@
 
     --bg-main: #f8fafc;
     --text-dark: #1e293b;
-    --text-muted: #64748b;
+    /* Color de texto principal altamente legible */
+    --text-muted: #475569;
+    /* Color secundario mejorado para contraste */
 }
 
 .aula-virtual-wrapper {
     min-height: 100vh;
     background-color: var(--bg-main);
     color: var(--text-dark);
-    font-family: 'Nunito', system-ui, sans-serif;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* === CABECERA Y NAVEGACIÓN === */
+/* Cabecera */
 .aula-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 16px 32px;
     background: white;
-    box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.05);
     position: sticky;
     top: 0;
     z-index: 50;
@@ -44,6 +46,28 @@
     display: flex;
     align-items: center;
     gap: 16px;
+}
+
+.aula-back-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.aula-brand-sub {
+    font-size: 10px;
+    color: var(--kids-purple);
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.aula-brand-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text-dark);
 }
 
 .aula-nav-links {
@@ -75,54 +99,72 @@
 .aula-nav-btn.active {
     background: white;
     color: var(--kids-blue);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* === CONTENEDOR PRINCIPAL === */
+.aula-code-box {
+    text-align: right;
+}
+
+.aula-code-label {
+    font-size: 10px;
+    color: #94a3b8;
+    font-weight: 800;
+}
+
+.aula-code-value {
+    font-weight: 900;
+    color: var(--text-dark);
+    font-size: 0.95rem;
+}
+
+/* Contenedor */
 .aula-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 32px 24px;
 }
 
-/* === HERO (HOME) === */
+/* Hero Estético */
 .aula-hero {
-    background: linear-gradient(135deg, var(--kids-purple), var(--kids-blue));
+    background: linear-gradient(135deg, #8b5cf6, #3b82f6);
     border-radius: 32px;
     padding: 48px;
     color: white;
     margin-bottom: 40px;
-    box-shadow: 0 20px 25px -5px rgba(139, 92, 246, 0.2);
-    position: relative;
-    overflow: hidden;
+    box-shadow: 0 20px 30px -10px rgba(139, 92, 246, 0.3);
 }
 
-.aula-hero-content {
-    position: relative;
-    z-index: 2;
-}
-
-.aula-hero h1 {
-    font-size: 2.8rem;
-    font-weight: 900;
-    margin: 16px 0;
-}
-
-.aula-code {
-    background: rgba(255, 255, 255, 0.2);
+.aula-hero-badge {
+    background: rgba(255, 255, 255, 0.25);
     padding: 6px 16px;
     border-radius: 12px;
     font-weight: 800;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
 }
 
-/* === TÍTULOS DE SECCIÓN === */
+.aula-hero-title {
+    font-size: 2.75rem;
+    font-weight: 900;
+    margin: 16px 0 12px 0;
+    color: #ffffff;
+    /* Blanco forzado y brillante para contraste en el hero */
+}
+
+.aula-hero-desc {
+    font-size: 1.15rem;
+    margin: 0;
+    opacity: 0.95;
+    font-weight: 500;
+}
+
+/* Títulos de sección */
 .aula-section-title {
     margin-bottom: 24px;
 }
 
-.aula-section-title span {
+.aula-tag-sub {
     color: var(--kids-orange);
     font-weight: 900;
     text-transform: uppercase;
@@ -130,34 +172,36 @@
     letter-spacing: 1px;
 }
 
-.aula-section-title h3 {
+.aula-tag-main {
     margin: 4px 0 0 0;
     font-size: 1.75rem;
     font-weight: 900;
     color: var(--text-dark);
+    /* Forzado oscuro para visibilidad perfecta */
 }
 
-/* === PESTAÑA: TAREAS Y ACTIVIDADES === */
+/* Grids y Tarjetas */
 .aula-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 24px;
-    animation: fadeIn 0.4s ease-out;
 }
 
-.aula-task-card {
+.aula-task-card,
+.aula-video-card {
     background: white;
     border-radius: 24px;
     padding: 24px;
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-    border: 2px solid transparent;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid #f1f5f9;
+    transition: all 0.3s ease;
 }
 
-.aula-task-card:hover {
+.aula-task-card:hover,
+.aula-video-card:hover {
     transform: translateY(-5px);
     border-color: var(--kids-blue-light);
-    box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1);
+    box-shadow: 0 20px 30px -10px rgba(59, 130, 246, 0.15);
 }
 
 .aula-task-header {
@@ -169,7 +213,7 @@
 
 .aula-task-badge {
     background: var(--kids-orange-light);
-    color: var(--kids-orange);
+    color: #b45309;
     padding: 6px 14px;
     border-radius: 99px;
     font-size: 0.75rem;
@@ -181,6 +225,8 @@
     font-size: 1.25rem;
     font-weight: 900;
     margin: 0 0 8px 0;
+    color: var(--text-dark);
+    /* Color oscuro garantizado */
 }
 
 .aula-task-desc {
@@ -198,7 +244,7 @@
     background: var(--kids-blue);
     color: white;
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 0.95rem;
     cursor: pointer;
     display: flex;
     justify-content: center;
@@ -211,22 +257,15 @@
     background: #2563eb;
 }
 
-/* === PESTAÑA: VIDEOS === */
+/* Videos */
 .aula-video-card {
-    background: white;
-    border-radius: 24px;
+    padding: 0;
     overflow: hidden;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s;
-}
-
-.aula-video-card:hover {
-    transform: scale(1.02);
 }
 
 .aula-video-thumb {
     width: 100%;
-    height: 200px;
+    height: 190px;
     background-color: #cbd5e1;
     position: relative;
     display: flex;
@@ -242,8 +281,8 @@
 
 .aula-play-btn {
     position: absolute;
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     background: var(--kids-pink);
     border-radius: 50%;
     display: flex;
@@ -254,23 +293,36 @@
 }
 
 .aula-video-info {
-    padding: 24px;
+    padding: 20px;
 }
 
 .aula-video-info h4 {
-    margin: 0 0 8px 0;
-    font-weight: 800;
-    font-size: 1.15rem;
+    margin: 0 0 4px 0;
+    font-weight: 900;
+    font-size: 1.1rem;
+    color: var(--text-dark);
 }
 
-/* === PESTAÑA: MATERIALES === */
+.aula-video-subtitle {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* Materiales */
+.aula-resource-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
 .aula-resource-card {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: 20px;
     background: white;
-    padding: 24px;
-    border-radius: 24px;
+    padding: 20px 24px;
+    border-radius: 20px;
     border: 2px dashed var(--kids-green-light);
     transition: all 0.2s;
 }
@@ -282,14 +334,15 @@
 }
 
 .aula-resource-icon {
-    width: 64px;
-    height: 64px;
+    width: 56px;
+    height: 56px;
     background: var(--kids-green);
     color: white;
-    border-radius: 20px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
 }
 
 .aula-resource-text {
@@ -299,8 +352,14 @@
 
 .aula-resource-text h4 {
     margin: 0 0 4px 0;
-    font-weight: 800;
-    font-size: 1.1rem;
+    font-weight: 900;
+    font-size: 1.05rem;
+    color: var(--text-dark);
+}
+
+.aula-resource-meta {
+    font-size: 0.85rem;
+    color: var(--text-muted);
 }
 
 .aula-btn-download {
@@ -312,21 +371,10 @@
     padding: 10px 20px;
     font-weight: 800;
     cursor: pointer;
+    transition: all 0.2s;
 }
 
 .aula-btn-download:hover {
     background: var(--kids-green);
     color: white;
-}
-
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(15px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }

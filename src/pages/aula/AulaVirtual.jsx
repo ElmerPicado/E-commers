@@ -3,40 +3,66 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import './AulaVirtual.css';
 import {
-  BookOpen, Video, Sparkles, ArrowLeft, Shield, Heart, Award, Home, Upload, Play, Download, Clock
+  BookOpen, Video, Sparkles, ArrowLeft, Shield, Heart, Home, Upload, Play, Download, Clock
 } from 'lucide-react';
 
 const AulaVirtual = () => {
   const navigate = useNavigate();
   const sessionData = JSON.parse(localStorage.getItem('estudiante_actual') || '{}');
-  const codigoGuardado = sessionData.division_codigo;
+  const codigoGuardado = sessionData.division_codigo || 'GENESIS-2026'; // Fallback por defecto
 
   const [divisionInfo, setDivisionInfo] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulamos la carga de datos de la división/asignación
-    setDivisionInfo({
-      nombre: 'Adolescentes (13-15 años)', // Ejemplo para probar el tono
-      descripcion: 'Explorando la fe, haciendo preguntas difíciles y creciendo juntos en comunidad.',
-      codigo_acceso: codigoGuardado || 'TEENS-2026',
-      verse: 'Ninguno tenga en poco tu juventud, sino sé ejemplo de los creyentes. - 1 Timoteo 4:12'
-    });
+    fetchDivisionData();
   }, [codigoGuardado]);
+
+  const fetchDivisionData = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('divisiones')
+        .select('*')
+        .eq('codigo_acceso', codigoGuardado)
+        .single();
+
+      if (error) {
+        console.error('Error al obtener la división:', error.message);
+      } else if (data) {
+        setDivisionInfo(data);
+      }
+    } catch (err) {
+      console.error('Error inesperado:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#f8fafc', fontWeight: 'bold', color: '#1e293b' }}>
+        Cargando tu Aula Virtual... 🎒✨
+      </div>
+    );
+  }
 
   return (
     <div className="aula-virtual-wrapper">
 
-      {/* NAVEGACIÓN (Se mantiene igual a la que ya teníamos) */}
+      {/* NAVEGACIÓN SUPERIOR */}
       <header className="aula-header">
         <div className="aula-header-left">
-          <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
-            <ArrowLeft size={24} />
+          <button onClick={() => navigate(-1)} className="aula-back-btn">
+            <ArrowLeft size={24} color="#1e293b" />
           </button>
-          <Heart size={32} color="#ec4899" fill="#fce7f3" />
+          <div className="aula-brand-icon">
+            <Heart size={28} color="#ec4899" fill="#fce7f3" />
+          </div>
           <div>
-            <span style={{ fontSize: '10px', color: '#8b5cf6', fontWeight: 'bold' }}>COMUNIDAD METODISTA</span>
-            <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900' }}>Aula Virtual</h2>
+            <span className="aula-brand-sub">ESCUELA DOMINICAL</span>
+            <h2 className="aula-brand-title">Aula Virtual</h2>
           </div>
         </div>
 
@@ -56,37 +82,34 @@ const AulaVirtual = () => {
         </nav>
 
         <div className="aula-header-right">
-          <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>CÓDIGO CLASE</span>
-            <div style={{ fontWeight: '900', color: '#1e293b' }}>{divisionInfo?.codigo_acceso}</div>
+          <div className="aula-code-box">
+            <span className="aula-code-label">CÓDIGO CLASE</span>
+            <div className="aula-code-value">{divisionInfo?.codigo_acceso}</div>
           </div>
-          <Shield size={24} color="#10b981" />
+          <Shield size={28} color="#10b981" />
         </div>
       </header>
 
       {/* CONTENIDO PRINCIPAL */}
       <main className="aula-container">
 
-        {/* === HOME === (Se mantiene tu código anterior aquí) */}
+        {/* === HOME / BIENVENIDA === */}
         {activeTab === 'home' && (
           <div className="aula-hero">
-            {/* ... Tu código del hero y estadísticas aquí ... */}
             <div className="aula-hero-content">
-              <span className="aula-code">¡Bienvenido a tu clase!</span>
-              <h1>{divisionInfo?.nombre}</h1>
-              <p>{divisionInfo?.descripcion}</p>
+              <span className="aula-hero-badge">¡Bienvenidos a clase!</span>
+              <h1 className="aula-hero-title">{divisionInfo?.nombre || 'Clase Bíblica'}</h1>
+              <p className="aula-hero-desc">{divisionInfo?.descripcion || 'Creciendo juntos en la fe.'}</p>
             </div>
           </div>
         )}
 
-        {/* === PESTAÑA: TAREAS Y ACTIVIDADES === */}
+        {/* === TAREAS Y ACTIVIDADES === */}
         {activeTab === 'lessons' && (
           <div>
             <div className="aula-section-title">
-              <div>
-                <span>Aprende haciendo</span>
-                <h3>Actividades de la Semana</h3>
-              </div>
+              <span className="aula-tag-sub">Aprende jugando</span>
+              <h3 className="aula-tag-main">Actividades de la Semana</h3>
             </div>
 
             <div className="aula-grid">
@@ -96,8 +119,8 @@ const AulaVirtual = () => {
                     <span className="aula-task-badge">Para este Domingo</span>
                     <Clock size={16} color="#f59e0b" />
                   </div>
-                  <h4 className="aula-task-title">Dibujo: El Arca de Noé</h4>
-                  <p className="aula-task-desc">Dibuja tu animal favorito que subió al arca y cuéntanos por qué lo elegiste. ¡Tómale una foto y súbela aquí!</p>
+                  <h4 className="aula-task-title">Actividad Creativa #{item}</h4>
+                  <p className="aula-task-desc">Sigue las instrucciones de tu maestro y comparte tu manualidad o dibujo de la clase de hoy.</p>
                   <button className="aula-btn-upload">
                     <Upload size={18} /> Entregar Actividad
                   </button>
@@ -107,14 +130,12 @@ const AulaVirtual = () => {
           </div>
         )}
 
-        {/* === PESTAÑA: VIDEOS === */}
+        {/* === VIDEOS === */}
         {activeTab === 'videos' && (
           <div>
             <div className="aula-section-title">
-              <div>
-                <span>Cine Bíblico</span>
-                <h3>Videos de la Clase</h3>
-              </div>
+              <span className="aula-tag-sub">Multimedia</span>
+              <h3 className="aula-tag-main">Videos de la Clase</h3>
             </div>
 
             <div className="aula-grid">
@@ -125,8 +146,8 @@ const AulaVirtual = () => {
                     <div className="aula-play-btn"><Play size={24} fill="white" /></div>
                   </div>
                   <div className="aula-video-info">
-                    <h4>La Creación - Día {item}</h4>
-                    <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>Publicado por tu maestro</p>
+                    <h4>Historia Bíblica - Lección {item}</h4>
+                    <p className="aula-video-subtitle">Publicado por el maestro</p>
                   </div>
                 </div>
               ))}
@@ -134,25 +155,23 @@ const AulaVirtual = () => {
           </div>
         )}
 
-        {/* === PESTAÑA: MATERIALES (RECURSOS) === */}
+        {/* === MATERIALES (RECURSOS) === */}
         {activeTab === 'resources' && (
           <div>
             <div className="aula-section-title">
-              <div>
-                <span>Para imprimir o leer</span>
-                <h3>Materiales Descargables</h3>
-              </div>
+              <span className="aula-tag-sub">Para imprimir o colorear</span>
+              <h3 className="aula-tag-main">Materiales Descargables</h3>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="aula-resource-list">
               {[1, 2].map((item) => (
                 <div key={item} className="aula-resource-card">
                   <div className="aula-resource-icon">
                     <Download size={28} />
                   </div>
                   <div className="aula-resource-text">
-                    <h4>Hoja para Colorear - Salmos 23</h4>
-                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>PDF • 2.4 MB</span>
+                    <h4>Hoja de Actividades y Coloreo #{item}</h4>
+                    <span className="aula-resource-meta">PDF • Formato oficial</span>
                   </div>
                   <button className="aula-btn-download">
                     Descargar
