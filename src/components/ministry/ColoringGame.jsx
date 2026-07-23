@@ -19,13 +19,13 @@ const ColoringGame = ({ gameData }) => {
   const containerRef = useRef(null);
   const templateImageRef = useRef(null);
 
-  // Historial para el botón Deshacer (exclusivo para trazos dentro del mismo dibujo)
+  // Historial para el botón Deshacer
   const [history, setHistory] = useState([]);
 
   const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [currentImgUrl, setCurrentImgUrl] = useState('');
 
-  // 📸 Guarda el estado actual en el historial de trazos
+  // 📸 Guarda el estado actual en el historial
   const saveToHistory = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -33,8 +33,8 @@ const ColoringGame = ({ gameData }) => {
     setHistory(prev => [...prev.slice(-10), dataUrl]);
   };
 
-  // 🧹 Renderiza la plantilla limpia en el canvas
-  const renderTemplateToCanvas = (customWidth, customHeight) => {
+  // 🎨 Renderiza plantilla y opcionalmente redimensiona manteniendo los trazos ya hechos de forma proporcional
+  const renderTemplateToCanvas = (customWidth, customHeight, savedDataUrl = null) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -42,21 +42,40 @@ const ColoringGame = ({ gameData }) => {
     const h = customHeight || canvas.height;
     if (w <= 0 || h <= 0) return;
 
+    // Si ya teníamos un canvas con contenido previo (ej. al cambiar pantalla completa), guardamos una imagen temporal
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    const tempCtx = tempCanvas.getContext('2d');
+    tempCtx.drawImage(canvas, 0, 0);
+
     canvas.width = w;
     canvas.height = h;
     const ctx = canvas.getContext('2d');
 
-    // Fondo blanco
+    // 1. Fondo blanco inicial
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, w, h);
 
-    // Pintar la plantilla del dibujo actual
+    // 2. Pintar la plantilla base limpia
     if (templateImageRef.current) {
       ctx.drawImage(templateImageRef.current, 0, 0, w, h);
     }
+
+    // 3. Si hay datos guardados explícitamente (como al deshacer) o redimensionamos con trazos previos
+    if (savedDataUrl) {
+      const savedImg = new Image();
+      savedImg.onload = () => {
+        ctx.drawImage(savedImg, 0, 0, w, h);
+      };
+      savedImg.src = savedDataUrl;
+    } else if (tempCanvas.width > 0 && tempCanvas.height > 0 && templateImageRef.current) {
+      // Reescalar inteligentemente lo que el usuario ya había pintado al cambiar de tamaño (Pantalla completa)
+      ctx.drawImage(tempCanvas, 0, 0, tempCanvas.width, tempCanvas.height, 0, 0, w, h);
+    }
   };
 
-  // Configuración de dimensiones y carga obligatoria de la nueva plantilla al cambiar de dibujo
+  // Efecto para cambio de dibujo (Limpieza total requerida)
   useEffect(() => {
     if (!pages.length) return;
     const page = pages[activePageIdx];
@@ -64,7 +83,6 @@ const ColoringGame = ({ gameData }) => {
     const cacheBustedUrl = page.image_url + (page.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
     setCurrentImgUrl(cacheBustedUrl);
 
-    // 🔄 Cada vez que cambiamos de página, limpiamos el historial anterior para que no se mezcle
     setHistory([]);
     setFinished(false);
 
@@ -96,14 +114,45 @@ const ColoringGame = ({ gameData }) => {
 
       setDimensions({ width: finalW, height: finalH });
 
-      // 💡 Forzamos la renderización limpia de la nueva imagen inmediatamente
       setTimeout(() => {
         renderTemplateToCanvas(finalW, finalH);
       }, 50);
     };
 
     img.src = cacheBustedUrl;
-  }, [activePageIdx, pages, isFullscreen]);
+  }, [activePageIdx, pages]);
+
+  // Efecto exclusivo para manejar cambios de Pantalla Completa sin perder los trazos actuales
+  useEffect(() => {
+    if (!templateImageRef.current) return;
+
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    const isMobile = screenWidth <= 480;
+
+    let maxW, maxH;
+
+    if (isFullscreen) {
+      maxW = screenWidth - 32;
+      maxH = screenHeight - (isMobile ? 180 : 210);
+    } else {
+      maxW = isMobile ? Math.min(screenWidth - 32, 340) : Math.min(screenWidth - 40, 500);
+      maxH = isMobile ? Math.min(screenHeight * 0.38, 380) : Math.min(screenHeight * 0.5, 500);
+    }
+
+    let w = templateImageRef.current.width;
+    let h = templateImageRef.current.height;
+    const scale = Math.min(maxW / w, maxH / h);
+
+    const finalW = Math.round(w * scale);
+    const finalH = Math.round(h * scale);
+
+    setDimensions({ width: finalW, height: finalH });
+
+    setTimeout(() => {
+      renderTemplateToCanvas(finalW, finalH);
+    }, 50);
+  }, [isFullscreen]);
 
   const getPos = (e) => {
     const canvas = canvasRef.current;
@@ -209,17 +258,7 @@ const ColoringGame = ({ gameData }) => {
     const previousStateUrl = history[history.length - 1];
     setHistory(prev => prev.slice(0, prev.length - 1));
 
-    const img = new Image();
-    img.onload = () => {
-      const canvas = canvasRef.current;
-      if (!canvas) return;
-      const ctx = canvas.getContext('2d');
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 0, 0);
-    };
-    img.src = previousStateUrl;
+    renderTemplateToCanvas(dimensions.width, dimensions.height, previousStateUrl);
   };
 
   const downloadCanvas = () => {
