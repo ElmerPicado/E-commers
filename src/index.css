@@ -791,3 +791,28 @@ a {
     /* Desktop: 5 tarjetas */
   }
 }
+
+/* Corrección de opacidad y contraste global para temas oscuros */
+body {
+  background-color: #030407 !important;
+  /* Un negro un poco más profundo y limpio */
+}
+
+/* Evita que los efectos glassmorphism se vean opacos o grises llanos */
+.glass-card,
+.schedule-slider-card,
+.live-player-container {
+  background-color: rgba(14, 18, 32, 0.85) !important;
+  /* Sube la opacidad para que no se vea desteñido */
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* Mejora el brillo de los textos principales */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
