@@ -673,7 +673,7 @@ export default function Home() {
                 padding: '2rem',
                 borderLeft: `4px solid ${min.accent_color}`,
                 background: min.hero_image
-                  ? `linear-gradient(rgba(18, 18, 22, 0.75), rgba(18, 18, 22, 0.95)), url(${resolveImageUrl(min.hero_image)})`
+                  ? `linear-gradient(rgba(18, 18, 22, 0.75), rgba(18, 18, 22, 0.95)), url(${min.hero_image})`
                   : 'rgba(18, 18, 22, 0.65)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
@@ -692,7 +692,7 @@ export default function Home() {
                     overflow: 'hidden'
                   }}>
                     {min.logo_url ? (
-                      <img src={resolveImageUrl(min.logo_url)} alt={min.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <img src={min.logo_url} alt={min.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     ) : (
                       <MinistryIcon name={min.icon_name} color={min.accent_color} />
                     )}

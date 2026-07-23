@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { ArrowLeft, User, Calendar, Tag, Home, BookOpen, Sun, Moon, MessageCircle, Send, ChevronDown, ChevronUp, Share2 } from 'lucide-react';
+import { ArrowLeft, User, Calendar, Tag, Home, BookOpen, Sun, Moon, MessageCircle, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import './Devocionales.css';
 
 export default function DevocionalDetail() {
@@ -9,7 +9,7 @@ export default function DevocionalDetail() {
   const navigate = useNavigate();
   const { devotionals, devotionalCategories, devotionalComments, addDevotionalComment } = useContext(GalleryContext);
   const [isLightMode, setIsLightMode] = useState(true);
-
+  
   // Collapsible Sidebar Sections
   const [isCategoriesExpanded, setIsCategoriesExpanded] = useState(window.innerWidth > 900);
   const [isRecentExpanded, setIsRecentExpanded] = useState(window.innerWidth > 900);
@@ -38,22 +38,6 @@ export default function DevocionalDetail() {
       .filter(d => d.status === 'published' && d.id !== devocional?.id)
       .slice(0, 5); // Tomamos 5 devocionales extra
   }, [devotionals, devocional]);
-
-  // Función para manejar la acción de compartir el devocional específico
-  const handleCompartirDevocional = () => {
-    const linkCompartir = window.location.href;
-
-    if (navigator.share) {
-      navigator.share({
-        title: devocional?.title || 'Devocional IMR4',
-        text: `Te comparto este devocional: "${devocional?.title}"`,
-        url: linkCompartir,
-      }).catch((error) => console.log('Error al compartir:', error));
-    } else {
-      navigator.clipboard.writeText(linkCompartir);
-      alert('¡Enlace del devocional copiado al portapapeles!');
-    }
-  };
 
   if (!devocional) {
     return (
@@ -85,9 +69,9 @@ export default function DevocionalDetail() {
 
   return (
     <div className={`devocionales-page ${!isLightMode ? 'dark' : ''}`} style={{ paddingTop: '100px' }}>
-
+      
       {/* Floating Theme Toggle */}
-      <button
+      <button 
         onClick={() => setIsLightMode(!isLightMode)}
         style={{
           position: 'fixed',
@@ -114,12 +98,12 @@ export default function DevocionalDetail() {
       </button>
 
       <div className="devocional-detail-layout">
-
+        
         {/* Left Sidebar (Categories + Other Devotionals) */}
         <aside className="devocional-left-sidebar" style={{ position: 'sticky', top: '100px' }}>
-
+          
           <div className="categories-sidebar" style={{ position: 'static', marginBottom: '1.5rem' }}>
-            <h3
+            <h3 
               onClick={() => setIsCategoriesExpanded(!isCategoriesExpanded)}
               className="sidebar-accordion-header"
             >
@@ -128,14 +112,14 @@ export default function DevocionalDetail() {
             </h3>
             {isCategoriesExpanded && (
               <div className="sidebar-accordion-content">
-                <div
+                <div 
                   className="category-item"
                   onClick={() => navigate('/devocionales')}
                 >
                   Todos los temas
                 </div>
                 {(devotionalCategories || []).map(cat => (
-                  <div
+                  <div 
                     key={cat.id}
                     className="category-item"
                     onClick={() => navigate('/devocionales')}
@@ -147,7 +131,7 @@ export default function DevocionalDetail() {
             )}
           </div>
 
-          <h3
+          <h3 
             onClick={() => setIsRecentExpanded(!isRecentExpanded)}
             className="sidebar-accordion-header authors-header"
           >
@@ -200,27 +184,27 @@ export default function DevocionalDetail() {
             </div>
           )}
 
-          <div
-            className="devocional-content-body"
-            style={{ minHeight: '30vh', marginBottom: '2rem', maxWidth: '100%', overflowWrap: 'break-word', wordWrap: 'break-word', wordBreak: 'break-word' }}
-            dangerouslySetInnerHTML={{
-              __html: (() => {
-                let html = (devocional.content || '').replace(/&nbsp;/g, ' ');
-                html = html.replace(
-                  /<a[^>]*href=["']?(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})[^"']*)["']?[^>]*>.*?<\/a>/gi,
-                  '<div class="video-responsive" style="margin: 1.5rem 0; width: 100%; aspect-ratio: 16/9;"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 0.5rem;"></iframe></div>'
-                );
-                html = html.replace(
-                  /(^|[^"'>])(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})[^\s<]*)/gi,
-                  '$1<div class="video-responsive" style="margin: 1.5rem 0; width: 100%; aspect-ratio: 16/9;"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 0.5rem;"></iframe></div>'
-                );
-                return html;
-              })()
-            }}
+          <div 
+            className="devocional-content-body" 
+            style={{ minHeight: '30vh', marginBottom: '3rem', maxWidth: '100%', overflowWrap: 'break-word', wordWrap: 'break-word', wordBreak: 'break-word' }}
+            dangerouslySetInnerHTML={{ __html: (() => {
+              let html = (devocional.content || '').replace(/&nbsp;/g, ' ');
+              // 1. Reemplazar tags <a> que contienen enlaces de youtube
+              html = html.replace(
+                /<a[^>]*href=["']?(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})[^"']*)["']?[^>]*>.*?<\/a>/gi,
+                '<div class="video-responsive" style="margin: 1.5rem 0; width: 100%; aspect-ratio: 16/9;"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$2" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 0.5rem;"></iframe></div>'
+              );
+              // 2. Reemplazar texto plano de youtube (que no esté ya en un iframe/attr)
+              html = html.replace(
+                /(^|[^"'>])(https?:\/\/(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})[^\s<]*)/gi,
+                '$1<div class="video-responsive" style="margin: 1.5rem 0; width: 100%; aspect-ratio: 16/9;"><iframe width="100%" height="100%" src="https://www.youtube.com/embed/$3" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 0.5rem;"></iframe></div>'
+              );
+              return html;
+            })() }}
           />
 
           {devocional.prayer && (
-            <div style={{ background: 'var(--bg-secondary)', border: '1px dashed var(--border-color)', padding: '1.5rem', borderRadius: '0.75rem', marginBottom: '1.5rem' }}>
+            <div style={{ background: 'var(--bg-secondary)', border: '1px dashed var(--border-color)', padding: '1.5rem', borderRadius: '0.75rem', marginBottom: '3rem' }}>
               <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1.1rem', color: 'var(--text-primary)', marginTop: 0, marginBottom: '1rem' }}>
                 <BookOpen size={18} /> Oración Final
               </h4>
@@ -229,32 +213,6 @@ export default function DevocionalDetail() {
               </p>
             </div>
           )}
-
-          {/* --- BOTÓN DE COMPARTIR JUSTO DESPUÉS DE LA ORACIÓN --- */}
-          <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-            <button
-              onClick={handleCompartirDevocional}
-              style={{
-                background: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)',
-                color: '#ffffff',
-                border: 'none',
-                padding: '12px 28px',
-                borderRadius: '30px',
-                fontSize: '15px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 12px rgba(217, 119, 6, 0.3)',
-                transition: 'all 0.2s ease-in-out'
-              }}
-              onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-              onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-            >
-              <Share2 size={18} /> Compartir este Devocional
-            </button>
-          </div>
 
           {/* Author Info (Mobile Only) */}
           <div className="author-mobile-only" style={{ marginBottom: '3rem', borderTop: '1px solid var(--border-color)', paddingTop: '2rem' }}>
@@ -303,20 +261,20 @@ export default function DevocionalDetail() {
               <h4 style={{ margin: '0 0 1rem 0', color: 'var(--text-primary)' }}>Deja un comentario</h4>
               <form onSubmit={handleCommentSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div>
-                  <input
-                    type="text"
-                    value={newCommentName}
-                    onChange={e => setNewCommentName(e.target.value)}
-                    placeholder="Tu Nombre"
+                  <input 
+                    type="text" 
+                    value={newCommentName} 
+                    onChange={e => setNewCommentName(e.target.value)} 
+                    placeholder="Tu Nombre" 
                     required
                     style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: 'inherit', boxSizing: 'border-box' }}
                   />
                 </div>
                 <div>
-                  <textarea
-                    value={newCommentText}
-                    onChange={e => setNewCommentText(e.target.value)}
-                    placeholder="Escribe tu comentario o testimonio aquí..."
+                  <textarea 
+                    value={newCommentText} 
+                    onChange={e => setNewCommentText(e.target.value)} 
+                    placeholder="Escribe tu comentario o testimonio aquí..." 
                     required
                     style={{ width: '100%', padding: '0.75rem', borderRadius: '0.5rem', border: '1px solid var(--border-color)', background: 'var(--bg-primary)', color: 'var(--text-primary)', fontFamily: 'inherit', minHeight: '80px', resize: 'vertical', boxSizing: 'border-box' }}
                   />
