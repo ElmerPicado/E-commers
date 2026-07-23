@@ -1,771 +1,442 @@
 import React, { useState, useEffect } from 'react';
-import {
-  Users, BookOpen, Calendar, CheckSquare,
-  Plus, Trash2, Clock, Menu, Bell, Shield, Briefcase, LayoutDashboard,
-  LogOut, UserCheck, X, GraduationCap, MapPin, Tag, Key
-} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import './Dashboard.css';
+import {
+  PlusCircle, BookOpen, Users, Trash2, Edit3, Save, X, Shield, CheckCircle, AlertCircle, Calendar, LayoutDashboard, CalendarDays, Tags, ChevronDown
+} from 'lucide-react';
 
-/* ============================================
-   MODAL REUTILIZABLE
-   ============================================ */
-const Modal = ({ isOpen, onClose, title, children, footer }) => {
-  if (!isOpen) return null;
-  return (
-    <div className="dash-modal-overlay" onClick={onClose}>
-      <div className="dash-modal" onClick={e => e.stopPropagation()}>
-        <div className="dash-modal-header">
-          <h3 className="dash-modal-title">{title}</h3>
-          <button className="dash-modal-close" onClick={onClose}>
-            <X size={20} />
-          </button>
-        </div>
-        <div className="dash-modal-body">{children}</div>
-        {footer && <div className="dash-modal-footer">{footer}</div>}
-      </div>
-    </div>
-  );
-};
-
-/* ============================================
-   STAT CARD
-   ============================================ */
-const StatCard = ({ title, value, icon: Icon, color = 'amber', subtitle }) => (
-  <div className="dash-stat-card">
-    <div>
-      <p className="dash-stat-label">{title}</p>
-      <p className="dash-stat-value">{value}</p>
-      {subtitle && <p className="dash-stat-subtitle">{subtitle}</p>}
-    </div>
-    <div className={`dash-stat-icon ${color}`}>
-      <Icon />
-    </div>
-  </div>
-);
-
-/* ============================================
-   ADMIN DASHBOARD VIEW
-   ============================================ */
-const AdminDashboardView = ({
-  maestros, asignaciones, divisiones,
-  onOpenAddMaestro, onOpenAddAsignacion, onOpenAddDivision, onDeleteAsignacion
-}) => (
-  <div>
-    {/* Stats */}
-    <div className="dash-stats-grid">
-      <StatCard title="Maestros Registrados" value={maestros.length} icon={Users} color="amber" subtitle="Personal activo del ministerio" />
-      <StatCard title="Divisiones / Clases" value={divisiones.length} icon={GraduationCap} color="green" subtitle="Grupos de edad activos" />
-      <StatCard title="Clases Programadas" value={asignaciones.length} icon={Briefcase} color="purple" subtitle="Asignaciones activas" />
-    </div>
-
-    {/* Actions */}
-    <div className="dash-action-bar">
-      <div>
-        <p className="dash-action-title">Gestión de Clases y Aula Virtual</p>
-        <p className="dash-action-desc">Administra maestros, códigos de acceso y aulas virtuales</p>
-      </div>
-      <div className="dash-action-btns">
-        <button className="dash-btn dash-btn-outline" onClick={onOpenAddDivision}>
-          <Tag size={16} /> + Nueva División
-        </button>
-        <button className="dash-btn dash-btn-dark" onClick={onOpenAddMaestro}>
-          <Plus size={16} /> Nuevo Maestro
-        </button>
-        <button className="dash-btn dash-btn-primary" onClick={onOpenAddAsignacion}>
-          <Briefcase size={16} /> Asignar Clase
-        </button>
-      </div>
-    </div>
-
-    {/* Table */}
-    <div className="dash-table-container">
-      <div className="dash-table-header">
-        <h4 className="dash-table-title">Asignaciones Activas de Clases</h4>
-        <span className="dash-table-badge">{asignaciones.length} Clases</span>
-      </div>
-      <div className="dash-table-wrap">
-        <table className="dash-table">
-          <thead>
-            <tr>
-              <th>Maestro Titular</th>
-              <th>Lección / Materia</th>
-              <th>División / Edad</th>
-              <th>Horario</th>
-              <th>Aula / Código Virtual</th>
-              <th style={{ textAlign: 'right' }}>Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {asignaciones.length === 0 ? (
-              <tr>
-                <td colSpan="6" className="dash-table-empty">
-                  No hay clases asignadas aún. Haz clic en "Asignar Clase" para comenzar.
-                </td>
-              </tr>
-            ) : (
-              asignaciones.map(asig => {
-                const maestro = maestros.find(m => m.id === asig.maestroId);
-                return (
-                  <tr key={asig.id}>
-                    <td>
-                      <div className="dash-maestro-cell">
-                        <div className="dash-maestro-avatar">{maestro?.nombre?.charAt(0) || 'M'}</div>
-                        <div>
-                          <p className="dash-maestro-name">{maestro?.nombre || 'Maestro'}</p>
-                          <p className="dash-maestro-email">{maestro?.email || 'sin correo'}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td style={{ fontWeight: 700 }}>{asig.materia}</td>
-                    <td><span className="dash-division-badge">{asig.grupo}</span></td>
-                    <td>
-                      <span className="dash-horario-cell">
-                        <Clock size={14} /> {asig.horario || 'Domingos 10:00 AM'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="dash-aula-cell">
-                        <span className="dash-aula-name"><MapPin size={14} /> {asig.aula || 'Salón Principal'}</span>
-                        {asig.codigoVirtual && (
-                          <span className="dash-codigo-virtual"><Key size={12} /> Código: {asig.codigoVirtual}</span>
-                        )}
-                      </div>
-                    </td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button className="dash-btn dash-btn-danger-ghost" onClick={() => onDeleteAsignacion(asig.id)} title="Eliminar Clase">
-                        <Trash2 size={16} />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-);
-
-/* ============================================
-   ADMIN MAESTROS LIST VIEW
-   ============================================ */
-const AdminMaestrosListView = ({ maestros, onDeleteMaestro, onOpenAddMaestro }) => (
-  <div>
-    <div className="dash-action-bar" style={{ marginBottom: 24 }}>
-      <div>
-        <p className="dash-action-title">Directorio de Maestros del Ministerio</p>
-        <p className="dash-action-desc">Personal encargado de Niños, Adolescentes y Jóvenes</p>
-      </div>
-      <button className="dash-btn dash-btn-primary" onClick={onOpenAddMaestro}>
-        <Plus size={16} /> Agregar Nuevo Maestro
-      </button>
-    </div>
-
-    <div className="dash-cards-grid">
-      {maestros.map(m => (
-        <div key={m.id} className="dash-person-card">
-          <div className="dash-person-top">
-            <div className="dash-person-info">
-              <div className="dash-person-avatar">{m.nombre.charAt(0)}</div>
-              <div>
-                <p className="dash-person-name">{m.nombre}</p>
-                <p className="dash-person-specialty">{m.especialidad || 'Maestro Titular'}</p>
-              </div>
-            </div>
-            <button className="dash-btn dash-btn-danger-ghost" onClick={() => onDeleteMaestro(m.id)}>
-              <Trash2 size={16} />
-            </button>
-          </div>
-          <div className="dash-person-details">
-            <p><strong>Correo:</strong> {m.email || 'No registrado'}</p>
-            <p><strong>Teléfono / WhatsApp:</strong> {m.telefono || 'Sin teléfono'}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-);
-
-/* ============================================
-   MAESTRO RESUMEN VIEW
-   ============================================ */
-const MaestroResumenView = ({ asignacionesProfesor, maestroNombre }) => (
-  <div>
-    <div className="dash-welcome-banner">
-      <span className="dash-welcome-badge">Servidor / Maestro Activo</span>
-      <h2 className="dash-welcome-title">¡Bienvenido de nuevo, {maestroNombre}! 👋</h2>
-      <p className="dash-welcome-subtitle">Resumen de tus clases infantiles, juveniles y lecciones asignadas.</p>
-    </div>
-
-    <div className="dash-stats-grid">
-      <StatCard title="Mis Clases Asignadas" value={asignacionesProfesor.length} icon={BookOpen} color="amber" />
-      <StatCard title="Frecuencia" value="Dominical" icon={Clock} color="green" />
-      <StatCard title="Lecciones Listas" value="Activas" icon={CheckSquare} color="purple" />
-    </div>
-
-    <div className="dash-clases-section">
-      <h3 className="dash-clases-title">Mis Clases y Grupos Asignados</h3>
-      <div className="dash-clases-grid">
-        {asignacionesProfesor.length === 0 ? (
-          <p style={{ color: 'var(--dash-text-muted)', gridColumn: '1 / -1', padding: '16px 0' }}>
-            No tienes clases asignadas por la administración en este momento.
-          </p>
-        ) : (
-          asignacionesProfesor.map(clase => (
-            <div key={clase.id} className="dash-clase-card">
-              <div className="dash-clase-left">
-                <div className="dash-clase-icon"><BookOpen size={20} /></div>
-                <div>
-                  <p className="dash-clase-nombre">{clase.materia}</p>
-                  <p className="dash-clase-grupo">Grupo {clase.grupo} • {clase.aula}</p>
-                  <p className="dash-clase-horario">{clase.horario}</p>
-                </div>
-              </div>
-              <button className="dash-btn-sm">Ver Aula</button>
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  </div>
-);
-
-/* ============================================
-   CALENDARIO VIEW
-   ============================================ */
-const CalendarioView = ({ asignaciones }) => {
-  const dias = ['Domingo (Mañana)', 'Domingo (Tarde)', 'Entre Semana'];
-  return (
-    <div>
-      <div className="dash-action-bar" style={{ marginBottom: 24 }}>
-        <div>
-          <p className="dash-action-title">Horario de Clases y Lecciones</p>
-          <p className="dash-action-desc">Organización semanal de la Escuela Dominical y Jóvenes</p>
-        </div>
-      </div>
-
-      <div className="dash-calendar-grid">
-        {dias.map((dia, idx) => (
-          <div key={dia} className="dash-calendar-day">
-            <div className="dash-calendar-day-title">{dia}</div>
-            {asignaciones.length === 0 ? (
-              <p className="dash-calendar-empty">Sin actividades agendadas</p>
-            ) : (
-              asignaciones.slice(idx % asignaciones.length, (idx % asignaciones.length) + 2).map((asig, i) => (
-                <div key={i} className="dash-calendar-event">
-                  <p className="dash-calendar-event-title">{asig.materia}</p>
-                  <p className="dash-calendar-event-group">Grupo: {asig.grupo}</p>
-                  <p className="dash-calendar-event-time"><Clock size={12} /> {asig.horario || '10:00 AM'}</p>
-                </div>
-              ))
-            )}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-/* ============================================
-   COMPONENTE PRINCIPAL
-   ============================================ */
 const SistemaEscolar = () => {
-  const [currentUser, setCurrentUser] = useState({
-    id: 'admin-01', nombre: 'Administrador Principal', role: 'admin',
-  });
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  // Modales
-  const [isAddMaestroOpen, setIsAddMaestroOpen] = useState(false);
-  const [isAddAsignacionOpen, setIsAddAsignacionOpen] = useState(false);
-  const [isAddDivisionOpen, setIsAddDivisionOpen] = useState(false);
+  // Estados principales de datos
+  const [divisiones, setDivisiones] = useState([]);
+  const [maestros, setMaestros] = useState([]);
+  const [asignaciones, setAsignaciones] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Generador de UUID para identificadores válidos en PostgreSQL
-  const generateUUID = () => {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-      return crypto.randomUUID();
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-      const r = (Math.random() * 16) | 0;
-      const v = c === 'x' ? r : (r & 0x3) | 0x8;
-      return v.toString(16);
-    });
+  // Navegación interna por pestañas del menú lateral
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'maestros', 'divisiones', 'asignaciones'
+
+  // Estados para alertas visuales
+  const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
+
+  // Estados para modales de Crear/Editar
+  const [modalTipo, setModalTipo] = useState(null); // 'division', 'maestro', 'asignacion'
+  const [formData, setFormData] = useState({});
+  const [editandoId, setEditandoId] = useState(null);
+
+  const mostrarAlerta = (tipo, mensaje) => {
+    setAlerta({ tipo, mensaje });
+    setTimeout(() => {
+      setAlerta({ tipo: '', mensaje: '' });
+    }, 4000);
   };
 
-  // Divisiones
-  const [divisiones, setDivisiones] = useState([]);
+  // Carga de datos desde Supabase
+  const fetchDatosGenerales = async () => {
+    try {
+      setLoading(true);
 
-  // Maestros
-  const [maestros, setMaestros] = useState([]);
+      const [{ data: divData }, { data: mData }, { data: aData }] = await Promise.all([
+        supabase.from('divisiones').select('*').order('orden', { ascending: true }),
+        supabase.from('maestro_users').select('*'),
+        supabase.from('asignaciones').select('*')
+      ]);
 
-  // Asignaciones
-  const [asignaciones, setAsignaciones] = useState([]);
+      setDivisiones(divData || []);
+      setMaestros(mData || []);
+      setAsignaciones(aData || []);
+    } catch (error) {
+      console.error('Error al cargar datos:', error.message);
+      mostrarAlerta('error', 'No se pudieron cargar los datos del sistema.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Forms
-  const [newMaestro, setNewMaestro] = useState({ nombre: '', especialidad: '', email: '', telefono: '' });
-  const [newAsignacion, setNewAsignacion] = useState({ maestroId: '', materia: '', grupo: '', horario: 'Domingos 10:00 AM', aula: 'Salón Principal' });
-  const [newDivisionNombre, setNewDivisionNombre] = useState('');
-
-  // Cargar desde Supabase
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        
-        // Cargar Maestros
-        const { data: dbMaestros, error: errM } = await supabase
-          .from('maestro_users')
-          .select('*');
-        if (!errM && dbMaestros) {
-          setMaestros(dbMaestros.map(m => ({
-            id: m.id,
-            nombre: m.nombre || 'Maestro',
-            especialidad: m.role || 'Maestro Titular',
-            email: m.email,
-            telefono: m.telefono || m.whatsapp || ''
-          })));
-        } else if (errM) {
-          console.error('Error cargando maestros de Supabase:', errM);
-        }
-
-        // Cargar Divisiones
-        const { data: dbDiv, error: errD } = await supabase
-          .from('divisiones')
-          .select('*')
-          .order('orden', { ascending: true });
-        if (!errD && dbDiv) {
-          setDivisiones(dbDiv.map(d => ({
-            id: d.id,
-            nombre: d.nombre
-          })));
-        } else if (errD) {
-          console.error('Error cargando divisiones de Supabase:', errD);
-        }
-
-        // Cargar Asignaciones (si la tabla existe)
-        const { data: dbAsig, error: errA } = await supabase
-          .from('asignaciones')
-          .select('*');
-        if (!errA && dbAsig) {
-          setAsignaciones(dbAsig.map(a => ({
-            id: a.id,
-            maestroId: a.maestro_id || a.maestroId || '',
-            materia: a.materia || '',
-            grupo: a.grupo || '',
-            horario: a.horario || '',
-            aula: a.aula || '',
-            codigoVirtual: a.codigo_virtual || a.codigoVirtual || ''
-          })));
-        } else if (errA) {
-          console.error('Error cargando asignaciones de Supabase:', errA);
-        }
-      } catch (err) {
-        console.error('Error general al cargar datos de Supabase:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    fetchDatosGenerales();
   }, []);
 
-  // Handlers
-  const handleAddMaestro = async (e) => {
+  // Función para guardar / actualizar registros
+  const handleGuardar = async (e) => {
     e.preventDefault();
-    if (!newMaestro.nombre) return;
-    if (newMaestro.email && maestros.some(m => m.email?.toLowerCase() === newMaestro.email.toLowerCase())) {
-      alert('Este correo electrónico ya está registrado con otro maestro.');
-      return;
-    }
-    const id = generateUUID();
-    const maestroData = {
-      id,
-      nombre: newMaestro.nombre,
-      especialidad: newMaestro.especialidad || 'Maestro Titular',
-      email: newMaestro.email || `${id}@ministerio.edu`,
-      telefono: newMaestro.telefono || ''
-    };
-
     try {
-      const { error } = await supabase
-        .from('maestro_users')
-        .insert([{
-          id,
-          nombre: newMaestro.nombre,
-          email: maestroData.email,
-          telefono: newMaestro.telefono || null,
-          whatsapp: newMaestro.telefono || null,
-          role: 'maestro',
-          activo: true
-        }]);
-      if (error) throw error;
-    } catch (err) {
-      console.error('Error al guardar maestro en Supabase:', err);
-    }
-
-    setMaestros(prev => [...prev, maestroData]);
-    setNewMaestro({ nombre: '', especialidad: '', email: '', telefono: '' });
-    setIsAddMaestroOpen(false);
-  };
-
-  const handleAddDivision = async (e) => {
-    e.preventDefault();
-    if (!newDivisionNombre.trim()) return;
-    if (divisiones.some(d => d.nombre.toLowerCase() === newDivisionNombre.trim().toLowerCase())) {
-      alert('Esta división o rango de edad ya existe.');
-      return;
-    }
-    const id = generateUUID();
-    const divisionData = {
-      id,
-      nombre: newDivisionNombre.trim()
-    };
-
-    try {
-      const cleanName = newDivisionNombre.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
-      const codigo_acceso = `${cleanName}-${Math.floor(1000 + Math.random() * 9000)}`;
-
-      const { error } = await supabase
-        .from('divisiones')
-        .insert([{
-          id,
-          nombre: divisionData.nombre,
-          codigo_acceso,
-          activa: true
-        }]);
-      if (error) throw error;
-    } catch (err) {
-      console.error('Error al guardar división en Supabase:', err);
-    }
-
-    setDivisiones(prev => [...prev, divisionData]);
-    setNewDivisionNombre('');
-    setIsAddDivisionOpen(false);
-  };
-
-  const handleAddAsignacion = async (e) => {
-    e.preventDefault();
-    if (!newAsignacion.maestroId || !newAsignacion.materia || !newAsignacion.grupo) {
-      alert('Por favor, completa todos los campos requeridos.');
-      return;
-    }
-    const id = generateUUID();
-    const codigoVirtual = Math.floor(100000 + Math.random() * 900000).toString();
-    const asignacionData = {
-      id,
-      ...newAsignacion,
-      codigoVirtual
-    };
-
-    try {
-      const { error: err1 } = await supabase
-        .from('asignaciones')
-        .insert([{
-          id,
-          maestro_id: newAsignacion.maestroId,
-          materia: newAsignacion.materia,
-          grupo: newAsignacion.grupo,
-          horario: newAsignacion.horario,
-          aula: newAsignacion.aula,
-          codigo_virtual: codigoVirtual
-        }]);
-      if (err1) {
-        const { error: err2 } = await supabase
-          .from('asignaciones')
-          .insert([{
-            id,
-            maestroId: newAsignacion.maestroId,
-            materia: newAsignacion.materia,
-            grupo: newAsignacion.grupo,
-            horario: newAsignacion.horario,
-            aula: newAsignacion.aula,
-            codigoVirtual
-          }]);
-        if (err2) throw err2;
+      if (modalTipo === 'division') {
+        if (editandoId) {
+          await supabase.from('divisiones').update(formData).eq('id', editandoId);
+        } else {
+          await supabase.from('divisiones').insert([formData]);
+        }
+        mostrarAlerta('success', 'División guardada exitosamente.');
+      } else if (modalTipo === 'asignacion') {
+        if (editandoId) {
+          await supabase.from('asignaciones').update(formData).eq('id', editandoId);
+        } else {
+          await supabase.from('asignaciones').insert([formData]);
+        }
+        mostrarAlerta('success', 'Asignación guardada exitosamente.');
       }
-    } catch (err) {
-      console.error('Error al guardar asignación en Supabase:', err);
+      setModalTipo(null);
+      setFormData({});
+      setEditandoId(null);
+      fetchDatosGenerales();
+    } catch (error) {
+      console.error('Error al guardar:', error);
+      mostrarAlerta('error', 'Ocurrió un error al guardar el registro.');
     }
-
-    setAsignaciones(prev => [...prev, asignacionData]);
-    setNewAsignacion({ maestroId: '', materia: '', grupo: '', horario: 'Domingos 10:00 AM', aula: 'Salón Principal' });
-    setIsAddAsignacionOpen(false);
   };
 
-  const handleDeleteMaestro = async (id) => {
+  // Función para eliminar registros
+  const handleEliminar = async (tabla, id) => {
+    if (!window.confirm('¿Estás seguro de eliminar este elemento?')) return;
     try {
-      const { error } = await supabase
-        .from('maestro_users')
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from(tabla).delete().eq('id', id);
       if (error) throw error;
-
-      await supabase.from('asignaciones').delete().eq('maestro_id', id);
-      await supabase.from('asignaciones').delete().eq('maestroId', id);
-    } catch (err) {
-      console.error('Error al eliminar maestro de Supabase:', err);
+      mostrarAlerta('success', 'Registro eliminado correctamente.');
+      fetchDatosGenerales();
+    } catch (error) {
+      console.error('Error al eliminar:', error);
+      mostrarAlerta('error', 'No se pudo eliminar el registro.');
     }
-
-    setMaestros(prev => prev.filter(m => m.id !== id));
-    setAsignaciones(prev => prev.filter(a => a.maestroId !== id));
   };
-
-  const handleDeleteAsignacion = async (id) => {
-    try {
-      const { error } = await supabase
-        .from('asignaciones')
-        .delete()
-        .eq('id', id);
-      if (error) throw error;
-    } catch (err) {
-      console.error('Error al eliminar asignación de Supabase:', err);
-    }
-
-    setAsignaciones(prev => prev.filter(a => a.id !== id));
-  };
-
-  const cambiarARol = (role) => {
-    setCurrentUser(role === 'maestro'
-      ? { id: 'm1', nombre: 'Prof. Carlos García', role: 'maestro' }
-      : { id: 'admin-01', nombre: 'Administrador Principal', role: 'admin' }
-    );
-    setActiveTab('dashboard');
-    setSidebarOpen(false);
-  };
-
-  const adminMenus = [
-    { id: 'dashboard', label: 'Panel Global', icon: LayoutDashboard },
-    { id: 'maestros', label: 'Directorio de Maestros', icon: Users },
-  ];
-  const maestroMenus = [
-    { id: 'dashboard', label: 'Mi Resumen', icon: LayoutDashboard },
-    { id: 'calendario', label: 'Mi Horario Dominical', icon: Calendar },
-  ];
-  const currentMenus = currentUser.role === 'admin' ? adminMenus : maestroMenus;
 
   return (
-    <div className="dashboard-root">
-      {/* Mobile Overlay */}
-      <div
-        className={`dash-sidebar-overlay ${sidebarOpen ? 'visible' : ''}`}
-        onClick={() => setSidebarOpen(false)}
-      />
-
-      {/* Sidebar */}
-      <aside className={`dash-sidebar ${!sidebarOpen ? 'closed' : ''}`}>
-        <div className="dash-sidebar-header">
-          <span className="dash-sidebar-logo">
-            <div className="dash-sidebar-logo-icon"><Shield size={20} /></div>
-            EduControl
-          </span>
-          <button className="dash-sidebar-close" onClick={() => setSidebarOpen(false)}>
-            <X size={20} />
-          </button>
+    <div className="sistema-escolar-container">
+      {/* --- BARRA LATERAL (SIDEBAR) ORDENADA --- */}
+      <aside className="admin-sidebar">
+        <div className="sidebar-logo">
+          <Shield size={22} /> EduControl
         </div>
 
-        <nav className="dash-sidebar-nav">
-          <p className="dash-sidebar-nav-label">Navegación Ministerio</p>
-          {currentMenus.map(item => (
-            <button
-              key={item.id}
-              className={`dash-nav-item ${activeTab === item.id ? 'active' : ''}`}
-              onClick={() => { setActiveTab(item.id); setSidebarOpen(false); }}
-            >
-              <item.icon size={18} />
-              <span>{item.label}</span>
-            </button>
-          ))}
-        </nav>
-
-        <div className="dash-sidebar-footer">
-          {currentUser.role === 'admin' ? (
-            <button className="dash-role-btn admin-to-maestro" onClick={() => cambiarARol('maestro')}>
-              <UserCheck size={16} /> Modo Vista Maestro
-            </button>
-          ) : (
-            <button className="dash-role-btn maestro-to-admin" onClick={() => cambiarARol('admin')}>
-              <LogOut size={16} /> Volver a Administrador
-            </button>
-          )}
-        </div>
+        <p className="sidebar-section-title">Navegación Principal</p>
+        <ul className="sidebar-nav">
+          <li>
+            <a href="#dashboard" className={activeTab === 'dashboard' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }}>
+              <LayoutDashboard size={18} /> Panel Global
+            </a>
+          </li>
+          <li>
+            <a href="#maestros" className={activeTab === 'maestros' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setActiveTab('maestros'); }}>
+              <Users size={18} /> Directorio de Maestros
+            </a>
+          </li>
+          <li>
+            <a href="#divisiones" className={activeTab === 'divisiones' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setActiveTab('divisiones'); }}>
+              <BookOpen size={18} /> Divisiones / Clases
+            </a>
+          </li>
+        </ul>
       </aside>
 
-      {/* Main Content */}
-      <div className="dash-main">
-        <header className="dash-topbar">
-          <div className="dash-topbar-left">
-            <button className="dash-mobile-menu-btn" onClick={() => setSidebarOpen(true)}>
-              <Menu size={22} />
-            </button>
-            <h1 className="dash-topbar-title">
-              {currentMenus.find(m => m.id === activeTab)?.label || activeTab}
-            </h1>
-          </div>
-          <div className="dash-topbar-right">
-            <button className="dash-notification-btn">
-              <Bell size={20} />
-              <span className="dash-notification-dot" />
-            </button>
-            <div className="dash-user-info">
-              <div className={`dash-user-avatar ${currentUser.role}`}>
-                {currentUser.role === 'admin' ? 'A' : 'M'}
-              </div>
-              <div className="dash-user-details">
-                <p className="dash-user-name">{currentUser.nombre}</p>
-                <p className="dash-user-role">{currentUser.role === 'admin' ? 'Coordinador General' : 'Maestro Titular'}</p>
-              </div>
+      {/* --- CONTENIDO DERECHA --- */}
+      <div className="admin-main-content">
+        {/* --- BARRA SUPERIOR (HEADER) --- */}
+        <header className="admin-top-bar">
+          <h1 className="top-bar-title">
+            {activeTab === 'dashboard' && 'Panel Global de Control'}
+            {activeTab === 'maestros' && 'Directorio de Maestros'}
+            {activeTab === 'divisiones' && 'Gestión de Divisiones y Grupos'}
+          </h1>
+          <div className="top-bar-user">
+            <div>
+              <span className="user-name">Administrador Principal</span>
+              <br />
+              <span className="user-role">COORDINADOR GENERAL</span>
             </div>
+            <div className="user-avatar">A</div>
+            <ChevronDown size={16} />
           </div>
         </header>
 
-        <main className="dash-body">
-          {currentUser.role === 'admin' && (
+        {/* --- PÁGINA DE CONTENIDO --- */}
+        <main className="admin-page-content">
+          {/* Alertas dinámicas */}
+          {alerta.mensaje && (
+            <div className={`admin-alert ${alerta.tipo}`}>
+              {alerta.tipo === 'success' ? <CheckCircle size={18} /> : <AlertCircle size={18} />}
+              <span>{alerta.mensaje}</span>
+            </div>
+          )}
+
+          {/* VISTA 1: PANEL GLOBAL */}
+          {activeTab === 'dashboard' && (
             <>
-              {activeTab === 'dashboard' && (
-                <AdminDashboardView
-                  maestros={maestros} asignaciones={asignaciones} divisiones={divisiones}
-                  onOpenAddMaestro={() => setIsAddMaestroOpen(true)}
-                  onOpenAddAsignacion={() => setIsAddAsignacionOpen(true)}
-                  onOpenAddDivision={() => setIsAddDivisionOpen(true)}
-                  onDeleteAsignacion={handleDeleteAsignacion}
-                />
-              )}
-              {activeTab === 'maestros' && (
-                <AdminMaestrosListView
-                  maestros={maestros} onDeleteMaestro={handleDeleteMaestro}
-                  onOpenAddMaestro={() => setIsAddMaestroOpen(true)}
-                />
-              )}
+              {/* Tarjetas de Estadísticas */}
+              <section className="admin-stats-grid">
+                <article className="stat-card" onClick={() => setActiveTab('maestros')} style={{ cursor: 'pointer' }}>
+                  <div className="stat-info">
+                    <h3 className="stat-title">MAESTROS REGISTRADOS</h3>
+                    <p className="stat-value">{maestros.length}</p>
+                    <p className="stat-subtitle">Personal activo del ministerio</p>
+                  </div>
+                  <div className="stat-icon-container stat-icon-users">
+                    <Users size={20} />
+                  </div>
+                </article>
+
+                <article className="stat-card" onClick={() => setActiveTab('divisiones')} style={{ cursor: 'pointer' }}>
+                  <div className="stat-info">
+                    <h3 className="stat-title">DIVISIONES / CLASES</h3>
+                    <p className="stat-value">{divisiones.length}</p>
+                    <p className="stat-subtitle">Grupos de edad activos</p>
+                  </div>
+                  <div className="stat-icon-container stat-icon-divisions">
+                    <BookOpen size={20} />
+                  </div>
+                </article>
+
+                <article className="stat-card">
+                  <div className="stat-info">
+                    <h3 className="stat-title">CLASES PROGRAMADAS</h3>
+                    <p className="stat-value">{asignaciones.length}</p>
+                    <p className="stat-subtitle">Asignaciones activas</p>
+                  </div>
+                  <div className="stat-icon-container stat-icon-classes">
+                    <CalendarDays size={20} />
+                  </div>
+                </article>
+              </section>
+
+              {/* Sección de Gestión de Asignaciones */}
+              <section className="admin-management-section">
+                <div className="section-header">
+                  <div>
+                    <h2 className="section-title">Asignaciones Activas de Clases</h2>
+                    <p className="section-subtitle">Administra los horarios y maestros asignados</p>
+                  </div>
+                  <div className="header-actions">
+                    <button className="btn-black" onClick={() => { setModalTipo('division'); setFormData({}); setEditandoId(null); }}>
+                      <Tags size={16} /> + Nueva División
+                    </button>
+                    <button className="btn-orange" onClick={() => { setModalTipo('asignacion'); setFormData({}); setEditandoId(null); }}>
+                      <CalendarDays size={16} /> Asignar Clase
+                    </button>
+                  </div>
+                </div>
+
+                {loading ? (
+                  <div className="admin-loading">Cargando asignaciones...</div>
+                ) : asignaciones.length === 0 ? (
+                  <div className="admin-empty">No hay clases programadas actualmente.</div>
+                ) : (
+                  <table className="assignments-table">
+                    <thead>
+                      <tr>
+                        <th>MAESTRO TITULAR</th>
+                        <th>LECCIÓN / MATERIA</th>
+                        <th>DIVISIÓN / EDAD</th>
+                        <th>HORARIO</th>
+                        <th>AULA / CÓDIGO VIRTUAL</th>
+                        <th>ACCIONES</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {asignaciones.map((a) => {
+                        const maestroEncontrado = maestros.find((m) => m.id === a.maestro_id);
+                        const divisionEncontrada = divisiones.find((d) => d.id === a.division_id);
+
+                        return (
+                          <tr key={a.id}>
+                            <td>
+                              <div className="user-cell">
+                                <div className="cell-avatar">
+                                  {maestroEncontrado?.nombre ? maestroEncontrado.nombre.charAt(0) : 'M'}
+                                </div>
+                                <div className="cell-user-info">
+                                  <span className="cell-user-name">{maestroEncontrado ? maestroEncontrado.nombre : 'Por asignar'}</span>
+                                  <span className="cell-user-email">{maestroEncontrado ? maestroEncontrado.email : 'Sin correo'}</span>
+                                </div>
+                              </div>
+                            </td>
+                            <td><strong>{a.materia || 'Sin materia'}</strong></td>
+                            <td><span className="tag-yellow">{divisionEncontrada ? divisionEncontrada.nombre : 'Sin división'}</span></td>
+                            <td>
+                              <div className="time-info">
+                                <Calendar size={14} />
+                                <span>{a.horario || 'Por definir'}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div className="location-info">
+                                <span className="location-room">📍 {a.aula || 'Salón Principal'}</span>
+                                <span className="location-code">🔑 Código: {a.codigo_virtual || 'N/A'}</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div style={{ display: 'flex', gap: '8px' }}>
+                                <button className="action-icon" title="Editar asignación" onClick={() => { setModalTipo('asignacion'); setFormData(a); setEditandoId(a.id); }}>
+                                  <Edit3 size={16} />
+                                </button>
+                                <button className="action-icon" title="Eliminar asignación" onClick={() => handleEliminar('asignaciones', a.id)}>
+                                  <Trash2 size={16} />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                )}
+              </section>
             </>
           )}
-          {currentUser.role === 'maestro' && (
-            <>
-              {activeTab === 'dashboard' && (
-                <MaestroResumenView
-                  asignacionesProfesor={asignaciones.filter(a => a.maestroId === currentUser.id)}
-                  maestroNombre={currentUser.nombre}
-                />
-              )}
-              {activeTab === 'calendario' && (
-                <CalendarioView asignaciones={asignaciones.filter(a => a.maestroId === currentUser.id)} />
-              )}
-            </>
+
+          {/* VISTA 2: DIRECTORIO DE MAESTROS */}
+          {activeTab === 'maestros' && (
+            <section className="admin-management-section">
+              <div className="section-header">
+                <div>
+                  <h2 className="section-title">Directorio de Maestros Registrados</h2>
+                  <p className="section-subtitle">Listado del personal activo habilitado en el sistema</p>
+                </div>
+              </div>
+              <div className="admin-grid" style={{ marginTop: '20px' }}>
+                {maestros.map(m => (
+                  <div key={m.id} className="stat-card" style={{ flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div className="cell-avatar" style={{ width: '40px', height: '40px', fontSize: '16px' }}>{m.nombre ? m.nombre.charAt(0) : 'M'}</div>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '16px', color: '#1e293b' }}>{m.nombre}</h4>
+                        <span style={{ fontSize: '13px', color: '#64748b' }}>{m.email}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* VISTA 3: DIVISIONES / CLASES */}
+          {activeTab === 'divisiones' && (
+            <section className="admin-management-section">
+              <div className="section-header">
+                <div>
+                  <h2 className="section-title">Divisiones y Grupos Activos</h2>
+                  <p className="section-subtitle">Administra los grupos de edad y descripciones</p>
+                </div>
+                <button className="btn-orange" onClick={() => { setModalTipo('division'); setFormData({}); setEditandoId(null); }}>
+                  <Tags size={16} /> + Nueva División
+                </button>
+              </div>
+              <div className="admin-grid" style={{ marginTop: '20px' }}>
+                {divisiones.map(d => (
+                  <div key={d.id} className="stat-card" style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                      <span className="tag-yellow" style={{ marginBottom: '8px', display: 'inline-block' }}>Orden: {d.orden}</span>
+                      <h3 style={{ margin: '5px 0', fontSize: '16px', color: '#1e293b' }}>{d.nombre}</h3>
+                      <p style={{ fontSize: '13px', color: '#64748b' }}>{d.descripcion || 'Sin descripción asignada.'}</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '15px', borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
+                      <button className="btn-black" style={{ flex: 1, padding: '6px', fontSize: '12px' }} onClick={() => { setModalTipo('division'); setFormData(d); setEditandoId(d.id); }}>
+                        Editar
+                      </button>
+                      <button className="action-icon" style={{ color: '#ef4444' }} onClick={() => handleEliminar('divisiones', d.id)}>
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
         </main>
       </div>
 
-      {/* ============ MODALES ============ */}
+      {/* --- MODAL CENTRALIZADO PARA CREAR / EDITAR --- */}
+      {modalTipo && (
+        <div className="modal-overlay" onClick={() => setModalTipo(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>
+                {modalTipo === 'division' && (editandoId ? 'Editar División' : 'Nueva División')}
+                {modalTipo === 'asignacion' && (editandoId ? 'Editar Asignación de Clase' : 'Asignar Nueva Clase')}
+              </h3>
+              <button className="modal-close" onClick={() => setModalTipo(null)}><X size={18} /></button>
+            </div>
 
-      {/* MODAL: Nuevo Maestro */}
-      <Modal
-        isOpen={isAddMaestroOpen}
-        onClose={() => setIsAddMaestroOpen(false)}
-        title="Registrar Nuevo Maestro del Ministerio"
-        footer={
-          <>
-            <button className="dash-btn-cancel" onClick={() => setIsAddMaestroOpen(false)}>Cancelar</button>
-            <button className="dash-btn-submit" onClick={handleAddMaestro}>Guardar Maestro</button>
-          </>
-        }
-      >
-        <form onSubmit={handleAddMaestro}>
-          <div className="dash-field">
-            <label className="dash-label">Nombre Completo del Maestro</label>
-            <input className="dash-input" type="text" placeholder="Ej. Profa. Ana López" value={newMaestro.nombre}
-              onChange={e => setNewMaestro({ ...newMaestro, nombre: e.target.value })} required />
-          </div>
-          <div className="dash-field">
-            <label className="dash-label">Enfoque / Ministerio</label>
-            <input className="dash-input" type="text" placeholder="Ej. Escuela Dominical Infantil / Jóvenes" value={newMaestro.especialidad}
-              onChange={e => setNewMaestro({ ...newMaestro, especialidad: e.target.value })} required />
-          </div>
-          <div className="dash-field-row">
-            <div className="dash-field">
-              <label className="dash-label">Correo Electrónico</label>
-              <input className="dash-input" type="email" placeholder="correo@ejemplo.com" value={newMaestro.email}
-                onChange={e => setNewMaestro({ ...newMaestro, email: e.target.value })} />
-            </div>
-            <div className="dash-field">
-              <label className="dash-label">Teléfono / WhatsApp</label>
-              <input className="dash-input" type="text" placeholder="+506 8888-0000" value={newMaestro.telefono}
-                onChange={e => setNewMaestro({ ...newMaestro, telefono: e.target.value })} />
-            </div>
-          </div>
-        </form>
-      </Modal>
+            <form onSubmit={handleGuardar} className="modal-form">
+              {modalTipo === 'division' && (
+                <>
+                  <div className="form-group">
+                    <label>Nombre de la División</label>
+                    <input type="text" value={formData.nombre || ''} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} required />
+                  </div>
+                  <div className="form-group">
+                    <label>Descripción</label>
+                    <textarea value={formData.descripcion || ''} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} rows="3" />
+                  </div>
+                  <div className="form-group">
+                    <label>Orden (Número)</label>
+                    <input type="number" value={formData.orden || ''} onChange={(e) => setFormData({ ...formData, orden: e.target.value })} />
+                  </div>
+                </>
+              )}
 
-      {/* MODAL: Asignar Clase */}
-      <Modal
-        isOpen={isAddAsignacionOpen}
-        onClose={() => setIsAddAsignacionOpen(false)}
-        title="Asignar Lección / Clase de Ministerio"
-        footer={
-          <>
-            <button className="dash-btn-cancel" onClick={() => setIsAddAsignacionOpen(false)}>Cancelar</button>
-            <button className="dash-btn-submit" onClick={handleAddAsignacion}>Guardar Asignación</button>
-          </>
-        }
-      >
-        <form onSubmit={handleAddAsignacion}>
-          <div className="dash-field">
-            <label className="dash-label">Maestro Encargado</label>
-            <select className="dash-select" value={newAsignacion.maestroId}
-              onChange={e => setNewAsignacion({ ...newAsignacion, maestroId: e.target.value })} required>
-              <option value="">Seleccionar Maestro...</option>
-              {maestros.map(m => <option key={m.id} value={m.id}>{m.nombre} ({m.especialidad || 'Titular'})</option>)}
-            </select>
-          </div>
-          <div className="dash-field">
-            <label className="dash-label">Lección / Tema de la Clase</label>
-            <input className="dash-input" type="text" placeholder="Ej. Historias Bíblicas & Valores" value={newAsignacion.materia}
-              onChange={e => setNewAsignacion({ ...newAsignacion, materia: e.target.value })} required />
-          </div>
-          <div className="dash-field-row">
-            <div className="dash-field">
-              <label className="dash-label">División / Rango de Edad</label>
-              <select className="dash-select" value={newAsignacion.grupo}
-                onChange={e => setNewAsignacion({ ...newAsignacion, grupo: e.target.value })} required>
-                <option value="">Seleccionar Grupo...</option>
-                {divisiones.map(d => <option key={d.id} value={d.nombre}>{d.nombre}</option>)}
-              </select>
-            </div>
-            <div className="dash-field">
-              <label className="dash-label">Salón / Aula Físico</label>
-              <input className="dash-input" type="text" placeholder="Ej. Salón Infantil A" value={newAsignacion.aula}
-                onChange={e => setNewAsignacion({ ...newAsignacion, aula: e.target.value })} required />
-            </div>
-          </div>
-          <div className="dash-field">
-            <label className="dash-label">Horario Dominical / Fijo</label>
-            <input className="dash-input" type="text" placeholder="Ej. Domingos 10:00 AM" value={newAsignacion.horario}
-              onChange={e => setNewAsignacion({ ...newAsignacion, horario: e.target.value })} required />
-          </div>
-        </form>
-      </Modal>
+              {modalTipo === 'asignacion' && (
+                <>
+                  <div className="form-group">
+                    <label>Maestro Titular</label>
+                    <select
+                      value={formData.maestro_id || ''}
+                      onChange={(e) => setFormData({ ...formData, maestro_id: e.target.value })}
+                      style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff' }}
+                      required
+                    >
+                      <option value="">Selecciona un maestro...</option>
+                      {maestros.map(m => (
+                        <option key={m.id} value={m.id}>{m.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
 
-      {/* MODAL: Nueva División */}
-      <Modal
-        isOpen={isAddDivisionOpen}
-        onClose={() => setIsAddDivisionOpen(false)}
-        title="Crear Nueva División o Rango de Edad"
-        footer={
-          <>
-            <button className="dash-btn-cancel" onClick={() => setIsAddDivisionOpen(false)}>Cancelar</button>
-            <button className="dash-btn-submit-dark" onClick={handleAddDivision}>Crear División</button>
-          </>
-        }
-      >
-        <form onSubmit={handleAddDivision}>
-          <div className="dash-field">
-            <label className="dash-label">Nombre de la División o Grupo</label>
-            <input className="dash-input" type="text" placeholder="Ej. Pre-Adolescentes (10-12 años)" value={newDivisionNombre}
-              onChange={e => setNewDivisionNombre(e.target.value)} required />
+                  <div className="form-group">
+                    <label>División / Grupo</label>
+                    <select
+                      value={formData.division_id || ''}
+                      onChange={(e) => setFormData({ ...formData, division_id: e.target.value })}
+                      style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff' }}
+                      required
+                    >
+                      <option value="">Selecciona una división...</option>
+                      {divisiones.map(d => (
+                        <option key={d.id} value={d.id}>{d.nombre}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Materia / Lección</label>
+                    <input type="text" value={formData.materia || ''} onChange={(e) => setFormData({ ...formData, materia: e.target.value })} placeholder="Ej: Fundamentos de Fe" required />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Horario</label>
+                    <input type="text" value={formData.horario || ''} onChange={(e) => setFormData({ ...formData, horario: e.target.value })} placeholder="Ej: Domingos 10:00 AM" />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Aula</label>
+                    <input type="text" value={formData.aula || ''} onChange={(e) => setFormData({ ...formData, aula: e.target.value })} placeholder="Ej: Salón Principal" />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Código Virtual</label>
+                    <input type="text" value={formData.codigo_virtual || ''} onChange={(e) => setFormData({ ...formData, codigo_virtual: e.target.value })} placeholder="Ej: 105967" />
+                  </div>
+                </>
+              )}
+
+              <div className="modal-footer">
+                <button type="button" className="btn-secondary" onClick={() => setModalTipo(null)}>Cancelar</button>
+                <button type="submit" className="btn-orange">Guardar</button>
+              </div>
+            </form>
           </div>
-        </form>
-      </Modal>
+        </div>
+      )}
     </div>
   );
 };
