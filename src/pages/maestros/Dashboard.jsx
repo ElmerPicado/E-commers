@@ -14,7 +14,7 @@ const SistemaEscolar = () => {
   const [maestros, setMaestros] = useState([]);
   const [asignaciones, setAsignaciones] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('divisiones'); // 'divisiones' o 'general'
+  const [activeTab, setActiveTab] = useState('divisiones');
 
   // Estados para el modal de crear/editar división
   const [showModal, setShowModal] = useState(false);
@@ -26,7 +26,7 @@ const SistemaEscolar = () => {
     orden: 1
   });
 
-  // Nuevos estados para Modales y Acciones Avanzadas (Maestros, Cronogramas, Vistas Previas)
+  // Modales y Acciones Avanzadas (Maestros, Cronogramas, Vistas Previas)
   const [isModalMaestroOpen, setIsModalMaestroOpen] = useState(false);
   const [isModalAsignarOpen, setIsModalAsignarOpen] = useState(false);
   const [modalDetalleTipo, setModalDetalleTipo] = useState(null); // 'maestros', 'divisiones', 'clases'
@@ -53,22 +53,26 @@ const SistemaEscolar = () => {
     fetchDatosGenerales();
   }, []);
 
-  // 1. Obtener todas las divisiones, maestros y asignaciones de Supabase
+  // 1. Obtener todas las divisiones, maestros y asignaciones de Supabase de forma segura
   const fetchDatosGenerales = async () => {
     try {
       setLoading(true);
 
-      const [{ data: divData }, { data: mData }, { data: aData }] = await Promise.all([
+      const [{ data: divData, error: divError }, { data: mData, error: mError }, { data: aData, error: aError }] = await Promise.all([
         supabase.from('divisiones').select('*').order('orden', { ascending: true }),
         supabase.from('maestro_users').select('*'),
-        supabase.from('asignaciones').select('*, maestro_users(nombre, email), divisiones(nombre)')
+        supabase.from('asignaciones').select('*, maestro_users:maestro_id(nombre, email), divisiones:division_id(nombre)')
       ]);
+
+      if (divError) console.error('Error divisiones:', divError.message);
+      if (mError) console.error('Error maestros:', mError.message);
+      if (aError) console.error('Error asignaciones:', aError.message);
 
       setDivisiones(divData || []);
       setMaestros(mData || []);
       setAsignaciones(aData || []);
     } catch (error) {
-      console.error('Error al cargar datos:', error.message);
+      console.error('Error general al cargar datos:', error.message);
       mostrarAlerta('error', 'No se pudieron cargar los datos del sistema.');
     } finally {
       setLoading(false);
@@ -82,7 +86,6 @@ const SistemaEscolar = () => {
     }, 4000);
   };
 
-  // Manejar cambios en el formulario de divisiones
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -179,7 +182,7 @@ const SistemaEscolar = () => {
 
       if (dbError) throw dbError;
 
-      mostrarAlerta('success', `¡Maestro registrado! Contraseña: ${passwordGen}`);
+      mostrarAlerta('success', `¡Maestro registrado con éxito! Contraseña generada: ${passwordGen}`);
       setIsModalMaestroOpen(false);
       setNombreMaestro(''); setEmailMaestro(''); setMinisterioMaestro(''); setTelefonoMaestro(''); setPasswordVisible('');
       fetchDatosGenerales();
@@ -267,37 +270,34 @@ const SistemaEscolar = () => {
       {/* CONTENIDO PRINCIPAL DEL DASHBOARD */}
       <main className="admin-main">
 
-        {/* TARJETAS INTERACTIVAS SUPERIORES (FUNCIONAN COMO BOTONES) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
+        {/* TARJETAS INTERACTIVAS SUPERIORES */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px', marginBottom: '30px' }}>
 
           <div
             onClick={() => setModalDetalleTipo('maestros')}
-            className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 cursor-pointer hover:border-amber-500 transition transform hover:-translate-y-1"
             style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.2s' }}
           >
-            <p className="text-sm font-semibold text-gray-500 uppercase" style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Maestros Registrados</p>
-            <h3 className="text-4xl font-extrabold text-slate-800 mt-2" style={{ fontSize: '32px', fontWeight: '800', color: '#1e293b', margin: '10px 0' }}>{maestros.length}</h3>
-            <p className="text-xs text-amber-600 font-medium mt-2" style={{ fontSize: '12px', color: '#d97706', fontWeight: '600' }}>Haz clic para ver directorio y contraseñas &rarr;</p>
+            <p style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Maestros Registrados</p>
+            <h3 style={{ fontSize: '32px', fontWeight: '800', color: '#1e293b', margin: '10px 0' }}>{maestros.length}</h3>
+            <p style={{ fontSize: '12px', color: '#d97706', fontWeight: '600' }}>Haz clic para ver directorio y contraseñas &rarr;</p>
           </div>
 
           <div
             onClick={() => setModalDetalleTipo('divisiones')}
-            className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 cursor-pointer hover:border-emerald-500 transition transform hover:-translate-y-1"
             style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.2s' }}
           >
-            <p className="text-sm font-semibold text-gray-500 uppercase" style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Divisiones / Clases</p>
-            <h3 className="text-4xl font-extrabold text-slate-800 mt-2" style={{ fontSize: '32px', fontWeight: '800', color: '#1e293b', margin: '10px 0' }}>{divisiones.length}</h3>
-            <p className="text-xs text-emerald-600 font-medium mt-2" style={{ fontSize: '12px', color: '#059669', fontWeight: '600' }}>Haz clic para ver grupos &rarr;</p>
+            <p style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Divisiones / Clases</p>
+            <h3 style={{ fontSize: '32px', fontWeight: '800', color: '#1e293b', margin: '10px 0' }}>{divisiones.length}</h3>
+            <p style={{ fontSize: '12px', color: '#059669', fontWeight: '600' }}>Haz clic para ver grupos &rarr;</p>
           </div>
 
           <div
             onClick={() => setModalDetalleTipo('clases')}
-            className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 cursor-pointer hover:border-purple-500 transition transform hover:-translate-y-1"
             style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e2e8f0', cursor: 'pointer', transition: 'all 0.2s' }}
           >
-            <p className="text-sm font-semibold text-gray-500 uppercase" style={{ fontSize: '12px', fontWeight: '700', color: '#64748b' }}>Clases Programadas</p>
-            <h3 className="text-4xl font-extrabold text-slate-800 mt-2" style={{ fontSize: '32px', fontWeight: '800', color: '#1e293b', margin: '10px 0' }}>{asignaciones.length}</h3>
-            <p className="text-xs text-purple-600 font-medium mt-2" style={{ fontSize: '12px', color: '#7c3aed', fontWeight: '600' }}>Haz clic para ver cronogramas &rarr;</p>
+            <p style={{ fontSize: '12px', fontWeight: '700', color: '#64748b', textTransform: 'uppercase' }}>Clases Programadas</p>
+            <h3 style={{ fontSize: '32px', fontWeight: '800', color: '#1e293b', margin: '10px 0' }}>{asignaciones.length}</h3>
+            <p style={{ fontSize: '12px', color: '#7c3aed', fontWeight: '600' }}>Haz clic para ver cronogramas &rarr;</p>
           </div>
 
         </div>
@@ -312,14 +312,14 @@ const SistemaEscolar = () => {
             </button>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto' }}>
-            <button className="admin-btn-primary" onClick={() => setIsModalMaestroOpen(true)} style={{ background: '#0f172a', color: '#fff', padding: '10px 16px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer' }}>
+          <div style={{ display: 'flex', gap: '10px', marginLeft: 'auto', flexWrap: 'wrap' }}>
+            <button onClick={() => setIsModalMaestroOpen(true)} style={{ background: '#0f172a', color: '#fff', padding: '10px 16px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer' }}>
               <PlusCircle size={20} /> Nuevo Maestro
             </button>
-            <button className="admin-btn-primary" onClick={() => setIsModalAsignarOpen(true)} style={{ background: '#d97706', color: '#fff', padding: '10px 16px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer' }}>
+            <button onClick={() => setIsModalAsignarOpen(true)} style={{ background: '#d97706', color: '#fff', padding: '10px 16px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer' }}>
               <Calendar size={20} /> Asignar Clase / Cronograma
             </button>
-            <button className="admin-btn-primary" onClick={handleOpenCreate} style={{ background: '#10b981', color: '#fff', padding: '10px 16px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer' }}>
+            <button onClick={handleOpenCreate} style={{ background: '#10b981', color: '#fff', padding: '10px 16px', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '8px', border: 'none', cursor: 'pointer' }}>
               <PlusCircle size={20} /> Crear Nueva Aula
             </button>
           </div>
@@ -378,13 +378,13 @@ const SistemaEscolar = () => {
 
             <form onSubmit={handleSubmit} className="modal-form">
               <div className="form-group">
-                <label>Nombre del Grupo / División (Ej. Génesis, Éxodo, Promesa)</label>
+                <label>Nombre del Grupo / División</label>
                 <input
                   type="text"
                   name="nombre"
                   value={formData.nombre}
                   onChange={handleChange}
-                  placeholder="Ej. Éxodo"
+                  placeholder="Ej. Grupo Juvenil"
                   required
                 />
               </div>
@@ -395,7 +395,7 @@ const SistemaEscolar = () => {
                   name="descripcion"
                   value={formData.descripcion}
                   onChange={handleChange}
-                  placeholder="Ej. Niños 9-11 años - Caminando con Jesús"
+                  placeholder="Ej. Jóvenes de 12 a 15 años"
                   rows="3"
                 />
               </div>
@@ -408,7 +408,7 @@ const SistemaEscolar = () => {
                     name="codigo_acceso"
                     value={formData.codigo_acceso}
                     onChange={handleChange}
-                    placeholder="Ej. EXODO-2026"
+                    placeholder="Ej. JUVENIL-2026"
                     required
                   />
                   <small style={{ color: '#64748b', fontSize: '12px' }}>Este código lo usará el alumno para entrar.</small>
@@ -506,10 +506,10 @@ const SistemaEscolar = () => {
               </div>
               <div className="form-group">
                 <label>Materia o Lección</label>
-                <input type="text" placeholder="Ej. El Arca de Noé / Tema Libre" value={materia} onChange={e => setMateria(e.target.value)} required />
+                <input type="text" placeholder="Ej. Fundamentos de fe" value={materia} onChange={e => setMateria(e.target.value)} required />
               </div>
               <div className="form-group">
-                <label>Cronograma de Fechas (Ej: 02/08, 09/08, 16/08 o fechas del mes)</label>
+                <label>Cronograma de Fechas</label>
                 <input type="text" placeholder="Ej. Domingos de Agosto" value={fechasCronograma} onChange={e => setFechasCronograma(e.target.value)} required />
               </div>
               <div className="form-row" style={{ display: 'flex', gap: '10px' }}>
