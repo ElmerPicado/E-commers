@@ -62,8 +62,8 @@ const AdminDashboardView = ({
     {/* Actions */}
     <div className="dash-action-bar">
       <div>
-        <p className="dash-action-title">Gestión de Clases del Ministerio</p>
-        <p className="dash-action-desc">Administra maestros de Niños, Adolescentes y Jóvenes</p>
+        <p className="dash-action-title">Gestión de Clases y Aula Virtual</p>
+        <p className="dash-action-desc">Administra maestros, códigos de acceso y aulas virtuales</p>
       </div>
       <div className="dash-action-btns">
         <button className="dash-btn dash-btn-outline" onClick={onOpenAddDivision}>
