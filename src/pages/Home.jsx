@@ -648,7 +648,7 @@ export default function Home() {
       {/* 3. DYNAMIC MINISTRIES GRID (NUESTROS MINISTERIOS) */}
       <section style={{
         padding: '4rem 1.5rem',
-        backgroundImage: livestream?.homeMinistriesBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.45), rgba(10, 10, 12, 0.7)), url(${resolveImageUrl(livestream.homeMinistriesBgUrl)})` : 'none',
+        backgroundImage: livestream?.homeMinistriesBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.95)), url(${resolveImageUrl(livestream.homeMinistriesBgUrl)})` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center'
       }}>
@@ -673,8 +673,8 @@ export default function Home() {
                 padding: '2rem',
                 borderLeft: `4px solid ${min.accent_color}`,
                 background: min.hero_image
-                  ? `linear-gradient(rgba(10, 10, 12, 0.3), rgba(10, 10, 12, 0.55)), url(${resolveImageUrl(min.hero_image)})`
-                  : 'rgba(18, 18, 22, 0.45)',
+                  ? `linear-gradient(rgba(18, 18, 22, 0.75), rgba(18, 18, 22, 0.95)), url(${min.hero_image})`
+                  : 'rgba(18, 18, 22, 0.65)',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center'
               }}>
@@ -714,7 +714,7 @@ export default function Home() {
       {/* 4. UPCOMING ACTIVITIES CALENDAR */}
       <section style={{
         padding: '4rem 1.5rem',
-        background: livestream?.homeActivitiesBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.45), rgba(10, 10, 12, 0.7)), url(${resolveImageUrl(livestream.homeActivitiesBgUrl)})` : 'rgba(255,255,255,0.01)',
+        background: livestream?.homeActivitiesBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.95)), url(${livestream.homeActivitiesBgUrl})` : 'rgba(255,255,255,0.01)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         borderTop: '1px solid var(--border-color)',
@@ -870,7 +870,7 @@ export default function Home() {
       {blogPosts && blogPosts.length > 0 && (
         <section style={{
           padding: '4rem 1.5rem',
-          background: livestream?.homeNewsBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.45), rgba(10, 10, 12, 0.7)), url(${resolveImageUrl(livestream.homeNewsBgUrl)})` : 'var(--bg-surface)',
+          background: livestream?.homeNewsBgUrl ? `linear-gradient(rgba(10, 10, 12, 0.8), rgba(10, 10, 12, 0.95)), url(${livestream.homeNewsBgUrl})` : 'var(--bg-surface)',
           backgroundSize: 'cover',
           backgroundPosition: 'center'
         }}>
