@@ -19,22 +19,22 @@ const ColoringGame = ({ gameData }) => {
   const containerRef = useRef(null);
   const templateImageRef = useRef(null);
 
-  // 🧠 Historial de estados (Undo) específico para el botón limpiar
+  // Historial para el botón Deshacer (exclusivo para trazos dentro del mismo dibujo)
   const [history, setHistory] = useState([]);
 
   const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [currentImgUrl, setCurrentImgUrl] = useState('');
 
-  // 📸 Función para guardar un snapshot del estado actual en el historial
+  // 📸 Guarda el estado actual en el historial de trazos
   const saveToHistory = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const dataUrl = canvas.toDataURL('image/png');
-    setHistory(prev => [...prev.slice(-10), dataUrl]); // Guardamos hasta los últimos 10 estados
+    setHistory(prev => [...prev.slice(-10), dataUrl]);
   };
 
-  // Función principal para renderizar plantilla y opcionalmente trazos encima de forma inteligente
-  const renderTemplateToCanvas = (customWidth, customHeight, savedDataUrl = null) => {
+  // 🧹 Renderiza la plantilla limpia en el canvas
+  const renderTemplateToCanvas = (customWidth, customHeight) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -46,32 +46,27 @@ const ColoringGame = ({ gameData }) => {
     canvas.height = h;
     const ctx = canvas.getContext('2d');
 
-    // 1. Fondo blanco inicial
+    // Fondo blanco
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, w, h);
 
-    // 2. Primero pintamos la plantilla limpia de base
+    // Pintar la plantilla del dibujo actual
     if (templateImageRef.current) {
       ctx.drawImage(templateImageRef.current, 0, 0, w, h);
     }
-
-    // 3. Si hay trazos previos (o un estado guardado), los escalamos y superponemos encima sin perderlos al redimensionar
-    if (savedDataUrl) {
-      const savedImg = new Image();
-      savedImg.onload = () => {
-        ctx.drawImage(savedImg, 0, 0, w, h);
-      };
-      savedImg.src = savedDataUrl;
-    }
   };
 
-  // Configuración de dimensiones y carga inicial de imagen
+  // Configuración de dimensiones y carga obligatoria de la nueva plantilla al cambiar de dibujo
   useEffect(() => {
     if (!pages.length) return;
     const page = pages[activePageIdx];
 
     const cacheBustedUrl = page.image_url + (page.image_url.includes('?') ? '&' : '?') + 't=' + Date.now();
     setCurrentImgUrl(cacheBustedUrl);
+
+    // 🔄 Cada vez que cambiamos de página, limpiamos el historial anterior para que no se mezcle
+    setHistory([]);
+    setFinished(false);
 
     const img = new Image();
     img.crossOrigin = 'anonymous';
@@ -99,16 +94,11 @@ const ColoringGame = ({ gameData }) => {
       const finalW = Math.round(w * scale);
       const finalH = Math.round(h * scale);
 
-      const currentCanvas = canvasRef.current;
-      let savedDataUrl = null;
-      if (currentCanvas && currentCanvas.width > 0 && currentCanvas.height > 0) {
-        savedDataUrl = currentCanvas.toDataURL('image/png');
-      }
-
       setDimensions({ width: finalW, height: finalH });
 
+      // 💡 Forzamos la renderización limpia de la nueva imagen inmediatamente
       setTimeout(() => {
-        renderTemplateToCanvas(finalW, finalH, savedDataUrl);
+        renderTemplateToCanvas(finalW, finalH);
       }, 50);
     };
 
@@ -134,7 +124,6 @@ const ColoringGame = ({ gameData }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    // 💾 Guardamos estado antes de empezar un nuevo trazo para que el botón limpiar funcione como "Deshacer reciente"
     saveToHistory();
 
     const ctx = canvas.getContext('2d');
@@ -209,11 +198,10 @@ const ColoringGame = ({ gameData }) => {
     setFinished(true);
   };
 
-  // ↩️ Botón limpiar ahora actúa como "Deshacer lo último hecho" usando el historial
+  // ↩️ Botón Deshacer / Limpiar
   const clearCanvas = () => {
     if (history.length === 0) {
-      // Si no hay historial, simplemente dejamos la plantilla limpia
-      renderTemplateToCanvas(dimensions.width, dimensions.height, null);
+      renderTemplateToCanvas(dimensions.width, dimensions.height);
       setFinished(false);
       return;
     }
