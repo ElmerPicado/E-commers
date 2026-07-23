@@ -9,14 +9,15 @@ import {
 const SistemaEscolar = () => {
   const navigate = useNavigate();
 
-  // Estados principales limpios y correctos
+  // Estados principales
   const [divisiones, setDivisiones] = useState([]);
   const [maestros, setMaestros] = useState([]);
   const [asignaciones, setAsignaciones] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Estados para alertas visuales
+  // Estados de modales y alertas
   const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
+  const [modalDetalleTipo, setModalDetalleTipo] = useState(null); // 'divisiones', 'maestros', 'clases'
 
   const mostrarAlerta = (tipo, mensaje) => {
     setAlerta({ tipo, mensaje });
@@ -67,7 +68,7 @@ const SistemaEscolar = () => {
             </a>
           </li>
           <li>
-            <a href="#">
+            <a href="#" onClick={(e) => { e.preventDefault(); setModalDetalleTipo('maestros'); }}>
               <Users size={18} /> Directorio de Maestros
             </a>
           </li>
@@ -102,7 +103,7 @@ const SistemaEscolar = () => {
 
           {/* Tarjetas de Estadísticas */}
           <section className="admin-stats-grid">
-            <article className="stat-card">
+            <article className="stat-card" onClick={() => setModalDetalleTipo('maestros')} style={{ cursor: 'pointer' }}>
               <div className="stat-info">
                 <h3 className="stat-title">MAESTROS REGISTRADOS</h3>
                 <p className="stat-value">{maestros.length}</p>
@@ -113,7 +114,7 @@ const SistemaEscolar = () => {
               </div>
             </article>
 
-            <article className="stat-card">
+            <article className="stat-card" onClick={() => setModalDetalleTipo('divisiones')} style={{ cursor: 'pointer' }}>
               <div className="stat-info">
                 <h3 className="stat-title">DIVISIONES / CLASES</h3>
                 <p className="stat-value">{divisiones.length}</p>
@@ -124,7 +125,7 @@ const SistemaEscolar = () => {
               </div>
             </article>
 
-            <article className="stat-card">
+            <article className="stat-card" onClick={() => setModalDetalleTipo('clases')} style={{ cursor: 'pointer' }}>
               <div className="stat-info">
                 <h3 className="stat-title">CLASES PROGRAMADAS</h3>
                 <p className="stat-value">{asignaciones.length}</p>
@@ -144,13 +145,13 @@ const SistemaEscolar = () => {
                 <p className="section-subtitle">Administra maestros de Niños, Adolescentes y Jóvenes</p>
               </div>
               <div className="header-actions">
-                <button className="btn-black">
+                <button className="btn-black" onClick={() => alert('Abrir modal para Nueva División')}>
                   <Tags size={16} /> + Nueva División
                 </button>
-                <button className="btn-black">
+                <button className="btn-black" onClick={() => alert('Abrir modal para Nuevo Maestro')}>
                   <PlusCircle size={16} /> + Nuevo Maestro
                 </button>
-                <button className="btn-orange">
+                <button className="btn-orange" onClick={() => alert('Abrir modal para Asignar Clase')}>
                   <CalendarDays size={16} /> Asignar Clase
                 </button>
               </div>
@@ -219,7 +220,12 @@ const SistemaEscolar = () => {
                           <button
                             className="action-icon"
                             title="Eliminar asignación"
-                            onClick={() => console.log('Eliminar', a.id)}
+                            onClick={async () => {
+                              if (window.confirm('¿Deseas eliminar esta asignación?')) {
+                                const { error } = await supabase.from('asignaciones').delete().eq('id', a.id);
+                                if (!error) fetchDatosGenerales();
+                              }
+                            }}
                           >
                             <Trash2 size={16} />
                           </button>
@@ -233,6 +239,44 @@ const SistemaEscolar = () => {
           </section>
         </main>
       </div>
+
+      {/* Modal genérico para ver directorios al hacer clic en las tarjetas superiores */}
+      {modalDetalleTipo && (
+        <div className="modal-overlay" onClick={() => setModalDetalleTipo(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>
+                {modalDetalleTipo === 'maestros' && 'Directorio de Maestros'}
+                {modalDetalleTipo === 'divisiones' && 'Listado de Divisiones'}
+                {modalDetalleTipo === 'clases' && 'Clases Programadas'}
+              </h3>
+              <button className="modal-close" onClick={() => setModalDetalleTipo(null)}>
+                <X size={18} />
+              </button>
+            </div>
+            <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              {modalDetalleTipo === 'maestros' && maestros.map(m => (
+                <div key={m.id} style={{ padding: '8px 0', borderBottom: '1px solid #e2e8f0' }}>
+                  <strong>{m.nombre}</strong> - {m.email}
+                </div>
+              ))}
+              {modalDetalleTipo === 'divisiones' && divisiones.map(d => (
+                <div key={d.id} style={{ padding: '8px 0', borderBottom: '1px solid #e2e8f0' }}>
+                  <strong>{d.nombre}</strong>: {d.descripcion || 'Sin descripción'}
+                </div>
+              ))}
+              {modalDetalleTipo === 'clases' && asignaciones.map(a => (
+                <div key={a.id} style={{ padding: '8px 0', borderBottom: '1px solid #e2e8f0' }}>
+                  <strong>{a.materia}</strong> ({a.horario})
+                </div>
+              ))}
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setModalDetalleTipo(null)}>Cerrar</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
