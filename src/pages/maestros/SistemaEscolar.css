@@ -1,7 +1,7 @@
 /* ============================================
-   DASHBOARD ESCUELA DOMINICAL - CSS AISLADO
-   Tema claro cálido (#fdfcfb / #f4f1ea)
-   ============================================ */
+    DASHBOARD ESCUELA DOMINICAL - CSS AISLADO
+    Tema claro cálido (#fdfcfb / #f4f1ea)
+    ============================================ */
 
 /* Variables locales del Dashboard */
 .dashboard-root {
@@ -54,8 +54,8 @@
 }
 
 /* ============================================
-   SIDEBAR
-   ============================================ */
+    SIDEBAR
+    ============================================ */
 .dash-sidebar {
   position: sticky;
   top: 0;
@@ -72,8 +72,6 @@
   border-right: 1px solid rgba(255, 255, 255, 0.06);
   flex-shrink: 0;
 }
-
-/* closed only hides sidebar on mobile - see media query */
 
 .dash-sidebar-overlay {
   position: fixed;
@@ -233,8 +231,8 @@
 }
 
 /* ============================================
-   MAIN CONTENT
-   ============================================ */
+    MAIN CONTENT
+    ============================================ */
 .dash-main {
   flex: 1;
   min-width: 0;
@@ -373,8 +371,8 @@
 }
 
 /* ============================================
-   STAT CARDS
-   ============================================ */
+    STAT CARDS
+    ============================================ */
 .dash-stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -456,8 +454,8 @@
 }
 
 /* ============================================
-   ACTION BAR
-   ============================================ */
+    ACTION BAR
+    ============================================ */
 .dash-action-bar {
   background: var(--dash-card) !important;
   border: 1px solid var(--dash-border);
@@ -493,8 +491,8 @@
 }
 
 /* ============================================
-   BUTTONS
-   ============================================ */
+    BUTTONS
+    ============================================ */
 .dash-btn {
   display: inline-flex;
   align-items: center;
@@ -564,8 +562,8 @@
 }
 
 /* ============================================
-   TABLE
-   ============================================ */
+    TABLE
+    ============================================ */
 .dash-table-container {
   background: var(--dash-card) !important;
   border: 1px solid var(--dash-border);
@@ -728,8 +726,8 @@
 }
 
 /* ============================================
-   CARDS GRID (Maestros Directory)
-   ============================================ */
+    CARDS GRID (Maestros Directory)
+    ============================================ */
 .dash-cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -808,8 +806,8 @@
 }
 
 /* ============================================
-   MAESTRO WELCOME BANNER
-   ============================================ */
+    MAESTRO WELCOME BANNER
+    ============================================ */
 .dash-welcome-banner {
   background: var(--dash-sidebar) !important;
   border-radius: 24px;
@@ -845,8 +843,8 @@
 }
 
 /* ============================================
-   CLASE CARDS (Maestro View)
-   ============================================ */
+    CLASE CARDS (Maestro View)
+    ============================================ */
 .dash-clases-section {
   background: var(--dash-card) !important;
   border: 1px solid var(--dash-border);
@@ -936,8 +934,8 @@
 }
 
 /* ============================================
-   CALENDARIO VIEW
-   ============================================ */
+    CALENDARIO VIEW
+    ============================================ */
 .dash-calendar-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1010,8 +1008,8 @@
 }
 
 /* ============================================
-   MODAL
-   ============================================ */
+    MODAL
+    ============================================ */
 .dash-modal-overlay {
   position: fixed;
   inset: 0;
@@ -1101,8 +1099,8 @@
 }
 
 /* ============================================
-   FORM FIELDS
-   ============================================ */
+    FORM FIELDS
+    ============================================ */
 .dash-field {
   margin-bottom: 20px;
 }
@@ -1215,8 +1213,8 @@
 }
 
 /* ============================================
-   RESPONSIVE
-   ============================================ */
+    RESPONSIVE
+    ============================================ */
 @media (max-width: 768px) {
   .dash-sidebar {
     position: fixed;
