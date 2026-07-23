@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
 import './Dashboard.css';
 import {
-  PlusCircle, BookOpen, Users, Trash2, Edit3, Save, X, Shield, CheckCircle, AlertCircle, Calendar, LayoutDashboard, CalendarDays, Tags, ChevronDown
+  PlusCircle, BookOpen, Users, Trash2, Edit3, X, Shield, CheckCircle, AlertCircle, Calendar, LayoutDashboard, CalendarDays, Tags, ChevronDown, Key
 } from 'lucide-react';
 
 const SistemaEscolar = () => {
@@ -16,13 +16,13 @@ const SistemaEscolar = () => {
   const [loading, setLoading] = useState(true);
 
   // Navegación interna por pestañas del menú lateral
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'maestros', 'divisiones', 'asignaciones'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'maestros', 'divisiones'
 
   // Estados para alertas visuales
   const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
 
-  // Estados para modales de Crear/Editar
-  const [modalTipo, setModalTipo] = useState(null); // 'division', 'maestro', 'asignacion'
+  // Estados para modales de Crear/Editar ('division', 'maestro', 'asignacion')
+  const [modalTipo, setModalTipo] = useState(null);
   const [formData, setFormData] = useState({});
   const [editandoId, setEditandoId] = useState(null);
 
@@ -59,7 +59,7 @@ const SistemaEscolar = () => {
     fetchDatosGenerales();
   }, []);
 
-  // Función para guardar / actualizar registros
+  // Función para guardar / actualizar registros según la tabla correspondiente
   const handleGuardar = async (e) => {
     e.preventDefault();
     try {
@@ -70,6 +70,13 @@ const SistemaEscolar = () => {
           await supabase.from('divisiones').insert([formData]);
         }
         mostrarAlerta('success', 'División guardada exitosamente.');
+      } else if (modalTipo === 'maestro') {
+        if (editandoId) {
+          await supabase.from('maestro_users').update(formData).eq('id', editandoId);
+        } else {
+          await supabase.from('maestro_users').insert([formData]);
+        }
+        mostrarAlerta('success', 'Maestro y credenciales guardados exitosamente.');
       } else if (modalTipo === 'asignacion') {
         if (editandoId) {
           await supabase.from('asignaciones').update(formData).eq('id', editandoId);
@@ -104,7 +111,7 @@ const SistemaEscolar = () => {
 
   return (
     <div className="sistema-escolar-container">
-      {/* --- BARRA LATERAL (SIDEBAR) ORDENADA --- */}
+      {/* --- BARRA LATERAL (SIDEBAR) --- */}
       <aside className="admin-sidebar">
         <div className="sidebar-logo">
           <Shield size={22} /> EduControl
@@ -203,12 +210,15 @@ const SistemaEscolar = () => {
               <section className="admin-management-section">
                 <div className="section-header">
                   <div>
-                    <h2 className="section-title">Asignaciones Activas de Clases</h2>
-                    <p className="section-subtitle">Administra los horarios y maestros asignados</p>
+                    <h2 className="section-title">Gestión de Clases del Ministerio</h2>
+                    <p className="section-subtitle">Administra maestros de Niños, Adolescentes y Jóvenes</p>
                   </div>
                   <div className="header-actions">
                     <button className="btn-black" onClick={() => { setModalTipo('division'); setFormData({}); setEditandoId(null); }}>
                       <Tags size={16} /> + Nueva División
+                    </button>
+                    <button className="btn-black" onClick={() => { setModalTipo('maestro'); setFormData({}); setEditandoId(null); }}>
+                      <PlusCircle size={16} /> + Nuevo Maestro
                     </button>
                     <button className="btn-orange" onClick={() => { setModalTipo('asignacion'); setFormData({}); setEditandoId(null); }}>
                       <CalendarDays size={16} /> Asignar Clase
@@ -292,16 +302,29 @@ const SistemaEscolar = () => {
                   <h2 className="section-title">Directorio de Maestros Registrados</h2>
                   <p className="section-subtitle">Listado del personal activo habilitado en el sistema</p>
                 </div>
+                <button className="btn-black" onClick={() => { setModalTipo('maestro'); setFormData({}); setEditandoId(null); }}>
+                  <PlusCircle size={16} /> + Nuevo Maestro
+                </button>
               </div>
-              <div className="admin-grid" style={{ marginTop: '20px' }}>
+              <div className="admin-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', marginTop: '20px' }}>
                 {maestros.map(m => (
-                  <div key={m.id} className="stat-card" style={{ flexDirection: 'column', gap: '10px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <div className="cell-avatar" style={{ width: '40px', height: '40px', fontSize: '16px' }}>{m.nombre ? m.nombre.charAt(0) : 'M'}</div>
-                      <div>
-                        <h4 style={{ margin: 0, fontSize: '16px', color: '#1e293b' }}>{m.nombre}</h4>
-                        <span style={{ fontSize: '13px', color: '#64748b' }}>{m.email}</span>
+                  <div key={m.id} className="stat-card" style={{ flexDirection: 'column', gap: '10px', alignItems: 'flex-start' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%' }}>
+                      <div className="cell-avatar" style={{ width: '40px', height: '40px', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#3b82f6', color: '#fff', borderRadius: '50%' }}>
+                        {m.nombre ? m.nombre.charAt(0) : 'M'}
                       </div>
+                      <div style={{ overflow: 'hidden' }}>
+                        <h4 style={{ margin: 0, fontSize: '16px', color: '#1e293b' }}>{m.nombre}</h4>
+                        <span style={{ fontSize: '13px', color: '#64748b', wordBreak: 'break-all' }}>{m.email}</span>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px', width: '100%', borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
+                      <button className="btn-black" style={{ flex: 1, padding: '6px', fontSize: '12px' }} onClick={() => { setModalTipo('maestro'); setFormData(m); setEditandoId(m.id); }}>
+                        Editar
+                      </button>
+                      <button className="action-icon" style={{ color: '#ef4444' }} onClick={() => handleEliminar('maestro_users', m.id)}>
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -321,15 +344,15 @@ const SistemaEscolar = () => {
                   <Tags size={16} /> + Nueva División
                 </button>
               </div>
-              <div className="admin-grid" style={{ marginTop: '20px' }}>
+              <div className="admin-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', marginTop: '20px' }}>
                 {divisiones.map(d => (
-                  <div key={d.id} className="stat-card" style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
+                  <div key={d.id} className="stat-card" style={{ flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <div>
                       <span className="tag-yellow" style={{ marginBottom: '8px', display: 'inline-block' }}>Orden: {d.orden}</span>
                       <h3 style={{ margin: '5px 0', fontSize: '16px', color: '#1e293b' }}>{d.nombre}</h3>
                       <p style={{ fontSize: '13px', color: '#64748b' }}>{d.descripcion || 'Sin descripción asignada.'}</p>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '15px', borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '15px', width: '100%', borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
                       <button className="btn-black" style={{ flex: 1, padding: '6px', fontSize: '12px' }} onClick={() => { setModalTipo('division'); setFormData(d); setEditandoId(d.id); }}>
                         Editar
                       </button>
@@ -345,40 +368,78 @@ const SistemaEscolar = () => {
         </main>
       </div>
 
-      {/* --- MODAL CENTRALIZADO PARA CREAR / EDITAR --- */}
+      {/* --- MODAL CENTRALIZADO CON POSICIONAMIENTO FORZADO AL CENTRO --- */}
       {modalTipo && (
-        <div className="modal-overlay" onClick={() => setModalTipo(null)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 9999
+        }} onClick={() => setModalTipo(null)}>
+          <div style={{
+            background: '#ffffff',
+            padding: '24px',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '500px',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            maxHeight: '90vh',
+            overflowY: 'auto'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '12px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', color: '#1e293b' }}>
                 {modalTipo === 'division' && (editandoId ? 'Editar División' : 'Nueva División')}
+                {modalTipo === 'maestro' && (editandoId ? 'Editar Maestro' : 'Nuevo Maestro con Credenciales')}
                 {modalTipo === 'asignacion' && (editandoId ? 'Editar Asignación de Clase' : 'Asignar Nueva Clase')}
               </h3>
-              <button className="modal-close" onClick={() => setModalTipo(null)}><X size={18} /></button>
+              <button onClick={() => setModalTipo(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={20} /></button>
             </div>
 
-            <form onSubmit={handleGuardar} className="modal-form">
+            <form onSubmit={handleGuardar} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {modalTipo === 'division' && (
                 <>
-                  <div className="form-group">
-                    <label>Nombre de la División</label>
-                    <input type="text" value={formData.nombre || ''} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} required />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Nombre de la División</label>
+                    <input type="text" value={formData.nombre || ''} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} required />
                   </div>
-                  <div className="form-group">
-                    <label>Descripción</label>
-                    <textarea value={formData.descripcion || ''} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} rows="3" />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Descripción</label>
+                    <textarea value={formData.descripcion || ''} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} rows="3" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
                   </div>
-                  <div className="form-group">
-                    <label>Orden (Número)</label>
-                    <input type="number" value={formData.orden || ''} onChange={(e) => setFormData({ ...formData, orden: e.target.value })} />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Orden (Número)</label>
+                    <input type="number" value={formData.orden || ''} onChange={(e) => setFormData({ ...formData, orden: e.target.value })} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
+                  </div>
+                </>
+              )}
+
+              {modalTipo === 'maestro' && (
+                <>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Nombre Completo</label>
+                    <input type="text" value={formData.nombre || ''} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} required />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Correo Electrónico</label>
+                    <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} required />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Contraseña de Acceso</label>
+                    <input type="text" value={formData.password || ''} onChange={(e) => setFormData({ ...formData, password: e.target.value })} placeholder="Contraseña para el maestro" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} required />
                   </div>
                 </>
               )}
 
               {modalTipo === 'asignacion' && (
                 <>
-                  <div className="form-group">
-                    <label>Maestro Titular</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Maestro Titular</label>
                     <select
                       value={formData.maestro_id || ''}
                       onChange={(e) => setFormData({ ...formData, maestro_id: e.target.value })}
@@ -392,8 +453,8 @@ const SistemaEscolar = () => {
                     </select>
                   </div>
 
-                  <div className="form-group">
-                    <label>División / Grupo</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>División / Grupo</label>
                     <select
                       value={formData.division_id || ''}
                       onChange={(e) => setFormData({ ...formData, division_id: e.target.value })}
@@ -407,31 +468,31 @@ const SistemaEscolar = () => {
                     </select>
                   </div>
 
-                  <div className="form-group">
-                    <label>Materia / Lección</label>
-                    <input type="text" value={formData.materia || ''} onChange={(e) => setFormData({ ...formData, materia: e.target.value })} placeholder="Ej: Fundamentos de Fe" required />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Materia / Lección</label>
+                    <input type="text" value={formData.materia || ''} onChange={(e) => setFormData({ ...formData, materia: e.target.value })} placeholder="Ej: Fundamentos de Fe" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} required />
                   </div>
 
-                  <div className="form-group">
-                    <label>Horario</label>
-                    <input type="text" value={formData.horario || ''} onChange={(e) => setFormData({ ...formData, horario: e.target.value })} placeholder="Ej: Domingos 10:00 AM" />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Horario</label>
+                    <input type="text" value={formData.horario || ''} onChange={(e) => setFormData({ ...formData, horario: e.target.value })} placeholder="Ej: Domingos 10:00 AM" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
                   </div>
 
-                  <div className="form-group">
-                    <label>Aula</label>
-                    <input type="text" value={formData.aula || ''} onChange={(e) => setFormData({ ...formData, aula: e.target.value })} placeholder="Ej: Salón Principal" />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Aula</label>
+                    <input type="text" value={formData.aula || ''} onChange={(e) => setFormData({ ...formData, aula: e.target.value })} placeholder="Ej: Salón Principal" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
                   </div>
 
-                  <div className="form-group">
-                    <label>Código Virtual</label>
-                    <input type="text" value={formData.codigo_virtual || ''} onChange={(e) => setFormData({ ...formData, codigo_virtual: e.target.value })} placeholder="Ej: 105967" />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Código Virtual</label>
+                    <input type="text" value={formData.codigo_virtual || ''} onChange={(e) => setFormData({ ...formData, codigo_virtual: e.target.value })} placeholder="Ej: 105967" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
                   </div>
                 </>
               )}
 
-              <div className="modal-footer">
-                <button type="button" className="btn-secondary" onClick={() => setModalTipo(null)}>Cancelar</button>
-                <button type="submit" className="btn-orange">Guardar</button>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                <button type="button" onClick={() => setModalTipo(null)} style={{ padding: '10px 16px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#f1f5f9', cursor: 'pointer', fontWeight: '500' }}>Cancelar</button>
+                <button type="submit" className="btn-orange" style={{ padding: '10px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: '500' }}>Guardar</button>
               </div>
             </form>
           </div>
