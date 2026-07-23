@@ -17,12 +17,55 @@ const ColoringGame = ({ gameData }) => {
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
-  const templateImageRef = useRef(null); // 🧠 Guardamos la plantilla limpia en memoria
+  const templateImageRef = useRef(null);
+
+  // 🧠 Historial de estados (Undo) específico para el botón limpiar
+  const [history, setHistory] = useState([]);
 
   const [dimensions, setDimensions] = useState({ width: 320, height: 320 });
   const [currentImgUrl, setCurrentImgUrl] = useState('');
 
-  // Configuración de dimensiones y redimensionamiento sin perder el progreso del dibujo
+  // 📸 Función para guardar un snapshot del estado actual en el historial
+  const saveToHistory = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dataUrl = canvas.toDataURL('image/png');
+    setHistory(prev => [...prev.slice(-10), dataUrl]); // Guardamos hasta los últimos 10 estados
+  };
+
+  // Función principal para renderizar plantilla y opcionalmente trazos encima de forma inteligente
+  const renderTemplateToCanvas = (customWidth, customHeight, savedDataUrl = null) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const w = customWidth || canvas.width;
+    const h = customHeight || canvas.height;
+    if (w <= 0 || h <= 0) return;
+
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+
+    // 1. Fondo blanco inicial
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, w, h);
+
+    // 2. Primero pintamos la plantilla limpia de base
+    if (templateImageRef.current) {
+      ctx.drawImage(templateImageRef.current, 0, 0, w, h);
+    }
+
+    // 3. Si hay trazos previos (o un estado guardado), los escalamos y superponemos encima sin perderlos al redimensionar
+    if (savedDataUrl) {
+      const savedImg = new Image();
+      savedImg.onload = () => {
+        ctx.drawImage(savedImg, 0, 0, w, h);
+      };
+      savedImg.src = savedDataUrl;
+    }
+  };
+
+  // Configuración de dimensiones y carga inicial de imagen
   useEffect(() => {
     if (!pages.length) return;
     const page = pages[activePageIdx];
@@ -56,7 +99,6 @@ const ColoringGame = ({ gameData }) => {
       const finalW = Math.round(w * scale);
       const finalH = Math.round(h * scale);
 
-      // 💾 Guardamos lo que ya estaba pintado antes de cambiar el tamaño del canvas
       const currentCanvas = canvasRef.current;
       let savedDataUrl = null;
       if (currentCanvas && currentCanvas.width > 0 && currentCanvas.height > 0) {
@@ -65,29 +107,8 @@ const ColoringGame = ({ gameData }) => {
 
       setDimensions({ width: finalW, height: finalH });
 
-      // Esperamos a que el DOM se actualice con las nuevas dimensiones para restaurar el dibujo
       setTimeout(() => {
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-        canvas.width = finalW;
-        canvas.height = finalH;
-        const ctx = canvas.getContext('2d');
-
-        // Fondo blanco inicial
-        ctx.fillStyle = '#FFFFFF';
-        ctx.fillRect(0, 0, finalW, finalH);
-
-        if (savedDataUrl) {
-          // Si ya había trazos previos, reescalamos el progreso guardado al nuevo tamaño
-          const savedImg = new Image();
-          savedImg.onload = () => {
-            ctx.drawImage(savedImg, 0, 0, finalW, finalH);
-          };
-          savedImg.src = savedDataUrl;
-        } else if (templateImageRef.current) {
-          // 💡 Pintamos la plantilla limpia desde la primera carga de forma inmediata
-          ctx.drawImage(templateImageRef.current, 0, 0, finalW, finalH);
-        }
+        renderTemplateToCanvas(finalW, finalH, savedDataUrl);
       }, 50);
     };
 
@@ -112,6 +133,10 @@ const ColoringGame = ({ gameData }) => {
     e.preventDefault();
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    // 💾 Guardamos estado antes de empezar un nuevo trazo para que el botón limpiar funcione como "Deshacer reciente"
+    saveToHistory();
+
     const ctx = canvas.getContext('2d');
     const { x, y } = getPos(e);
 
@@ -126,7 +151,6 @@ const ColoringGame = ({ gameData }) => {
     }
 
     if (tool === 'eraser') {
-      // 🧽 Borrador inteligente: borra el color y restaura el trozo de línea negra correspondiente
       ctx.globalCompositeOperation = 'source-over';
       const size = brushSize * 1.5;
 
@@ -185,20 +209,29 @@ const ColoringGame = ({ gameData }) => {
     setFinished(true);
   };
 
-  // 🧹 Botón limpiar: Restaura el lienzo completo con la plantilla limpia original
+  // ↩️ Botón limpiar ahora actúa como "Deshacer lo último hecho" usando el historial
   const clearCanvas = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    if (templateImageRef.current) {
-      ctx.drawImage(templateImageRef.current, 0, 0, canvas.width, canvas.height);
+    if (history.length === 0) {
+      // Si no hay historial, simplemente dejamos la plantilla limpia
+      renderTemplateToCanvas(dimensions.width, dimensions.height, null);
+      setFinished(false);
+      return;
     }
 
-    setFinished(false);
+    const previousStateUrl = history[history.length - 1];
+    setHistory(prev => prev.slice(0, prev.length - 1));
+
+    const img = new Image();
+    img.onload = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+    };
+    img.src = previousStateUrl;
   };
 
   const downloadCanvas = () => {
@@ -251,7 +284,6 @@ const ColoringGame = ({ gameData }) => {
         padding: '0.6rem'
       } : {})
     }}>
-      {/* Cabecera principal compacta */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', maxWidth: '500px' }}>
         <h3 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#FF69B4', margin: 0, textShadow: '1px 1px 0 #fff' }}>
           {gameData?.title || 'Coloreando la Biblia'}
@@ -263,7 +295,6 @@ const ColoringGame = ({ gameData }) => {
         )}
       </div>
 
-      {/* Selector de Galería y Título activo */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
         {pages.length > 1 && (
           <button
@@ -291,7 +322,6 @@ const ColoringGame = ({ gameData }) => {
         </span>
       </div>
 
-      {/* Paleta de colores + Selector de color personalizado */}
       <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', maxWidth: '500px' }}>
         {palette.map((c) => (
           <button
@@ -311,7 +341,6 @@ const ColoringGame = ({ gameData }) => {
           />
         ))}
 
-        {/* 🎨 Selector de color libre (Custom Color Picker) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', marginLeft: '0.2rem', background: '#FFF', padding: '0.1rem 0.3rem', borderRadius: '999px', border: '2px solid #FF69B4' }}>
           <input
             type="color"
@@ -332,7 +361,6 @@ const ColoringGame = ({ gameData }) => {
         </div>
       </div>
 
-      {/* Herramientas de dibujo y tamaños */}
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
         <div style={{ display: 'flex', gap: '0.2rem', alignItems: 'center', padding: '0.2rem', background: '#FFF', borderRadius: '0.6rem', border: '2px solid #FF69B4' }}>
           <button
@@ -397,7 +425,6 @@ const ColoringGame = ({ gameData }) => {
         )}
       </div>
 
-      {/* Contenedor del lienzo con el botón flotante de pantalla completa integrado en la esquina */}
       <div
         ref={containerRef}
         style={{
@@ -432,7 +459,6 @@ const ColoringGame = ({ gameData }) => {
           }}
         />
 
-        {/* 🔍 Botón flotante justo en la esquina superior derecha */}
         <button
           onClick={() => setIsFullscreen(!isFullscreen)}
           title={isFullscreen ? "Minimizar" : "Pantalla completa"}
@@ -459,7 +485,6 @@ const ColoringGame = ({ gameData }) => {
         </button>
       </div>
 
-      {/* Botones de acción inferiores */}
       <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap', justifyContent: 'center', paddingBottom: isFullscreen ? '1rem' : '0' }}>
         <button
           onClick={clearCanvas}
@@ -478,7 +503,7 @@ const ColoringGame = ({ gameData }) => {
             boxShadow: '0 3px 0px #c71585'
           }}
         >
-          <RotateCcw size={14} /> Limpiar
+          <RotateCcw size={14} /> Deshacer / Limpiar
         </button>
         <button
           onClick={downloadCanvas}
@@ -501,7 +526,6 @@ const ColoringGame = ({ gameData }) => {
         </button>
       </div>
 
-      {/* Modal Galería de Dibujos */}
       {isGalleryOpen && (
         <div style={{
           position: 'fixed',
@@ -608,7 +632,6 @@ const ColoringGame = ({ gameData }) => {
   );
 };
 
-// Helpers de relleno y conversión de color con restricciones de bordes
 function hexToRgba(hex) {
   hex = hex.replace('#', '');
   if (hex.length === 3) hex = hex.split('').map(c => c + c).join('');
