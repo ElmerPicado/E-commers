@@ -83,7 +83,7 @@ const SistemaEscolar = () => {
         } else {
           await supabase.from('asignaciones').insert([formData]);
         }
-        mostrarAlerta('success', 'Asignación guardada exitosamente.');
+        mostrarAlerta('success', 'Asignación de Aula Virtual guardada exitosamente.');
       }
       setModalTipo(null);
       setFormData({});
@@ -111,14 +111,14 @@ const SistemaEscolar = () => {
 
   return (
     <div className="sistema-escolar-container">
-      {/* --- BARRA LATERAL (SIDEBAR) --- */}
-      <aside className="admin-sidebar">
-        <div className="sidebar-logo">
+      {/* --- BARRA LATERAL (SIDEBAR) CON EDUCONTROL EN NARANJA --- */}
+      <aside className="admin-sidebar" style={{ background: '#0f172a' }}>
+        <div className="sidebar-logo" style={{ background: '#f97316', color: '#ffffff', padding: '16px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Shield size={22} /> EduControl
         </div>
 
-        <p className="sidebar-section-title">Navegación Principal</p>
-        <ul className="sidebar-nav">
+        <p className="sidebar-section-title" style={{ padding: '0 16px', margin: '16px 0 8px 0', fontSize: '11px', textTransform: 'uppercase', color: '#94a3b8' }}>Navegación Principal</p>
+        <ul className="sidebar-nav" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           <li>
             <a href="#dashboard" className={activeTab === 'dashboard' ? 'active' : ''} onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); }}>
               <LayoutDashboard size={18} /> Panel Global
@@ -206,12 +206,12 @@ const SistemaEscolar = () => {
                 </article>
               </section>
 
-              {/* Sección de Gestión de Asignaciones */}
+              {/* Sección de Gestión de Asignaciones y Aula Virtual */}
               <section className="admin-management-section">
                 <div className="section-header">
                   <div>
-                    <h2 className="section-title">Gestión de Clases del Ministerio</h2>
-                    <p className="section-subtitle">Administra maestros de Niños, Adolescentes y Jóvenes</p>
+                    <h2 className="section-title">Gestión de Clases y Aula Virtual</h2>
+                    <p className="section-subtitle">Control total para agregar y administrar contenidos del Aula Virtual</p>
                   </div>
                   <div className="header-actions">
                     <button className="btn-black" onClick={() => { setModalTipo('division'); setFormData({}); setEditandoId(null); }}>
@@ -221,7 +221,7 @@ const SistemaEscolar = () => {
                       <PlusCircle size={16} /> + Nuevo Maestro
                     </button>
                     <button className="btn-orange" onClick={() => { setModalTipo('asignacion'); setFormData({}); setEditandoId(null); }}>
-                      <CalendarDays size={16} /> Asignar Clase
+                      <CalendarDays size={16} /> + Agregar al Aula Virtual
                     </button>
                   </div>
                 </div>
@@ -229,7 +229,7 @@ const SistemaEscolar = () => {
                 {loading ? (
                   <div className="admin-loading">Cargando asignaciones...</div>
                 ) : asignaciones.length === 0 ? (
-                  <div className="admin-empty">No hay clases programadas actualmente.</div>
+                  <div className="admin-empty">No hay clases programadas actualmente en el Aula Virtual.</div>
                 ) : (
                   <table className="assignments-table">
                     <thead>
@@ -271,7 +271,7 @@ const SistemaEscolar = () => {
                             <td>
                               <div className="location-info">
                                 <span className="location-room">📍 {a.aula || 'Salón Principal'}</span>
-                                <span className="location-code">🔑 Código: {a.codigo_virtual || 'N/A'}</span>
+                                <span className="location-code" style={{ fontWeight: 'bold', color: '#ea580c' }}>🔑 Código: {a.codigo_virtual || 'N/A'}</span>
                               </div>
                             </td>
                             <td>
@@ -294,13 +294,13 @@ const SistemaEscolar = () => {
             </>
           )}
 
-          {/* VISTA 2: DIRECTORIO DE MAESTROS */}
+          {/* VISTA 2: DIRECTORIO DE MAESTROS Y CREDENCIALES VISIBLES */}
           {activeTab === 'maestros' && (
             <section className="admin-management-section">
               <div className="section-header">
                 <div>
                   <h2 className="section-title">Directorio de Maestros Registrados</h2>
-                  <p className="section-subtitle">Listado del personal activo habilitado en el sistema</p>
+                  <p className="section-subtitle">Listado del personal activo y control de contraseñas de acceso</p>
                 </div>
                 <button className="btn-black" onClick={() => { setModalTipo('maestro'); setFormData({}); setEditandoId(null); }}>
                   <PlusCircle size={16} /> + Nuevo Maestro
@@ -318,7 +318,11 @@ const SistemaEscolar = () => {
                         <span style={{ fontSize: '13px', color: '#64748b', wordBreak: 'break-all' }}>{m.email}</span>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '10px', marginTop: '10px', width: '100%', borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
+                    {/* Contraseña visible para el administrador */}
+                    <div style={{ width: '100%', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0', fontSize: '12px', color: '#334155' }}>
+                      <strong>Contraseña:</strong> <span style={{ fontFamily: 'monospace', color: '#ea580c', fontWeight: 'bold' }}>{m.password || 'No asignada'}</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '5px', width: '100%', borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
                       <button className="btn-black" style={{ flex: 1, padding: '6px', fontSize: '12px' }} onClick={() => { setModalTipo('maestro'); setFormData(m); setEditandoId(m.id); }}>
                         Editar
                       </button>
@@ -332,13 +336,13 @@ const SistemaEscolar = () => {
             </section>
           )}
 
-          {/* VISTA 3: DIVISIONES / CLASES */}
+          {/* VISTA 3: DIVISIONES / CLASES CON CÓDIGO VISIBLE */}
           {activeTab === 'divisiones' && (
             <section className="admin-management-section">
               <div className="section-header">
                 <div>
                   <h2 className="section-title">Divisiones y Grupos Activos</h2>
-                  <p className="section-subtitle">Administra los grupos de edad y descripciones</p>
+                  <p className="section-subtitle">Visualiza el código generado y administra los grupos de edad</p>
                 </div>
                 <button className="btn-orange" onClick={() => { setModalTipo('division'); setFormData({}); setEditandoId(null); }}>
                   <Tags size={16} /> + Nueva División
@@ -347,8 +351,14 @@ const SistemaEscolar = () => {
               <div className="admin-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px', marginTop: '20px' }}>
                 {divisiones.map(d => (
                   <div key={d.id} className="stat-card" style={{ flexDirection: 'column', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <span className="tag-yellow" style={{ marginBottom: '8px', display: 'inline-block' }}>Orden: {d.orden}</span>
+                    <div style={{ width: '100%' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                        <span className="tag-yellow">Orden: {d.orden}</span>
+                        {/* Código visible para entrar al panel correspondiente */}
+                        <span style={{ fontSize: '11px', background: '#ffedd5', color: '#c2410c', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold', border: '1px solid #fed7aa' }}>
+                          🔑 Código: {d.codigo || d.id?.slice(0, 6) || 'N/A'}
+                        </span>
+                      </div>
                       <h3 style={{ margin: '5px 0', fontSize: '16px', color: '#1e293b' }}>{d.nombre}</h3>
                       <p style={{ fontSize: '13px', color: '#64748b' }}>{d.descripcion || 'Sin descripción asignada.'}</p>
                     </div>
@@ -368,7 +378,7 @@ const SistemaEscolar = () => {
         </main>
       </div>
 
-      {/* --- MODAL CENTRALIZADO CON POSICIONAMIENTO FORZADO AL CENTRO --- */}
+      {/* --- MODAL CENTRALIZADO --- */}
       {modalTipo && (
         <div style={{
           position: 'fixed',
@@ -396,7 +406,7 @@ const SistemaEscolar = () => {
               <h3 style={{ margin: 0, fontSize: '18px', color: '#1e293b' }}>
                 {modalTipo === 'division' && (editandoId ? 'Editar División' : 'Nueva División')}
                 {modalTipo === 'maestro' && (editandoId ? 'Editar Maestro' : 'Nuevo Maestro con Credenciales')}
-                {modalTipo === 'asignacion' && (editandoId ? 'Editar Asignación de Clase' : 'Asignar Nueva Clase')}
+                {modalTipo === 'asignacion' && (editandoId ? 'Editar Asignación' : 'Agregar Elemento al Aula Virtual')}
               </h3>
               <button onClick={() => setModalTipo(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}><X size={20} /></button>
             </div>
@@ -411,6 +421,10 @@ const SistemaEscolar = () => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Descripción</label>
                     <textarea value={formData.descripcion || ''} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} rows="3" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Código de Acceso / Identificador</label>
+                    <input type="text" value={formData.codigo || ''} onChange={(e) => setFormData({ ...formData, codigo: e.target.value })} placeholder="Ej: EXODO-01" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                     <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Orden (Número)</label>
@@ -430,8 +444,8 @@ const SistemaEscolar = () => {
                     <input type="email" value={formData.email || ''} onChange={(e) => setFormData({ ...formData, email: e.target.value })} style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} required />
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Contraseña de Acceso</label>
-                    <input type="text" value={formData.password || ''} onChange={(e) => setFormData({ ...formData, password: e.target.value })} placeholder="Contraseña para el maestro" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1' }} required />
+                    <label style={{ fontSize: '14px', fontWeight: '500', color: '#334155' }}>Contraseña de Acceso (Visible)</label>
+                    <input type="text" value={formData.password || ''} onChange={(e) => setFormData({ ...formData, password: e.target.value })} placeholder="Contraseña visible para el maestro" style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', fontWeight: 'bold', color: '#ea580c' }} required />
                   </div>
                 </>
               )}
