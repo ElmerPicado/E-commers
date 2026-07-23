@@ -802,7 +802,7 @@ body {
 .glass-card,
 .schedule-slider-card,
 .live-player-container {
-  background: rgba(14, 18, 32, 0.85) !important;
+  background-color: rgba(14, 18, 32, 0.85) !important;
   /* Sube la opacidad para que no se vea desteñido */
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
 }

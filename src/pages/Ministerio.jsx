@@ -198,7 +198,7 @@ export default function Ministerio() {
             position: 'relative'
           }}>
             <img 
-              src={ministry.hero_image} 
+              src={resolveImageUrl(ministry.hero_image)} 
               alt={ministry.name}
               style={{
                 width: '100%',
