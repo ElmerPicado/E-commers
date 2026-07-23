@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext } from 'react';
 import { Plus, Trash2, Edit, Save, Video, Image as ImageIcon, BookOpen, Upload, X, User } from 'lucide-react';
 import { GalleryContext } from '../../context/GalleryContext';
 import { v4 as uuidv4 } from 'uuid';
@@ -9,21 +9,15 @@ import 'react-quill-new/dist/quill.snow.css';
 
 export default function BlogAdmin({ triggerSuccess }) {
   const { blogPosts, addBlogPost, updateBlogPost, deleteBlogPost, livestream, updateLivestream } = useContext(GalleryContext);
-
+  
   const [isEditing, setIsEditing] = useState(false);
   const [editId, setEditId] = useState(null);
-
+  
   // History Hero Background Config
   const [historyBgUrl, setHistoryBgUrl] = useState(livestream?.historyBgUrl || '');
   const [historyBgFile, setHistoryBgFile] = useState(null);
   const [isBgUploading, setIsBgUploading] = useState(false);
-
-  // Vista previa optimizada con useMemo para la portada
-  const historyBgPreview = useMemo(() => {
-    if (historyBgFile) return URL.createObjectURL(historyBgFile);
-    return historyBgUrl || null;
-  }, [historyBgFile, historyBgUrl]);
-
+  
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
@@ -38,17 +32,10 @@ export default function BlogAdmin({ triggerSuccess }) {
   const [tRole, setTRole] = useState('');
   const [tPhoto, setTPhoto] = useState('');
   const [tPhotoFile, setTPhotoFile] = useState(null);
-
-  // Vista previa optimizada con useMemo para la foto del personaje
-  const tPhotoPreview = useMemo(() => {
-    if (tPhotoFile) return URL.createObjectURL(tPhotoFile);
-    return tPhoto || null;
-  }, [tPhotoFile, tPhoto]);
-
   const [tContent, setTContent] = useState('');
   const [tMediaItems, setTMediaItems] = useState([]); // [{ url: '', caption: '', file: null }]
   const [isUploading, setIsUploading] = useState(false);
-
+  
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
 
   const inputStyle = {
@@ -108,7 +95,7 @@ export default function BlogAdmin({ triggerSuccess }) {
       alert("El nombre y el relato son obligatorios.");
       return;
     }
-
+    
     setIsUploading(true);
     let finalPhotoUrl = tPhoto;
 
@@ -116,7 +103,7 @@ export default function BlogAdmin({ triggerSuccess }) {
     if (tPhotoFile) {
       try {
         const fileExt = tPhotoFile.name.split('.').pop();
-        const fileName = `history_${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
+        const fileName = `history_${Date.now()}_${Math.floor(Math.random()*1000)}.${fileExt}`;
         const filePath = `history/${fileName}`;
         const { error } = await supabase.storage.from('photos').upload(filePath, tPhotoFile);
         if (!error) {
@@ -136,7 +123,7 @@ export default function BlogAdmin({ triggerSuccess }) {
       if (item.file) {
         try {
           const fileExt = item.file.name.split('.').pop();
-          const fileName = `history_media_${Date.now()}_${Math.floor(Math.random() * 1000)}.${fileExt}`;
+          const fileName = `history_media_${Date.now()}_${Math.floor(Math.random()*1000)}.${fileExt}`;
           const filePath = `history/${fileName}`;
           const { error } = await supabase.storage.from('photos').upload(filePath, item.file);
           if (!error) {
@@ -196,7 +183,7 @@ export default function BlogAdmin({ triggerSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     const postData = {
       title,
       content,
@@ -216,7 +203,7 @@ export default function BlogAdmin({ triggerSuccess }) {
       await addBlogPost(postData);
       triggerSuccess('Bloque creado correctamente');
     }
-
+    
     resetForm();
   };
 
@@ -257,11 +244,11 @@ export default function BlogAdmin({ triggerSuccess }) {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-
+      
       {/* Background Config */}
       <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', margin: 0 }}>
-          <ImageIcon size={20} style={{ color: 'var(--accent-color)' }} />
+          <ImageIcon size={20} style={{ color: 'var(--accent-color)' }} /> 
           Foto de Portada General (Nuestra Historia)
         </h2>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -269,18 +256,18 @@ export default function BlogAdmin({ triggerSuccess }) {
             Esta es la foto de fondo grande que aparece en la parte superior de la página "Nuestra Historia".
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <input
-              type="text"
-              value={historyBgUrl}
+            <input 
+              type="text" 
+              value={historyBgUrl} 
               onChange={(e) => setHistoryBgUrl(e.target.value)}
               style={inputStyle}
               placeholder="URL de la imagen (o sube un archivo)..."
               disabled={historyBgFile !== null}
             />
-            <ImageUploadDropzone
-              onFileSelect={setHistoryBgFile}
-              previewUrl={historyBgPreview}
-              size="small"
+            <ImageUploadDropzone 
+              onFileSelect={setHistoryBgFile} 
+              previewUrl={historyBgFile ? URL.createObjectURL(historyBgFile) : (historyBgUrl || null)} 
+              size="small" 
             />
           </div>
           <div>
@@ -293,16 +280,16 @@ export default function BlogAdmin({ triggerSuccess }) {
 
       <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <h2 style={{ fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', margin: 0 }}>
-          <BookOpen size={20} style={{ color: 'var(--accent-color)' }} />
+          <BookOpen size={20} style={{ color: 'var(--accent-color)' }} /> 
           {isEditing ? 'Editar Bloque de Historia' : 'Crear Nuevo Bloque de Historia'}
         </h2>
-
+        
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
           <div>
             <label style={labelStyle}>Título del bloque</label>
-            <input
-              type="text"
-              value={title}
+            <input 
+              type="text" 
+              value={title} 
               onChange={(e) => setTitle(e.target.value)}
               required
               style={inputStyle}
@@ -313,10 +300,10 @@ export default function BlogAdmin({ triggerSuccess }) {
           <div>
             <label style={labelStyle}>Contenido (Texto principal)</label>
             <div style={{ background: '#ffffff', borderRadius: '0.5rem', overflow: 'hidden' }}>
-              <ReactQuill
-                theme="snow"
-                value={content}
-                onChange={setContent}
+              <ReactQuill 
+                theme="snow" 
+                value={content} 
+                onChange={setContent} 
                 style={{ color: '#000000' }}
                 placeholder="Escribe la historia o descripción de este bloque aquí..."
               />
@@ -328,23 +315,23 @@ export default function BlogAdmin({ triggerSuccess }) {
               <label style={labelStyle}>URL de Imagen (Opcional)</label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <ImageIcon size={18} style={{ position: 'absolute', left: '10px', color: 'var(--text-muted)' }} />
-                <input
-                  type="text"
-                  value={imageUrl}
+                <input 
+                  type="text" 
+                  value={imageUrl} 
                   onChange={(e) => setImageUrl(e.target.value)}
                   style={{ ...inputStyle, paddingLeft: '2.2rem' }}
                   placeholder="https://..."
                 />
               </div>
             </div>
-
+            
             <div>
               <label style={labelStyle}>URL de Video de YouTube (Opcional)</label>
               <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
                 <Video size={18} style={{ position: 'absolute', left: '10px', color: 'var(--text-muted)' }} />
-                <input
-                  type="text"
-                  value={videoUrl}
+                <input 
+                  type="text" 
+                  value={videoUrl} 
                   onChange={(e) => setVideoUrl(e.target.value)}
                   style={{ ...inputStyle, paddingLeft: '2.2rem' }}
                   placeholder="https://www.youtube.com/embed/..."
@@ -353,12 +340,12 @@ export default function BlogAdmin({ triggerSuccess }) {
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem' }}>Usa el formato /embed/ para YouTube.</p>
             </div>
           </div>
-
+          
           <div style={{ width: '150px' }}>
             <label style={labelStyle}>Orden en la línea de tiempo</label>
-            <input
-              type="number"
-              value={orderIndex}
+            <input 
+              type="number" 
+              value={orderIndex} 
               onChange={(e) => setOrderIndex(e.target.value)}
               style={inputStyle}
             />
@@ -403,7 +390,7 @@ export default function BlogAdmin({ triggerSuccess }) {
             {isAddingTestimony && (
               <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px dashed var(--accent-color)', borderRadius: '0.75rem', padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--accent-color)' }}>{editingTestimonyId ? 'Editar' : 'Nuevo'} Personaje</h4>
-
+                
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div>
                     <label style={labelStyle}>Nombre Completo</label>
@@ -421,10 +408,10 @@ export default function BlogAdmin({ triggerSuccess }) {
                     <input type="text" value={tPhoto} onChange={e => setTPhoto(e.target.value)} style={inputStyle} placeholder="https://..." disabled={tPhotoFile !== null} />
                     <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.35rem', marginBottom: '0.5rem' }}>O sube un archivo desde tu dispositivo:</p>
                     <div style={{ marginTop: '0.25rem' }}>
-                      <ImageUploadDropzone
-                        onFileSelect={setTPhotoFile}
-                        previewUrl={tPhotoPreview}
-                        size="small"
+                      <ImageUploadDropzone 
+                        onFileSelect={setTPhotoFile} 
+                        previewUrl={tPhotoFile ? URL.createObjectURL(tPhotoFile) : (tPhoto || null)} 
+                        size="small" 
                         label="Foto de Perfil"
                       />
                     </div>
@@ -437,58 +424,53 @@ export default function BlogAdmin({ triggerSuccess }) {
                         + Agregar Foto
                       </button>
                     </label>
-
+                    
                     {tMediaItems.length === 0 && (
                       <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>No hay fotos adicionales.</p>
                     )}
 
-                    {tMediaItems.map((item, idx) => {
-                      // Vista previa segura para cada elemento extra de la lista usando useMemo inline o manejando un preview optimizado
-                      const mediaItemPreview = item.file ? URL.createObjectURL(item.file) : (item.url || null);
-
-                      return (
-                        <div key={idx} style={{ background: 'rgba(0,0,0,0.1)', padding: '0.75rem', borderRadius: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                            <div style={{ flex: 1 }}>
-                              <ImageUploadDropzone
-                                onFileSelect={(file) => {
-                                  if (file) {
-                                    const newItems = [...tMediaItems];
-                                    newItems[idx].file = file;
-                                    setTMediaItems(newItems);
-                                  }
-                                }}
-                                previewUrl={mediaItemPreview}
-                                size="small"
-                                label="Foto Extra"
-                              />
-                            </div>
-                            <button type="button" onClick={() => setTMediaItems(tMediaItems.filter((_, i) => i !== idx))} className="btn btn-danger" style={{ padding: '0.5rem', alignSelf: 'center' }}><Trash2 size={16} /></button>
+                    {tMediaItems.map((item, idx) => (
+                      <div key={idx} style={{ background: 'rgba(0,0,0,0.1)', padding: '0.75rem', borderRadius: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <div style={{ flex: 1 }}>
+                            <ImageUploadDropzone 
+                              onFileSelect={(file) => {
+                                if(file) {
+                                  const newItems = [...tMediaItems];
+                                  newItems[idx].file = file;
+                                  setTMediaItems(newItems);
+                                }
+                              }}
+                              previewUrl={item.file ? URL.createObjectURL(item.file) : (item.url || null)}
+                              size="small"
+                              label="Foto Extra"
+                            />
                           </div>
-                          <input
-                            type="text"
-                            placeholder="Pie de foto (ej. Celebración del 2010)"
-                            value={item.caption}
-                            onChange={e => {
-                              const newItems = [...tMediaItems];
-                              newItems[idx].caption = e.target.value;
-                              setTMediaItems(newItems);
-                            }}
-                            style={inputStyle}
-                          />
+                          <button type="button" onClick={() => setTMediaItems(tMediaItems.filter((_, i) => i !== idx))} className="btn btn-danger" style={{ padding: '0.5rem', alignSelf: 'center' }}><Trash2 size={16} /></button>
                         </div>
-                      );
-                    })}
+                        <input 
+                          type="text" 
+                          placeholder="Pie de foto (ej. Celebración del 2010)" 
+                          value={item.caption}
+                          onChange={e => {
+                            const newItems = [...tMediaItems];
+                            newItems[idx].caption = e.target.value;
+                            setTMediaItems(newItems);
+                          }}
+                          style={inputStyle}
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
 
                 <div>
                   <label style={labelStyle}>Relato / Historia</label>
                   <div style={{ background: '#ffffff', borderRadius: '0.5rem', overflow: 'hidden' }}>
-                    <ReactQuill
-                      theme="snow"
-                      value={tContent}
-                      onChange={setTContent}
+                    <ReactQuill 
+                      theme="snow" 
+                      value={tContent} 
+                      onChange={setTContent} 
                       style={{ color: '#000000' }}
                       placeholder="Cuenta la historia desde la perspectiva de esta persona..."
                     />
@@ -507,15 +489,15 @@ export default function BlogAdmin({ triggerSuccess }) {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', borderTop: '1px solid var(--border-color)', paddingTop: '1.25rem', marginTop: '0.5rem' }}>
             {isEditing && (
-              <button
-                type="button"
+              <button 
+                type="button" 
                 onClick={resetForm}
                 className="btn btn-secondary"
               >
                 Cancelar
               </button>
             )}
-            <button
+            <button 
               type="submit"
               className="btn btn-primary"
               style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}
@@ -529,20 +511,20 @@ export default function BlogAdmin({ triggerSuccess }) {
 
       <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <h3 style={{ fontSize: '1.25rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem', margin: 0 }}>Bloques de Nuestra Historia</h3>
-
+        
         {historyPosts.length === 0 ? (
           <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '2rem 0' }}>No hay bloques creados aún en tu historia.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxHeight: '600px', overflowY: 'auto', paddingRight: '0.5rem' }}>
             {historyPosts.map((post) => (
-              <div key={post.id} style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '1rem',
-                background: 'rgba(255,255,255,0.02)',
-                border: '1px solid var(--border-color)',
+              <div key={post.id} style={{ 
+                display: 'flex', 
+                flexWrap: 'wrap', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                padding: '1rem', 
+                background: 'rgba(255,255,255,0.02)', 
+                border: '1px solid var(--border-color)', 
                 borderRadius: '0.5rem',
                 gap: '1rem'
               }}>
@@ -564,9 +546,9 @@ export default function BlogAdmin({ triggerSuccess }) {
                     </div>
                   )}
                 </div>
-
+                
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <button
+                  <button 
                     onClick={() => handleEdit(post)}
                     className="btn btn-primary"
                     style={{ padding: '0.5rem' }}
@@ -574,18 +556,18 @@ export default function BlogAdmin({ triggerSuccess }) {
                   >
                     <Edit size={16} />
                   </button>
-
+                  
                   {showDeleteConfirm === post.id ? (
                     <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '0.35rem', padding: '0.25rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
                       <span style={{ fontSize: '0.8rem', color: '#ef4444', padding: '0 0.5rem', fontWeight: 600 }}>¿Eliminar?</span>
-                      <button
+                      <button 
                         onClick={() => handleDelete(post.id)}
                         className="btn btn-danger"
                         style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', minHeight: 'auto' }}
                       >
                         Sí
                       </button>
-                      <button
+                      <button 
                         onClick={() => setShowDeleteConfirm(null)}
                         className="btn btn-secondary"
                         style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem', marginLeft: '0.25rem', minHeight: 'auto' }}
@@ -594,7 +576,7 @@ export default function BlogAdmin({ triggerSuccess }) {
                       </button>
                     </div>
                   ) : (
-                    <button
+                    <button 
                       onClick={() => setShowDeleteConfirm(post.id)}
                       className="btn btn-danger"
                       style={{ padding: '0.5rem' }}
