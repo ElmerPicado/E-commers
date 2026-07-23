@@ -8,31 +8,50 @@ import {
 
 const AulaVirtual = () => {
   const navigate = useNavigate();
+
+  // Obtenemos de forma segura el código guardado en localStorage
   const sessionData = JSON.parse(localStorage.getItem('estudiante_actual') || '{}');
-  const codigoGuardado = sessionData.division_codigo || 'GENESIS-2026'; // Fallback por defecto
+  const codigoGuardado = sessionData.division_codigo || sessionData.codigo || 'GENESIS-2026';
 
   const [divisionInfo, setDivisionInfo] = useState(null);
+  const [streamingConfig, setStreamingConfig] = useState(null);
   const [activeTab, setActiveTab] = useState('home');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDivisionData();
+    fetchData();
   }, [codigoGuardado]);
 
-  const fetchDivisionData = async () => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+
+      // 1. Consultar la información de la división / aula actual
+      const { data: divData, error: divError } = await supabase
         .from('divisiones')
         .select('*')
-        .eq('codigo_acceso', codigoGuardado)
-        .single();
+        .eq('codigo_acceso', codigoGuardado.trim())
+        .maybeSingle();
 
-      if (error) {
-        console.error('Error al obtener la división:', error.message);
-      } else if (data) {
-        setDivisionInfo(data);
+      if (divError) {
+        console.error('Error al obtener la división:', divError.message);
+      } else if (divData) {
+        setDivisionInfo(divData);
       }
+
+      // 2. Consultar la configuración general (logo institucional) de streaming_config
+      const { data: configData, error: configError } = await supabase
+        .from('streaming_config')
+        .select('*')
+        .limit(1)
+        .maybeSingle();
+
+      if (configError) {
+        console.error('Error al obtener la configuración de la iglesia:', configError.message);
+      } else if (configData) {
+        setStreamingConfig(configData);
+      }
+
     } catch (err) {
       console.error('Error inesperado:', err);
     } finally {
@@ -57,9 +76,20 @@ const AulaVirtual = () => {
           <button onClick={() => navigate(-1)} className="aula-back-btn">
             <ArrowLeft size={24} color="#1e293b" />
           </button>
-          <div className="aula-brand-icon">
-            <Heart size={28} color="#ec4899" fill="#fce7f3" />
+
+          {/* Logo institucional dinámico jalado desde streaming_config.church_logo_url */}
+          <div className="aula-brand-icon" style={{ background: 'transparent', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {streamingConfig?.church_logo_url ? (
+              <img
+                src={streamingConfig.church_logo_url}
+                alt="Logo Iglesia"
+                style={{ width: '42px', height: '42px', objectFit: 'contain', borderRadius: '8px' }}
+              />
+            ) : (
+              <Heart size={28} color="#ec4899" fill="#fce7f3" />
+            )}
           </div>
+
           <div>
             <span className="aula-brand-sub">ESCUELA DOMINICAL</span>
             <h2 className="aula-brand-title">Aula Virtual</h2>
@@ -84,7 +114,7 @@ const AulaVirtual = () => {
         <div className="aula-header-right">
           <div className="aula-code-box">
             <span className="aula-code-label">CÓDIGO CLASE</span>
-            <div className="aula-code-value">{divisionInfo?.codigo_acceso}</div>
+            <div className="aula-code-value">{divisionInfo?.codigo_acceso || codigoGuardado}</div>
           </div>
           <Shield size={28} color="#10b981" />
         </div>
@@ -98,8 +128,12 @@ const AulaVirtual = () => {
           <div className="aula-hero">
             <div className="aula-hero-content">
               <span className="aula-hero-badge">¡Bienvenidos a clase!</span>
-              <h1 className="aula-hero-title">{divisionInfo?.nombre || 'Clase Bíblica'}</h1>
-              <p className="aula-hero-desc">{divisionInfo?.descripcion || 'Creciendo juntos en la fe.'}</p>
+              <h1 className="aula-hero-title">
+                {divisionInfo?.nombre ? `Clase ${divisionInfo.nombre}` : 'Clase Bíblica'}
+              </h1>
+              <p className="aula-hero-desc">
+                {divisionInfo?.descripcion || 'Creciendo juntos en la fe.'}
+              </p>
             </div>
           </div>
         )}
