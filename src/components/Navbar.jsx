@@ -141,7 +141,7 @@ export default function Navbar() {
               borderRadius: '9999px',
               fontSize: '0.85rem',
               fontWeight: 600,
-              color: 'var(--text-primary)',
+              color: '#f8fafc',
               cursor: 'pointer'
             }}>
               Ministerios <span style={{ fontSize: '0.7rem', marginLeft: '0.25rem' }}>▼</span>
@@ -178,7 +178,7 @@ export default function Navbar() {
                     padding: '0.75rem 1rem',
                     borderRadius: '0.5rem',
                     background: isActive(`/ministerio/${m.id}`) ? 'var(--bg-surface-hover)' : 'transparent',
-                    color: isActive(`/ministerio/${m.id}`) ? m.accent_color : 'var(--text-secondary)',
+                    color: isActive(`/ministerio/${m.id}`) ? m.accent_color : '#e2e8f0',
                     transition: 'all 0.2s',
                     display: 'block',
                     textAlign: 'center'
@@ -207,7 +207,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <Home size={15} />
@@ -220,7 +220,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/historia') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/historia') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <BookOpen size={15} />
@@ -233,7 +233,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/devocionales') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/devocionales') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <BookOpen size={15} />
@@ -246,7 +246,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/recursos') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/recursos') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <Library size={15} />
@@ -259,7 +259,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/galeria') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/galeria') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <Image size={15} />
@@ -273,7 +273,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/live') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/live') ? '#3b82f6' : '#ffffff',
             position: 'relative',
             transition: 'color 0.2s'
           }}>
