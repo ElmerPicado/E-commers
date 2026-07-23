@@ -1,3 +1,5 @@
+/* AulaVirtual.css - Estilos personalizados para la plataforma cristiana metodista */
+
 .aula-container {
     max-width: 1400px;
     margin: auto;
@@ -5,21 +7,17 @@
 }
 
 .aula-hero {
-    height: 280px;
-
+    height: 380px;
     border-radius: 24px;
-
     overflow: hidden;
-
     margin-bottom: 30px;
-
     background:
-        linear-gradient(rgba(0, 0, 0, .4),
-            rgba(0, 0, 0, .5)),
-        url("https://images.unsplash.com/photo-1504052434569-70ad5836ab65");
-
+        linear-gradient(rgba(15, 23, 42, 0.3),
+            rgba(15, 23, 42, 0.75)),
+        url("https://images.unsplash.com/photo-1519834785169-98be25ec3f84?auto=format&fit=crop&q=80&w=1200");
     background-size: cover;
     background-position: center;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .aula-hero-overlay {
@@ -29,24 +27,68 @@
 }
 
 .aula-hero-content {
-    padding: 30px;
+    padding: 40px;
     color: white;
+    width: 100%;
 }
 
 .aula-code {
     display: inline-block;
     padding: 8px 16px;
     border-radius: 999px;
-    background: rgba(255, 255, 255, .2);
+    background: rgba(245, 158, 11, 0.25);
+    border: 1px solid rgba(245, 158, 11, 0.4);
     backdrop-filter: blur(10px);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    color: #fde68a;
+    text-transform: uppercase;
+    font-size: 0.75rem;
 }
 
 .aula-hero-content h1 {
     margin-top: 12px;
-    font-size: 2.5rem;
+    font-size: 2.75rem;
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.025em;
 }
 
 .aula-hero-content p {
     margin-top: 10px;
     max-width: 700px;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(241, 245, 249, 0.9);
+}
+
+.aula-verse-box {
+    margin-top: 16px;
+    padding: 16px 20px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.95);
+    font-style: italic;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
