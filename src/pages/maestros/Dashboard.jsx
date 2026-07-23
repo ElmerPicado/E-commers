@@ -9,22 +9,11 @@ import {
 const SistemaEscolar = () => {
   const navigate = useNavigate();
 
-  // Estados principales
-  constких divisionesState = useState([]);
-  const divisiones = divisionesState[0];
-  const setDivisiones = divisionesState[1];
-
-  const maestrosState = useState([]);
-  const maestros = maestrosState[0];
-  const setMaestros = maestrosState[1];
-
-  const asignacionesState = useState([]);
-  const asignaciones = asignacionesState[0];
-  const setAsignaciones = asignacionesState[1];
-
-  const loadingState = useState(true);
-  const loading = loadingState[0];
-  const setLoading = loadingState[1];
+  // Estados principales limpios y correctos
+  const [divisiones, setDivisiones] = useState([]);
+  const [maestros, setMaestros] = useState([]);
+  const [asignaciones, setAsignaciones] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Estados para alertas visuales
   const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
