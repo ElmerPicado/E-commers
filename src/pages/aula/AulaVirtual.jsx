@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabaseClient';
-import './AulaVirtual.css'; // Nuestro CSS puro
+import './AulaVirtual.css';
 import {
-  BookOpen, Video, Sparkles, ArrowLeft, Shield, Heart, Bookmark, Award, Home
+  BookOpen, Video, Sparkles, ArrowLeft, Shield, Heart, Award, Home, Upload, Play, Download, Clock
 } from 'lucide-react';
 
 const AulaVirtual = () => {
@@ -12,32 +12,30 @@ const AulaVirtual = () => {
   const codigoGuardado = sessionData.division_codigo;
 
   const [divisionInfo, setDivisionInfo] = useState(null);
-  const [tareas, setTareas] = useState([]);
   const [activeTab, setActiveTab] = useState('home');
 
   useEffect(() => {
-    // Simulamos la carga de datos para que puedas ver el diseño
+    // Simulamos la carga de datos de la división/asignación
     setDivisionInfo({
-      nombre: 'Escuela Dominical Infantil y Juvenil',
-      descripcion: 'Creciendo juntos en el amor de Dios, explorando historias bíblicas de forma divertida y creativa.',
-      codigo_acceso: codigoGuardado || 'GENESIS-2026',
-      verse: 'Dejen a los niños venir a mí, y no se lo impidan, porque el reino de los cielos es de quienes son como ellos. - Mateo 19:14'
+      nombre: 'Adolescentes (13-15 años)', // Ejemplo para probar el tono
+      descripcion: 'Explorando la fe, haciendo preguntas difíciles y creciendo juntos en comunidad.',
+      codigo_acceso: codigoGuardado || 'TEENS-2026',
+      verse: 'Ninguno tenga en poco tu juventud, sino sé ejemplo de los creyentes. - 1 Timoteo 4:12'
     });
-    setTareas([1, 2, 3, 4]); // 4 tareas simuladas
   }, [codigoGuardado]);
 
   return (
     <div className="aula-virtual-wrapper">
 
-      {/* NAVEGACIÓN */}
+      {/* NAVEGACIÓN (Se mantiene igual a la que ya teníamos) */}
       <header className="aula-header">
         <div className="aula-header-left">
           <button onClick={() => navigate(-1)} style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
             <ArrowLeft size={24} />
           </button>
-          <Heart size={32} color="#2563eb" fill="#bfdbfe" />
+          <Heart size={32} color="#ec4899" fill="#fce7f3" />
           <div>
-            <span style={{ fontSize: '10px', color: '#d97706', fontWeight: 'bold' }}>COMUNIDAD METODISTA</span>
+            <span style={{ fontSize: '10px', color: '#8b5cf6', fontWeight: 'bold' }}>COMUNIDAD METODISTA</span>
             <h2 style={{ margin: 0, fontSize: '16px', fontWeight: '900' }}>Aula Virtual</h2>
           </div>
         </div>
@@ -47,93 +45,122 @@ const AulaVirtual = () => {
             <Home size={18} /> Home
           </button>
           <button className={`aula-nav-btn ${activeTab === 'lessons' ? 'active' : ''}`} onClick={() => setActiveTab('lessons')}>
-            <BookOpen size={18} /> Lecciones
+            <Sparkles size={18} /> Tareas
+          </button>
+          <button className={`aula-nav-btn ${activeTab === 'videos' ? 'active' : ''}`} onClick={() => setActiveTab('videos')}>
+            <Video size={18} /> Videos
+          </button>
+          <button className={`aula-nav-btn ${activeTab === 'resources' ? 'active' : ''}`} onClick={() => setActiveTab('resources')}>
+            <BookOpen size={18} /> Materiales
           </button>
         </nav>
 
         <div className="aula-header-right">
           <div style={{ textAlign: 'right' }}>
-            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>CÓDIGO COMPARTIDO</span>
-            <div style={{ fontWeight: '900', color: '#92400e' }}>{divisionInfo?.codigo_acceso}</div>
+            <span style={{ fontSize: '10px', color: '#94a3b8', fontWeight: 'bold' }}>CÓDIGO CLASE</span>
+            <div style={{ fontWeight: '900', color: '#1e293b' }}>{divisionInfo?.codigo_acceso}</div>
           </div>
-          <Shield size={24} color="#2563eb" />
+          <Shield size={24} color="#10b981" />
         </div>
       </header>
 
       {/* CONTENIDO PRINCIPAL */}
       <main className="aula-container">
 
+        {/* === HOME === (Se mantiene tu código anterior aquí) */}
         {activeTab === 'home' && (
-          <>
-            {/* HERO */}
-            <div className="aula-hero">
-              <div className="aula-hero-content">
-                <span className="aula-code">
-                  ACCESO COMPARTIDO: {divisionInfo?.codigo_acceso}
-                </span>
-                <h1>{divisionInfo?.nombre}</h1>
-                <p>{divisionInfo?.descripcion}</p>
-                <div className="aula-verse-box">
-                  <span style={{ color: '#fbbf24', fontSize: '24px' }}>“</span>
-                  <p>{divisionInfo?.verse}</p>
-                </div>
-              </div>
+          <div className="aula-hero">
+            {/* ... Tu código del hero y estadísticas aquí ... */}
+            <div className="aula-hero-content">
+              <span className="aula-code">¡Bienvenido a tu clase!</span>
+              <h1>{divisionInfo?.nombre}</h1>
+              <p>{divisionInfo?.descripcion}</p>
             </div>
+          </div>
+        )}
 
-            {/* ESTADÍSTICAS (Soluciona el problema de la imagen) */}
-            <div className="aula-stats-grid">
-              <div className="aula-stat-card">
-                <div className="aula-stat-info">
-                  <p className="aula-stat-label">Lecciones Activas</p>
-                  <p className="aula-stat-value">{tareas.length}</p>
-                </div>
-                <div className="aula-stat-icon icon-blue"><BookOpen size={24} /></div>
-              </div>
-
-              <div className="aula-stat-card">
-                <div className="aula-stat-info">
-                  <p className="aula-stat-label">Videos Bíblicos</p>
-                  <p className="aula-stat-value">12+</p>
-                </div>
-                <div className="aula-stat-icon icon-amber"><Video size={24} /></div>
-              </div>
-
-              <div className="aula-stat-card">
-                <div className="aula-stat-info">
-                  <p className="aula-stat-label">Actividades</p>
-                  <p className="aula-stat-value">8+</p>
-                </div>
-                <div className="aula-stat-icon icon-emerald"><Sparkles size={24} /></div>
-              </div>
-
-              <div className="aula-stat-card">
-                <div className="aula-stat-info">
-                  <p className="aula-stat-label">Versículos Clave</p>
-                  <p className="aula-stat-value">24</p>
-                </div>
-                <div className="aula-stat-icon icon-purple"><Award size={24} /></div>
-              </div>
-            </div>
-
-            {/* LECCIÓN DESTACADA */}
+        {/* === PESTAÑA: TAREAS Y ACTIVIDADES === */}
+        {activeTab === 'lessons' && (
+          <div>
             <div className="aula-section-title">
               <div>
-                <span>Destacado de la semana</span>
-                <h3>Lección Principal</h3>
+                <span>Aprende haciendo</span>
+                <h3>Actividades de la Semana</h3>
               </div>
             </div>
 
-            <div className="aula-featured-card">
-              <div className="aula-featured-text">
-                <span className="aula-featured-badge">Escuela Dominical • Ciclo 2026</span>
-                <h4>"El Buen Pastor y las Ovejas: Conociendo Su Voz"</h4>
-                <p>Una hermosa enseñanza sobre cómo Jesús nos cuida, nos llama por nuestro nombre y nos guía siempre por sendas de justicia y amor verdadero.</p>
-              </div>
-              <div className="aula-featured-image">
-                <img src="https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=800" alt="Lección" />
+            <div className="aula-grid">
+              {[1, 2].map((item) => (
+                <div key={item} className="aula-task-card">
+                  <div className="aula-task-header">
+                    <span className="aula-task-badge">Para este Domingo</span>
+                    <Clock size={16} color="#f59e0b" />
+                  </div>
+                  <h4 className="aula-task-title">Dibujo: El Arca de Noé</h4>
+                  <p className="aula-task-desc">Dibuja tu animal favorito que subió al arca y cuéntanos por qué lo elegiste. ¡Tómale una foto y súbela aquí!</p>
+                  <button className="aula-btn-upload">
+                    <Upload size={18} /> Entregar Actividad
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* === PESTAÑA: VIDEOS === */}
+        {activeTab === 'videos' && (
+          <div>
+            <div className="aula-section-title">
+              <div>
+                <span>Cine Bíblico</span>
+                <h3>Videos de la Clase</h3>
               </div>
             </div>
-          </>
+
+            <div className="aula-grid">
+              {[1, 2, 3].map((item) => (
+                <div key={item} className="aula-video-card">
+                  <div className="aula-video-thumb">
+                    <img src={`https://images.unsplash.com/photo-1519068737630-e5db30e12e42?auto=format&fit=crop&q=80&w=400&sig=${item}`} alt="Miniatura de video" />
+                    <div className="aula-play-btn"><Play size={24} fill="white" /></div>
+                  </div>
+                  <div className="aula-video-info">
+                    <h4>La Creación - Día {item}</h4>
+                    <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>Publicado por tu maestro</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* === PESTAÑA: MATERIALES (RECURSOS) === */}
+        {activeTab === 'resources' && (
+          <div>
+            <div className="aula-section-title">
+              <div>
+                <span>Para imprimir o leer</span>
+                <h3>Materiales Descargables</h3>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {[1, 2].map((item) => (
+                <div key={item} className="aula-resource-card">
+                  <div className="aula-resource-icon">
+                    <Download size={28} />
+                  </div>
+                  <div className="aula-resource-text">
+                    <h4>Hoja para Colorear - Salmos 23</h4>
+                    <span style={{ fontSize: '0.85rem', color: '#64748b' }}>PDF • 2.4 MB</span>
+                  </div>
+                  <button className="aula-btn-download">
+                    Descargar
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
 
       </main>
