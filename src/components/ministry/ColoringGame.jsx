@@ -291,8 +291,8 @@ const ColoringGame = ({ gameData }) => {
         </span>
       </div>
 
-      {/* Paleta de colores */}
-      <div style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap', justifyContent: 'center', maxWidth: '500px' }}>
+      {/* Paleta de colores + Selector de color personalizado */}
+      <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', maxWidth: '500px' }}>
         {palette.map((c) => (
           <button
             key={c}
@@ -310,6 +310,26 @@ const ColoringGame = ({ gameData }) => {
             title={c}
           />
         ))}
+
+        {/* 🎨 Selector de color libre (Custom Color Picker) */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', marginLeft: '0.2rem', background: '#FFF', padding: '0.1rem 0.3rem', borderRadius: '999px', border: '2px solid #FF69B4' }}>
+          <input
+            type="color"
+            value={color}
+            onChange={(e) => { setColor(e.target.value); if (tool === 'eraser') setTool('brush'); }}
+            style={{
+              appearance: 'none',
+              border: 'none',
+              width: '24px',
+              height: '24px',
+              borderRadius: '50%',
+              cursor: 'pointer',
+              background: 'none'
+            }}
+            title="Elegir otro color"
+          />
+          <span style={{ fontSize: '0.7rem', fontWeight: 800, color: '#FF69B4' }}>Más</span>
+        </div>
       </div>
 
       {/* Herramientas de dibujo y tamaños */}
