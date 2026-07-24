@@ -1,5 +1,5 @@
 /* Variables de color globales basadas en tu diseño */
-:root {
+.sistema-escolar-container {
   --bg-sidebar: #0a1b2b;
   /* Azul oscuro de la barra lateral */
   --bg-main: #f8fafc;
