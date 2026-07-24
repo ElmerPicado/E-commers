@@ -399,3 +399,119 @@
   color: var(--text-secondary);
   font-size: 14px;
 }
+
+/* ==========================================================
+   CORRECCIÓN PARA EL DISEÑO DE DOS COLUMNAS (CONTENIDO + FORMULARIO)
+   ========================================================== */
+
+/* 1. Modificar la página de contenido para que actúe como un contenedor flexible en fila */
+.admin-page-content {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  padding: 30px;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+/* 2. Contenedor para envolver las tarjetas de estadísticas y tablas (columna izquierda) */
+.admin-dashboard-content,
+.admin-main-view {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* 3. Contenedor del Panel Lateral / Formulario de Creación (columna derecha) */
+.admin-sidebar-form,
+.form-panel-derecho,
+.dashboard-right-panel {
+  width: 360px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: sticky;
+  top: 90px;
+}
+
+/* Estilo para los títulos dentro del panel lateral */
+.admin-sidebar-form h3,
+.form-panel-derecho h3,
+.dashboard-right-panel h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+/* Estructura uniforme para los grupos de campos del formulario */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Control estricto de inputs, selects y textareas para evitar deformaciones */
+.admin-sidebar-form input,
+.admin-sidebar-form select,
+.admin-sidebar-form textarea,
+.form-panel-derecho input,
+.form-panel-derecho select,
+.form-panel-derecho textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.admin-sidebar-form input:focus,
+.admin-sidebar-form select:focus,
+.admin-sidebar-form textarea:focus,
+.form-panel-derecho input:focus,
+.form-panel-derecho select:focus,
+.form-panel-derecho textarea:focus {
+  border-color: var(--accent-orange);
+}
+
+/* Contenedor de botones de acción del formulario lateral (Guardar / Cancelar) */
+.form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.form-actions button,
+.form-actions .btn-orange,
+.form-actions .btn-black {
+  flex: 1;
+  justify-content: center;
+  padding: 10px;
+  font-size: 14px;
+}
