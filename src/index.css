@@ -195,14 +195,23 @@ a {
 }
 
 .glass-card {
-  background: rgba(18, 18, 22, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--border-color);
   border-radius: 1rem;
   padding: 1.5rem;
+  color: var(--text-primary);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
   transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.schedule-timeline-card {
+  color: var(--text-primary);
+}
+
+.text-white {
+  color: #ffffff !important;
 }
 
 .glass-card:hover {

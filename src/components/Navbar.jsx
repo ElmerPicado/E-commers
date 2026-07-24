@@ -141,7 +141,7 @@ export default function Navbar() {
               borderRadius: '9999px',
               fontSize: '0.85rem',
               fontWeight: 600,
-              color: 'var(--text-primary)',
+              color: '#f8fafc',
               cursor: 'pointer'
             }}>
               Ministerios <span style={{ fontSize: '0.7rem', marginLeft: '0.25rem' }}>▼</span>
@@ -178,7 +178,7 @@ export default function Navbar() {
                     padding: '0.75rem 1rem',
                     borderRadius: '0.5rem',
                     background: isActive(`/ministerio/${m.id}`) ? 'var(--bg-surface-hover)' : 'transparent',
-                    color: isActive(`/ministerio/${m.id}`) ? m.accent_color : 'var(--text-secondary)',
+                    color: isActive(`/ministerio/${m.id}`) ? m.accent_color : '#e2e8f0',
                     transition: 'all 0.2s',
                     display: 'block',
                     textAlign: 'center'
@@ -207,7 +207,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <Home size={15} />
@@ -220,7 +220,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/historia') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/historia') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <BookOpen size={15} />
@@ -233,7 +233,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/devocionales') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/devocionales') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <BookOpen size={15} />
@@ -246,7 +246,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/recursos') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/recursos') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <Library size={15} />
@@ -259,7 +259,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/galeria') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/galeria') ? '#3b82f6' : '#ffffff',
             transition: 'color 0.2s'
           }}>
             <Image size={15} />
@@ -273,7 +273,7 @@ export default function Navbar() {
             gap: '0.35rem',
             fontSize: '0.85rem',
             fontWeight: 600,
-            color: isActive('/live') ? 'var(--accent-color)' : 'var(--text-secondary)',
+            color: isActive('/live') ? '#3b82f6' : '#ffffff',
             position: 'relative',
             transition: 'color 0.2s'
           }}>
@@ -360,29 +360,29 @@ export default function Navbar() {
         }}>
           
           <div>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: '#f8fafc', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
               Navegación
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+              <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/') ? '#3b82f6' : '#ffffff' }}>
                 <Home size={20} /> Inicio
               </Link>
-              <Link to="/historia" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/historia') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+              <Link to="/historia" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/historia') ? '#3b82f6' : '#ffffff' }}>
                 <BookOpen size={20} /> Nuestra Historia
               </Link>
-              <Link to="/devocionales" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/devocionales') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+              <Link to="/devocionales" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/devocionales') ? '#3b82f6' : '#ffffff' }}>
                 <BookOpen size={20} /> Devocionales
               </Link>
             </div>
           </div>
 
           <div>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: '#f8fafc', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
               Ministerios
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               {ministries.map((m) => (
-                <Link key={m.id} to={`/ministerio/${m.id}`} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive(`/ministerio/${m.id}`) ? m.accent_color : 'var(--text-secondary)' }}>
+                <Link key={m.id} to={`/ministerio/${m.id}`} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive(`/ministerio/${m.id}`) ? m.accent_color : '#ffffff' }}>
                   {m.logo_url ? (
                     <img src={m.logo_url} alt={m.name} style={{ width: '20px', height: '20px', borderRadius: '50%', objectFit: 'contain' }} />
                   ) : (
@@ -395,27 +395,27 @@ export default function Navbar() {
           </div>
 
           <div>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: '#f8fafc', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
               Recursos
             </h4>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <Link to="/recursos" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/recursos') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+              <Link to="/recursos" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/recursos') ? '#3b82f6' : '#ffffff' }}>
                 <Library size={20} /> Biblioteca de Recursos
               </Link>
-              <Link to="/galeria" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/galeria') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+              <Link to="/galeria" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/galeria') ? '#3b82f6' : '#ffffff' }}>
                 <Image size={20} /> Galería de Fotos
               </Link>
-              <Link to="/live" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/live') ? 'var(--accent-color)' : 'var(--text-secondary)' }}>
+              <Link to="/live" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '1.1rem', fontWeight: 600, color: isActive('/live') ? '#3b82f6' : '#ffffff' }}>
                 <Tv size={20} /> En Vivo & Radio
               </Link>
             </div>
           </div>
 
           <div>
-            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: 'var(--text-primary)', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
+            <h4 style={{ fontSize: '1.1rem', fontWeight: 800, textTransform: 'uppercase', marginBottom: '1rem', color: '#f8fafc', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.5rem' }}>
               Contacto
             </h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', color: 'var(--text-secondary)', fontSize: '0.95rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', color: '#cbd5e1', fontSize: '0.95rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <MapPin size={18} /> {livestream?.churchAddress || 'Río Cuarto, Córdoba'}
               </div>
