@@ -16,13 +16,13 @@ const SistemaEscolar = () => {
   const [loading, setLoading] = useState(true);
 
   // Navegación interna por pestañas del menú lateral
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'maestros', 'divisiones', 'asignaciones'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard', 'maestros', 'divisiones'
 
   // Estados para alertas visuales
   const [alerta, setAlerta] = useState({ tipo: '', mensaje: '' });
 
   // Estados para modales de Crear/Editar
-  const [modalTipo, setModalTipo] = useState(null); // 'division', 'maestro', 'asignacion'
+  const [modalTipo, setModalTipo] = useState(null); // 'division', 'asignacion'
   const [formData, setFormData] = useState({});
   const [editandoId, setEditandoId] = useState(null);
 
@@ -315,7 +315,7 @@ const SistemaEscolar = () => {
               <div className="section-header">
                 <div>
                   <h2 className="section-title">Divisiones y Grupos Activos</h2>
-                  <p className="section-subtitle">Administra los grupos de edad y descripciones</p>
+                  <p className="section-subtitle">Administra los grupos de edad, descripciones y códigos de acceso</p>
                 </div>
                 <button className="btn-orange" onClick={() => { setModalTipo('division'); setFormData({}); setEditandoId(null); }}>
                   <Tags size={16} /> + Nueva División
@@ -325,7 +325,10 @@ const SistemaEscolar = () => {
                 {divisiones.map(d => (
                   <div key={d.id} className="stat-card" style={{ flexDirection: 'column', justifyContent: 'space-between' }}>
                     <div>
-                      <span className="tag-yellow" style={{ marginBottom: '8px', display: 'inline-block' }}>Orden: {d.orden}</span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                        <span className="tag-yellow">Orden: {d.orden}</span>
+                        {d.codigo_acceso && <span style={{ fontSize: '11px', fontFamily: 'monospace', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>{d.codigo_acceso}</span>}
+                      </div>
                       <h3 style={{ margin: '5px 0', fontSize: '16px', color: '#1e293b' }}>{d.nombre}</h3>
                       <p style={{ fontSize: '13px', color: '#64748b' }}>{d.descripcion || 'Sin descripción asignada.'}</p>
                     </div>
@@ -345,7 +348,7 @@ const SistemaEscolar = () => {
         </main>
       </div>
 
-      {/* --- MODAL CENTRALIZADO PARA CREAR / EDITAR --- */}
+      {/* --- MODAL CENTRALIZADO Y FLOTANTE PARA CREAR / EDITAR --- */}
       {modalTipo && (
         <div className="modal-overlay" onClick={() => setModalTipo(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -361,13 +364,20 @@ const SistemaEscolar = () => {
               {modalTipo === 'division' && (
                 <>
                   <div className="form-group">
-                    <label>Nombre de la División</label>
-                    <input type="text" value={formData.nombre || ''} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} required />
+                    <label>Nombre de la Clase / División</label>
+                    <input type="text" value={formData.nombre || ''} onChange={(e) => setFormData({ ...formData, nombre: e.target.value })} placeholder="Ej: Clase Génesis" required />
                   </div>
+
+                  <div className="form-group">
+                    <label>Código de Acceso (Aula Virtual)</label>
+                    <input type="text" value={formData.codigo_acceso || ''} onChange={(e) => setFormData({ ...formData, codigo_acceso: e.target.value })} placeholder="Ej: GENESIS-2026" required />
+                  </div>
+
                   <div className="form-group">
                     <label>Descripción</label>
-                    <textarea value={formData.descripcion || ''} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} rows="3" />
+                    <textarea value={formData.descripcion || ''} onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })} placeholder="Ej: Niños 6-8 años - Primeros pasos en la fe" rows="3" />
                   </div>
+
                   <div className="form-group">
                     <label>Orden (Número)</label>
                     <input type="number" value={formData.orden || ''} onChange={(e) => setFormData({ ...formData, orden: e.target.value })} />
@@ -382,7 +392,6 @@ const SistemaEscolar = () => {
                     <select
                       value={formData.maestro_id || ''}
                       onChange={(e) => setFormData({ ...formData, maestro_id: e.target.value })}
-                      style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff' }}
                       required
                     >
                       <option value="">Selecciona un maestro...</option>
@@ -397,7 +406,6 @@ const SistemaEscolar = () => {
                     <select
                       value={formData.division_id || ''}
                       onChange={(e) => setFormData({ ...formData, division_id: e.target.value })}
-                      style={{ padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', background: '#fff' }}
                       required
                     >
                       <option value="">Selecciona una división...</option>
