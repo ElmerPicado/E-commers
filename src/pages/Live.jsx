@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
-import LivePlayer from '../components/LivePlayer';
-import { Calendar, HelpCircle } from 'lucide-react';
+// import LivePlayer from '../components/LivePlayer';
+import { Calendar, HelpCircle, Sparkles } from 'lucide-react';
 import { GalleryContext } from '../context/GalleryContext';
 
 export default function Live() {
@@ -10,7 +10,7 @@ export default function Live() {
       <div className="container" style={{ maxWidth: '1000px', padding: 0 }}>
         
         {/* Header */}
-        <div className="live-header-mobile-hide" style={{ textAlign: 'center', marginBottom: '3rem', padding: '0 1rem' }}>
+        <div className="live-header-mobile-hide" style={{ textAlign: 'center', marginBottom: '2.5rem', padding: '0 1rem' }}>
           <h1 className="gradient-text" style={{ fontSize: '3rem', marginBottom: '0.5rem' }}>
             Sección Multimedia en Vivo
           </h1>
@@ -19,8 +19,44 @@ export default function Live() {
           </p>
         </div>
 
-        {/* Live player module */}
+        {/* Coming Soon Placeholder Banner */}
+        <div className="glass-card" style={{
+          padding: '3.5rem 2rem',
+          textAlign: 'center',
+          maxWidth: '750px',
+          margin: '0 auto 2.5rem auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1.25rem'
+        }}>
+          <div style={{
+            width: '70px',
+            height: '70px',
+            borderRadius: '50%',
+            background: 'rgba(217, 119, 6, 0.12)',
+            color: 'var(--accent-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '0.5rem'
+          }}>
+            <Sparkles size={36} />
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+            Transmisiones en Vivo
+          </h2>
+          <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', maxWidth: '550px', margin: 0, lineHeight: 1.6 }}>
+            Muy pronto habilitaremos este espacio para que lo puedas disfrutar.
+          </p>
+        </div>
+
+        {/* 
+        =================================================================================
+        TEMPORARILY COMMENTED OUT FOR SITE LAUNCH: Heavy functional frontend LivePlayer
+        =================================================================================
         <LivePlayer />
+        */}
 
         {/* Informative Grid */}
         <div style={{
@@ -35,7 +71,7 @@ export default function Live() {
               Programación de Transmisiones
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '0.5rem', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
-              {livestream?.scheduleText}
+              {livestream?.scheduleText || 'Horarios y transmisiones especiales próximamente.'}
             </p>
           </div>
 
@@ -45,7 +81,7 @@ export default function Live() {
               ¿Problemas de Conexión?
             </h3>
             <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.6', whiteSpace: 'pre-line' }}>
-              {livestream?.connectionText}
+              {livestream?.connectionText || 'Si tienes inconvenientes para sintonizar nuestras transmisiones, escríbenos a nuestro canal de soporte.'}
             </p>
           </div>
 
@@ -55,3 +91,4 @@ export default function Live() {
     </div>
   );
 }
+

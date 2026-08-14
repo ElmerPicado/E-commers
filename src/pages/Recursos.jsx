@@ -1,20 +1,27 @@
-import React, { useContext, useState, useMemo, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { FileText, Video, Link as LinkIcon, Search, Download, ExternalLink, Sun, Moon } from 'lucide-react';
+import { Sun, Moon, Sparkles } from 'lucide-react';
+/* Import original heavy resource icons for commented code below:
+import { FileText, Video, Link as LinkIcon, Search, Download, ExternalLink } from 'lucide-react';
+*/
 import './Recursos.css';
 
 export default function Recursos() {
-  const { resources, resourceCategories, livestream } = useContext(GalleryContext);
-
+  const { livestream } = useContext(GalleryContext);
+  /* Temporarily commented out heavy functional state & context variables for launch:
+  const { resources, resourceCategories } = useContext(GalleryContext);
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeType, setActiveType] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  */
+
   const [isLightMode, setIsLightMode] = useState(true);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
+  /* Temporarily commented out resource filtering logic for launch:
   const filteredResources = useMemo(() => {
     return resources.filter(res => {
       const matchCat = activeCategory === 'all' || res.category_id === activeCategory;
@@ -24,6 +31,7 @@ export default function Recursos() {
       return matchCat && matchType && matchSearch;
     });
   }, [resources, activeCategory, activeType, searchTerm]);
+  */
 
   const headerBgStyle = livestream?.resourcesBgUrl ? {
     backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.75)), url(${livestream.resourcesBgUrl})`,
@@ -72,7 +80,47 @@ export default function Recursos() {
 
       <div className="recursos-container">
         
-        {/* Filtros Superiores */}
+        {/* Placeholder / Banner Próximamente */}
+        <div style={{
+          background: 'var(--bg-surface)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '1.5rem',
+          padding: '4rem 2rem',
+          textAlign: 'center',
+          maxWidth: '750px',
+          margin: '2rem auto 4rem auto',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.05)',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1.25rem'
+        }}>
+          <div style={{
+            width: '70px',
+            height: '70px',
+            borderRadius: '50%',
+            background: 'rgba(217, 119, 6, 0.12)',
+            color: 'var(--accent-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '0.5rem'
+          }}>
+            <Sparkles size={36} />
+          </div>
+          <h2 style={{ fontSize: '1.75rem', fontWeight: 700, margin: 0, color: 'var(--text-primary)' }}>
+            Sección en Construcción
+          </h2>
+          <p style={{ fontSize: '1.15rem', color: 'var(--text-secondary)', maxWidth: '550px', margin: 0, lineHeight: 1.6 }}>
+            Muy pronto habilitaremos este espacio para que lo puedas disfrutar.
+          </p>
+        </div>
+
+        {/* 
+        ========================================================================
+        TEMPORARILY COMMENTED OUT FOR SITE LAUNCH: Heavy functional frontend code
+        ========================================================================
+
         <div className="recursos-filters">
           <div className="search-bar">
             <Search size={20} className="search-icon" />
@@ -93,7 +141,6 @@ export default function Recursos() {
         </div>
 
         <div className="recursos-layout">
-          {/* Sidebar de Categorías */}
           <aside className="recursos-sidebar">
             <h3>Categorías</h3>
             <div className="category-list">
@@ -115,7 +162,6 @@ export default function Recursos() {
             </div>
           </aside>
 
-          {/* Grid de Recursos */}
           <div className="recursos-grid">
             {filteredResources.length === 0 ? (
               <div className="no-resources">
@@ -150,8 +196,10 @@ export default function Recursos() {
             )}
           </div>
         </div>
+        */}
 
       </div>
     </div>
   );
 }
+
