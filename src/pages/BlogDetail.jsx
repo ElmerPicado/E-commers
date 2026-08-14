@@ -1,7 +1,7 @@
 import React, { useContext, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { GalleryContext } from '../context/GalleryContext';
-import { Calendar, ArrowLeft, Share2 } from 'lucide-react';
+import { Calendar, ArrowLeft, Share2, ExternalLink } from 'lucide-react';
 
 export default function BlogDetail() {
   const { id } = useParams();
@@ -62,7 +62,7 @@ export default function BlogDetail() {
                   if (navigator.share) {
                     navigator.share({
                       title: blog.title,
-                      text: '¡Mira este blog!',
+                      text: '¡Mira esta noticia!',
                       url: shareUrl
                     }).catch(err => console.log('Error compartiendo:', err));
                   } else {
@@ -86,6 +86,24 @@ export default function BlogDetail() {
               <Calendar size={16} /> 
               {new Date(blog.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
             </div>
+
+            {blog.external_link && (
+              <div style={{ marginBottom: '2rem', background: 'rgba(59, 130, 246, 0.08)', border: '1px solid rgba(59, 130, 246, 0.3)', padding: '1.25rem', borderRadius: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h4 style={{ margin: 0, fontSize: '1rem', color: '#fff' }}>Artículo / Enlace Externo</h4>
+                  <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Esta noticia contiene un enlace a una fuente externa.</p>
+                </div>
+                <a
+                  href={blog.external_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none' }}
+                >
+                  <ExternalLink size={16} /> Visitar Enlace Externo
+                </a>
+              </div>
+            )}
 
             <div style={{ color: 'var(--text-secondary)', fontSize: '1.1rem', lineHeight: '1.8', whiteSpace: 'pre-wrap' }}>
               {blog.content}

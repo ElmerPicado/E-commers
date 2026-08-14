@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { GalleryContext } from '../context/GalleryContext';
-import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Edit, Layers, Mail, Library, CheckCircle, Tv, Users, FileText, Lock, UserPlus, Calendar } from 'lucide-react';
+import { Settings, Image as ImageIcon, Save, LogOut, Radio, Loader2, ArrowLeft, Heart, MessageSquare, BookOpen, Clock, AlertTriangle, PlayCircle, Plus, Trash2, Edit2, Edit, Layers, Mail, Library, CheckCircle, Tv, Users, FileText, Lock, UserPlus, Calendar, Globe } from 'lucide-react';
 import ImageUploadDropzone from '../components/admin/ImageUploadDropzone';
 import { isSupabaseConfigured, supabase } from '../supabaseClient';
 import { resolveImageUrl } from '../utils/imageUtils';
@@ -11,6 +11,7 @@ import ContactFormsAdmin from '../components/admin/ContactFormsAdmin';
 import BlogAdmin from '../components/admin/BlogAdmin';
 import DevocionalesAdmin from '../components/admin/DevocionalesAdmin';
 import RecursosAdmin from '../components/admin/RecursosAdmin';
+import NoticiasAdmin from '../components/admin/NoticiasAdmin';
 
 export default function Admin() {
   const {
@@ -381,6 +382,7 @@ export default function Admin() {
             ministryId={activeMinistryId} 
             onBack={() => setActiveMinistryId(null)} 
             triggerSuccess={triggerSuccess} 
+            initialTab={activeMinTab}
           />
         </div>
       </div>
@@ -452,6 +454,7 @@ export default function Admin() {
             { id: 'church_data', label: 'Datos de la Iglesia', icon: <Settings size={16} /> },
             { id: 'welcome', label: 'Bienvenida Pastoral', icon: <MessageSquare size={16} /> },
             { id: 'home_sections', label: 'Banners de Inicio', icon: <Layers size={16} /> },
+            { id: 'noticias', label: 'Noticias y Novedades', icon: <Globe size={16} /> },
             { id: 'global_gallery', label: 'Galería General', icon: <ImageIcon size={16} />, onClick: () => { setActiveMinistryId('general'); setActiveMinTab('photos'); } },
             { id: 'global_events', label: 'Eventos Generales', icon: <Calendar size={16} />, onClick: () => { setActiveMinistryId('general'); setActiveMinTab('activities'); } },
             { id: 'ministries', label: 'Lista de Ministerios', icon: <Users size={16} /> },
@@ -473,6 +476,10 @@ export default function Admin() {
                 cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem', transition: 'all 0.2s'
               }}
             >
+              {tab.icon} {tab.label}
+            </button>
+          ))}
+        </div>
               {tab.icon} {tab.label}
             </button>
           ))}
@@ -884,6 +891,13 @@ export default function Admin() {
         {activeTab === 'recursos' && (
           <div className="animate-fade-in">
             <RecursosAdmin triggerSuccess={triggerSuccess} />
+          </div>
+        )}
+
+        {/* TAB 11: NOTICIAS Y NOVEDADES */}
+        {activeTab === 'noticias' && (
+          <div className="animate-fade-in">
+            <NoticiasAdmin triggerSuccess={triggerSuccess} />
           </div>
         )}
       </div>

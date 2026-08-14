@@ -28,6 +28,16 @@ export const getSupabaseAdmin = () => {
   });
 };
 
+export const createTempAuthClient = () => {
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+  });
+};
+
 // Helper para llamar Edge Functions
 export const callFunction = async <T>(
   functionName: string,

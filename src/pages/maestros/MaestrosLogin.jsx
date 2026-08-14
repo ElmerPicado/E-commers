@@ -68,10 +68,15 @@ export default function MaestrosLogin() {
 
       if (data.user) {
         const { data: profile } = await supabase
-          .from('teacher_profiles')
-          .select('role, full_name')
+          .from('maestro_users')
+          .select('role, nombre, activo')
           .eq('id', data.user.id)
-          .single();
+          .maybeSingle();
+
+        if (profile && profile.activo === false) {
+          await supabase.auth.signOut();
+          throw new Error('Tu cuenta de maestro se encuentra desactivada. Contacta al administrador.');
+        }
 
         sessionStorage.setItem(
           'teacher_session',
@@ -79,12 +84,12 @@ export default function MaestrosLogin() {
             id: data.user.id,
             email: data.user.email,
             role: profile?.role || 'maestro',
-            name: profile?.full_name || 'Docente'
+            name: profile?.nombre || data.user.email
           })
         );
 
-        if (profile?.role === 'admin') {
-          navigate('/admin');
+        if (profile?.role === 'admin' || profile?.role === 'admin_maestros') {
+          navigate('/maestros/dashboard');
         } else {
           navigate('/maestros/dashboard');
         }

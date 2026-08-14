@@ -1,4 +1,4 @@
-﻿-- ==========================================================
+-- ==========================================================
 -- SCRIPT DE CONFIGURACIÓN COMPLETO PARA SUPABASE (IMR4)
 -- Copia y pega este script en el editor SQL de tu panel de Supabase
 -- ==========================================================
@@ -325,6 +325,7 @@ CREATE POLICY "Escritura pública blog_posts" ON blog_posts FOR ALL USING (true)
 
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS category TEXT DEFAULT 'historia';
 ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS video_url TEXT;
+ALTER TABLE blog_posts ADD COLUMN IF NOT EXISTS external_link TEXT;
 
 -- ==========================================================
 -- ACTUALIZACIÓN DE ESQUEMA (V6: Administradores)

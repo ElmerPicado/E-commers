@@ -1,6 +1,6 @@
 import React, { useContext, useState, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock, MessageCircle, ArrowRight, Share2 } from 'lucide-react';
+import { Tv, ChevronRight, Flame, Heart, Shield, Sun, Sparkles, Calendar, MapPin, Bell, Clock, MessageCircle, ArrowRight, Share2, ExternalLink } from 'lucide-react';
 import MinistryIcon from '../components/MinistryIcon';
 import { GalleryContext } from '../context/GalleryContext';
 import ContactFormModal from '../components/ContactFormModal';
@@ -953,27 +953,53 @@ export default function Home() {
                         <Calendar size={13} />
                         {new Date(blog.created_at).toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
                       </div>
-                      <Link
-                        to={`/noticia/${blog.id}`}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          color: 'var(--accent-color)',
-                          fontSize: '0.85rem',
-                          fontWeight: 700,
-                          cursor: 'pointer',
-                          padding: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.25rem',
-                          transition: 'color 0.2s ease',
-                          textDecoration: 'none'
-                        }}
-                        onMouseOver={(e) => e.currentTarget.style.color = '#fff'}
-                        onMouseOut={(e) => e.currentTarget.style.color = 'var(--accent-color)'}
-                      >
-                        Leer más <ArrowRight size={14} />
-                      </Link>
+                      {blog.external_link ? (
+                        <a
+                          href={blog.external_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--accent-color)',
+                            fontSize: '0.85rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            transition: 'color 0.2s ease',
+                            textDecoration: 'none'
+                          }}
+                          onMouseOver={(e) => e.currentTarget.style.color = '#fff'}
+                          onMouseOut={(e) => e.currentTarget.style.color = 'var(--accent-color)'}
+                        >
+                          Ver enlace <ExternalLink size={14} />
+                        </a>
+                      ) : (
+                        <Link
+                          to={`/noticia/${blog.id}`}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'var(--accent-color)',
+                            fontSize: '0.85rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            padding: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.25rem',
+                            transition: 'color 0.2s ease',
+                            textDecoration: 'none'
+                          }}
+                          onMouseOver={(e) => e.currentTarget.style.color = '#fff'}
+                          onMouseOut={(e) => e.currentTarget.style.color = 'var(--accent-color)'}
+                        >
+                          Leer más <ArrowRight size={14} />
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>

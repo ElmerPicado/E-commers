@@ -21,13 +21,13 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
     removePhotoFromAlbum
   } = useContext(GalleryContext);
 
-  const [activeTab, setActiveTab] = useState(initialTab || (ministryId === 'general' ? 'photos' : 'profile'));
+  const [activeTab, setActiveTab] = useState(initialTab || (ministryId === 'general' ? 'activities' : 'profile'));
 
   // Ministry data
   const min = ministryId === 'general'
     ? { id: 'general', name: 'Iglesia General', accent_color: '#10b981' }
     : ministries.find(m => m.id === ministryId);
-  const minActivities = activities.filter(a => a.ministry_id === ministryId);
+  const minActivities = activities.filter(a => ministryId === 'general' ? (a.ministry_id === 'general' || !a.ministry_id) : a.ministry_id === ministryId);
   // We check if album has ministry_id, if not fallback to category to match older records
   const minAlbums = albums.filter(a => (a.ministry_id || a.category) === ministryId);
 
@@ -771,11 +771,9 @@ export default function MinistryDashboardAdmin({ ministryId, onBack, triggerSucc
             <Palette size={16} /> Identidad Visual
           </button>
         )}
-        {ministryId !== 'general' && (
-          <button onClick={() => setActiveTab('activities')} className={`btn ${activeTab === 'activities' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'activities' ? 'transparent' : '', color: activeTab !== 'activities' ? 'var(--text-secondary)' : '' }}>
-            <Calendar size={16} /> Actividades ({minActivities.length})
-          </button>
-        )}
+        <button onClick={() => setActiveTab('activities')} className={`btn ${activeTab === 'activities' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'activities' ? 'transparent' : '', color: activeTab !== 'activities' ? 'var(--text-secondary)' : '' }}>
+          <Calendar size={16} /> {ministryId === 'general' ? 'Eventos Generales' : 'Actividades'} ({minActivities.length})
+        </button>
         {ministryId !== 'general' && minLayoutStyle === 'playful' && (
           <button onClick={() => setActiveTab('fun_zone')} className={`btn ${activeTab === 'fun_zone' ? 'btn-primary' : ''}`} style={{ background: activeTab !== 'fun_zone' ? 'transparent' : '', color: activeTab !== 'fun_zone' ? 'var(--text-secondary)' : '' }}>
             <Gamepad2 size={16} /> Zona de Diversión

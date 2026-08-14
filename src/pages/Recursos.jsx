@@ -44,9 +44,9 @@ export default function Recursos() {
 
   return (
     <div className={`recursos-page ${!isLightMode ? 'dark' : ''}`}>
-      
+
       {/* Floating Theme Toggle */}
-      <button 
+      <button
         onClick={() => setIsLightMode(!isLightMode)}
         style={{
           position: 'fixed',
@@ -79,7 +79,7 @@ export default function Recursos() {
       </header>
 
       <div className="recursos-container">
-        
+
         {/* Placeholder / Banner Próximamente */}
         <div style={{
           background: 'var(--bg-surface)',

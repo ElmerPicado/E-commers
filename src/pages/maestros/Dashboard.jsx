@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '../../lib/supabaseClient';
+import { supabase, createTempAuthClient } from '../../lib/supabaseClient';
 import './Dashboard.css';
 import {
   PlusCircle, BookOpen, Users, Trash2, Edit3, Save, X, Shield, CheckCircle, AlertCircle, Calendar, LayoutDashboard, CalendarDays, Tags, ChevronDown, FileText, Video
@@ -84,27 +84,61 @@ const SistemaEscolar = () => {
         mostrarAlerta('success', 'División guardada exitosamente.');
       } else if (modalTipo === 'maestro') {
         if (editandoId) {
-          await supabase.from('maestro_users').update(formData).eq('id', editandoId);
-          mostrarAlerta('success', 'Maestro actualizado correctamente.');
-        } else {
-          const { data: authData, error: authError } = await supabase.auth.signUp({
-            email: formData.email,
-            password: formData.password,
-          });
-
-          if (authError) throw authError;
-
-          const nuevoMaestro = {
-            id: authData.user ? authData.user.id : undefined,
+          const { error: updateErr } = await supabase.from('maestro_users').update({
             nombre: formData.nombre,
             email: formData.email,
             telefono: formData.telefono || null,
             whatsapp: formData.whatsapp || null,
+            role: formData.role || 'maestro'
+          }).eq('id', editandoId);
+          if (updateErr) throw updateErr;
+          mostrarAlerta('success', 'Maestro actualizado correctamente.');
+        } else {
+          if (!formData.email || !formData.password || !formData.nombre) {
+            mostrarAlerta('error', 'Por favor completa todos los campos requeridos (Nombre, Correo y Contraseña).');
+            return;
+          }
+          if (formData.password.length < 6) {
+            mostrarAlerta('error', 'La contraseña debe tener al menos 6 caracteres.');
+            return;
+          }
+
+          // Crear cliente de Auth sin persistencia de sesión para proteger la sesión del administrador
+          const tempAuth = createTempAuthClient();
+          const { data: authData, error: authError } = await tempAuth.auth.signUp({
+            email: formData.email.trim(),
+            password: formData.password,
+            options: {
+              data: {
+                nombre: formData.nombre.trim(),
+                role: formData.role || 'maestro'
+              }
+            }
+          });
+
+          if (authError) {
+            if (authError.message.includes('already registered') || authError.message.includes('already exists')) {
+              throw new Error('El correo electrónico ya se encuentra registrado en el sistema.');
+            }
+            throw authError;
+          }
+
+          const userId = authData?.user?.id;
+          if (!userId) {
+            throw new Error('No se pudo registrar la identidad del maestro en Supabase Auth.');
+          }
+
+          const nuevoMaestro = {
+            id: userId,
+            nombre: formData.nombre.trim(),
+            email: formData.email.trim(),
+            telefono: formData.telefono ? formData.telefono.trim() : null,
+            whatsapp: formData.whatsapp ? formData.whatsapp.trim() : null,
             role: formData.role || 'maestro',
             activo: true
           };
 
-          const { error: dbError } = await supabase.from('maestro_users').insert([nuevoMaestro]);
+          const { error: dbError } = await supabase.from('maestro_users').upsert([nuevoMaestro], { onConflict: 'id' });
           if (dbError) throw dbError;
 
           mostrarAlerta('success', 'Maestro creado y habilitado para iniciar sesión.');
