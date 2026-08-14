@@ -265,7 +265,7 @@ export default function Home() {
           position: 'relative',
           display: 'flex',
           alignItems: 'center',
-          backgroundImage: `linear-gradient(rgba(10, 10, 12, 0.4), rgba(10, 10, 12, 0.95)), url(${resolveImageUrl(heroSection.bg_image)})`,
+          backgroundImage: `linear-gradient(to bottom, rgba(10, 10, 12, 0.25) 0%, rgba(10, 10, 12, 0.35) 50%, rgba(10, 10, 12, 0.65) 100%), url(${resolveImageUrl(heroSection.bg_image)})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           borderBottom: '1px solid var(--border-color)'
